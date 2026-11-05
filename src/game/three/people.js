@@ -97,7 +97,7 @@ function frontOf(female) {
   };
 }
 const capsule = (r, l) => { const k = `cap${r}|${l}`; if (!shapes.has(k)) shapes.set(k, new THREE.CapsuleGeometry(r, l, 3, 8)); return shapes.get(k); };
-const isFemale = (look) => ['sari', 'ghagra', 'kira'].includes(look.lower) || ['orhni', 'aanchal', 'hijab'].includes(look.head) || ['blouse', 'choli', 'tego'].includes(look.top);
+const isFemale = (look) => look.female === true || ['sari', 'ghagra', 'kira'].includes(look.lower) || ['orhni', 'aanchal', 'hijab'].includes(look.head) || ['blouse', 'choli', 'tego'].includes(look.top);
 function mesh(g, m, parent, pos = [0, 0, 0], rot = [0, 0, 0], scale) {
   const o = new THREE.Mesh(g, m);
   o.position.set(...pos); o.rotation.set(...rot); if (scale) o.scale.set(...scale);

@@ -18,6 +18,9 @@ export default function AbroadRotations({ id, normals }) {
   useEffect(() => { import('../../data/climate/cmip6_deltas.json').then((m) => setDeltas(m.default)); }, []);
   const c = soilYields.countries[id];
   const res = useMemo(() => (c ? abroadRotations({ country: id, soil: c.soil, yields: c.yields, normals, change: deltas ? climateChange(deltas, `abroad_${id}`, 'ssp245') : null }) : null), [c, id, normals, deltas]);
+  // A farm outside the model's crops (the Nevada alfalfa pivot: a perennial, not a kharif–rabi double crop) says so
+  // instead of showing an empty card.
+  if (!c) return <p className="text-[14px] leading-7 text-ink/75">{T('এই ১০ বছরের মডেলটি দক্ষিণ এশিয়ার ধানভিত্তিক দুই-মৌসুমের ফসলচক্রের জন্য বানানো। এই খামারের ফসল বহুবর্ষজীবী আলফালফা, তাই এখানে সেটা দেখানো হচ্ছে না — মৌসুমের পরিকল্পনা পাতায় এর পানির চাহিদা আর কাটার সময় দেখুন।', 'This ten-year model is built for South Asia’s rice-based two-season rotations. This farm grows perennial alfalfa, so it is not shown here — see the Season plan page for its water need and cutting times.')}</p>;
   if (!res) return null;
   const name = (o) => `${o.cycle.map((y) => y.map((k) => L(cropAbroad(k).name)).join(' → ')).join(T(' | পরের বছর ', ' | next year '))}`;
   const straw = (o) => (o.residue === 'retain' ? T('খড় জমিতে রেখে', 'straw kept') : T('খড়ের বেশির ভাগ তুলে বা পুড়িয়ে', 'most straw removed or burnt'));

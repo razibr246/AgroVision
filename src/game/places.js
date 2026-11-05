@@ -224,4 +224,21 @@ export const PLACES = {
     dawn: q('ভিক্ষুরা পিণ্ড নিতে বেরিয়েছেন — চাল দিয়ে তারপর মাঠে।', 'The monks are out on their alms round — rice for them, then the field.'),
     dusk: q('বাগানের দিকে লাল সূর্য ডুবছে। গরু ঘরে তুলি।', 'A red sun is going down towards Bagan. Time to bring the oxen in.'),
   },
+  ellen: {
+    places: [
+      { id: 'home', at: ['house', -2, 5], r: 5, name: q('খামারবাড়ি', 'The ranch house'), line: q('দাদার আমলের বাড়ি — তখন কূপে পানি পাওয়া যেত মাত্র কয়েক ফুট নিচে।', 'My grandfather’s house — back then the well found water just a few feet down.') },
+      { id: 'well', at: ['water', 0, 2], r: 5, name: q('কূপঘর', 'The well house'), line: q('প্রতি বছর পানির স্তর আরও নিচে; মিটার দেখায় এ মৌসুমে বরাদ্দের কতটা খরচ হলো।', 'The water table is lower every year; the meter shows how much of this season’s allocation is used.') },
+      { id: 'bales', at: [24, 6], r: 4.5, name: q('খড়ের বেল', 'The hay bales'), line: q('ভালো সবুজ আলফালফা খড় ঘোড়া আর গরুর খামারে বিক্রি হয়।', 'Good green alfalfa hay sells to horse and dairy farms.') },
+      { id: 'hall', at: ['safe', 3, 6], r: 5, name: q('কমিউনিটি হল', 'The community hall'), line: q('পানির পরিকল্পনা নিয়ে উপত্যকার সবাই এখানেই বসে আলোচনা করেছিল।', 'The whole valley met here to argue out the water plan.') },
+      { id: 'buyer', at: ['market', -2, -3], r: 4.5, name: q('খড়ের ক্রেতার ট্রাক', 'The hay buyer’s truck'), line: q('দাম ভালো থাকলে এখানেই বেল তুলে দিই।', 'When the price is right, I load the bales right here.') },
+    ],
+    folk: [
+      { id: 'husband', name: q('টম', 'Tom'), look: { skin: '#e0b090', hair: '#5a3a24', build: 1.05, head: 'cap', headA: '#5a6a3a', headB: '#46542e', top: 'shirt', topA: '#3a5a7a', topB: '#2a4058', lower: 'cargo', lowA: '#4a4a52', lowB: '#36363c', feet: 'shoe', feetA: '#5a3a22' }, does: 'stand', at: ['house', 3, 2], hello: q('আজ রাতে পিভট চালাব — দিনে বড্ড গরম।', 'I’ll run the pivot tonight — too hot in the day.') },
+      { id: 'rancher', name: q('প্রতিবেশী র‍্যাঞ্চার', 'The rancher next door'), look: { skin: '#c99a74', hair: '#cfc9c0', build: 1.1, head: 'cap', headA: '#8a6a3a', headB: '#6a5028', top: 'shirt', topA: '#c9a24a', topB: '#9a7a32', lower: 'cargo', lowA: '#3d5a80', lowB: '#2e4663', feet: 'shoe', feetA: '#4a2e1a' }, does: 'stand', at: ['market', -3, 2], hello: q('এ বছর আমি পানির কিছুটা অধিকার বিক্রি করলাম। তুমি?', 'I sold some of my water rights this year. You?') },
+      { id: 'extension', name: q('এক্সটেনশনের কর্মী', 'The Extension educator'), look: { skin: '#b07a52', hair: '#1d1714', build: 1, head: 'short', headA: '#1d1714', headB: '#1d1714', top: 'polo', topA: '#2f5f9e', topB: '#f4f1ea', lower: 'cargo', lowA: '#6a5a44', lowB: '#54473a', feet: 'shoe', feetA: '#3a2a1e' }, does: 'walk', route: [[-30, -10], [20, -10]], hello: q('সেইনফয়েন অর্ধেক পানিতে চলে — গবেষণা খামারে দেখতে আসুন।', 'Sainfoin gets by on far less water — come and see it at the research ranch.') },
+    ],
+    signs: { shed: { t: 'Feed & Seed' }, market: { t: 'Hay — Buying Now' }, kiosk: { t: 'UNR Extension', sub: 'Eureka County' }, safe: { t: 'Community Hall' } },
+    dawn: q('পাহাড়ের ওপারে আলো, সেজব্রাশে শিশির — ভোর হলো উপত্যকায়।', 'Light over the range, dew on the sagebrush — dawn in the valley.'),
+    dusk: q('পাহাড়ের ছায়া লম্বা হচ্ছে, বাতাস ঠান্ডা। রাতের সেচের জন্য পিভট চালু করি।', 'The range’s shadow stretches out and the air turns cold. Time to start the pivot for the night watering.'),
+  },
 };

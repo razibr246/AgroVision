@@ -10,7 +10,7 @@
 // GIBS serves each as a colour-mapped PNG; each pixel is turned back into its value with the layer's own published
 // colour map (scripts/lib/gibs.mjs), the median of the 3×3 pixels (0.05°, about 5 km) round each point.
 // Writes src/data/land/land_sat.json. Usage: npm run fetch:land
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,13 +30,17 @@ const FROM = 2001, TO = new Date().getUTCFullYear();
 
 const points = {};
 for (const id of ['godagari', 'dhamrai', 'sitakunda', 'dacope', 'bakerganj', 'gangachara', 'gowainghat']) points[id] = UPAZILAS[id].center;
-for (const c of ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar']) {
+// Every neighbouring-country and world farm built by build_neighbours.py (src/data/abroad/<country>.json).
+for (const c of readdirSync(path.join(ROOT, 'src', 'data', 'abroad')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).sort()) {
   const f = JSON.parse(readFileSync(path.join(ROOT, 'src', 'data', 'abroad', `${c}.json`))).points.farm;
   points[c] = [f.lat, f.lon];
 }
 
-function sample(img, map, [lat, lon]) {
-  const cx = Math.floor((lon - BBOX.w) / RES), cy = Math.floor((BBOX.n - lat) / RES), v = [];
+// Points outside the South Asia image (the farms beyond South Asia) get their own 3×3-pixel image at the same 0.05°.
+const inMain = ([lat, lon]) => lat > BBOX.s + RES && lat < BBOX.n - RES && lon > BBOX.w + RES && lon < BBOX.e - RES;
+const boxAround = ([lat, lon]) => ({ s: lat - 1.5 * RES, n: lat + 1.5 * RES, w: lon - 1.5 * RES, e: lon + 1.5 * RES });
+function sample(img, map, [lat, lon], box = BBOX) {
+  const cx = Math.floor((lon - box.w) / RES), cy = Math.floor((box.n - lat) / RES), v = [];
   for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
     const x = cx + dx, y = cy + dy;
     if (x < 0 || y < 0 || x >= img.w || y >= img.h) continue;
@@ -77,7 +81,14 @@ for (const [key, L] of Object.entries(LAYERS)) {
     if (done % 60 === 0) console.log(`  ${done}/${months.length}`);
     if (!img) { empty++; return; }
     for (const [id, at] of Object.entries(points)) {
+      if (!inMain(at)) continue;
       const v = sample(img, map, at);
+      if (v != null) out.points[id][key][mo] = L.to(v);
+    }
+    for (const [id, at] of Object.entries(points)) {
+      if (inMain(at)) continue;
+      const box = boxAround(at), small = await getMap(L.id, box, 3, 3, `${mo}-01`);
+      const v = small && sample(small, map, at, box);
       if (v != null) out.points[id][key][mo] = L.to(v);
     }
   });

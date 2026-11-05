@@ -98,7 +98,7 @@ function usePortraits() {
   }, []);
   return pics;
 }
-const TONE = { bangladesh: ['#2e9d5a', '#0f3d26'], india: ['#f4a23a', '#1f7a3a'], pakistan: ['#1f7a4a', '#0f3d26'], nepal: ['#c8283a', '#23407a'], bhutan: ['#f2b23a', '#d0572a'], myanmar: ['#f2c21b', '#2e8b57'] };
+const TONE = { bangladesh: ['#2e9d5a', '#0f3d26'], india: ['#f4a23a', '#1f7a3a'], pakistan: ['#1f7a4a', '#0f3d26'], nepal: ['#c8283a', '#23407a'], bhutan: ['#f2b23a', '#d0572a'], myanmar: ['#f2c21b', '#2e8b57'], usa: ['#3c78c8', '#1f3d6e'] };
 const stage = (cc) => `radial-gradient(110% 80% at 50% 85%, ${TONE[cc][0]}55, transparent 60%), linear-gradient(180deg, #0f2418 0%, #163a26 55%, ${TONE[cc][1]} 140%)`;
 
 function SelectScreen({ who, setWho, onGo, onResume }) {

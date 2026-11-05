@@ -5,12 +5,12 @@ import { FARMER_IDS, REGIONS } from './regions.js';
 const LOOK_FIELDS = ['skin', 'hair', 'build', 'head', 'top', 'topA', 'lower', 'lowA', 'feet', 'feetA'];
 const COLORS = ['skin', 'hair', 'topA', 'lowA', 'feetA'];
 const HEADS = new Set(['bare', 'cap', 'gamcha', 'gaungbaung', 'hijab', 'orhni', 'short', 'sindhi', 'tupi', 'turban']);
-const TOPS = new Set(['blouse', 'choli', 'eingyi', 'fotua', 'kameez', 'kurta', 'polo', 'sweater', 'tego']);
+const TOPS = new Set(['blouse', 'choli', 'eingyi', 'fotua', 'kameez', 'kurta', 'polo', 'shirt', 'sweater', 'tego']);
 const LOWERS = new Set(['cargo', 'dhoti', 'ghagra', 'kira', 'longyi', 'lungi', 'pyjama', 'sari', 'shalwar']);
 const FEET = new Set(['jutti', 'sandal', 'shoe', 'sneaker']);
 
 test('all twelve game farmers have complete, renderable regional looks', () => {
-  assert.equal(FARMER_IDS.length, 12);
+  assert.ok(FARMER_IDS.length >= 12);
   for (const id of FARMER_IDS) {
     const farmer = REGIONS[id]?.farmer;
     assert.ok(farmer, `${id} has farmer data`);

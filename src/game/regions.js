@@ -448,6 +448,95 @@ const ABROAD = {
       win: q('ভালো মৌসুম! এবার বিহারে দান দেব।', 'A good season! Time for an offering at the monastery.'),
     },
   },
+
+  // Beyond South Asia: Diamond Valley, Nevada — the alfalfa valley on the NASA challenge brief's own photo. A sample
+  // person; the water facts are the valley's (src/data/abroad.js usa).
+  ellen: {
+    country: 'usa', flag: '🇺🇸', dinner: { bn: 'বিফ স্টু আর কর্নব্রেড', en: 'beef stew and cornbread' }, cur: '$',
+    farmer: {
+      bn: 'এলেন হার্টলি', en: 'Ellen Hartley', local: 'Ellen Hartley', age: 46,
+      trait: q('হিসাবি, মাটি আর পানির খোঁজ রাখেন', 'Careful with numbers, watches the soil and water'),
+      skill: q('উপগ্রহে পানির হিসাব: পাম্প চালানোর আগে ফোনে দেখে নেন', 'Satellite water data: checks it on the phone before pumping'),
+      dress: [q('নীল বেসবল ক্যাপ', 'Blue baseball cap'), q('চেক শার্ট', 'Checked work shirt'), q('জিন্সের কাজের প্যান্ট', 'Denim work trousers'), q('চামড়ার বুট', 'Leather work boots')],
+      speed: 3.9, run: 6.4, can: 7, sellBonus: 0, scanner: true, alertLead: 0, idle: 'phone',
+      look: {
+        face: 'ellen', female: true,
+        skin: '#e2b48f', hair: '#7a4a2a', build: 0.96,
+        head: 'cap', headA: '#2f5f9e', headB: '#22467a',
+        top: 'shirt', topA: '#b0453a', topB: '#7d2e27',
+        lower: 'cargo', lowA: '#3d5a80', lowB: '#2e4663',
+        feet: 'shoe', feetA: '#6b4a2e',
+      },
+    },
+    place: {
+      bn: 'ডায়মন্ড ভ্যালি, ইউরেকা কাউন্টি, নেভাডা', en: 'Diamond Valley, Eureka County, Nevada', area: q('দেশের সবচেয়ে শুকনো রাজ্যের খড়ের উপত্যকা', 'A hay valley in the driest state'),
+      local: [q('পপলারের বাতাস-আড়াল', 'A poplar windbreak'), q('গোল খড়ের বেল', 'Round hay bales'), q('সেন্টার পিভটের লম্বা পাইপ', 'The long arm of the centre pivot'), q('সেজব্রাশের ধূসর-সবুজ মাঠ', 'Grey-green sagebrush flats'), q('দুই পাশে ন্যাড়া পাহাড়', 'Bare ranges on both sides')],
+      hazard: q('মাটির নিচের পানি ফুরোচ্ছে, পাম্পিং কমানোর আইন, গ্রীষ্মের বজ্রঝড়', 'Groundwater running down, legal pumping cuts, summer thunderstorms'),
+    },
+    names: { shed: q('ফিড অ্যান্ড সিড দোকান', 'Feed and seed store'), water: q('কূপঘর (পিভটের পাম্প)', 'Well house (the pivot pump)'), market: q('কাউন্টি রোডে খড়ের ক্রেতা', 'Hay buyer on the county road'), kiosk: q('এক্সটেনশন অফিস', 'Extension office'), safe: q('কমিউনিটি হল', 'Community hall') },
+    world: 'nevada',
+    crops: {
+      alfalfa: { bn: 'আলফালফা', en: 'Alfalfa', kind: 'alfalfa', cost: 20, price: 70, grow: 34, thirst: 1.3, pest: 0.35, soil: true },
+      sainfoin: { bn: 'সেইনফয়েন', en: 'Sainfoin', kind: 'sainfoin', cost: 18, price: 55, grow: 32, thirst: 0.6, pest: 0.15, soil: true },
+      triticale: { bn: 'ট্রিটিকেল', en: 'Triticale', kind: 'wheat', cost: 12, price: 40, grow: 30, thirst: 0.7, pest: 0.2 },
+      teff: { bn: 'টেফ ঘাস', en: 'Teff grass', kind: 'wheat', cost: 10, price: 38, grow: 24, thirst: 0.75, pest: 0.15 },
+    },
+    glut: 'alfalfa',
+    pestWord: q('আলফালফা উইভিল', 'alfalfa weevil'),
+    storm: { kind: 'hail', bn: 'গ্রীষ্মের বজ্রঝড় আর শিলা', en: 'Summer thunderstorm and hail' },
+    quiz: {
+      plant: {
+        q: q('পানির অধিকারের কিছুটা বিক্রি করেছেন; একটা খেত এখন আর সেচ পাবে না। খেতটা নিয়ে কী করবেন?', 'You sold some water rights; one field won’t be irrigated any more. What do you do with it?'),
+        options: [q('ন্যাড়া ফেলে রাখা — পানি তো নেই', 'Leave it bare — there’s no water anyway'), ok('বৃষ্টিনির্ভর স্থায়ী ঘাস বা কম-পানির ফসল দিয়ে মাটি ঢেকে রাখা', 'Cover it with rain-fed perennial grass or a low-water crop'), q('প্রতি বছর চাষ দিয়ে আগাছা মারা', 'Plough it every year to kill the weeds')],
+        why: q('শুকনো ন্যাড়া মাটি বাতাসে উড়ে যায়, ধুলোঝড় হয়, আগাছা আসে। ঢাকা মাটি জৈব পদার্থ আর অণুজীব বাঁচায়।', 'Dry bare soil blows away, raises dust storms and lets weeds in. Covered soil keeps its organic matter and its microbes.'),
+        perk: 'mulch', perkText: q('মাটি ঢাকা: গরমে মাটি অর্ধেক ধীরে শুকাবে', 'Covered soil: dries half as fast in the heat'),
+      },
+      water: {
+        q: q('এ বছর পাম্পিং বরাদ্দ আরও কমেছে। একই খেতে কম পানিতে চলতে কী করবেন?', 'This year’s pumping allocation is cut again. How do you manage the same field on less water?'),
+        options: [q('আগের মতোই পাম্প চালানো, শেষে দেখা যাবে', 'Pump as before and see at the end'), ok('উপগ্রহে (OpenET) জমির পানি খরচ দেখে, নিচু নজলে রাতে সেচ', 'Track the field’s water use by satellite (OpenET) and irrigate at night from low nozzles'), q('দুপুরে সেচ, তখন গাছের সবচেয়ে দরকার', 'Irrigate at midday, when the crop needs it most')],
+        why: q('উপগ্রহের হিসাব ডায়মন্ড ভ্যালিতে মিটারের মাপের ৭%-এর মধ্যে মিলেছে। রাতে নিচু নজলে কম পানি বাতাসে উবে যায়।', 'Satellite estimates came within 7% of Diamond Valley’s meters. At night, low nozzles lose less water to the air.'),
+        perk: 'drip', perkText: q('নিচু নজল: সব জমি ৩০% ধীরে শুকাবে', 'Low nozzles: every plot dries 30% slower'),
+      },
+      heat: {
+        q: q('জুলাইয়ে তাপপ্রবাহ, দুপুরে বাতাস শুকনো আর গরম। কী করবেন?', 'A July heatwave, with hot dry air at midday. What do you do?'),
+        options: [ok('রাত আর ভোরে সেচ, দুপুরে পিভট বন্ধ', 'Irrigate at night and dawn, pivot off at midday'), q('দুপুরে বেশি পানি দেওয়া', 'Put on extra water at midday'), q('পরের কাটা আগেভাগে সেরে ফেলা', 'Rush the next cutting early')],
+        why: q('গরম দুপুরে স্প্রিংকলারের পানির বড় অংশ গাছে পৌঁছানোর আগেই উবে যায়।', 'In the midday heat much of the sprinkler water evaporates before it reaches the crop.'),
+        perk: 'cool', perkText: q('রাতের সেচ: গরমে মাটি অর্ধেক ধীরে শুকাবে', 'Night irrigation: soil dries half as fast in the heat'),
+      },
+      pests: {
+        q: q('বসন্তে আলফালফার ডগা ঝাঁঝরা — উইভিলের লার্ভা। কী করবেন?', 'In spring the alfalfa tips are riddled — weevil larvae. What do you do?'),
+        options: [q('সব খেতে সঙ্গে সঙ্গে কড়া ওষুধ', 'Spray every field straight away with something strong'), ok('জাল দিয়ে গুনে দেখা, সংখ্যা সীমা পেরোলে এক্সটেনশনের পরামর্শে আগাম কাটা বা নির্দিষ্ট ওষুধ', 'Sweep-net to count them; past the threshold, cut early or treat as Extension advises'), q('কিছু না করা, নিজে থেকে চলে যাবে', 'Do nothing, they’ll go away')],
+        why: q('গুনে দেখলে বোঝা যায় ক্ষতি সত্যিই হবে কি না। আগাম কাটা অনেক সময় ওষুধ ছাড়াই উইভিল থামায়।', 'Counting tells you whether the damage is real. An early cutting often stops weevils without spraying.'),
+        perk: 'neem', perkText: q('ঠিক সময়ে ব্যবস্থা: পোকা ধীরে ছড়াবে', 'Right timing: pests spread more slowly'),
+      },
+      storm: {
+        q: q('পাহাড়ের ওপর কালো মেঘ, বজ্রঝড় আর শিলার সতর্কতা। আপনি খোলা মাঠে। কী করবেন?', 'Dark clouds over the range, a thunderstorm and hail warning. You are in the open field. What do you do?'),
+        options: [ok('খড় তুলে কমিউনিটি হলে আশ্রয়', 'Bring the hay in and shelter in the community hall'), q('পিভটের ধাতব পাইপের নিচে দাঁড়ানো', 'Stand under the pivot’s metal arm'), q('ট্রাক্টরে বসে কাজ চালানো', 'Keep working on the tractor')],
+        why: q('খোলা মাঠ আর ধাতব কাঠামোয় বজ্রপাত বেশি পড়ে। ভেজা খড়ের মান নষ্ট হয় — আগে তুলে, তারপর পাকা ঘরে।', 'Lightning strikes open ground and metal frames most. Wet hay loses its quality — bring it in, then shelter indoors.'),
+        perk: 'warn', perkText: q('আগাম সতর্কতা: আশ্রয়ে যাওয়ার সময় ১০ সেকেন্ড বেশি', 'Early warning: 10 seconds more to reach shelter'),
+      },
+      profit: glutQuiz(q('আলফালফা খড়', 'alfalfa hay'), q('খড়ের ক্রেতার কাছে', 'the hay buyer')),
+    },
+    intro: [
+      q('হাই! আমি {name}। নেভাডার ডায়মন্ড ভ্যালিতে ১২৫ একরের পিভটে আলফালফা খড় করি।', 'Hi! I’m {name}. I grow alfalfa hay on a 125-acre pivot in Diamond Valley, Nevada.'),
+      q('দেশের সবচেয়ে শুকনো রাজ্য — পানি আসে মাটির নিচ থেকে, আর উপত্যকা থেকে তোলা হয় ফেরার চেয়ে অনেক বেশি।', 'It’s the driest state — our water comes from underground, and the valley pumps far more than comes back.'),
+      q('তাই আইন করে প্রতি বছর পাম্পিং কমছে। কম পানিতে কয়টা কাটা হবে, নাকি সেইনফয়েন বা টেফের মতো কম-পানির ফসল?', 'So pumping is cut by law every year. How many cuttings on less water — or a lower-water crop like sainfoin or teff?'),
+      q('FieldShift নাসার আবহাওয়া আর উপগ্রহের পানির হিসাব মিলিয়ে সিদ্ধান্ত নিতে সাহায্য করে।', 'FieldShift brings NASA weather and satellite water data together to help me decide.'),
+      q('চলুন, কম পানিতে ভালো মৌসুম করি!', 'Let’s make a good season on less water!'),
+    ],
+    lines: {
+      hello: q('হাই! চলুন, মাঠে যাই।', 'Hi! Out to the field.'),
+      idle: q('আজকের পানির হিসাবটা ফোনে দেখে নিই…', 'Let me check today’s water numbers on my phone…'),
+      harvest: q('দারুণ সবুজ খড়! বেল বাঁধার সময়।', 'Lovely green hay! Time to bale.'),
+      heat: q('গরম আসছে — আজ রাতে সেচ দেব।', 'Heat’s coming — I’ll irrigate tonight.'),
+      pest: q('উইভিল! আগে গুনে দেখি।', 'Weevils! Let me count them first.'),
+      storm: q('পাহাড়ে বাজ পড়ছে! খড় তুলে হলে যাই।', 'Lightning over the range! Hay in, then to the hall.'),
+      dry: q('পানি শেষ — কূপঘরে যাই।', 'Out of water — to the well house.'),
+      seeds: q('বীজ শেষ — দোকানে যেতে হবে।', 'Out of seed — to the store.'),
+      hurt: q('উফ্‌… ঝড়ে খোলা মাঠে থাকা ঠিক হয়নি।', 'Ouch… I shouldn’t have been out in that storm.'),
+      win: q('দারুণ মৌসুম, আর পানিও বাঁচল!', 'A great season, and we saved water too!'),
+    },
+  },
 };
 
 // Bangladesh's seven division farmers first, then the five neighbours.

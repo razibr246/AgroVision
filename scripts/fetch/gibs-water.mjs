@@ -13,7 +13,7 @@
 // own GIBS colour map (classes of 0.25 cm and 0.01 m³/m³ or finer), and the 3×3 pixels around each point are
 // combined by their median. Docs: https://nasa-gibs.github.io/gibs-api-docs/
 import { writeFile } from 'node:fs/promises';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { UPAZILAS } from '../../src/data/upazilas.js';
@@ -31,7 +31,8 @@ const WIDTH = Math.round((BBOX.e - BBOX.w) / RES), HEIGHT = Math.round((BBOX.n -
 
 const points = {};
 for (const id of ['godagari', 'dhamrai', 'sitakunda', 'dacope', 'bakerganj', 'gangachara', 'gowainghat']) points[id] = UPAZILAS[id].center;
-for (const c of ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar']) {
+// Every neighbouring-country and world farm built by build_neighbours.py (src/data/abroad/<country>.json).
+for (const c of readdirSync(path.join(ROOT, 'src', 'data', 'abroad')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).sort()) {
   const f = JSON.parse(readFileSync(path.join(ROOT, 'src', 'data', 'abroad', `${c}.json`))).points.farm;
   points[c] = [f.lat, f.lon];
 }
@@ -51,8 +52,8 @@ function datesOf(caps, layer) {
   return out;
 }
 
-async function image(layer, date) {
-  const q = new URLSearchParams({ SERVICE: 'WMS', REQUEST: 'GetMap', VERSION: '1.3.0', LAYERS: layer, CRS: 'EPSG:4326', BBOX: `${BBOX.s},${BBOX.w},${BBOX.n},${BBOX.e}`, WIDTH, HEIGHT, FORMAT: 'image/png', TIME: date });
+async function image(layer, date, box = BBOX, width = WIDTH, height = HEIGHT) {
+  const q = new URLSearchParams({ SERVICE: 'WMS', REQUEST: 'GetMap', VERSION: '1.3.0', LAYERS: layer, CRS: 'EPSG:4326', BBOX: `${box.s},${box.w},${box.n},${box.e}`, WIDTH: width, HEIGHT: height, FORMAT: 'image/png', TIME: date });
   for (let k = 0; k < 4; k++) {
     try {
       const r = await fetch(`${WMS}?${q}`, { signal: AbortSignal.timeout(60_000) });
@@ -62,8 +63,11 @@ async function image(layer, date) {
   }
   return null;
 }
-function sample(img, map, [lat, lon]) {
-  const cx = Math.floor((lon - BBOX.w) / RES), cy = Math.floor((BBOX.n - lat) / RES), v = [];
+// Points outside the South Asia image (the farms beyond South Asia) get their own 3×3-pixel image at the same 0.05°.
+const inMain = ([lat, lon]) => lat > BBOX.s + RES && lat < BBOX.n - RES && lon > BBOX.w + RES && lon < BBOX.e - RES;
+const boxAround = ([lat, lon]) => ({ s: lat - 1.5 * RES, n: lat + 1.5 * RES, w: lon - 1.5 * RES, e: lon + 1.5 * RES });
+function sample(img, map, [lat, lon], box = BBOX) {
+  const cx = Math.floor((lon - box.w) / RES), cy = Math.floor((box.n - lat) / RES), v = [];
   for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
     const x = cx + dx, y = cy + dy;
     if (x < 0 || y < 0 || x >= img.w || y >= img.h) continue;
@@ -107,7 +111,8 @@ for (const key of ['grace', 'smap']) {
     if (!img) return;
     const month = d.slice(0, 7);
     for (const [id, at] of Object.entries(points)) {
-      const v = sample(img, map, at);
+      const box = inMain(at) ? BBOX : boxAround(at), small = inMain(at) ? null : await image(L.id, d, box, 3, 3);
+      const v = inMain(at) ? sample(img, map, at) : small && sample(small, map, at, box);
       if (v != null) ((acc[id] ??= {})[month] ??= []).push(v);
     }
   });

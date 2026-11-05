@@ -6,7 +6,7 @@ import { ageStoop, expressionFromState, idleGaze } from '../engine/motion.js';
 
 test('every one of the twelve farmers has a complete, respectful look definition', () => {
   const ids = Object.keys(REGIONS);
-  assert.equal(ids.length, 12, '12 farmers across Bangladesh and South Asia');
+  assert.ok(ids.length >= 12, 'at least 12 farmers: Bangladesh, South Asia and beyond');
   for (const id of ids) {
     const f = REGIONS[id].farmer;
     assert.ok(f.name || f.bn, `farmer ${id} has a name`);
@@ -22,7 +22,7 @@ test('every one of the twelve farmers has a complete, respectful look definition
 });
 
 test('every child has a complete profile, age between 7 and 10, and a personal story item', () => {
-  assert.equal(CHILD_IDS.length, 12, '12 children for the 12 regions');
+  assert.equal(CHILD_IDS.length, Object.keys(REGIONS).length, 'one child for every farmer');
   for (const id of CHILD_IDS) {
     const c = CHILDREN[id];
     assert.ok(c, `child ${id} exists`);

@@ -23,6 +23,7 @@ const SETS = {
   sindh: { crop: 'wheat', trees: ['palm', 'palm', 'dome'], far: 'mountains', farColor: '#9a7a5a' }, // the Kirthar range
   terai: { crop: 'mustard', trees: ['dome', 'dome', 'bamboo', 'dome'], far: 'hills', farColor: '#4f7a46' }, // the Churia hills
   punakha: { crop: 'paddy', trees: ['pine', 'pine', 'dome', 'pine'], far: 'snow', farColor: '#6f7f8f', marks: ['dzong'] },
+  nevada: { crop: 'low', trees: ['tall', 'tall', 'dome'], far: 'mountains', farColor: '#8b8a8e', marks: ['hay'] }, // Diamond Valley: alfalfa pivots between bare ranges
   dryzone: { crop: 'low', trees: ['palm', 'palm', 'palm'], marks: ['pagoda'] }, // Nyaung-U: Bagan's brick pagodas, toddy palms
 };
 const CROP = {

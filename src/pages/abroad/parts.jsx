@@ -211,7 +211,7 @@ export function WeekStrip({ fc, lang }) {
           <div key={d.date} className="min-w-[88px] flex-1 rounded-2xl bg-white/75 p-2.5 text-center ring-1 ring-white/80">
             <div className="text-[12px] font-semibold text-muted">{i === 0 ? (lang === 'bn' ? 'আজ' : 'Today') : dayMonth(d.date, lang)}</div>
             <WeatherIcon kind={w.kind} size={40} className="mx-auto my-1" />
-            <div className="text-[13.5px] font-bold tabular">{num(Math.round(d.max), lang)}° <span className="font-semibold text-muted">{num(Math.round(d.min), lang)}°</span></div>
+            <div className="text-[13.5px] font-bold tabular">{num(Math.round(d.max) || 0, lang)}° <span className="font-semibold text-muted">{num(Math.round(d.min) || 0, lang)}°</span></div>
             <div className={`mt-0.5 text-[12px] font-semibold tabular ${d.pop >= 60 ? 'text-sky-700' : 'text-muted'}`}>{num(d.pop, lang)}% · {num(Math.round(d.rain ?? 0), lang)} {lang === 'bn' ? 'মিমি' : 'mm'}</div>
           </div>
         );

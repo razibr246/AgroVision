@@ -13,7 +13,7 @@ import { PROJECT_NAME } from '../../config/brand';
 import registry from '../../data/fields/parcels.json';
 import { LEVELS } from '../../data/stories';
 import { bnDigits } from '../../engine/dates';
-import { ABROAD, ABROAD_ORDER, areaIn } from '../../data/abroad';
+import { ABROAD, ABROAD_ORDER, WORLD, areaIn } from '../../data/abroad';
 import FarmerAvatar from '../../components/brand/FarmerAvatar';
 
 export default function Login() {
@@ -111,8 +111,18 @@ function Neighbours({ role }) {
         <span className="h-px flex-1 bg-border" />
         <span className="text-[12px] font-semibold text-muted">{T('প্রতি দেশে একজন কৃষক, একজন কৃষি কর্মকর্তা', 'One farmer and one officer per country')}</span>
       </div>
+      {[ABROAD_ORDER.filter((id) => !WORLD.has(id)), ABROAD_ORDER.filter((id) => WORLD.has(id))].map((group, gi) => group.length > 0 && (
+      <div key={gi}>
+      {gi === 1 && (
+        <div className="mb-2.5 mt-6 flex items-center gap-2 px-1">
+          <Globe2 size={17} className="text-primary-700" />
+          <h2 className="text-[15px] font-bold">{T('বিশ্বের অন্য মাঠ', 'Farms beyond South Asia')}</h2>
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-[12px] font-semibold text-muted">{T('একই নাসা তথ্য, অন্য মহাদেশ', 'The same NASA data, other continents')}</span>
+        </div>
+      )}
       <div className="space-y-2.5">
-        {ABROAD_ORDER.map((id) => {
+        {group.map((id) => {
           const c = ABROAD[id];
           const f = c.farmer;
           const farmer = (
@@ -145,6 +155,8 @@ function Neighbours({ role }) {
           );
         })}
       </div>
+      </div>
+      ))}
     </div>
   );
 }

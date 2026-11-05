@@ -25,6 +25,7 @@ export const CHILDREN = {
   rampyari: { name: q('সীতা', 'Sita'), age: 9, girl: true, calls: q('আমা', 'Aama'), rel: q('রামপ্যারী চৌধুরীর মেয়ে', 'Rampyari Chaudhary’s daughter'), land: 'nepal', item: 'slate' },
   kinley: { name: q('তাশি', 'Tashi'), age: 8, girl: false, calls: q('আমা', 'Ama'), rel: q('কিনলে ওয়াংমোর ছেলে', 'Kinley Wangmo’s son'), land: 'bhutan', item: 'wheel' },
   kyawwin: { name: q('মিন থু', 'Min Thu'), age: 9, girl: false, calls: q('দাদু', 'Grandpa'), rel: q('উ চ উইনের নাতি', 'U Kyaw Win’s grandson'), land: 'myanmar', item: 'cricket' },
+  ellen: { name: q('লিলি', 'Lily'), age: 8, girl: true, calls: q('মম', 'Mom'), rel: q('এলেন হার্টলির মেয়ে', 'Ellen Hartley’s daughter'), land: 'usa', item: 'kite' },
 };
 export const CHILD_IDS = Object.keys(CHILDREN);
 export const WOMEN = ['rahima', 'rampyari', 'kinley'];

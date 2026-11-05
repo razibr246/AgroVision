@@ -26,6 +26,7 @@ const EVENTS = {
   pakistan: [{ key: 'flood2022', kind: 'rain', title: { bn: 'আগস্ট ২০২২: যে মাসে আকাশ ভেঙে পড়ল', en: 'August 2022: the month the sky broke' } }],
   nepal: [{ key: 'rain2021', kind: 'rain', title: { bn: '১৭–২০ অক্টোবর ২০২১: কাটা ধানের ওপর বৃষ্টি', en: '17–20 October 2021: rain on the cut paddy' } }],
   bhutan: [{ key: 'rain2025', kind: 'rain', title: { bn: '৩–৬ অক্টোবর ২০২৫: ফসল তোলার মুখে ভারী বৃষ্টি', en: '3–6 October 2025: heavy rain on the eve of harvest' } }],
+  usa: [{ key: 'heat2021', kind: 'heat', title: { bn: 'জুন–জুলাই ২০২১: পশ্চিমজুড়ে তাপপ্রবাহ', en: 'June–July 2021: the heatwave across the West' } }, { key: 'snow2023', kind: 'rain', title: { bn: 'জানুয়ারি–মার্চ ২০২৩: স্বাভাবিকের চেয়ে অনেক ভেজা আর ঠান্ডা শীত', en: 'January–March 2023: an unusually wet, cold winter' } }],
   myanmar: [{ key: 'heat2024', kind: 'heat', title: { bn: 'এপ্রিল ২০২৪: মিয়ানমারের সবচেয়ে গরম এপ্রিল', en: 'April 2024: Myanmar’s hottest April' } }, { key: 'yagi2024', kind: 'rain', title: { bn: 'সেপ্টেম্বর ২০২৪: টাইফুন ইয়াগির বৃষ্টি', en: 'September 2024: the rain of Typhoon Yagi' } }],
 };
 const TONE = {
@@ -228,7 +229,7 @@ export function Risks() {
     <div className="page-shell space-y-5">
       <Section icon={BookOpen} title={T('এখানকার বড় সমস্যা', 'The big problem here')} sub={T(`পরের কাজ: ${f.next.bn}`, `Next job: ${f.next.en}`)}>
         <p className="max-w-3xl text-[15.5px] leading-7">{L(f.intro)}</p>
-        <div className="mt-5 grid gap-4 lg:grid-cols-2">{EVENTS[c.id].map((e) => <EventCard key={e.key} e={e} ev={farm.events[e.key]} />)}</div>
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">{(EVENTS[c.id] ?? []).map((e) => <EventCard key={e.key} e={e} ev={farm.events[e.key]} />)}</div>
         <ul className="mt-5 space-y-3" data-reveal-children>
           {c.facts.map((x) => (
             <li key={x.en} className="rounded-2xl bg-white/70 p-4 ring-1 ring-white/80"><p className="text-[14.5px] leading-6">{L(x)}</p><div className="mt-1.5"><Sources list={x.src} /></div></li>

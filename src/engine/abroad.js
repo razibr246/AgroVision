@@ -125,6 +125,26 @@ export function todaysCall(id, data, fc, today) {
     };
   }
 
+  // USA (Diamond Valley, Nevada): an irrigated alfalfa pivot under a groundwater allocation. Winter: protect the pivot
+  // from hard freezes; spring: frost and the first irrigation; summer: cut only into dry days, irrigate at night in heat.
+  if (id === 'usa') {
+    const days = fc?.days?.slice(0, 3) ?? [];
+    const lo = days.length ? Math.min(...days.map((d) => d.min)) : null, hi = days.length ? Math.max(...days.map((d) => d.max)) : null;
+    const facts = [rainLine, pastLine, ...(lo != null ? [{ bn: `আগামী ৩ দিনে সবচেয়ে ঠান্ডা ${mm(lo)}°, সবচেয়ে গরম ${mm(hi)}°`, en: `Next 3 days: coldest ${mm(lo)}°, hottest ${mm(hi)}°` }] : [])];
+    const m = today.slice(5);
+    if (m >= '10-20' || m < '03-15') {
+      if (live && lo != null && lo <= -6) return { tone: 'warn', facts, title: { bn: 'কঠিন জমাট ঠান্ডা আসছে — পিভট আর পাইপের পানি খালি করুন', en: 'A hard freeze is coming — drain the pivot and lines' }, body: { bn: 'জমে যাওয়া পানি পাইপ আর পাম্প ফাটায়। আলফালফা এখন ঘুমিয়ে, সেচ লাগে না।', en: 'Water that freezes splits pipes and pumps. The alfalfa is dormant and needs no water now.' } };
+      return { tone: 'wait', facts, title: { bn: 'আলফালফা শীতে ঘুমিয়ে — এখন সেচ নয়, আগামী বছরের পানির হিসাব', en: 'The alfalfa is dormant — no irrigation now; plan next year’s water' }, body: { bn: 'পরের মৌসুমে কমে যাওয়া পাম্পিং বরাদ্দের মধ্যে কয়টা কাটা হবে, এখনই হিসাব করুন। জমির ভবিষ্যৎ পাতায় পানি আর ফলন মিলিয়ে দেখুন।', en: 'Work out now how many cuttings next season’s reduced pumping allocation will carry. Compare water and yield on the Field future page.' } };
+    }
+    if (m < '05-15') {
+      if (live && lo != null && lo <= -2) return { tone: 'warn', facts, title: { bn: 'দেরির তুষারপাত — কচি পাতা পুড়তে পারে', en: 'A late frost — young shoots may burn' }, body: { bn: 'তুষারের রাতে সেচ দেবেন না; পরে গাছ কতটা ক্ষতি হলো দেখে প্রথম কাটার সময় ঠিক করুন।', en: 'Don’t irrigate into a frost night; check the damage afterwards before timing the first cutting.' } };
+      return { tone: 'go', facts, title: { bn: 'বসন্তে আবার সবুজ — মাটির ভেজা মেপে তবেই সেচ', en: 'Spring growth — measure soil moisture before irrigating' }, body: { bn: 'শীতের জমা পানিতে প্রথম কাটার ফসল অনেকটাই হয়। মাটিতে ভেজা থাকলে পাম্প চালিয়ে বরাদ্দ খরচ করবেন না।', en: 'The first cutting grows largely on stored winter water. While the soil is still moist, don’t spend allocation on pumping.' } };
+    }
+    if (live && (o3.rain >= 5 || o3.pop >= 50)) return { tone: 'wait', facts, title: { bn: 'বৃষ্টি আসছে — এখন কাটবেন না', en: 'Rain is coming — don’t cut now' }, body: { bn: 'কাটা আলফালফা ভিজলে খড়ের মান পড়ে যায়। তিন দিন শুকনো আবহাওয়ার জন্য অপেক্ষা করুন।', en: 'Cut alfalfa that gets rained on loses quality. Wait for three dry days.' } };
+    if (live && hi != null && hi >= 35) return { tone: 'warn', facts, title: { bn: 'তাপ আসছে — রাতে সেচ দিন', en: 'Heat is coming — irrigate at night' }, body: { bn: 'দুপুরের গরমে স্প্রিংকলারের পানির বড় অংশ বাতাসে উবে যায়। নিচু নজলে (LESA) রাতে দিলে বরাদ্দের পানি বেশি গাছে পৌঁছায়।', en: 'In midday heat much of the sprinkler water evaporates. At night, from low drop nozzles (LESA), more of the allocation reaches the crop.' } };
+    return { tone: 'go', facts, title: { bn: 'শুকনো দিন — কাটা আর বেল বাঁধার ভালো সময়', en: 'Dry days — good for cutting and baling' }, body: { bn: 'কাটার আগে দেখুন বাকি পানির বরাদ্দ পরের কাটা পর্যন্ত চলবে কি না।', en: 'Before cutting, check the water allocation left will carry the next cutting.' } };
+  }
+
   // Myanmar: chickpea sown into the moisture the rains leave behind. Rain minus ET0 over 30 days is the store.
   const bal = r30.balance, balN = r30.balanceNormal;
   const facts = [rainLine, { bn: `গত ৩০ দিনে বৃষ্টি বাদ বাষ্পীভবন ${mm(bal)} মিমি (স্বাভাবিক ${mm(balN)} মিমি)`, en: `Last 30 days, rain minus evaporation: ${mm(bal)} mm (normal ${mm(balN)} mm)` }];
@@ -192,6 +212,19 @@ export const PLANS = {
       { at: 30, bn: 'হালকা নিড়ানি — মাটির ওপর শুকনো আস্তর ভেজা ধরে রাখে', en: 'Light hoeing — a dry top layer holds the moisture below' },
       { at: 55, bn: 'ফুল আর শুঁটির সময়: পোকা (শুঁটি-ছিদ্রকারী) দেখুন', en: 'Flowering and pods: watch for pod borer' },
       { atEnd: true, bn: 'কাটা — মার্চের তাপের আগে', en: 'Harvest — before the March heat' },
+    ],
+  },
+  // Irrigated alfalfa hay on a centre pivot, one growing season from spring green-up to the autumn rest; Kc averaged over
+  // the cutting cycles (FAO-56 Table 12, alfalfa hay: 0.40 at the start, about 0.95 averaged through cuttings).
+  usa: {
+    crop: { bn: 'আলফালফা (গোখাদ্য)', en: 'Alfalfa hay' }, sow: '04-01', stages: [20, 30, 125, 25], kc: [0.4, 0.95, 0.9], irrigated: true,
+    steps: [
+      { at: 0, bn: 'বসন্তে আবার সবুজ: গাছ কতটা বেঁচে আছে দেখুন, মাটির ভেজা মেপে তবেই প্রথম সেচ', en: 'Spring green-up: check the stand survived, and measure soil moisture before the first irrigation' },
+      { at: 60, bn: 'প্রথম কাটা — বছরের সবচেয়ে ভালো, শীতের জমা ভেজায় বাড়া ফসল', en: 'First cutting — the year’s best, grown largely on stored winter moisture', key: true },
+      { at: 100, bn: 'দ্বিতীয় কাটা — তিন দিন শুকনো আবহাওয়া দেখে কাটুন, খড় শুকাতে হবে', en: 'Second cutting — cut into three dry days so the hay can cure' },
+      { at: 140, bn: 'তৃতীয় কাটা? বাকি পানির বরাদ্দ আর খরচ মিলিয়ে ঠিক করুন', en: 'A third cutting? Weigh it against the water allocation left and its cost' },
+      { at: 175, bn: 'শরতের বিশ্রাম: প্রথম কঠিন তুষারপাতের আগে কাটা থামান, শিকড়ে খাবার জমুক', en: 'Autumn rest: stop cutting before the first killing frost so the roots store reserves' },
+      { atEnd: true, bn: 'পিভট আর পাইপ শীতের জন্য খালি করুন', en: 'Drain and winterise the pivot and lines' },
     ],
   },
 };
@@ -294,7 +327,7 @@ SMS.dz = {
 export const SMS_DRAFT = new Set(['my', 'dz']);
 
 // English messages keep to the basic SMS alphabet (straight quotes, plain hyphen) so they go as 160-character parts.
-const OFFICE_SIGN = { india: 'ब्लॉक कृषि कार्यालय, संगरूर', pakistan: 'تعلقہ زراعت آفس، دادو', nepal: 'कृषि शाखा, जानकी गाउँपालिका', bhutan: 'Gewog Agriculture Extension, Bapisa', myanmar: 'Township Agriculture Office, Nyaung-U' };
+const OFFICE_SIGN = { india: 'ब्लॉक कृषि कार्यालय, संगरूर', pakistan: 'تعلقہ زراعت آفس، دادو', nepal: 'कृषि शाखा, जानकी गाउँपालिका', bhutan: 'Gewog Agriculture Extension, Bapisa', usa: 'UNR Extension, Eureka County', myanmar: 'Township Agriculture Office, Nyaung-U' };
 const OFFICE_SIGN_LOCAL = { bhutan: 'སྦ་པི་ས་ རྒེད་འོག་ སོ་ནམ་ཡིག་ཚང་', myanmar: 'ညောင်ဦးမြို့နယ် စိုက်ပျိုးရေးဦးစီးဌာန' };
 const DIGITS = { ne: '०१२३४५६७८९', my: '၀၁၂၃၄၅၆၇၈၉', dz: '༠༡༢༣༤༥༦༧༨༩' };
 function sms(lang, key, id, vals) {

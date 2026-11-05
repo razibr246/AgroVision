@@ -5,7 +5,9 @@
 // Every number on the pages comes from src/data/abroad/<country>.json (scripts/build/build_neighbours.py) or from the
 // live forecast; the facts below carry their source.
 
-export const ABROAD_ORDER = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar'];
+export const ABROAD_ORDER = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar', 'usa'];
+// The farms beyond South Asia (shown apart from the neighbours on the home page).
+export const WORLD = new Set(['usa']);
 export const READ_ON = '2026-10-19';
 
 const src = (label, url) => ({ label, url });
@@ -252,6 +254,54 @@ export const ABROAD = {
       { bn: '২০২৪ সালের সেপ্টেম্বরে টাইফুন ইয়াগির অবশেষ আর বর্ষার বৃষ্টিতে মধ্য মিয়ানমারে বন্যা হয়: প্রায় ১০ লাখ মানুষ ক্ষতিগ্রস্ত, ৩০০-র বেশি মৃত্যু; শুধু মান্দালয় অঞ্চলে প্রায় ৪০ হাজার একর ফসলি জমি ডোবে (জাতিসংঘ OCHA)।', en: 'In September 2024 the remnants of Typhoon Yagi and monsoon rain flooded central Myanmar: close to a million people affected and more than 300 deaths; about 40,000 acres of farmland went under in Mandalay Region alone (UN OCHA).', src: [src('ReliefWeb: Myanmar floods, Sep 2024', 'https://reliefweb.int/disaster/FL-2024-000104-MMR'), src('UN situation report, 20 Sep 2024', 'https://progressivevoicemyanmar.org/2024/09/16/myanmar-flood-situation-report-16-september-2024')] },
     ],
     sources: [src('Department of Meteorology and Hydrology', 'https://www.moezala.gov.mm/')],
+  },
+
+  // Beyond South Asia. The USA farm is the setting of the NASA challenge brief's own photo: an irrigated alfalfa centre
+  // pivot in Diamond Valley, Nevada (39.648 N, 115.960 W, green in Sentinel-2 in August 2025 and 2026). The farmer is a sample person.
+  usa: {
+    id: 'usa', flag: '🇺🇸', tone: '#2f5f9e', soft: '#e6eef8', world: true,
+    name: { bn: 'যুক্তরাষ্ট্র', en: 'United States', local: 'United States' },
+    unit: { bn: 'একর', en: 'acre', dec: 100 },
+    farmer: {
+      id: 'ELLEN', name: { bn: 'এলেন হার্টলি', en: 'Ellen Hartley', local: 'Ellen Hartley' },
+      village: { bn: 'ডায়মন্ড ভ্যালি', en: 'Diamond Valley' },
+      place: { bn: 'ইউরেকা কাউন্টি, নেভাডা', en: 'Eureka County, Nevada' },
+      farmDec: 12500,
+      water: { bn: 'নিজের গভীর নলকূপ, সেন্টার পিভট স্প্রিংকলার', en: 'Own deep well, centre-pivot sprinkler' },
+      now: { bn: 'শেষ কাটা হয়ে গেছে, আলফালফা শীতে ঘুমিয়ে', en: 'Last cutting done, the alfalfa dormant for winter' },
+      next: { bn: 'আগামী মৌসুমের পাম্পিং বরাদ্দ ধরে কয়টা কাটা হবে, তা ঠিক করা', en: 'Decide how many cuttings next season’s pumping allocation will carry' },
+      intro: {
+        bn: 'এলেন নেভাডার ডায়মন্ড ভ্যালিতে ১২৫ একরের একটি সেন্টার পিভটে আলফালফা খড় করেন — নাসার এই চ্যালেঞ্জের ছবির সেই উপত্যকা। দেশের সবচেয়ে শুকনো রাজ্য; প্রায় সব পানি আসে মাটির নিচ থেকে, আর তোলা হয় ফিরে আসার চেয়ে অনেক বেশি। তাই আইন করে প্রতি বছর পাম্পিং কমছে, আর এলেনকে ঠিক করতে হবে কম পানিতে কয়টা কাটা, নাকি কোনো কম-পানির ফসল।',
+        en: 'Ellen grows alfalfa hay on a 125-acre centre pivot in Diamond Valley, Nevada — the valley in this NASA challenge’s own photo. It is the driest state; nearly all the water comes from underground, and far more is pumped than comes back. So pumping is cut by law year after year, and Ellen has to decide how many cuttings less water will carry, or whether a lower-water crop fits.',
+      },
+    },
+    local: {
+      role: { bn: 'এক্সটেনশন শিক্ষক, ইউনিভার্সিটি অব নেভাডা, রেনো এক্সটেনশন — ইউরেকা কাউন্টি', en: 'Extension Educator, University of Nevada, Reno Extension — Eureka County' },
+      office: { bn: 'ইউএনআর এক্সটেনশন, ইউরেকা কাউন্টি অফিস; উপত্যকাতেই ৬৪৪ একরের গ্রেট বেসিন রিসার্চ অ্যান্ড এক্সটেনশন সেন্টার', en: 'UNR Extension, Eureka County office; the 644-acre Great Basin Research & Extension Center is in the valley itself' },
+      area: { bn: 'ইউরেকা কাউন্টি', en: 'Eureka County' }, level: { bn: 'কাউন্টি — জনসংখ্যায় একটি উপজেলার চেয়ে অনেক ছোট, আয়তনে বিশাল', en: 'County — far fewer people than an upazila, over a huge area' },
+      source: src('University of Nevada, Reno: Great Basin Research and Extension Center', 'https://www.unr.edu/nevada-today/news/2020/great-basin-research-and-extension'),
+      noName: { bn: 'এখানে কর্মকর্তার নাম দেখানো হচ্ছে না: অ্যাপের কৃষক আর অনুরোধগুলো নমুনা, তাই কোনো আসল মানুষকে তাতে জড়ানো হয়নি।', en: 'No officer’s name is shown: the app’s farmer and requests are samples, so no real person is put into them.' },
+      sms: 'en',
+    },
+    officer: {
+      office: { bn: 'যুক্তরাষ্ট্র কৃষি বিভাগ (USDA)', en: 'United States Department of Agriculture (USDA)' },
+      city: { bn: 'ওয়াশিংটন, ডি.সি.', en: 'Washington, D.C.' },
+      head: null,
+    },
+    zones: {
+      diamond: { name: { bn: 'ডায়মন্ড ভ্যালি, নেভাডা', en: 'Diamond Valley, Nevada' }, crop: { bn: 'আলফালফা খড়', en: 'Alfalfa hay' }, line: { bn: 'মাটির নিচের পানি ফুরোচ্ছে, আইন করে পাম্পিং কমছে', en: 'Groundwater running down, pumping cut by law' } },
+      fresno: { name: { bn: 'ফ্রেসনো, ক্যালিফোর্নিয়া (সেন্ট্রাল ভ্যালি)', en: 'Fresno County, California (Central Valley)' }, crop: { bn: 'বাদাম, আঙুর, টমেটো', en: 'Almonds, grapes, tomatoes' }, line: { bn: 'খরা, ভূগর্ভের পানিতে সীমা, মাটি বসে যাওয়া', en: 'Drought, groundwater limits, sinking land' } },
+      gardencity: { name: { bn: 'ফিনি কাউন্টি, ক্যানসাস (হাই প্লেইনস)', en: 'Finney County, Kansas (High Plains)' }, crop: { bn: 'ভুট্টা, গম, জোয়ার', en: 'Corn, wheat, sorghum' }, line: { bn: 'ওগালালা জলাধার নেমে যাচ্ছে', en: 'The Ogallala aquifer running down' } },
+      ames: { name: { bn: 'স্টোরি কাউন্টি, আইওয়া (কর্ন বেল্ট)', en: 'Story County, Iowa (Corn Belt)' }, crop: { bn: 'ভুট্টা–সয়াবিন', en: 'Corn–soybean' }, line: { bn: 'বসন্তের বন্যা, মাটি ক্ষয়, নাইট্রেট ধুয়ে যাওয়া', en: 'Spring floods, soil erosion, nitrate runoff' } },
+      greenville: { name: { bn: 'ওয়াশিংটন কাউন্টি, মিসিসিপি (ডেল্টা)', en: 'Washington County, Mississippi (Delta)' }, crop: { bn: 'ধান, সয়াবিন, তুলা', en: 'Rice, soybean, cotton' }, line: { bn: 'নদীর বন্যা, নিচের পানি নামছে', en: 'River floods, a falling aquifer' } },
+      yuma: { name: { bn: 'ইউমা, অ্যারিজোনা', en: 'Yuma County, Arizona' }, crop: { bn: 'শীতের লেটুস আর সবজি', en: 'Winter lettuce and vegetables' }, line: { bn: 'কলোরাডো নদীর পানিতে কাটছাঁট, প্রচণ্ড গরম', en: 'Colorado River cuts, extreme heat' } },
+    },
+    facts: [
+      { bn: 'ডায়মন্ড ভ্যালির ভূগর্ভের পানি বছরে যতটা ফেরে (প্রায় ৩০,০০০ একর-ফুট), তোলা হয় তার দ্বিগুণের বেশি (প্রায় ৭৬,০০০), আর অনুমতি আছে প্রায় ১,২৬,০০০ একর-ফুটের। কয়েক দশক ধরে পানির স্তর বছরে প্রায় ২ ফুট নামছে।', en: 'Diamond Valley’s aquifer gets back about 30,000 acre-feet a year, while about 76,000 are pumped and some 126,000 are permitted. For decades the water table has dropped about 2 feet a year.', src: [src('Nevada Supreme Court decision reported (Record-Courier, 2022)', 'https://www.recordcourier.com/news/2022/jun/29/groundwater-rights-ruling-hangs-single-vote/'), src('Marketplace, 2022', 'https://www.marketplace.org/2022/09/23/nevada-farmers-shake-up-traditional-water-rights-with-a-new-way-to-fight-scarcity')] },
+      { bn: '২০১৯ সালে রাজ্যের পানি প্রকৌশলী উপত্যকার ভূগর্ভের পানি ব্যবস্থাপনা পরিকল্পনা (আদেশ ১৩০২) অনুমোদন করেন; ১৬ জুন ২০২২ নেভাডা সুপ্রিম কোর্ট তা বহাল রাখে। পাম্পিং কাটছাঁট শুরু ৩% দিয়ে, দশম বছরে ৩০%।', en: 'In 2019 the State Engineer approved the valley’s groundwater management plan (Order 1302); on 16 June 2022 the Nevada Supreme Court upheld it. Pumping cuts start at 3% and reach 30% by year ten.', src: [src('Humboldt River Basin Water Authority', 'https://hrbwa.com/nevada-supreme-court-approves-diamond-valley-groundwater-management-plan/'), src('Marketplace, 2022', 'https://www.marketplace.org/2022/09/23/nevada-farmers-shake-up-traditional-water-rights-with-a-new-way-to-fight-scarcity')] },
+      { bn: 'নাসা-সমর্থিত OpenET উপগ্রহের হিসাবে ডায়মন্ড ভ্যালির জমির পানি খরচ মিটারের মাপের ৭%-এর মধ্যে মিলেছে (ডেজার্ট রিসার্চ ইনস্টিটিউট, ২০২৪) — উপগ্রহ দিয়েই পাম্পিং দেখা যায়।', en: 'NASA-backed OpenET satellite estimates of crop water use came within 7% of the metered pumping in Diamond Valley (Desert Research Institute, 2024) — pumping can be watched from space.', src: [src('Desert Research Institute, 2024', 'https://dri.edu/groundwater-use-can-be-accurately-monitoredwith-satellites-using-openet')] },
+    ],
+    sources: [src('Eureka Sentinel: Diamond Valley growers get creative as water limits tighten (2026)', 'https://eurekasentinel.com/2026/01/16/diamond-valley-growers-get-creative-as-water-limits-tighten/'), src('UNR Great Basin Research and Extension Center', 'https://www.unr.edu/nevada-today/news/2020/great-basin-research-and-extension')],
   },
 };
 

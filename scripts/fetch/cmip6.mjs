@@ -37,6 +37,8 @@ const UPAZILAS = {
   sitakunda: [22.6167, 91.6667], dacope: [22.5726, 89.5115], bakerganj: [22.55, 90.3333], gangachara: [25.85, 89.2167], gowainghat: [25.105, 91.967],
   // The sample farms of the neighbouring countries (src/data/abroad.js).
   abroad_india: [30.26, 75.8], abroad_pakistan: [26.8, 67.72], abroad_nepal: [28.56, 81.1], abroad_bhutan: [27.5208, 89.8808], abroad_myanmar: [20.93, 94.864],
+  // Beyond South Asia. NEX-GDDP-CMIP6 longitudes run 0–360° east, so the Nevada farm (115.96° W) is 244.04° E.
+  abroad_usa: [39.6475, 244.04],
 };
 const cellOf = ([lat, lon]) => [Math.floor(lat * 4) / 4 + 0.125, Math.floor(lon * 4) / 4 + 0.125];
 const CONC = Number(process.env.CMIP6_CONC ?? 8);

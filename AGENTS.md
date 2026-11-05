@@ -27,7 +27,10 @@ added there.
 ## Layout
 
 - `src/App.jsx`: routes, every page lazy-loaded; four groups with their own layout in `src/layouts/`: public (`/`,
-  `/stories`, games), `/farmer/*`, `/officer/*`, `/abroad/:cc/*` (India, Pakistan, Nepal, Bhutan, Myanmar).
+  `/stories`, games), `/farmer/*`, `/officer/*`, `/abroad/:cc/*` (India, Pakistan, Nepal, Bhutan, Myanmar, and beyond South Asia the USA; `WORLD` in
+  `data/abroad.js` marks those, built one at a time with `python3 scripts/build/build_neighbours.py usa`). A new country
+  also needs its points in `scripts/fetch/{cmip6,gibs-land,gibs-water}.mjs` (the GIBS ones read every `abroad/*.json`),
+  a game character in `game/{regions,places,dream}.js` and `TONE` in `FarmGame.jsx`.
 - `src/store.jsx`: one context holds the selected farmer, field, priorities, requests and officer context, and derives
   the season decision (`engine/decision.js`), rotation (`engine/rotation.js`), field water and hotspots. NASA POWER
   climate per upazila loads lazily (`loadClimate(id)`) and is corrected to BMD station normals. The exported `clim` and

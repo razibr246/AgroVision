@@ -57,6 +57,9 @@ const SHAPE = {
     if (st >= 2) { o.push(part(disc, st === 3 ? '#c9a020' : '#f2c21b', [0, h, 0.04], [1.25, 0, 0], [0.2, 1, 0.2])); o.push(part(disc, '#4a2e16', [0, h + 0.005, 0.06], [1.25, 0, 0], [0.11, 1.2, 0.11])); }
   },
   potato: (o, st) => bush(o, st, { leaf: '#4f8f34', ripeLeaf: '#a7a04a', flower: '#f4efe4', fruit: st === 3 ? '#c9a46a' : null, fruitN: 3, fruitScale: [0.07, 0.05, 0.06] }),
+  // Alfalfa: a dense, knee-high clover-like stand with violet flower clusters; sainfoin like it, pink-flowered and taller.
+  alfalfa: (o, st) => bush(o, st, { leaf: '#4f9a3c', ripeLeaf: '#7a9a4a', flower: '#8a6fc8', size: 1, tall: 0.75 }),
+  sainfoin: (o, st) => bush(o, st, { leaf: '#5a9a44', ripeLeaf: '#8a9a52', flower: '#e07aa0', size: 0.95, tall: 1 }),
   chickpea: (o, st) => bush(o, st, { leaf: '#6f9f4a', ripeLeaf: '#b9a764', flower: '#e5a0c0', size: 0.85 }),
   lentil: (o, st) => bush(o, st, { leaf: '#6aa14a', ripeLeaf: '#b9a764', flower: '#e8e2f2', size: 0.8, tall: 0.8 }),
   pea: (o, st) => bush(o, st, { leaf: '#5aa04a', flower: '#f4f4f4', fruit: '#7cc04a', fruitScale: [0.03, 0.08, 0.03] }),

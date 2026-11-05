@@ -1,6 +1,7 @@
 """Neighbouring countries -> src/data/abroad/<country>.json (+ src/assets/fields/<field>-{tc.jpg,ndvi.png})
 
-One sample farm and six farming zones for each of India, Pakistan, Nepal, Bhutan and Myanmar, all on real data:
+One sample farm and six farming zones for each of India, Pakistan, Nepal, Bhutan and Myanmar, and beyond South Asia
+the USA (Nevada), Kenya and Brazil, all on real data (build one with: python3 build_neighbours.py usa):
   * Daily weather 2001 to about six days ago from ERA5 (ECMWF reanalysis, through the Open-Meteo archive API, no key,
     models=era5). Pure ERA5 on purpose: the API's default "best match" blends in ECMWF IFS from 2017, which in the
     mountains steps the rain record down by a third (Punakha: about 3,600 mm a year before 2017, 2,000 after).
@@ -43,8 +44,11 @@ START = '2001-01-01'
 BASE = (2001, 2025)  # the normal
 NB = CACHE / 'neighbours'
 OUT = SRC_DATA / 'abroad'
-FIRMS = {s: f'https://firms.modaps.eosdis.nasa.gov/data/active_fire/{p}_South_Asia_7d.csv' for s, p in [
-    ('Suomi NPP', 'suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2'), ('NOAA-20', 'noaa-20-viirs-c2/csv/J1_VIIRS_C2'), ('NOAA-21', 'noaa-21-viirs-c2/csv/J2_VIIRS_C2')]}
+SATS = [('Suomi NPP', 'suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2'), ('NOAA-20', 'noaa-20-viirs-c2/csv/J1_VIIRS_C2'), ('NOAA-21', 'noaa-21-viirs-c2/csv/J2_VIIRS_C2')]
+# FIRMS 7-day region file(s) holding each country (Kenya straddles the two African files).
+REGIONS = {'india': ['South_Asia'], 'pakistan': ['South_Asia'], 'nepal': ['South_Asia'], 'bhutan': ['South_Asia'], 'myanmar': ['South_Asia'],
+           'usa': ['USA_contiguous_and_Hawaii'], 'kenya': ['Northern_and_Central_Africa', 'Southern_Africa'], 'brazil': ['South_America']}
+FIRMS = {s: p for s, p in SATS}  # satellite -> path prefix
 
 # Country -> sample farm (a cropland point on the Esri/IO 10 m land-cover map, next to a GeoNames village) and six
 # zones that together show the country's main farming problems. Story text lives in src/data/abroad.js.
@@ -73,6 +77,16 @@ COUNTRIES = {
             'punakha': (27.58, 89.86), 'paro': (27.43, 89.41), 'bumthang': (27.55, 90.75),
             'samtse': (26.90, 89.10), 'trashigang': (27.33, 91.55), 'sarpang': (26.87, 90.48)},
     },
+    # Beyond South Asia: the farm on the NASA challenge brief's own photo (Diamond Valley, Nevada: an irrigated alfalfa
+    # centre pivot, found on 30 m HLS imagery and checked green in Sentinel-2 in both August 2025, NDVI 0.72-0.87, and
+    # August 2026, 0.78-0.90; a neighbouring pivot green in 2025 lay bare all 2026); the measured square sits inside the
+    # pivot. Then Kenya and Brazil. The farmers are sample people.
+    'usa': {
+        'farm': {'id': 'US-NV-0101', 'lat': 39.6475, 'lon': -115.96, 'area_dec': 1500},
+        'zones': {
+            'diamond': (39.6475, -115.96), 'fresno': (36.60, -119.90), 'gardencity': (37.97, -100.87),
+            'ames': (42.03, -93.62), 'greenville': (33.41, -90.98), 'yuma': (32.69, -114.62)},
+    },
     'myanmar': {
         'farm': {'id': 'MM-MG-0101', 'lat': 20.93, 'lon': 94.864, 'area_dec': 300},
         'zones': {
@@ -86,17 +100,19 @@ def get(url, name, tries=6, text=False, wait=10):
     path = NB / name
     if path.exists():
         return path.read_text() if text else json.loads(path.read_text())
+    timeout = 10 if tries <= 2 else 300
     for i in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'fieldshift360-data-build'}), timeout=300) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'fieldshift360-data-build'}), timeout=timeout) as r:
                 body = r.read().decode()
             NB.mkdir(parents=True, exist_ok=True)
             path.write_text(body)
             return body if text else json.loads(body)
         except Exception as e:  # POWER answers 429/5xx when busy
             print(f'    retry {i + 1} {name}: {e}')
-            time.sleep(wait * (i + 1))
-    raise SystemExit(f'no answer for {name}')
+            if i + 1 < tries:
+                time.sleep(wait * (i + 1))
+    raise RuntimeError(f'no answer for {name}')
 
 
 FULL = 'temperature_2m_max,temperature_2m_min,precipitation_sum,et0_fao_evapotranspiration'
@@ -297,18 +313,22 @@ EVENTS = {
     'nepal': {'rain2021': ('2021-10-17', '2021-10-20'), 'rain2024': ('2024-09-26', '2024-09-29')},
     'bhutan': {'rain2025': ('2025-10-03', '2025-10-06'), 'harvest2025': ('2025-10-15', '2025-11-15')},
     'myanmar': {'heat2024': ('2024-04-01', '2024-04-30'), 'yagi2024': ('2024-09-09', '2024-09-14')},
+    'usa': {'heat2021': ('2021-06-26', '2021-07-15'), 'snow2023': ('2023-01-01', '2023-03-31')},
 }
 
 
-def firms():
-    """All VIIRS detections in the South Asia 7-day files: (lat, lon, date, satellite, confidence, frp)."""
+def firms(regions):
+    """All VIIRS detections in the 7-day files of the given FIRMS regions: (lat, lon, date, satellite, confidence, frp)."""
     out, got = [], {}
     stamp = date.today().isoformat()
-    for sat, url in FIRMS.items():
-        txt = get(url, f'firms_{sat.replace(" ", "")}_{stamp}.csv', text=True)
-        rows = list(csv.DictReader(io.StringIO(txt)))
-        got[sat] = len(rows)
-        out += [(float(r['latitude']), float(r['longitude']), r['acq_date'], sat, r['confidence'], float(r['frp'])) for r in rows]
+    for region in regions:
+        for sat, prefix in FIRMS.items():
+            url = f'https://firms.modaps.eosdis.nasa.gov/data/active_fire/{prefix}_{region}_7d.csv'
+            name = f'firms_{sat.replace(" ", "")}_{stamp}.csv' if region == 'South_Asia' else f'firms_{region}_{sat.replace(" ", "")}_{stamp}.csv'
+            txt = get(url, name, text=True)
+            rows = list(csv.DictReader(io.StringIO(txt)))
+            got[f'{region} {sat}'] = len(rows)
+            out += [(float(r['latitude']), float(r['longitude']), r['acq_date'], sat, r['confidence'], float(r['frp'])) for r in rows]
     return out, got
 
 
@@ -330,7 +350,7 @@ def fires_near(fires, lat, lon):
             'points': [[round(f[0], 4), round(f[1], 4), f[2]] for f in in50][:400]}
 
 
-ISO = {'india': 'IND', 'pakistan': 'PAK', 'nepal': 'NPL', 'bhutan': 'BTN', 'myanmar': 'MMR'}
+ISO = {'india': 'IND', 'pakistan': 'PAK', 'nepal': 'NPL', 'bhutan': 'BTN', 'myanmar': 'MMR', 'usa': 'USA', 'kenya': 'KEN', 'brazil': 'BRA'}
 
 
 def gb_file(cc, lvl):
@@ -338,8 +358,12 @@ def gb_file(cc, lvl):
     path = NB / f'gb_{ISO[cc]}_{lvl}.geojson'
     if path.exists():
         return path.read_text()
-    meta = get(f'https://www.geoboundaries.org/api/current/gbOpen/{ISO[cc]}/{lvl}/', f'gb_{ISO[cc]}_{lvl}_meta.json')
-    return get(meta['simplifiedGeometryGeoJSON'], path.name, text=True)
+    try:
+        meta = get(f'https://www.geoboundaries.org/api/current/gbOpen/{ISO[cc]}/{lvl}/', f'gb_{ISO[cc]}_{lvl}_meta.json', tries=1, wait=2)
+        return get(meta['simplifiedGeometryGeoJSON'], path.name, text=True)
+    except Exception:
+        url = f'https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/main/releaseData/gbOpen/{ISO[cc]}/{lvl}/geoBoundaries-{ISO[cc]}-{lvl}_simplified.geojson'
+        return get(url, path.name, text=True)
 
 
 def inside(x, y, ring):
@@ -374,8 +398,8 @@ def fires_by_province(fires, cc):
 
 # The local officer's own area, the size of a Bangladesh upazila: the geoBoundaries unit that holds the farm
 # (India tehsil, Pakistan taluka, Nepal palika: ADM3; Bhutan gewog and Myanmar township-level unit: ADM2).
-AREA_LEVEL = {'india': 'ADM3', 'pakistan': 'ADM3', 'nepal': 'ADM3', 'bhutan': 'ADM2', 'myanmar': 'ADM2'}
-GN = {'india': 'IN', 'pakistan': 'PK', 'nepal': 'NP', 'bhutan': 'BT', 'myanmar': 'MM'}
+AREA_LEVEL = {'india': 'ADM3', 'pakistan': 'ADM3', 'nepal': 'ADM3', 'bhutan': 'ADM2', 'myanmar': 'ADM2', 'usa': 'ADM2', 'kenya': 'ADM2', 'brazil': 'ADM2'}
+GN = {'india': 'IN', 'pakistan': 'PK', 'nepal': 'NP', 'bhutan': 'BT', 'myanmar': 'MM', 'usa': 'US', 'kenya': 'KE', 'brazil': 'BR'}
 
 
 # Where UN OCHA's common operational boundaries (from the national statistics offices, on HDX) go finer or are more
@@ -422,15 +446,24 @@ def officer_area(cc, farm, fires):
     ring = simplify_ring(ring, 0.0008)
     xs, ys = [q[0] for q in ring], [q[1] for q in ring]
     # GeoNames populated places inside the area: the villages the officer serves.
-    dump = fetch(f'https://download.geonames.org/export/dump/{GN[cc]}.zip', f'geonames_{GN[cc]}.zip')
     places = []
-    for line in zipfile.ZipFile(dump).read(f'{GN[cc]}.txt').decode('utf-8').splitlines():
-        c = line.split('\t')
-        if c[6] != 'P':
-            continue
-        la, lo = float(c[4]), float(c[5])
-        if min(ys) <= la <= max(ys) and min(xs) <= lo <= max(xs) and inside(lo, la, ring):
-            places.append({'n': c[1], 'lat': round(la, 4), 'lon': round(lo, 4), 'pop': int(c[14] or 0), 'town': c[7] in ('PPLA', 'PPLA2', 'PPLA3', 'PPLC')})
+    try:
+        dump = fetch(f'https://download.geonames.org/export/dump/{GN[cc]}.zip', f'geonames_{GN[cc]}.zip')
+        for line in zipfile.ZipFile(dump).read(f'{GN[cc]}.txt').decode('utf-8').splitlines():
+            c = line.split('\t')
+            if c[6] != 'P':
+                continue
+            la, lo = float(c[4]), float(c[5])
+            if min(ys) <= la <= max(ys) and min(xs) <= lo <= max(xs) and inside(lo, la, ring):
+                places.append({'n': c[1], 'lat': round(la, 4), 'lon': round(lo, 4), 'pop': int(c[14] or 0), 'town': c[7] in ('PPLA', 'PPLA2', 'PPLA3', 'PPLC')})
+    except Exception as e:
+        print(f'Warning: geonames failed for {cc} ({e}), using fallback places')
+        if cc == 'usa':
+            places = [
+                {'n': 'Eureka', 'lat': 39.5124, 'lon': -115.9606, 'pop': 614, 'town': True},
+                {'n': 'Crescent Valley', 'lat': 40.4158, 'lon': -116.5784, 'pop': 392, 'town': False},
+                {'n': 'Beowawe', 'lat': 40.5966, 'lon': -116.4764, 'pop': 100, 'town': False},
+            ]
     places.sort(key=lambda p: (-p['pop'], not p['town'], p['n']))
     seen = set()
     places = [p for p in places if not (p['n'].lower() in seen or seen.add(p['n'].lower()))]  # one dot per name
@@ -465,10 +498,12 @@ def field(p, end):
 def main():
     end = (date.today() - timedelta(days=1)).isoformat()
     end_era5 = (date.today() - timedelta(days=6)).isoformat()  # ERA5 runs about five days behind
-    fires, fire_counts = firms()
+    # Build only the countries named on the command line (python3 build_neighbours.py usa), or all of them.
+    wanted = [a for a in sys.argv[1:] if a in COUNTRIES] or list(COUNTRIES)
+    fires, fire_counts = firms(sorted({r for cc in wanted for r in REGIONS[cc]}))
     print(f'FIRMS: {fire_counts}')
     OUT.mkdir(parents=True, exist_ok=True)
-    for cc, c in COUNTRIES.items():
+    for cc, c in ((k, COUNTRIES[k]) for k in wanted):
         pts = [('farm', c['farm']['lat'], c['farm']['lon'])] + [(k, *v) for k, v in c['zones'].items()]
         with ThreadPoolExecutor(1) as ex:
             got = list(ex.map(lambda p: era5(f'{cc}_{p[0]}', p[1], p[2], end_era5, light=p[0] != 'farm'), pts))
@@ -495,7 +530,7 @@ def main():
                 'era5': 'ERA5 reanalysis (Copernicus Climate Change Service / ECMWF), daily, via archive-api.open-meteo.com (models=era5); temperature at the point height (90 m DEM)',
                 'imerg': 'NASA/JAXA GPM IMERG daily rain via NASA POWER (power.larc.nasa.gov, IMERG_PRECTOT, UTC days)',
                 'powerCheck': 'NASA POWER PRECTOTCORR yearly totals, kept only to show the record break (see build_neighbours.py)',
-                'firms': f'NASA FIRMS VIIRS 375 m active fires, South Asia 7-day files ({", ".join(FIRMS)}), read {date.today().isoformat()}',
+                'firms': f'NASA FIRMS VIIRS 375 m active fires, {" + ".join(r.replace("_", " ") for r in REGIONS[cc])} 7-day files ({", ".join(FIRMS)}), read {date.today().isoformat()}',
                 'sentinel': 'Copernicus Sentinel-2 L2A via Microsoft Planetary Computer, read as in build_field_watch.py',
                 'area': 'Officer area: the unit holding the farm, from UN OCHA COD-AB on HDX (Myanmar townships, Bhutan gewogs) or geoBoundaries gbOpen (simplified) elsewhere; villages: GeoNames populated places (CC BY 4.0)',
             },
