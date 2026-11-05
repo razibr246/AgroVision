@@ -378,3 +378,15 @@ test('a season saves and continues: money, plots, counts, the mission reached an
   for (let k = 0; k < 200; k++) update(h, DT, {});
   assert.ok(h.questStarted, 'the mission reached starts again');
 });
+
+test('game settings: stored values are clamped and snapped, bad ones fall back, invert flips the look', async () => {
+  const { parseSettings, cleanSettings, DEFAULT_SETTINGS, isDefault, lookDelta } = await import('./settings.js');
+  assert.deepEqual(parseSettings('not json'), DEFAULT_SETTINGS);
+  assert.deepEqual(parseSettings(null), DEFAULT_SETTINGS);
+  const s = cleanSettings({ look: 9, invertY: 'yes', fov: -30, text: '1.17', extra: 1 });
+  assert.deepEqual(s, { look: 2, invertY: false, fov: -8, text: 1.2 });
+  assert.ok(isDefault(cleanSettings({})) && !isDefault(s));
+  const a = lookDelta(10, 10, 0.01, { look: 1, invertY: false }), b = lookDelta(10, 10, 0.01, { look: 1, invertY: true });
+  assert.equal(a.pitch, -b.pitch); assert.equal(a.yaw, b.yaw);
+  assert.equal(lookDelta(10, 0, 0.01, { look: 2, invertY: false }).yaw, 2 * a.yaw);
+});

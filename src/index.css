@@ -179,7 +179,9 @@ body { font-optical-sizing: auto; }
 @media (min-width: 3200px) { :root { --ui-zoom: 1.8; } }
 @media (min-width: 3800px) { :root { --ui-zoom: 2.1; } }
 html { zoom: var(--ui-zoom); }
-.g3 { zoom: calc(1 / var(--ui-zoom)); }
+.g3 { zoom: calc(var(--g3-text, 1) / var(--ui-zoom)); }
+/* the player's text size (game settings) scales the HUD only: the 3D picture and the labels pinned to it stay 1:1 */
+.g3 > .g3-unzoom { zoom: calc(1 / var(--g3-text, 1)); }
 .surface-card {
   position: relative;
   border: 1px solid rgba(255, 255, 255, .78);

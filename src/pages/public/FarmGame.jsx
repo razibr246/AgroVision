@@ -4,7 +4,7 @@
 // warnings on the phone. The 3D world lives in src/game/three; the rules in src/game/sim.js.
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Music, Gauge, Coins, Droplets, ShoppingBasket, Satellite, Smartphone, Volume2, VolumeX, Hand, Sun, Moon, CloudLightning, Bug, TrendingDown, Star, RotateCcw, Users, Sprout, Check, X, ArrowRight, Sparkles, Info, Pause, Play, LogOut, MapPin, ShieldAlert, Footprints, Keyboard, Globe2, Glasses, View, Camera } from 'lucide-react';
+import { Music, Gauge, Coins, Droplets, ShoppingBasket, Satellite, Smartphone, Volume2, VolumeX, Hand, Sun, Moon, CloudLightning, Bug, TrendingDown, Star, RotateCcw, Users, Sprout, Check, X, ArrowRight, Sparkles, Info, Pause, Play, LogOut, MapPin, ShieldAlert, Footprints, Keyboard, Globe2, Glasses, View, Camera, SlidersHorizontal } from 'lucide-react';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../components/Motion';
 import { num } from '../../engine/dates';
@@ -13,6 +13,7 @@ import { REGIONS, FARMER_IDS, BD_IDS, ABROAD_IDS, QUESTS, SAT_LAYERS, STEP_LABEL
 import { sliderMods, seasonReport, nextTry } from '../../game/fieldshift';
 import { FERT, buyFertilizer, fertilize, priceTrend } from '../../game/village';
 import { SAVE_KEY, saveState, restoreState } from '../../game/savegame';
+import { SETTINGS_KEY, SETTING_RANGES, DEFAULT_SETTINGS, parseSettings, cleanSetting, isDefault } from '../../game/settings';
 import { CAREER_KEY, emptyCareer, recordSeason, rankOf, startPerks, ACHIEVEMENTS, UNLOCKS, RANKS } from '../../game/career';
 // the FieldShift station brings the place's NASA records and the rotation engine: loaded when it is first opened
 const FieldStation = lazy(() => import('../../components/game/FieldStation'));
@@ -266,6 +267,9 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   const [modes, setModes] = useState([]); // AR and VR this device can play
   const [xr, setXr] = useState(null);
   const padRef = useRef(null); // gamepad buttons the stage hands to the page (B back, X satellite, Y kiosk, LB/RB seed, Start pause)
+  const [prefs, setPrefs] = useState(() => { try { return parseSettings(localStorage.getItem(SETTINGS_KEY)); } catch { return { ...DEFAULT_SETTINGS }; } });
+  const [showSettings, setShowSettings] = useState(false);
+  const setPref = (k, v) => setPrefs((p) => ({ ...p, [k]: cleanSetting(k, v) }));
   const [photo, setPhoto] = useState(false); // photo mode: the season holds still, the HUD goes, the player frames a picture
   const [flash, setFlash] = useState(0);
   const [idle, setIdle] = useState(false); // desktop: the cursor hides after 1.5 s without moving
@@ -315,6 +319,8 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
     return () => { clearInterval(iv); stage.dispose(); stopAmbience(); };
   }, [g]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { st.current?.setLang(lang); }, [lang]);
+  useEffect(() => { st.current?.setPrefs(prefs); try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(prefs)); } catch { /* storage unavailable */ } }, [prefs]);
+  useEffect(() => { if (!paused) setShowSettings(false); }, [paused]);
   useEffect(() => { setWhy(false); }, [hud.quest]);
   useEffect(() => { let on = true; xrModes().then((m) => on && setModes(m)); return () => { on = false; }; }, []);
   const goXR = (mode) => st.current?.enterXR(mode, rootRef.current).catch(() => setToast({ text: { bn: 'এই যন্ত্রে AR/VR চালু করা গেল না', en: 'AR/VR could not start on this device' }, k: Math.random() }));
@@ -424,10 +430,10 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   );
 
   return (
-    <div ref={rootRef} className={`g3 fixed inset-0 z-[3000] select-none overflow-hidden text-white ${idle && !panel && !paused && !broke ? 'cursor-none' : ''} ${photo ? 'g3-photo-on' : ''} ${xr === 'ar' ? 'bg-transparent' : 'bg-[#0d1a12]'}`}>
+    <div ref={rootRef} className={`g3 fixed inset-0 z-[3000] select-none overflow-hidden text-white ${idle && !panel && !paused && !broke ? 'cursor-none' : ''} ${photo ? 'g3-photo-on' : ''} ${xr === 'ar' ? 'bg-transparent' : 'bg-[#0d1a12]'}`} style={{ '--g3-text': prefs.text }}>
       {/* in AR this whole layer is the dom-overlay over the camera; the canvas's last flat frame must not cover it */}
-      <canvas ref={cv} className={`absolute inset-0 h-full w-full touch-none ${xr === 'ar' ? 'invisible' : ''}`} aria-label={T(`${R.farmer.bn}-এর মাঠ — ত্রিমাত্রিক খেলা`, `${R.farmer.en}’s field — 3D game`)} />
-      <div ref={overlay} className="pointer-events-none absolute inset-0 overflow-hidden" />
+      <canvas ref={cv} className={`g3-unzoom absolute inset-0 h-full w-full touch-none ${xr === 'ar' ? 'invisible' : ''}`} aria-label={T(`${R.farmer.bn}-এর মাঠ — ত্রিমাত্রিক খেলা`, `${R.farmer.en}’s field — 3D game`)} />
+      <div ref={overlay} className="g3-unzoom pointer-events-none absolute inset-0 overflow-hidden" />
       {/* vignettes for heat, storm and being caught out */}
       <div className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${hud.ev.heat > 0 ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(255,120,30,.35))' }} />
       <div className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${hud.down > 0 ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(100% 80% at 50% 50%, rgba(120,0,0,.1), rgba(150,0,0,.55))' }} />
@@ -444,7 +450,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       </div>
 
       {/* top centre: the compass strip */}
-      <div className={`absolute left-1/2 top-3 hidden -translate-x-1/2 transition-opacity md:block ${intro ? 'opacity-0' : ''}`}>
+      <div className={`absolute left-1/2 top-3 hidden -translate-x-1/2 transition-opacity ${prefs.text > 1 ? '2xl:block' : 'md:block'} ${intro ? 'opacity-0' : ''}`}>
         <div ref={compassRef} className="g3-compass" aria-hidden="true">
           {COMPASS.map(([d, t]) => <span key={d} className={t ? 'g3-cl' : 'g3-ct'} style={{ '--d': d }}>{t ? t[lang === 'bn' ? 0 : 1] : ''}</span>)}
           <span className="g3-compass-pin" />
@@ -709,7 +715,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       {panel && <Panel kind={panel} g={g} hud={hud} R={R} onClose={closePanel} onWhatIf={onWhatIf} onQuizDone={(ok) => { answerQuiz(g, ok); setPanel(null); }} />}
       {paused && !panel && (
         <div className="absolute inset-0 grid place-items-center bg-black/55 p-4 backdrop-blur-sm">
-          <div role="dialog" aria-modal="true" aria-labelledby="game-pause-title" tabIndex={-1} className="g3-panel w-full max-w-sm rounded-[26px] p-6 text-center">
+          <div role="dialog" aria-modal="true" aria-labelledby="game-pause-title" tabIndex={-1} className="g3-panel max-h-full w-full max-w-sm overflow-y-auto overscroll-contain rounded-[26px] p-6 text-center">
             <p id="game-pause-title" className="font-display text-[26px] font-bold">{T('বিরতি', 'Paused')}</p>
             <div className="mt-3 flex items-center justify-center gap-3 rounded-2xl bg-white/10 p-3 text-left ring-1 ring-white/15">
               <span className="grid h-12 w-12 place-items-center rounded-xl text-[24px]" style={{ background: stage(R.country) }}>{R.flag}</span>
@@ -724,6 +730,8 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
               <button type="button" onClick={onRestart} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15"><RotateCcw size={16} />{T('আবার শুরু', 'Restart')}</button>
               <button type="button" onClick={() => setMute(!muted)} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15">{muted ? <VolumeX size={16} /> : <Volume2 size={16} />}{muted ? T('শব্দ চালু করুন', 'Turn sound on') : T('শব্দ বন্ধ করুন', 'Turn sound off')}</button>
               <button type="button" onClick={() => setMusicOn(!music)} aria-pressed={music} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15"><Music size={16} />{music ? T('সুর বন্ধ করুন', 'Turn music off') : T('সুর চালু করুন', 'Turn music on')}</button>
+              <button type="button" onClick={() => setShowSettings((v) => !v)} aria-expanded={showSettings} aria-controls="game-settings" className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15"><SlidersHorizontal size={16} />{T('সেটিংস', 'Settings')}</button>
+              {showSettings && <GameSettings id="game-settings" prefs={prefs} setPref={setPref} reset={() => setPrefs({ ...DEFAULT_SETTINGS })} T={T} lang={lang} />}
               <button type="button" onClick={onQuit} className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white/70 hover:text-white"><LogOut size={16} />{T('খেলা ছেড়ে বের হন', 'Quit the game')}</button>
             </div>
             <p className="mt-4 text-[12.5px] leading-5 text-white/60">{touch ? T('বাঁয়ের চাকা দিয়ে হাঁটুন, ডানে টেনে চারপাশ দেখুন, দুই আঙুলে জুম।', 'Walk with the left stick, drag on the right to look, pinch to zoom.') : T('WASD হাঁটা · Shift ধরে দৌড় / R টগল · E/F/Space কাজ · মাউস টেনে দেখা · চাকা জুম · 1–4 বীজ · N উপগ্রহ', 'WASD walk · hold Shift / press R to run · E/F/Space act · drag to look · wheel zoom · 1–4 seed · N satellite')}</p>
@@ -762,6 +770,32 @@ function RoundBtn({ children, onClick, label, on }) {
 }
 
 // A thumb stick on the left half; the action and run buttons on the right, like a mobile shooter.
+// the pause menu's settings: camera turn speed, invert up/down, view width and HUD text size, kept on this device
+function GameSettings({ id, prefs, setPref, reset, T, lang }) {
+  const row = (k, label, fmt) => {
+    const r = SETTING_RANGES[k];
+    return (
+      <label className="block">
+        <span className="flex justify-between text-[13px]"><span>{label}</span><b className="tabular text-emerald-200">{fmt(prefs[k])}</b></span>
+        <input type="range" min={r.min} max={r.max} step={r.step} value={prefs[k]} onChange={(e) => setPref(k, e.target.value)} className="mt-1 w-full accent-emerald-400" />
+      </label>
+    );
+  };
+  const x = (v) => `${num(v, lang, { dp: 1 })}×`;
+  return (
+    <div id={id} className="space-y-3 rounded-2xl bg-white/10 p-4 text-left ring-1 ring-white/15">
+      {row('look', T('ক্যামেরা ঘোরার গতি', 'Camera turn speed'), x)}
+      {row('fov', T('দৃষ্টির প্রস্থ', 'Field of view'), (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${num(Math.abs(v), lang)}°`)}
+      {row('text', T('লেখার আকার', 'Text size'), x)}
+      <label className="flex items-center justify-between text-[13px]">
+        <span>{T('উপর-নিচ উল্টো দেখা', 'Invert look up/down')}</span>
+        <input type="checkbox" checked={prefs.invertY} onChange={(e) => setPref('invertY', e.target.checked)} className="h-4 w-4 accent-emerald-400" />
+      </label>
+      <button type="button" onClick={reset} disabled={isDefault(prefs)} className="text-[12.5px] font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline disabled:opacity-40 disabled:no-underline">{T('আগের মতো করুন', 'Reset to defaults')}</button>
+    </div>
+  );
+}
+
 // while the camera drops from orbit, one mission tip at a time (the idea of a loading screen's rotating tips)
 function IntroTip({ L, T }) {
   const tips = QUESTS.filter((x) => x.how);

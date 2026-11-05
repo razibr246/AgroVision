@@ -17,7 +17,7 @@ const CRITERIA = [
     solutionBn: 'নাসা POWER (২৫ বছরের দৈনিক আবহাওয়া), GPM IMERG (বৃষ্টির শুরু ও পরিমাণ), SMAP (শিকড়ের আর্দ্রতা), এবং GRACE (ভূগর্ভস্থ পানির পতন) সরাসরি ব্রাউজারে ইনজেস্ট ও প্রসেস হয়।',
     solutionEn: 'Ingests NASA POWER (25yr daily heat/rain), GPM IMERG (daily rain/onset), SMAP (root wetness), and GRACE (aquifer trend) client-side in sub-second time.',
     codeRef: 'src/engine/soilfuture.js · src/engine/climate.js',
-    verification: '358 Tests Passing · 0 Failures',
+    verification: '361 Tests Passing · 0 Failures',
   },
   {
     id: 'c2',
@@ -99,7 +99,7 @@ export default function ChallengeDossier() {
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-primary-100 px-3 py-1 text-[12.5px] font-bold text-primary-900">
-            {T('৩৫৮টি টেস্টে প্রমাণিত', '358/358 Tests Verified')}
+            {T('৩৬১টি টেস্টে প্রমাণিত', '361/361 Tests Verified')}
           </span>
           <Tags list={['SAT', 'MODEL', 'RULE']} />
         </div>

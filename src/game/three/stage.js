@@ -20,6 +20,7 @@ import { update as step, act as simAct, target, plotAt, dayPhase, ripeAt, STATIO
 import { QUESTS, FIELD_W, FIELD_D, WORLD_R } from '../regions';
 import { inWater } from '../layout';
 import { bakeNav, findPath } from '../nav';
+import { DEFAULT_SETTINGS, lookDelta } from '../settings';
 
 const segDist = (px, pz, [ax, az], [bx, bz]) => {
   const dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / l));
@@ -269,6 +270,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
   window.addEventListener('keydown', kd); window.addEventListener('keyup', ku);
   window.addEventListener('blur', clearInput);
   document.addEventListener('visibilitychange', onVisibility);
+  let prefs = { ...DEFAULT_SETTINGS }; // the player's look speed, invert and field of view (../settings.js)
   const drags = new Map();
   const pd = (e) => { canvas.setPointerCapture?.(e.pointerId); drags.set(e.pointerId, [e.clientX, e.clientY]); cam.look = 1.5; };
   const pm = (e) => {
@@ -280,8 +282,8 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       cam.dist = Math.min(14, Math.max(3.5, cam.dist * (before / Math.max(1, after))));
       return;
     }
-    const s = touch ? 0.006 : 0.0045;
-    cam.yaw -= (e.clientX - d[0]) * s; cam.pitch = Math.min(1.25, Math.max(0.08, cam.pitch + (e.clientY - d[1]) * s));
+    const lk = lookDelta(e.clientX - d[0], e.clientY - d[1], touch ? 0.006 : 0.0045, prefs);
+    cam.yaw += lk.yaw; cam.pitch = Math.min(1.25, Math.max(0.08, cam.pitch + lk.pitch));
     drags.set(e.pointerId, [e.clientX, e.clientY]); cam.look = 1.5;
   };
   const pu = (e) => drags.delete(e.pointerId);
@@ -515,7 +517,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     pad.x = dz(gp.axes[0]); pad.y = -dz(gp.axes[1]);
     pad.run = (gp.buttons[6]?.value ?? 0) > 0.4 || (gp.buttons[7]?.value ?? 0) > 0.4 || !!gp.buttons[10]?.pressed;
     const rx = dz(gp.axes[2]), ry = dz(gp.axes[3]);
-    if (rx || ry) { cam.yaw -= rx * dt * 2.4; cam.pitch = Math.min(1.25, Math.max(0.08, cam.pitch + ry * dt * 1.6)); cam.look = 1.5; }
+    if (rx || ry) { const lk = lookDelta(rx * 2.4, ry * 1.6, dt, prefs); cam.yaw += lk.yaw; cam.pitch = Math.min(1.25, Math.max(0.08, cam.pitch + lk.pitch)); cam.look = 1.5; }
     if (edge(0) && cam.intro === 0 && !paused && !g.paused) simAct(g);
     for (const [i, action] of Object.entries(PAD_EVENTS)) if (edge(+i)) onEvent({ type: 'pad', action });
   }
@@ -647,7 +649,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
         camera.position.lerp(camPos, Math.min(1, dt * (cam.sat ? 4.5 : 12)));
         camera.lookAt(focus);
         if (!cam.sat) {
-          const baseFov = touch ? 60 : 52;
+          const baseFov = (touch ? 60 : 52) + prefs.fov;
           const targetFov = baseFov + runShare * 4;
           if (Math.abs(camera.fov - targetFov) > 0.05) {
             camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 7.5);
@@ -879,6 +881,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     get sat() { return cam.sat; },
     setLayer(l) { cam.layer = l; if (l === 'water' && cam.sat) note(g, 'waterLayer'); },
     setHush(v) { hush = !!v; },
+    setPrefs(p) { prefs = { ...DEFAULT_SETTINGS, ...p }; },
     snap: () => new Promise((resolve) => { snapReq = resolve; }),
     skipIntro() { if (cam.intro) cam.introT = Math.max(cam.introT, 4.6); },
     setPaused(p) { paused = p; if (p) clearInput(); },
