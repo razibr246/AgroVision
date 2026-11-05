@@ -51,6 +51,11 @@ function terrain(L) {
 
 function waters(L) {
   const list = [];
+  const lilyPadMat = new THREE.MeshStandardMaterial({ color: '#1a4c28', roughness: 0.5, metalness: 0.1, side: THREE.DoubleSide });
+  const flowerMat = new THREE.MeshStandardMaterial({ color: '#fbfcfc', roughness: 0.3, metalness: 0.05 });
+  const redFlowerMat = new THREE.MeshStandardMaterial({ color: '#e11d48', roughness: 0.3, metalness: 0.05 });
+  const stamenMat = new THREE.MeshStandardMaterial({ color: '#facc15', roughness: 0.4 });
+
   for (const w of L.water) {
     const geo = w.r ? new THREE.CircleGeometry(w.r + 0.4, 40) : new THREE.PlaneGeometry(w.x1 - w.x0, w.z1 - w.z0, Math.min(80, Math.ceil((w.x1 - w.x0) / 3)), Math.min(80, Math.ceil((w.z1 - w.z0) / 3)));
     geo.rotateX(-Math.PI / 2);
@@ -58,6 +63,54 @@ function waters(L) {
     m.position.set(w.r ? w.cx : (w.x0 + w.x1) / 2, w.y, w.r ? w.cz : (w.z0 + w.z1) / 2);
     m.receiveShadow = true; m.userData.base = geo.attributes.position.array.slice();
     list.push(m);
+
+    // Floating water lilies and lily pads (শালুক ও জাতীয় ফুল শাপলা)
+    if (w.kind === 'pond' || w.kind === 'canal' || w.kind === 'gher' || (w.kind === 'river' && (L.far === 'dhaka' || L.far === 'meghalaya' || L.far === 'mangrove'))) {
+      const floraGroup = new THREE.Group();
+      floraGroup.position.set(w.r ? w.cx : (w.x0 + w.x1) / 2, w.y + 0.02, w.r ? w.cz : (w.z0 + w.z1) / 2);
+      const padCount = w.r ? Math.min(22, Math.floor(w.r * 3.2)) : Math.min(26, Math.floor((w.x1 - w.x0) * 0.35));
+      let rndSeed = 13 + (w.r || w.x0);
+      const wRnd = () => { rndSeed = (rndSeed * 16807) % 2147483647; return rndSeed / 2147483647; };
+      for (let k = 0; k < padCount; k++) {
+        let px, pz;
+        if (w.r) {
+          const a = wRnd() * Math.PI * 2, dist = (0.32 + wRnd() * 0.58) * w.r;
+          px = Math.cos(a) * dist; pz = Math.sin(a) * dist;
+        } else {
+          const edge = wRnd() < 0.5 ? -1 : 1;
+          px = (wRnd() - 0.5) * (w.x1 - w.x0) * 0.85;
+          pz = edge * ((w.z1 - w.z0) * 0.34 + wRnd() * (w.z1 - w.z0) * 0.1);
+        }
+        const padR = 0.28 + wRnd() * 0.2;
+        const padGeo = new THREE.CircleGeometry(padR, 10, 0.2, Math.PI * 1.82);
+        padGeo.rotateX(-Math.PI / 2);
+        const padMesh = new THREE.Mesh(padGeo, lilyPadMat);
+        padMesh.position.set(px, 0, pz);
+        padMesh.rotation.y = wRnd() * Math.PI * 2;
+        padMesh.receiveShadow = true;
+        floraGroup.add(padMesh);
+
+        if (k % 3 === 0) {
+          const isRed = (k / 3) % 2 === 1;
+          const flower = new THREE.Group();
+          flower.position.set(px + (wRnd() - 0.5) * 0.1, 0.025, pz + (wRnd() - 0.5) * 0.1);
+          const stam = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.04, 6), stamenMat);
+          stam.position.y = 0.02;
+          flower.add(stam);
+          const fMat = isRed ? redFlowerMat : flowerMat;
+          for (let p = 0; p < 7; p++) {
+            const pa = (p / 7) * Math.PI * 2;
+            const pet = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.11, 4), fMat);
+            pet.position.set(Math.cos(pa) * 0.045, 0.03, Math.sin(pa) * 0.045);
+            pet.rotation.set(0.65, -pa + Math.PI / 2, 0);
+            flower.add(pet);
+          }
+          floraGroup.add(flower);
+        }
+      }
+      floraGroup.userData.live = true; floraGroup.userData.bob = true;
+      list.push(floraGroup);
+    }
   }
   return list;
 }
@@ -85,8 +138,32 @@ function scenery(kind, group) {
       blob(group, R * (0.55 + rnd() * 0.15), col, [x + Math.cos(b) * d, h + R * (0.95 + rnd() * 0.3), z + Math.sin(b) * d], [1, 0.8, 1], 1).castShadow = false;
     }
   };
+  const farPalm = (x, z, h = 9, col = '#3f6a34') => {
+    cyl(group, 0.16, 0.26, h, '#544332', [x, h / 2, z], [0, 0, 0], 6).castShadow = false;
+    blob(group, 1.3, col, [x, h + 0.5, z], [1.3, 0.4, 1.3], 0).castShadow = false;
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * Math.PI * 2;
+      box(group, 0.28, 0.04, 2.2, col, [x + Math.cos(a) * 0.8, h + 0.35, z + Math.sin(a) * 0.8], [0.65, -a + Math.PI / 2, 0]).castShadow = false;
+    }
+  };
   if (kind === 'plain') {
-    for (let k = 0; k < 120; k++) { const a = rnd() * Math.PI * 2, r = 85 + rnd() * 65; grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, ['#3f6a34', '#4f7a3f', '#5a8a44'][k % 3]); }
+    for (let k = 0; k < 110; k++) {
+      const a = rnd() * Math.PI * 2, r = 85 + rnd() * 60;
+      grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, ['#3f6a34', '#4f7a3f', '#5a8a44'][k % 3]);
+      if (k % 5 === 0) farPalm(Math.cos(a + 0.05) * (r + 4), Math.sin(a + 0.05) * (r + 4), 9 + rnd() * 3, '#32572b');
+    }
+    // Deep misty horizon ring ("ফসলের দিগন্ত")
+    for (let k = 0; k < 60; k++) {
+      const a = rnd() * Math.PI * 2, r = 150 + rnd() * 65;
+      grove(Math.cos(a) * r, Math.sin(a) * r, 4 + rnd() * 3.8, ['#49725f', '#5a8370', '#6b9281'][k % 3]);
+    }
+  }
+  // Nevada's Great Basin: Diamond Valley lies between two bare ranges (the Sulphur Spring Range to the west, the
+  // Diamond Mountains to the east), grey-blue with distance, with sagebrush flats in between.
+  if (kind === 'basin') {
+    ridge(30, 120, 175, Math.PI * 0.62, Math.PI * 1.38, 22, 46, '#8b8a8e');
+    ridge(30, 120, 175, -Math.PI * 0.38, Math.PI * 0.38, 26, 58, '#7f8496', true);
+    for (let k = 0; k < 70; k++) { const a = rnd() * Math.PI * 2, r = 78 + rnd() * 55; blob(group, 1.2 + rnd() * 1.4, ['#8c9a7a', '#9aa684', '#7f8c70'][k % 3], [Math.cos(a) * r, 0.8, Math.sin(a) * r], [1.2, 0.55, 1.2], 1).castShadow = false; }
   }
   if (kind === 'kirthar') { ridge(32, 120, 180, Math.PI * 0.75, Math.PI * 1.25, 20, 48, '#9a7a56'); for (let k = 0; k < 55; k++) { const a = rnd() * Math.PI * 2, r = 80 + rnd() * 60; blob(group, 2.2 + rnd() * 2.2, '#7d8a4a', [Math.cos(a) * r, 2, Math.sin(a) * r], [1.3, 0.5, 1.2], 0).castShadow = false; } }
   if (kind === 'churia') { ridge(38, 110, 160, -Math.PI * 0.95, -Math.PI * 0.05, 22, 50, '#3f6a3a'); ridge(25, 160, 220, -Math.PI * 0.9, -Math.PI * 0.1, 45, 78, '#5b7a76'); }
@@ -100,7 +177,15 @@ function scenery(kind, group) {
   }
 
   if (kind === 'dhaka') {
-    for (let k = 0; k < 85; k++) { const a = rnd() * Math.PI * 2, r = 85 + rnd() * 60; grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, k % 2 ? '#5f8f45' : '#4f7f3c'); }
+    for (let k = 0; k < 85; k++) {
+      const a = rnd() * Math.PI * 2, r = 85 + rnd() * 60;
+      grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, k % 2 ? '#5f8f45' : '#4f7f3c');
+      if (k % 6 === 0) farPalm(Math.cos(a + 0.06) * (r + 3), Math.sin(a + 0.06) * (r + 3), 9 + rnd() * 2, '#385d2f');
+    }
+    for (let k = 0; k < 45; k++) {
+      const a = rnd() * Math.PI * 2, r = 145 + rnd() * 65;
+      grove(Math.cos(a) * r, Math.sin(a) * r, 4.2 + rnd() * 3.5, ['#4f7b68', '#5e8976', '#6e9784'][k % 3]);
+    }
     for (let k = 0; k < 12; k++) { const a = -Math.PI * 0.85 + k * 0.18, r = 110 + rnd() * 40, x = Math.cos(a) * r, z = Math.sin(a) * r;
       box(group, 18, 7, 10, k % 2 ? '#9aa4ad' : '#b7aa96', [x, 3.5, z]).castShadow = false; cyl(group, 0.8, 1, 16, '#8a8178', [x + 6, 8, z], [0, 0, 0], 8).castShadow = false; }
   }
@@ -109,7 +194,17 @@ function scenery(kind, group) {
     const t = new THREE.Group(); t.position.set(110, 34, -10); group.add(t); box(t, 3, 4, 3, '#f2ede2', [0, 2, 0]); cone(t, 2, 3, '#c9482e', [0, 5.5, 0], [0, Math.PI / 4, 0], 4); // Chandranath on its hill
     for (let k = 0; k < 7; k++) { const z = -60 + k * 26, x = -110 - rnd() * 35; box(group, 6, 4, 26, k % 2 ? '#8a3a2a' : '#4a5a6a', [x, 1, z]).castShadow = false; box(group, 4, 5, 6, '#e8e4da', [x, 5, z - 8]).castShadow = false; cyl(group, 0.2, 0.2, 18, '#d6a020', [x + 10, 9, z + 4], [0, 0, 0], 5).castShadow = false; }
   }
-  if (kind === 'rivers' || kind === 'char') for (let k = 0; k < 95; k++) { const a = rnd() * Math.PI * 2, r = 80 + rnd() * 70; grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, kind === 'char' ? '#7f9f55' : k % 2 ? '#4f8a3c' : '#437a34'); }
+  if (kind === 'rivers' || kind === 'char') {
+    for (let k = 0; k < 95; k++) {
+      const a = rnd() * Math.PI * 2, r = 80 + rnd() * 70;
+      grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, kind === 'char' ? '#7f9f55' : k % 2 ? '#4f8a3c' : '#437a34');
+      if (k % 5 === 0) farPalm(Math.cos(a + 0.05) * (r + 4), Math.sin(a + 0.05) * (r + 4), 9 + rnd() * 3, '#32572b');
+    }
+    for (let k = 0; k < 50; k++) {
+      const a = rnd() * Math.PI * 2, r = 150 + rnd() * 65;
+      grove(Math.cos(a) * r, Math.sin(a) * r, 4 + rnd() * 3.8, ['#4c7865', '#5d8774', '#6d9582'][k % 3]);
+    }
+  }
   if (kind === 'char') for (let k = 0; k < 180; k++) { const x = -70 + rnd() * 140, z = 26 + rnd() * 18; cone(group, 0.35, 1.6, '#e9e4d6', [x, 0.8, z], [0, 0, (rnd() - 0.5) * 0.4], 4).castShadow = false; }
   if (kind === 'meghalaya') {
     ridge(38, 110, 160, -Math.PI * 0.95, -Math.PI * 0.05, 34, 68, '#3a6a4a'); ridge(26, 160, 220, -Math.PI * 0.9, -Math.PI * 0.1, 68, 102, '#6a8a96');
@@ -134,7 +229,7 @@ function bake(group) {
   const byMat = new Map(), keep = [];
   group.traverse((o) => {
     if (!o.isMesh) return;
-    let moving = false; for (let p = o; p; p = p.parent) if (p.userData.wave || p.userData.flow || p.userData.animal || p.userData.wheel || p.userData.live) { moving = true; break; }
+    let moving = false; for (let p = o; p; p = p.parent) if (p.userData.wave || p.userData.flow || p.userData.animal || p.userData.wheel || p.userData.live || p.userData.crown) { moving = true; break; }
     if (moving) { keep.push(o); return; }
     const g = (o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone()).applyMatrix4(o.matrixWorld);
     for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k);
@@ -194,13 +289,24 @@ export function createWorld(scene, g, { light = false } = {}) {
     props.add(o);
     if (o.userData.animal) { o.userData.animal.home = [p.x, p.z]; o.userData.animal.ph = Math.random() * 10; animals.push(o); }
   }
+  const swayingCrowns = [];
+  props.traverse((o) => {
+    if (o.userData.crown) swayingCrowns.push(o);
+  });
   scenery(L.far, props);
   const { baked, keep } = bake(props);
   root.add(baked);
+  // Re-parent swaying tree crowns as intact groups to root
+  for (const c of swayingCrowns) {
+    c.updateWorldMatrix(true, false);
+    c.matrixWorld.decompose(c.position, c.quaternion, c.scale);
+    root.add(c);
+  }
   // moving pieces stay live: re-parent them with their world transforms
   const waving = [], flowing = [], wheels = [], bobbing = [];
   for (const o of keep) {
     if (animals.some((a) => { for (let p = o; p; p = p.parent) if (p === a) return true; return false; })) continue;
+    if (swayingCrowns.some((c) => { for (let p = o; p; p = p.parent) if (p === c) return true; return false; })) continue;
     o.updateWorldMatrix(true, false); o.matrixWorld.decompose(o.position, o.quaternion, o.scale); root.add(o);
     if (o.userData.wave) waving.push(o); if (o.userData.flow) flowing.push(o); if (o.userData.wheel) wheels.push(o);
     for (let p = o; p; p = p.parent) if (p.userData.bob) { bobbing.push({ o, y: o.position.y, ph: Math.random() * 6 }); break; }
@@ -427,6 +533,12 @@ export function createWorld(scene, g, { light = false } = {}) {
         a.needsUpdate = true;
       }
       const wind = wet0 ? 2.4 : 0.8;
+      for (const c of swayingCrowns) {
+        const amp = c.userData.swayAmp ?? 0.05;
+        const ph = c.position.x * 0.35 + c.position.z * 0.25;
+        c.rotation.z = Math.sin(t * 1.8 * wind + ph) * amp * (wind > 1.5 ? 1.35 : 1.0);
+        c.rotation.x = Math.cos(t * 1.3 * wind + ph) * amp * 0.55;
+      }
       for (const f of waving) f.rotation.y = Math.sin(t * 3 * wind + f.position.x) * 0.25 * wind;
       for (const f of flowing) f.scale.y = 1 + Math.sin(t * 12 + f.position.x) * 0.08;
       for (const b of bobbing) b.o.position.y = b.y + Math.sin(t * 1.3 + b.ph) * 0.05;
@@ -441,18 +553,87 @@ export function createWorld(scene, g, { light = false } = {}) {
           a.rotation.y = -A.ph * 0.25;
           const w = L.water.find((w2) => (w2.r ? Math.hypot(a.position.x - w2.cx, a.position.z - w2.cz) < w2.r : a.position.x > w2.x0 && a.position.x < w2.x1 && a.position.z > w2.z0 && a.position.z < w2.z1));
           a.position.y = w ? w.y + Math.sin(A.ph * 3) * 0.02 : L.ground(a.position.x, a.position.z);
+          // Buoyant lateral roll
+          a.rotation.z = Math.sin(A.ph * 2.8) * 0.05;
           // Tail dabble dive underwater every ~12s
           const dabble = Math.sin(A.ph * 0.5);
           a.rotation.x = dabble > 0.85 ? 0.42 : 0;
+          if (A.head) A.head.rotation.x = dabble > 0.85 ? -0.4 : Math.sin(A.ph * 1.8) * 0.1;
+          continue;
+        }
+
+        if (A.kind === 'egret') {
+          // Wetland egret (বক): slow high-stepping stalk, freeze-and-strike hunting, flight if player runs near
+          A.alarm = Math.max(0, (A.alarm ?? 0) - dt);
+          if (dPlayer < 3.8 && (A.alarm ?? 0) <= 0) {
+            A.alarm = 4.0;
+            const awayX = a.position.x - focus.x, awayZ = a.position.z - focus.z;
+            const awayLen = Math.hypot(awayX, awayZ) || 1;
+            A.flightTo = [a.position.x + (awayX / awayLen) * 8, a.position.z + (awayZ / awayLen) * 8];
+          }
+
+          if (A.alarm > 0 && A.flightTo) {
+            const progress = 1 - (A.alarm / 4.0);
+            const dx = A.flightTo[0] - a.position.x, dz = A.flightTo[1] - a.position.z, d = Math.hypot(dx, dz) || 1;
+            a.position.x += (dx / d) * dt * 2.8;
+            a.position.z += (dz / d) * dt * 2.8;
+            a.rotation.y = Math.atan2(dx, dz);
+            const flightArc = Math.sin(progress * Math.PI) * 2.2;
+            a.position.y = L.ground(a.position.x, a.position.z) + flightArc;
+            const flap = Math.sin(A.ph * 24);
+            if (A.wingL) A.wingL.rotation.z = -0.5 + flap * 0.7;
+            if (A.wingR) A.wingR.rotation.z = 0.5 - flap * 0.7;
+            if (A.neck) A.neck.rotation.x = -0.3;
+          } else {
+            if (A.wingL) A.wingL.rotation.z = 0;
+            if (A.wingR) A.wingR.rotation.z = 0;
+            const stalkCycle = Math.sin(A.ph * 1.2);
+            if (stalkCycle > 0.6) {
+              if (A.neck) A.neck.rotation.x = 0.75 + Math.sin(A.ph * 6) * 0.1;
+            } else {
+              if (A.neck) A.neck.rotation.x = Math.sin(A.ph * 0.8) * 0.12;
+            }
+            if (A.legs) {
+              A.legs.lL.rotation.x = Math.sin(A.ph * 1.2) * 0.25;
+              A.legs.lR.rotation.x = -Math.sin(A.ph * 1.2) * 0.25;
+            }
+            a.position.y = L.ground(a.position.x, a.position.z);
+          }
           continue;
         }
 
         if (A.kind === 'grazer' && A.head && A.tail) {
-          // Grazing head cycle + cud chewing + curious gaze toward player + ear twitches
+          // Grazing head cycle + cud chewing + curious gaze toward player + ear twitches + step cycle + flank breathing
           const grazeX = 0.05 + Math.max(0, Math.sin(A.ph * 0.5)) * 1.05 + Math.sin(A.ph * 3.1) * 0.03;
           A.head.rotation.x = grazeX;
-          // Chewing cud: lateral jaw motion
           A.head.rotation.z = Math.sin(A.ph * 6.5) * 0.04;
+
+          // Flank breathing expansion
+          if (A.torso) {
+            const breath = Math.sin(A.ph * 1.8);
+            A.torso.scale.x = 1.0 + breath * 0.025;
+            A.torso.scale.y = 1.0 + breath * 0.015;
+          }
+
+          // Ear fly-flicking: sharp occasional twitches
+          if (A.earL) A.earL.rotation.x = Math.sin(A.ph * 1.7) > 0.85 ? Math.sin(A.ph * 35) * 0.35 : 0;
+          if (A.earR) A.earR.rotation.x = Math.sin(A.ph * 2.3 + 1) > 0.85 ? Math.sin(A.ph * 32) * 0.35 : 0;
+
+          // Leg gait / shifting weight
+          if (A.legs) {
+            const stepActive = Math.sin(A.ph * 0.3) > 0.7;
+            if (stepActive) {
+              const stepPh = A.ph * 2.8;
+              A.legs.fL.rotation.x = Math.sin(stepPh) * 0.22;
+              A.legs.fR.rotation.x = -Math.sin(stepPh) * 0.22;
+              A.legs.bL.rotation.x = -Math.sin(stepPh) * 0.18;
+              A.legs.bR.rotation.x = Math.sin(stepPh) * 0.18;
+            } else {
+              A.legs.fL.rotation.x = 0; A.legs.fR.rotation.x = 0;
+              A.legs.bL.rotation.x = 0; A.legs.bR.rotation.x = 0;
+            }
+          }
+
           // Curious gaze towards player if close
           if (dPlayer < 4.5 && focus) {
             const dxP = focus.x - a.position.x, dzP = focus.z - a.position.z;
@@ -489,11 +670,22 @@ export function createWorld(scene, g, { light = false } = {}) {
 
         A.peckWait = Math.max(0, (A.peckWait ?? 0) - dt);
         if (A.peckWait > 0 && !isScampering) {
-          // Pecking the ground for seeds: rapid double-peck
+          // Soil scratching followed by peck
+          const scratchPh = (A.peckWait * 4) % 2;
+          if (A.legL && A.legR) {
+            A.legL.rotation.x = scratchPh < 1 ? -Math.sin(scratchPh * Math.PI) * 0.45 : 0;
+            A.legR.rotation.x = scratchPh >= 1 ? -Math.sin((scratchPh - 1) * Math.PI) * 0.45 : 0;
+          }
           const peckCycle = Math.sin(A.ph * 12);
           a.rotation.x = Math.max(0, peckCycle) * 0.35;
+          if (A.tail) A.tail.rotation.y = Math.sin(A.ph * 14) * 0.2;
         } else {
           a.rotation.x = 0;
+          if (A.legL && A.legR) {
+            const walkLeg = Math.sin(A.ph * (isScampering ? 20 : 10)) * 0.4;
+            A.legL.rotation.x = walkLeg;
+            A.legR.rotation.x = -walkLeg;
+          }
           const dx = A.to[0] - a.position.x, dz = A.to[1] - a.position.z, d = Math.hypot(dx, dz) || 1;
           const speed = isScampering ? 2.4 : 0.85;
           a.position.x += (dx / d) * dt * speed;

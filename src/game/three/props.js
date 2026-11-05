@@ -337,14 +337,17 @@ let leafSeed = 7;
 const leafRnd = () => { leafSeed = (leafSeed * 16807) % 2147483647; return leafSeed / 2147483647; };
 const shade = (c, k) => '#' + new THREE.Color(c).lerp(new THREE.Color(k < 0 ? '#0b1a0b' : '#f2f5c4'), Math.abs(k)).getHexString();
 function canopy(g, R, col, [cx, cy, cz], sy = 0.8, n = 8) {
+  const crown = G(); crown.position.set(cx, cy, cz); g.add(crown);
+  crown.userData.crown = true; crown.userData.swayAmp = 0.045;
   const dark = shade(col, -0.3), lite = shade(col, 0.18);
-  blob(g, R * 0.82, dark, [cx, cy - R * 0.08, cz], [1, sy, 1]);
+  blob(crown, R * 0.82, dark, [0, -R * 0.08, 0], [1, sy, 1]);
   for (let k = 0; k < n; k++) {
     const a = (k / n) * Math.PI * 2 + leafRnd() * 0.7, up = leafRnd() - 0.4;
     const d = R * (0.58 + leafRnd() * 0.16), r = R * (0.4 + leafRnd() * 0.18);
-    blob(g, r, up > 0.1 ? col : dark, [cx + Math.cos(a) * d, cy + up * R * sy, cz + Math.sin(a) * d], [1, 0.82, 1]);
+    blob(crown, r, up > 0.1 ? col : dark, [Math.cos(a) * d, up * R * sy, Math.sin(a) * d], [1, 0.82, 1]);
   }
-  for (let k = 0; k < 3; k++) { const a = k * 2.1 + leafRnd(); blob(g, R * (0.36 + leafRnd() * 0.1), lite, [cx + Math.cos(a) * R * 0.3, cy + R * sy * 0.62, cz + Math.sin(a) * R * 0.3], [1, 0.75, 1]); }
+  for (let k = 0; k < 3; k++) { const a = k * 2.1 + leafRnd(); blob(crown, R * (0.36 + leafRnd() * 0.1), lite, [Math.cos(a) * R * 0.3, R * sy * 0.62, Math.sin(a) * R * 0.3], [1, 0.75, 1]); }
+  return crown;
 }
 // two or three limbs out of the trunk top into the crown, so the crown does not float on a post
 function limbs(g, h, r, c, spread, n = 3) {
@@ -359,22 +362,70 @@ function tree(type) {
     const bark = type === 'sal' ? '#5a4632' : '#6b4a2b';
     if (type !== 'sal') limbs(g, h - 0.2, type === 'tamarind' ? 0.4 : 0.28, bark, R * 0.7);
     canopy(g, R * 1.12, col, [0, h + R * 0.62, 0], type === 'tamarind' ? 0.58 : type === 'sal' ? 1.05 : 0.82, type === 'tamarind' ? 10 : 8);
+    if (type === 'mango') {
+      // Hanging green mangoes
+      for (let k = 0; k < 6; k++) {
+        const ma = k * 1.1, mr = R * 0.75;
+        blob(g, 0.09, '#84cc16', [Math.cos(ma) * mr, h + R * 0.4, Math.sin(ma) * mr], [0.8, 1.2, 0.8], 0);
+      }
+    }
   } else if (type === 'eucalyptus') {
-    trunk(g, 9, 0.2, '#d9d2c2'); blob(g, 1.2, '#6f8f5a', [0, 8.5, 0], [0.8, 1.6, 0.8]); blob(g, 0.9, '#6f8f5a', [0.4, 6.8, 0.2], [0.8, 1.4, 0.8]);
+    trunk(g, 9, 0.2, '#d9d2c2');
+    const crown = G(); crown.position.set(0, 8.5, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.04;
+    blob(crown, 1.2, '#6f8f5a', [0, 0, 0], [0.8, 1.6, 0.8]); blob(crown, 0.9, '#6f8f5a', [0.4, -1.7, 0.2], [0.8, 1.4, 0.8]);
   } else if (type === 'poplar') {
-    trunk(g, 2, 0.14, '#9a9488'); blob(g, 0.9, '#7f9f4a', [0, 4.6, 0], [0.75, 3.2, 0.75]);
+    trunk(g, 2, 0.14, '#9a9488');
+    const crown = G(); crown.position.set(0, 4.6, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.055;
+    blob(crown, 0.9, '#7f9f4a', [0, 0, 0], [0.75, 3.2, 0.75]);
   } else if (type === 'kikar') {
     const t = trunk(g, 2.4, 0.16, '#5a4632'); t.rotation.z = 0.15;
-    blob(g, 2.2, '#7d8a4a', [0.3, 2.9, 0], [1.3, 0.35, 1.2]); blob(g, 1.3, '#7d8a4a', [-1, 2.6, 0.6], [1.2, 0.35, 1.1]);
+    const crown = G(); crown.position.set(0, 2.8, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.05;
+    blob(crown, 2.2, '#7d8a4a', [0.3, 0.1, 0], [1.3, 0.35, 1.2]); blob(crown, 1.3, '#7d8a4a', [-1, -0.2, 0.6], [1.2, 0.35, 1.1]);
   } else if (type === 'bluepine') {
-    trunk(g, 1.2, 0.18, '#4a3628'); for (let k = 0; k < 4; k++) cone(g, 1.7 - k * 0.35, 2.2, '#2a5a48', [0, 1.6 + k * 1.35, 0], [0, 0, 0], 8);
+    trunk(g, 1.2, 0.18, '#4a3628');
+    const crown = G(); crown.position.set(0, 1.6, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.035;
+    for (let k = 0; k < 4; k++) cone(crown, 1.7 - k * 0.35, 2.2, '#2a5a48', [0, k * 1.35, 0], [0, 0, 0], 8);
   } else if (type === 'banana') {
-    trunk(g, 1.6, 0.16, '#6f8a3a'); for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; box(g, 0.45, 0.04, 2, '#6aa13a', [Math.cos(a) * 0.8, 1.9, Math.sin(a) * 0.8], [0.5, -a + Math.PI / 2, 0]); }
+    trunk(g, 1.8, 0.16, '#6f8a3a');
+    const crown = G(); crown.position.set(0, 1.85, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.11;
+    for (let k = 0; k < 7; k++) {
+      const a = (k / 7) * Math.PI * 2;
+      box(crown, 0.52, 0.04, 2.4, '#5fa02c', [Math.cos(a) * 0.9, 0.2, Math.sin(a) * 0.9], [0.55, -a + Math.PI / 2, 0]);
+    }
+    cyl(crown, 0.035, 0.03, 0.55, '#4f7a28', [0.25, -0.2, 0.2], [0.8, 0, 0.3]);
+    cone(crown, 0.11, 0.3, '#831843', [0.38, -0.42, 0.32], [Math.PI, 0, 0], 6);
+    for (let b = 0; b < 6; b++) {
+      cyl(crown, 0.03, 0.025, 0.18, '#70a530', [0.28 + (b % 2) * 0.12, -0.15 - Math.floor(b / 2) * 0.08, 0.24], [1.1, 0, b * 0.4], 4);
+    }
   } else { // palms: date, toddy (palmyra)
     const toddy = type === 'toddy', h = toddy ? 10 : 6;
     cyl(g, 0.22, toddy ? 0.34 : 0.3, h, '#6b5340', [0, h / 2, 0], [0, 0, 0], 7);
-    if (toddy) { blob(g, 0.6, '#3d3226', [0, h + 0.1, 0], [1, 0.8, 1], 0); for (let k = 0; k < 14; k++) { const a = (k / 14) * Math.PI * 2, e = (k % 2) * 0.5; put(g, new THREE.CircleGeometry(1.1, 8, 0, Math.PI), M('#5c7d3a', { side: THREE.DoubleSide }), [Math.cos(a) * 0.9, h + 0.4 + e * 0.4, Math.sin(a) * 0.9], [-1.2 + e, -a + Math.PI / 2, 0]); } }
-    else { for (let k = 0; k < 10; k++) { const a = (k / 10) * Math.PI * 2; box(g, 0.35, 0.04, 2.6, '#5f7f38', [Math.cos(a) * 1.1, h - 0.1, Math.sin(a) * 1.1], [0.55, -a + Math.PI / 2, 0]); } for (let k = 0; k < 3; k++) blob(g, 0.3, '#c96f1e', [Math.cos(k * 2.1) * 0.4, h - 0.6, Math.sin(k * 2.1) * 0.4], [1, 1.3, 1], 0); }
+    if (toddy) {
+      const crown = G(); crown.position.set(0, h, 0); g.add(crown);
+      crown.userData.crown = true; crown.userData.swayAmp = 0.065;
+      blob(crown, 0.6, '#3d3226', [0, 0.1, 0], [1, 0.8, 1], 0);
+      for (let k = 0; k < 14; k++) {
+        const a = (k / 14) * Math.PI * 2, e = (k % 2) * 0.5;
+        put(crown, new THREE.CircleGeometry(1.1, 8, 0, Math.PI), M('#5c7d3a', { side: THREE.DoubleSide }), [Math.cos(a) * 0.9, 0.4 + e * 0.4, Math.sin(a) * 0.9], [-1.2 + e, -a + Math.PI / 2, 0]);
+      }
+    } else {
+      const crown = G(); crown.position.set(0, h, 0); g.add(crown);
+      crown.userData.crown = true; crown.userData.swayAmp = 0.075;
+      for (let k = 0; k < 12; k++) {
+        const a = (k / 12) * Math.PI * 2;
+        box(crown, 0.36, 0.04, 2.7, '#5f7f38', [Math.cos(a) * 1.1, -0.1, Math.sin(a) * 1.1], [0.55, -a + Math.PI / 2, 0]);
+      }
+      for (let k = 0; k < 3; k++) blob(crown, 0.3, '#c96f1e', [Math.cos(k * 2.1) * 0.4, -0.6, Math.sin(k * 2.1) * 0.4], [1, 1.3, 1], 0);
+      // Traditional date palm sap clay pot (রস সংগ্রহের মাটির হাঁড়ি)
+      blob(g, 0.18, '#b45309', [0.26, h - 1.8, 0], [1, 1.15, 1], 0);
+      cyl(g, 0.07, 0.1, 0.08, '#9a3412', [0.26, h - 1.68, 0]);
+      cyl(g, 0.015, 0.015, 0.2, '#fde047', [0.18, h - 1.55, 0], [0.6, 0, 0]);
+    }
   }
   return g;
 }
@@ -382,11 +433,54 @@ function tree(type) {
 // ---- animals ----
 export function animal(type) {
   const g = G();
+  if (type === 'egret') {
+    // White wetland egret (সাদা বক): slender elegant body, S-curved long neck, golden spear bill, wading legs, wings
+    const colW = '#ffffff';
+    blob(g, 0.14, colW, [0, 0.42, 0], [0.85, 0.85, 1.5], 0);
+    // Wings on sides (flare open when taking off)
+    const wingL = G(); wingL.position.set(-0.13, 0.44, 0); g.add(wingL);
+    box(wingL, 0.03, 0.14, 0.35, '#f1f5f9', [0, 0, -0.05], [0.1, 0, 0]);
+    const wingR = G(); wingR.position.set(0.13, 0.44, 0); g.add(wingR);
+    box(wingR, 0.03, 0.14, 0.35, '#f1f5f9', [0, 0, -0.05], [0.1, 0, 0]);
+    // S-curved neck and head
+    const neck = G(); neck.position.set(0, 0.46, 0.18); g.add(neck);
+    cyl(neck, 0.035, 0.045, 0.28, colW, [0, 0.12, 0.05], [-0.35, 0, 0], 6);
+    cyl(neck, 0.032, 0.035, 0.26, colW, [0, 0.32, 0.02], [0.45, 0, 0], 6);
+    blob(neck, 0.05, colW, [0, 0.44, 0.09], [0.8, 0.8, 1.2], 0);
+    // Golden spear bill
+    cone(neck, 0.022, 0.2, '#f59e0b', [0, 0.44, 0.24], [Math.PI / 2, 0, 0], 4);
+    // Black stilt wading legs
+    const legs = {};
+    for (const [s, key] of [[-0.06, 'lL'], [0.06, 'lR']]) {
+      const leg = G(); leg.position.set(s, 0.36, -0.02); g.add(leg);
+      cyl(leg, 0.014, 0.012, 0.36, '#1c1917', [0, -0.18, 0], [0, 0, 0], 4);
+      box(leg, 0.05, 0.008, 0.08, '#1c1917', [0, -0.36, 0.03]);
+      legs[key] = leg;
+    }
+    g.userData.animal = { kind: 'egret', neck, wingL, wingR, legs };
+    return g;
+  }
   const col = { buffalo: '#2a2624', cow: '#c9a27a', ox: '#e8e2d6', goat: '#7a5638', donkey: '#8c8680', chicken: '#f1ece2' }[type];
   if (type === 'chicken') {
-    blob(g, 0.17, col, [0, 0.25, 0], [1, 0.9, 1.3], 0); blob(g, 0.09, col, [0, 0.42, 0.16], [1, 1, 1], 0);
-    cone(g, 0.03, 0.08, '#e2a020', [0, 0.42, 0.27], [Math.PI / 2, 0, 0], 4); box(g, 0.03, 0.06, 0.08, '#d62a2a', [0, 0.52, 0.16]);
-    g.userData.animal = { kind: 'chicken' }; return g;
+    blob(g, 0.18, col, [0, 0.26, 0], [1, 0.95, 1.35], 0);
+    blob(g, 0.14, '#b45309', [-0.14, 0.28, 0.02], [0.35, 0.8, 1.1], 0);
+    blob(g, 0.14, '#b45309', [0.14, 0.28, 0.02], [0.35, 0.8, 1.1], 0);
+    const tail = G(); tail.position.set(0, 0.32, -0.18); g.add(tail);
+    for (let k = 0; k < 3; k++) box(tail, 0.02, 0.2, 0.08, '#1e293b', [0, 0.08 + k * 0.04, -0.05 * k], [0.45 - k * 0.15, 0, 0]);
+    const head = G(); head.position.set(0, 0.38, 0.16); g.add(head);
+    cyl(head, 0.055, 0.07, 0.18, col, [0, 0.04, 0.02], [0.4, 0, 0], 6);
+    blob(head, 0.075, col, [0, 0.14, 0.06], [1, 1, 1], 0);
+    cone(head, 0.028, 0.08, '#eab308', [0, 0.13, 0.15], [Math.PI / 2, 0, 0], 4);
+    box(head, 0.02, 0.07, 0.1, '#dc2626', [0, 0.22, 0.05]);
+    blob(head, 0.025, '#dc2626', [0, 0.08, 0.11], [0.6, 1.2, 0.6], 0);
+    const legL = G(); legL.position.set(-0.06, 0.18, 0); g.add(legL);
+    cyl(legL, 0.015, 0.012, 0.18, '#ca8a04', [0, -0.09, 0], [0, 0, 0], 4);
+    box(legL, 0.06, 0.01, 0.09, '#ca8a04', [0, -0.18, 0.03]);
+    const legR = G(); legR.position.set(0.06, 0.18, 0); g.add(legR);
+    cyl(legR, 0.015, 0.012, 0.18, '#ca8a04', [0, -0.09, 0], [0, 0, 0], 4);
+    box(legR, 0.06, 0.01, 0.09, '#ca8a04', [0, -0.18, 0.03]);
+    g.userData.animal = { kind: 'chicken', head, tail, legL, legR };
+    return g;
   }
   // four-legged: a barrel body with a deep chest and round haunches, jointed legs on dark hooves, a neck that bends
   // down to graze, a head with a muzzle, nostrils, eyes and ears, and each animal's own horns, hump, udder or mane
@@ -400,15 +494,26 @@ export function animal(type) {
   blob(b, 0.37, col, [0, 1.1, -0.52], [1.02, 1.04, 0.95]); // haunches
   blob(b, 0.3, tone(0.12), [0, 0.86, 0.05], [1, 0.55, 2.2]); // the lighter belly
   if (type === 'ox') { blob(b, 0.24, tone(-0.12), [0, 1.5, 0.5], [0.9, 1.1, 1.1]); blob(b, 0.2, col, [0, 0.86, 0.8], [0.35, 1.3, 1]); } // zebu hump and dewlap
-  if (type === 'cow') { blob(b, 0.15, '#e3aaa0', [0, 0.72, -0.36], [1, 0.7, 1.1]); for (const [x, z] of [[-0.05, -0.31], [0.05, -0.31], [-0.05, -0.41], [0.05, -0.41]]) cyl(b, 0.015, 0.01, 0.07, '#d8968c', [x, 0.63, z]); }
-  if (type === 'donkey') for (let k = 0; k < 5; k++) box(b, 0.05, 0.12, 0.14, '#3b3633', [0, 1.5 + k * 0.08, 0.72 + k * 0.07], [0.9, 0, 0]); // the upright mane
-  // legs: thigh, shank and hoof; the hind thighs are fuller
-  for (const [x, z, hind] of [[-0.2, 0.6, 0], [0.2, 0.6, 0], [-0.2, -0.6, 1], [0.2, -0.6, 1]]) {
-    cyl(b, hind ? 0.13 : 0.11, 0.075, 0.46, col, [x, 0.74, z], [hind ? -0.12 : 0.04, 0, 0], 8);
-    blob(b, 0.075, col, [x, 0.5, z + (hind ? -0.03 : 0.01)], [1, 1, 1], 0); // the knee or hock
-    cyl(b, 0.06, 0.052, 0.4, col, [x, 0.3, z], [0, 0, 0], 7);
-    cyl(b, 0.062, 0.078, 0.1, hoof, [x, 0.05, z], [0, 0, 0], 7);
+  if (type === 'cow') {
+    blob(b, 0.15, '#e3aaa0', [0, 0.72, -0.36], [1, 0.7, 1.1]);
+    for (const [x, z] of [[-0.05, -0.31], [0.05, -0.31], [-0.05, -0.41], [0.05, -0.41]]) cyl(b, 0.015, 0.01, 0.07, '#d8968c', [x, 0.63, z]);
+    // Piebald white flank patches
+    blob(b, 0.25, '#f8fafc', [0.27, 1.08, 0.1], [0.5, 0.9, 1.3], 0);
+    blob(b, 0.21, '#f8fafc', [-0.27, 1.12, -0.2], [0.5, 1.0, 1.1], 0);
   }
+  if (type === 'donkey') for (let k = 0; k < 5; k++) box(b, 0.05, 0.12, 0.14, '#3b3633', [0, 1.5 + k * 0.08, 0.72 + k * 0.07], [0.9, 0, 0]); // the upright mane
+
+  // articulated legs grouped at hip/shoulder pivots for walking/shifting
+  const legs = {};
+  for (const [x, z, hind, key] of [[-0.2, 0.55, 0, 'fL'], [0.2, 0.55, 0, 'fR'], [-0.2, -0.55, 1, 'bL'], [0.2, -0.55, 1, 'bR']]) {
+    const leg = G(); leg.position.set(x, 0.92, z); b.add(leg);
+    cyl(leg, hind ? 0.13 : 0.11, 0.075, 0.46, col, [0, -0.2, 0], [hind ? -0.12 : 0.04, 0, 0], 8);
+    blob(leg, 0.075, col, [0, -0.42, hind ? -0.03 : 0.01], [1, 1, 1], 0);
+    cyl(leg, 0.06, 0.052, 0.38, col, [0, -0.62, 0], [0, 0, 0], 7);
+    cyl(leg, 0.062, 0.078, 0.1, hoof, [0, -0.84, 0], [0, 0, 0], 7);
+    legs[key] = leg;
+  }
+
   // the head hangs from a pivot at the base of the neck; world.js swings it down to the grass and back
   // cattle and buffalo carry the head low and forward on a short thick neck; the goat and donkey hold it higher
   const bovine = type === 'cow' || type === 'ox' || type === 'buffalo';
@@ -419,11 +524,30 @@ export function animal(type) {
   blob(head, 0.18, col, n, [0.85, 0.95, 1.05]); // the skull
   cyl(head, 0.1, 0.135, 0.36, col, [0, n[1] - 0.12, n[2] + 0.2], [2.1, 0, 0], 9); // the long face
   blob(head, 0.11, nose, [0, n[1] - 0.24, n[2] + 0.37], [1.05, 0.75, 0.75]); // muzzle and nostrils
-  if (type === 'cow' || type === 'ox') blob(head, 0.09, pale, [0, n[1] + 0.03, n[2] + 0.15], [0.9, 1.2, 0.5]); // the pale blaze
+  if (type === 'cow' || type === 'ox') {
+    blob(head, 0.09, pale, [0, n[1] + 0.03, n[2] + 0.15], [0.9, 1.2, 0.5]); // the pale blaze
+    // Jute halter rope and brass collar bell (ঘণ্টি)
+    cyl(head, 0.03, 0.03, 0.55, '#92400e', [0, 0.06, 0.18], [1.2, 0, 0], 8);
+    cone(head, 0.045, 0.075, '#eab308', [0, -0.12, 0.22], [0, 0, 0], 6);
+    blob(head, 0.02, '#ca8a04', [0, -0.16, 0.22]);
+  }
+  // Eyes
+  for (const s of [-1, 1]) blob(head, 0.028, '#120d0b', [s * 0.13, n[1] + 0.02, n[2] + 0.1], [1, 1, 1], 0);
+
+  // Pivotable ears for realistic fly-flicking
+  const earL = G(), earR = G();
+  earL.position.set(-0.16, n[1] + 0.02, n[2] - 0.04); head.add(earL);
+  earR.position.set(0.16, n[1] + 0.02, n[2] - 0.04); head.add(earR);
+  if (type === 'donkey') {
+    cone(earL, 0.06, 0.42, col, [0, 0.18, 0], [-0.15, 0, 0.18], 6);
+    cone(earR, 0.06, 0.42, col, [0, 0.18, 0], [-0.15, 0, -0.18], 6);
+  } else {
+    cone(earL, 0.07, 0.2, tone(-0.08), [-0.05, 0, 0], [0, 0, Math.PI / 2 + 0.25], 6);
+    cone(earR, 0.07, 0.2, tone(-0.08), [0.05, 0, 0], [0, 0, -(Math.PI / 2 + 0.25)], 6);
+  }
+
+  // Horns
   for (const s of [-1, 1]) {
-    blob(head, 0.028, '#120d0b', [s * 0.13, n[1] + 0.02, n[2] + 0.1], [1, 1, 1], 0); // eyes
-    if (type === 'donkey') cone(head, 0.06, 0.42, col, [s * 0.09, n[1] + 0.3, n[2] - 0.05], [-0.15, 0, -s * 0.18], 6); // long upright ears
-    else cone(head, 0.07, 0.2, tone(-0.08), [s * 0.22, n[1] + 0.02, n[2] - 0.04], [0, 0, -s * (Math.PI / 2 + 0.25)], 6); // ears out to the side
     if (type === 'buffalo') { // heavy horns: out to the side, then swept back and up
       cyl(head, 0.06, 0.07, 0.22, '#1a1716', [s * 0.22, n[1] + 0.13, n[2] - 0.06], [0, 0, s * Math.PI / 2], 6);
       cone(head, 0.06, 0.38, '#1a1716', [s * 0.36, n[1] + 0.2, n[2] - 0.24], [-1.15, s * 0.35, 0], 6);
@@ -435,7 +559,7 @@ export function animal(type) {
   const tail = G(); tail.position.set(0, 1.28, -0.9); b.add(tail);
   cyl(tail, 0.035, 0.022, 0.72, col, [0, -0.36, -0.03], [0.05, 0, 0], 6);
   blob(tail, 0.06, type === 'ox' ? '#2a2420' : tone(-0.35), [0, -0.76, -0.05], [0.8, 1.6, 0.8], 0); // the tuft
-  g.userData.animal = { kind: 'grazer', head, tail };
+  g.userData.animal = { kind: 'grazer', head, tail, earL, earR, legs, torso: b };
   return g;
 }
 
@@ -547,29 +671,103 @@ function bamboobridge() {
 }
 function stilthut() { const g = G(); for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) cyl(g, 0.06, 0.06, 1.6, '#6b4a2b', [x, 0.8, z]); box(g, 2.4, 1.6, 2.4, '#a8834c', [0, 2.3, 0]); gable(g, 3, 3, 1, '#8f7a4a', 3.1); return g; }
 function stoneboat() { const g = boat({ cargo: false }); for (let k = 0; k < 8; k++) blob(g, 0.24, '#8b8f8c', [-0.3 + (k % 2) * 0.6, 0.65, -1.4 + Math.floor(k / 2) * 0.8], [1, 0.7, 1], 0); return g; }
-function duck() { const g = G(); blob(g, 0.17, '#f4f1ea', [0, 0.12, 0], [1, 0.7, 1.4], 0); blob(g, 0.08, '#2e6b3a', [0, 0.28, 0.18], [1, 1, 1], 0); cone(g, 0.04, 0.1, '#e2a020', [0, 0.27, 0.28], [Math.PI / 2, 0, 0], 4); g.userData.animal = { kind: 'duck' }; return g; }
+function duck() {
+  const g = G();
+  // Domestic delta duck (পাতিহাঁস): boat-shaped buoyant body, wing accents, upcurled tail, mallard sheen head, orange bill
+  blob(g, 0.18, '#f8fafc', [0, 0.14, 0], [0.95, 0.75, 1.45], 0);
+  blob(g, 0.12, '#cbd5e1', [-0.14, 0.16, 0.02], [0.25, 0.6, 1.0], 0);
+  blob(g, 0.12, '#cbd5e1', [0.14, 0.16, 0.02], [0.25, 0.6, 1.0], 0);
+  cone(g, 0.05, 0.14, '#64748b', [0, 0.2, -0.2], [-0.75, 0, 0], 4);
+  const head = G(); head.position.set(0, 0.22, 0.18); g.add(head);
+  cyl(head, 0.045, 0.06, 0.16, '#15803d', [0, 0.06, 0.02], [0.4, 0, 0], 6);
+  blob(head, 0.075, '#15803d', [0, 0.14, 0.05], [0.9, 0.95, 1.1], 0);
+  box(head, 0.065, 0.025, 0.12, '#ea580c', [0, 0.12, 0.15], [0.2, 0, 0]);
+  blob(head, 0.014, '#0f172a', [-0.065, 0.15, 0.08]);
+  blob(head, 0.014, '#0f172a', [0.065, 0.15, 0.08]);
+  g.userData.animal = { kind: 'duck', head };
+  return g;
+}
 function tea() { const g = G(); blob(g, 0.6, '#3f7a34', [0, 0.45, 0], [1.2, 0.7, 1.2], 1); return g; }
 function stone(p) { const g = G(); blob(g, 0.5, '#8b8f8c', [0, 0.15, 0], [1.2, 0.6, 1], 0); return g; }
 function treeBD(type) {
   const g = G();
-  if (type === 'coconut') {
-    const t = cyl(g, 0.17, 0.26, 7, '#7a6450', [0.6, 3.5, 0], [0, 0, -0.17], 7);
-    for (let k = 0; k < 10; k++) { const a = (k / 10) * Math.PI * 2; box(g, 0.32, 0.04, 2.8, '#4f8a34', [1.2 + Math.cos(a) * 1.1, 6.8, Math.sin(a) * 1.1], [0.7, -a + Math.PI / 2, 0]); }
-    for (let k = 0; k < 4; k++) blob(g, 0.2, '#6b8a2a', [1.2 + Math.cos(k * 1.6) * 0.3, 6.5, Math.sin(k * 1.6) * 0.3], [1, 1, 1], 0);
+  if (type === 'banyan') {
+    // Ancient Banyan Tree (বটগাছ): wide sprawling gnarled trunk, fluted buttress roots,
+    // hanging aerial prop roots (ঝুড়ি) descending to the earth, wide tiered umbrella canopy
+    const R = 4.2;
+    trunk(g, 3.2, 0.65, '#4a3628');
+    for (let k = 0; k < 5; k++) {
+      const a = k * (Math.PI * 2 / 5);
+      cyl(g, 0.15, 0.35, 1.4, '#3d2b1f', [Math.cos(a) * 0.7, 0.7, Math.sin(a) * 0.7], [Math.sin(a) * 0.4, 0, -Math.cos(a) * 0.4], 6);
+    }
+    limbs(g, 2.8, 0.55, '#4a3628', 3.6, 5);
+    // Aerial prop roots (ঝুড়ি)
+    for (let k = 0; k < 8; k++) {
+      const a = k * (Math.PI * 2 / 8) + 0.2, d = 1.6 + (k % 3) * 0.8;
+      const rx = Math.cos(a) * d, rz = Math.sin(a) * d;
+      const rootH = 3.0 + (k % 2) * 0.4;
+      cyl(g, 0.05 + (k % 2) * 0.04, 0.07 + (k % 2) * 0.05, rootH, '#5a4533', [rx, rootH / 2, rz], [0.03 * (k % 3 - 1), 0, 0.03 * (k % 2)], 5);
+    }
+    canopy(g, R, '#1f4e24', [0, 4.4, 0], 0.52, 12);
+  } else if (type === 'coconut') {
+    cyl(g, 0.18, 0.28, 7.5, '#78624d', [0.55, 3.75, 0], [0, 0, -0.14], 8);
+    for (let r = 1; r < 7; r++) {
+      cyl(g, 0.25 - r * 0.01, 0.25 - r * 0.01, 0.05, '#524131', [0.55 * (r / 7.5), r, 0], [0, 0, -0.14], 8);
+    }
+    const crown = G(); crown.position.set(1.1, 7.3, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.085;
+    for (let k = 0; k < 12; k++) {
+      const a = (k / 12) * Math.PI * 2;
+      box(crown, 0.35, 0.04, 3.2, '#3f7e2a', [Math.cos(a) * 1.3, -0.1, Math.sin(a) * 1.3], [0.72, -a + Math.PI / 2, 0]);
+    }
+    for (let k = 0; k < 7; k++) {
+      const ca = k * 0.95;
+      blob(crown, 0.2, '#558b2f', [Math.cos(ca) * 0.45, -0.32, Math.sin(ca) * 0.45], [0.95, 1.25, 0.95], 0);
+    }
   } else if (type === 'betelnut') {
-    cyl(g, 0.1, 0.13, 8, '#9a9488', [0, 4, 0], [0, 0, 0], 6); for (let k = 0; k < 7; k++) { const a = (k / 7) * Math.PI * 2; box(g, 0.25, 0.03, 1.8, '#5f8f38', [Math.cos(a) * 0.7, 8, Math.sin(a) * 0.7], [0.6, -a + Math.PI / 2, 0]); }
+    cyl(g, 0.11, 0.14, 8.8, '#948e82', [0, 4.4, 0], [0, 0, 0], 7);
+    for (let r = 1; r < 8; r++) cyl(g, 0.13, 0.13, 0.04, '#6d665a', [0, r * 1.1, 0], [0, 0, 0], 7);
+    const crown = G(); crown.position.set(0, 8.8, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.07;
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 8) * Math.PI * 2;
+      box(crown, 0.28, 0.03, 2.1, '#528f32', [Math.cos(a) * 0.8, 0, Math.sin(a) * 0.8], [0.65, -a + Math.PI / 2, 0]);
+    }
+    for (let k = 0; k < 4; k++) blob(crown, 0.13, '#f59e0b', [Math.cos(k * 1.6) * 0.24, -0.22, Math.sin(k * 1.6) * 0.24], [1, 1.2, 1], 0);
   } else if (type === 'bamboo') {
-    for (let k = 0; k < 9; k++) { const a = k * 0.7, r = 0.3 + (k % 3) * 0.2; cyl(g, 0.06, 0.07, 7, '#8aa04a', [Math.cos(a) * r, 3.5, Math.sin(a) * r], [Math.cos(a) * 0.12, 0, Math.sin(a) * 0.12], 5); }
-    blob(g, 1.6, '#6f9f3a', [0, 6.6, 0], [1.2, 1.3, 1.2], 0);
+    const crown = G(); crown.position.set(0, 0, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.11;
+    for (let k = 0; k < 11; k++) {
+      const a = k * 0.65, r = 0.25 + (k % 4) * 0.22, culmH = 6.5 + (k % 3) * 0.8;
+      const cx = Math.cos(a) * r, cz = Math.sin(a) * r;
+      cyl(g, 0.055, 0.075, culmH, '#65a30d', [cx, culmH / 2, cz], [Math.cos(a) * 0.1, 0, Math.sin(a) * 0.1], 6);
+      for (let n = 1; n < culmH; n += 0.9) {
+        cyl(g, 0.072, 0.072, 0.03, '#a3e635', [cx + Math.cos(a) * 0.1 * (n / culmH), n, cz + Math.sin(a) * 0.1 * (n / culmH)], [0, 0, 0], 6);
+      }
+    }
+    blob(crown, 1.8, '#4d7c0f', [0, 6.8, 0], [1.3, 1.1, 1.3], 0);
+    blob(crown, 1.4, '#65a30d', [0.4, 5.8, -0.3], [1.1, 1.0, 1.1], 0);
+    blob(crown, 1.3, '#84cc16', [-0.3, 7.6, 0.3], [1.1, 0.9, 1.1], 0);
   } else if (type === 'hijal') {
-    trunk(g, 2.2, 0.25, '#4a3628'); limbs(g, 2, 0.25, '#4a3628', 1.4); canopy(g, 2.2, '#3f7a34', [0, 3.4, 0], 0.65);
+    trunk(g, 2.2, 0.28, '#3d2b1f'); limbs(g, 2.0, 0.28, '#3d2b1f', 1.6);
+    canopy(g, 2.3, '#1e5e2e', [0, 3.4, 0], 0.62);
+    for (let k = 0; k < 6; k++) {
+      const fa = k * 1.1, fr = 1.4 + (k % 2) * 0.5;
+      cyl(g, 0.015, 0.015, 0.45, '#fb7185', [Math.cos(fa) * fr, 2.4, Math.sin(fa) * fr]);
+    }
   } else if (type === 'nipa') {
-    for (let k = 0; k < 7; k++) { const a = (k / 7) * Math.PI * 2; box(g, 0.3, 0.03, 3, '#5f8f38', [Math.cos(a) * 1.1, 1.2, Math.sin(a) * 1.1], [-0.9, -a + Math.PI / 2, 0]); }
+    const crown = G(); crown.position.set(0, 0.8, 0); g.add(crown);
+    crown.userData.crown = true; crown.userData.swayAmp = 0.09;
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 8) * Math.PI * 2;
+      box(crown, 0.32, 0.03, 3.2, '#4d7c0f', [Math.cos(a) * 1.1, 0.3, Math.sin(a) * 1.1], [-0.85, -a + Math.PI / 2, 0]);
+    }
   } else if (type === 'guava') {
-    trunk(g, 1.4, 0.15, '#7a5a40'); canopy(g, 1.35, '#5a9a3c', [0, 2.2, 0], 0.8, 6); for (let k = 0; k < 5; k++) blob(g, 0.1, '#b5d06a', [Math.cos(k) * 1, 1.9, Math.sin(k) * 1], [1, 1, 1], 0);
+    trunk(g, 1.4, 0.16, '#78563c'); canopy(g, 1.4, '#528f32', [0, 2.2, 0], 0.8, 6);
+    for (let k = 0; k < 6; k++) blob(g, 0.1, '#a3e635', [Math.cos(k * 1.1) * 1.1, 1.9, Math.sin(k * 1.1) * 1.1], [1, 1, 1], 0);
   } else if (type === 'mangrove') {
-    trunk(g, 2.6, 0.22, '#4a3628'); canopy(g, 2.3, '#2c5a32', [0, 3.6, 0], 0.85);
-    for (let k = 0; k < 6; k++) cone(g, 0.05, 0.4, '#5a4632', [Math.cos(k) * 1.2, 0.2, Math.sin(k) * 1.2], [0, 0, 0], 4);
+    trunk(g, 2.6, 0.24, '#3d2b1f'); canopy(g, 2.4, '#1b4d24', [0, 3.6, 0], 0.85);
+    for (let k = 0; k < 9; k++) cone(g, 0.05, 0.45, '#523e2b', [Math.cos(k * 0.7) * 1.3, 0.22, Math.sin(k * 0.7) * 1.3], [0, 0, 0], 4);
   }
   return g;
 }
@@ -582,7 +780,7 @@ export const BUILD = {
   mango: () => tree('mango'), sal: () => tree('sal'), tamarind: () => tree('tamarind'), eucalyptus: () => tree('eucalyptus'), poplar: () => tree('poplar'),
   kikar: () => tree('kikar'), bluepine: () => tree('bluepine'), banana: () => tree('banana'), date: () => tree('date'), toddy: () => tree('toddy'),
   tinhouse, thatchhouse, school, shelter, tilashed, kiln, boat, van, llp, ghat, trellis, gher, bamboobridge, stilthut, stoneboat, duck, tea, stone,
-  coconut: () => treeBD('coconut'), betelnut: () => treeBD('betelnut'), bamboo: () => treeBD('bamboo'), hijal: () => treeBD('hijal'), nipa: () => treeBD('nipa'), guava: () => treeBD('guava'), mangrove: () => treeBD('mangrove'),
-  buffalo: () => animal('buffalo'), cow: () => animal('cow'), ox: () => animal('ox'), goat: () => animal('goat'), chicken: () => animal('chicken'),
+  banyan: () => treeBD('banyan'), coconut: () => treeBD('coconut'), betelnut: () => treeBD('betelnut'), bamboo: () => treeBD('bamboo'), hijal: () => treeBD('hijal'), nipa: () => treeBD('nipa'), guava: () => treeBD('guava'), mangrove: () => treeBD('mangrove'),
+  buffalo: () => animal('buffalo'), cow: () => animal('cow'), ox: () => animal('ox'), goat: () => animal('goat'), chicken: () => animal('chicken'), egret: () => animal('egret'),
 };
 export { box, cyl, cone, blob, half, put, M, gable, pyramid };

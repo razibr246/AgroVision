@@ -71,13 +71,16 @@ const WORLDS = {
     [[-34, -8], [-32, 3], [-14, -26], [14, -27], [36, -22]].forEach(([x, z]) => add('bamboo', x, z));
     [[-22, 8], [-36, -1], [24, -26], [-36, -19]].forEach(([x, z]) => add('banana', x, z));
     [[30, 14], [-26, 16], [8, 24], [-8, 24], [22, 22]].forEach(([x, z]) => add('mango', x, z));
+    add('banyan', 28, -26, { s: 1.1 });
     add('kup', -30, 2.5, { s: 0.9 }); add('cow', -31, -5, { rot: 1.2, s: 1 });
+    add('chicken', -24, -3); add('chicken', -22, -4);
     addBehind('stw', 'water', 1.8);
     add('van', S.market.x, S.market.z, { rot: face(S.market.x, S.market.z) + 0.6, s: 1 });
     addBehind('school', 'safe', 4.6);
     [[-30, -14], [-22, -14], [14, -14], [24, -14]].forEach(([x, z]) => add('pole', x, z - 1.6, { rot: 0, s: 1 }));
     for (let k = 0; k < 3; k++) add('kiln', -60 + k * 42, -70 - k * 8, { rot: 0, s: 1 });
     for (let k = 0; k < 4; k++) add('duck', -4 + r() * 8, 40 + r() * 3, { s: 1 });
+    add('egret', 12, 36, { rot: 0.8 });
     return {
       spots: S, grass: '#7fae4c', soil: '#7a6248', path: '#a08868', sky: 'hazy',
       paths: [[[-44, -14], [44, -14]], [[-26, -2], [-17, -4], [-13, -14]], [[-3, -14], [-3, -28]], [[11.7, 3], [17, 5]], [[0, 5.7], [0, 32]], [[-11.7, -3], [-17, -4]], [[-8, -14], [-8, -17]], [[9, -14], [9, -17]], [[31, -14], [31, -12]], [[0, -5.7], [0, -14]]],
@@ -128,7 +131,10 @@ const WORLDS = {
     [[19, -26], [31, -18], [-14, -30], [16, 30]].forEach(([x, z]) => add('betelnut', x, z));
     for (let k = 0; k < 3; k++) add('trellis', 20 + k * 4.2, 2 + (k % 2) * 4, { rot: 0, s: 1 });
     add('trellis', 22, 12, { rot: 0.3, s: 1 });
+    add('banyan', -18, 26, { s: 1.15 });
     add('cow', 27, -12, { rot: 1.2, s: 1 }); add('goat', 26, -10, { rot: 0.4, s: 1 });
+    add('chicken', 24, -13);
+    add('egret', -48, 10, { rot: 1.2 });
     addBehind('stw', 'water', 1.8);
     add('truck', -28.5, 15, { rot: 0, s: 1 }); add('van', S.market.x + 2, S.market.z - 3, { rot: 1.2, s: 1 });
     addBehind('shelter', 'safe', 1);
@@ -154,7 +160,9 @@ const WORLDS = {
     [[-30, -16], [-20, -17], [-34, 4], [-20, 2], [6, 26], [28, 18], [-24, 14], [-38, 12], [2, -24], [-30, -30]].forEach(([x, z]) => add('coconut', x, z));
     for (let k = 0; k < 12; k++) add('nipa', -44 + k * 3 + r(), 25.6 + r() * 0.8);
     add('kup', -30, -6, { s: 0.85 }); add('goat', -21, -14, { rot: 0.4, s: 1 }); add('goat', -23, -15.5, { rot: 2, s: 0.8 });
+    add('chicken', -24, -8);
     add('pond', S.water.x + 6.5, S.water.z - 1, { rot: 0, s: 1 });
+    add('egret', S.water.x + 3, S.water.z - 2, { rot: -0.5 });
     add('ghat', S.water.x + 1.6, S.water.z - 0.4, { rot: -Math.PI / 2, s: 1 });
     add('ghat', S.market.x, S.market.z - 4.2, { rot: Math.PI, s: 1 });
     add('boat', S.market.x + 1, S.market.z - 9.5, { rot: Math.PI / 2 + 0.1, s: 1.1, cargo: '#3f8a34' });
@@ -192,6 +200,8 @@ const WORLDS = {
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) add('guava', -2 + j * 5 + r(), 28 + i * 4.5 + r());
     for (let k = 0; k < 14; k++) add('nipa', -44 + k * 3 + r(), 25.8 + r() * 0.8);
     add('kup', -27, 7, { s: 0.85 }); add('cow', -17, 6, { rot: 1.2, s: 1 });
+    add('chicken', -21, 9);
+    add('egret', 16, -2, { rot: 1.4 });
     addBehind('llp', 'water', 2.1);
     add('ghat', 21.5, S.market.z, { rot: Math.PI / 2, s: 1 });
     add('boat', 24.1, S.market.z + 3, { rot: 0.05, s: 1, cargo: '#b5d06a' });
@@ -248,6 +258,8 @@ const WORLDS = {
     [[-15, 16], [-3, 25], [-34, -16], [8, -26]].forEach(([x, z]) => add('betelnut', x, z));
     for (let k = 0; k < 10; k++) add('hijal', -30 + k * 7 + r() * 3, 36 + r() * 8, { s: 1 + r() * 0.4 });
     add('kup', -14, 22.5, { s: 0.9 }); add('cow', -2, 17, { rot: 2.2, s: 0.95 });
+    add('chicken', -12, 19);
+    add('egret', -4, 33, { rot: 0.6 }); add('egret', 10, 36, { rot: -0.8 });
     addBehind('llp', 'water', 2.1);
     add('ghat', S.market.x, 28, { rot: 0, s: 1 });
     add('boat', S.market.x + 0.5, 32.5, { rot: Math.PI / 2, s: 1.1, cargo: '#e2c23a' });
@@ -400,6 +412,31 @@ const WORLDS = {
   // Singu: the village strung along a sandy road south of the field, toddy palms all along it, water pots for
   // passers-by, the stilt house and the seed shop on the road, the ox cart east to Chauk, the pond west, the township
   // office north-east, the monastery on its mound north, a white zedi, the Ayeyarwady to the west, hot orange air.
+  // Diamond Valley, Nevada: a ranch house and steel-roofed shop by the county road, a poplar windbreak, round hay
+  // bales from the last cutting, cattle, the well house that feeds the pivot, and the community hall to shelter in
+  // when a summer thunderstorm comes over the bare ranges; sagebrush flats beyond.
+  nevada: () => {
+    const S = stations({ start: [-17, -13], house: [-25, -19], shed: [-21, 3], kiosk: [21, -14], water: [7, -13], market: [-17, 25], safe: [4, -30] });
+    const { r, props, add, addBehind, common } = maker(31, S);
+    common({ house: 'brickhouse', shed: 'brick', kiosk: 'office', neighbours: [[-34, -30]], shedFaces: [-16, 3] });
+    row(add, 'poplar', [-42, -12.4], [42, -12.4], 5, [[S.water.x, S.water.z, 4], [S.kiosk.x, S.kiosk.z, 5], [-16, -12.4, 3], [S.safe.x - 1, -12.4, 3]]);
+    for (let i = 0; i < 5; i++) add('kup', 28 + (i % 3) * 3, 4 + Math.floor(i / 3) * 3.5, { s: 0.8 });
+    add('cow', -31, -20, { rot: 1.1, s: 1 }); add('cow', -33, -16, { rot: 1.6, s: 0.95 }); add('cow', 31, 18, { rot: 0.4, s: 1 });
+    add('tractor', -22, -12.2, { rot: Math.PI / 2, s: 1 });
+    addBehind('pumphouse', 'water', 2.2);
+    add('truck', S.market.x + 2.6, S.market.z, { rot: 0, s: 1 });
+    addBehind('school', 'safe', 5);
+    [[-10, -8.6], [0, -8.6], [14, -8.6], [28, -8.6]].forEach(([x, z]) => add('pole', x, z, { rot: 0, s: 1 }));
+    return {
+      spots: S, grass: '#a6a67a', soil: '#9a8466', path: '#c4b28e', sky: 'clear',
+      paths: [[[-44, -10], [44, -10]], [[-16.5, -44], [-16.5, 44]], [[-16.5, -13], [-25, -16]], [[-16.5, 3], [-21, 3]], [[7, -10], [7, -11]], [[21, -10], [21, -12]], [[4, -10], [4, -25]], [[-16.5, 25], [-14, 25]]],
+      water: [], far: 'basin',
+      air: { fog: '#dde4ea', near: 70, far: 320 },
+      patches: patchwork(r, ['low', 'bare', 'low', 'stubble', 'bare']),
+      props,
+      height: (x, z) => roll(x, z) * 0.3 * nearField(x, z),
+    };
+  },
   dryzone: () => {
     const S = stations({ start: [-14, 10], house: [-21, 18], shed: [8, 19], kiosk: [22, -13], water: [-17, -10], market: [31, 14], safe: [4, -28] });
     const { r, props, add, addBehind, common } = maker(53, S);
@@ -438,19 +475,19 @@ const SOLID = {
   shed: () => ({ box: [2.2, 2.6] }), kiosk: () => ({ box: [1.5, 1.3] }),
   gurdwara: () => ({ box: [4.2, 3] }), wardoffice: () => ({ box: [5, 1.9] }), lhakhang: () => ({ box: [2.4, 2] }), kyaung: () => ({ box: [3.2, 2.4] }), dhaba: () => ({ box: [1.6, 1.4] }),
   tinhouse: (p) => ({ box: [3.5 * p.s, 2.7 * p.s] }), thatchhouse: (p) => ({ box: [3.5 * p.s, 2.7 * p.s] }), school: () => ({ box: [7, 1.9] }), shelter: () => ({ pillars: true }), tilashed: () => ({ circle: 1.6 }), van: () => ({ circle: 1.1 }), llp: () => ({ circle: 0.9 }), trellis: () => ({ box: [1.5, 1.5] }), stilthut: () => ({ circle: 1.4 }),
-  coconut: () => ({ circle: 0.4 }), betelnut: () => ({ circle: 0.25 }), bamboo: () => ({ circle: 1 }), guava: () => ({ circle: 0.4 }),
+  banyan: (p) => ({ circle: 1.4 * (p?.s ?? 1) }), coconut: () => ({ circle: 0.4 }), betelnut: () => ({ circle: 0.25 }), bamboo: () => ({ circle: 1 }), guava: () => ({ circle: 0.4 }),
   pumphouse: () => ({ box: [1.4, 1.4] }), stw: () => ({ circle: 0.8 }), mogha: () => ({ circle: 0.6 }), stream: () => ({ circle: 0.6 }),
   trolley: () => ({ box: [1.3, 3] }), donkeycart: () => ({ circle: 1.3 }), oxcart: () => ({ circle: 1.5 }), stall: () => ({ box: [1.6, 1.2] }), truck: () => ({ box: [1.4, 3.6] }), tractor: () => ({ circle: 1.5 }),
   kup: (p) => ({ circle: 1.4 * p.s }), dehari: () => ({ circle: 0.35 }), machan: () => ({ circle: 1.2 }), chorten: (p) => ({ circle: 1.2 * p.s }), zedi: () => ({ circle: 2.2 }), waterpots: () => ({ box: [0.9, 0.4] }), charpai: () => ({ box: [1, 0.5] }),
   eucalyptus: () => ({ circle: 0.3 }), poplar: () => ({ circle: 0.25 }), date: () => ({ circle: 0.35 }), kikar: () => ({ circle: 0.35 }), sal: () => ({ circle: 0.45 }),
   mango: (p) => ({ circle: 0.55 * p.s }), banana: () => ({ circle: 0.4 }), bluepine: () => ({ circle: 0.4 }), toddy: () => ({ circle: 0.35 }), tamarind: () => ({ circle: 0.6 }),
-  buffalo: () => ({ circle: 1 }), cow: () => ({ circle: 0.9 }), ox: () => ({ circle: 0.9 }), goat: () => ({ circle: 0.5 }), pole: () => ({ circle: 0.2 }),
+  buffalo: () => ({ circle: 1 }), cow: () => ({ circle: 0.9 }), ox: () => ({ circle: 0.9 }), goat: () => ({ circle: 0.5 }), egret: () => ({ circle: 0.35 }), chicken: () => ({ circle: 0.25 }), duck: () => ({ circle: 0.25 }), pole: () => ({ circle: 0.2 }),
 };
 
 // Beyond the farm, out to the edge the farmer can walk to: the world's own trees in clumps and lines, a few more
 // homesteads with their haystacks, and animals grazing, kept out of the water, the neighbours' fields and the paths.
-const TREES = ['mango', 'bamboo', 'banana', 'coconut', 'betelnut', 'guava', 'toddy', 'eucalyptus', 'poplar', 'date', 'kikar', 'sal', 'bluepine', 'tamarind', 'hijal', 'mangrove'];
-const ANIMALS = ['cow', 'goat', 'buffalo', 'ox'];
+const TREES = ['banyan', 'mango', 'bamboo', 'banana', 'coconut', 'betelnut', 'guava', 'toddy', 'eucalyptus', 'poplar', 'date', 'kikar', 'sal', 'bluepine', 'tamarind', 'hijal', 'mangrove'];
+const ANIMALS = ['cow', 'goat', 'buffalo', 'ox', 'chicken', 'duck', 'egret'];
 const segDist = (x, z, [ax, az], [bx, bz]) => { const vx = bx - ax, vz = bz - az, l = vx * vx + vz * vz || 1, t = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / l)); return Math.hypot(x - ax - vx * t, z - az - vz * t); };
 function outerRing(L, seed) {
   const r = seeded(seed * 7 + 3), count = {};
