@@ -10,6 +10,8 @@ import { chapterFacts, seasonTotals } from '../../engine/play';
 import { scrollToEl } from '../../components/Motion';
 import { num } from '../../engine/dates';
 import { START, WRONG_TOOL, TOOLS, SCENES } from '../../data/story';
+import { GAMES } from '../../data/games';
+import usePageMeta from '../../components/usePageMeta';
 
 const TOOL_ICON = { plan: Sprout, glut: TrendingDown, doctor: ScanLine, today: Droplets, weather: CloudSun, help: LifeBuoy };
 const TOOL_TINT = {
@@ -24,6 +26,7 @@ const readBest = () => { try { return JSON.parse(localStorage.getItem(BEST) || '
 
 export default function Play() {
   const { T, L, s } = useStore();
+  usePageMeta(L(GAMES.play.name), GAMES.play.seo.en);
   const lang = s.lang;
   const [phase, setPhase] = useState('start'); // start | play | end
   const [i, setI] = useState(0);
@@ -307,7 +310,7 @@ function StartScreen({ onStart }) {
       <div className="hero-rise">
         <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Swords size={15} />{T('খেলে শিখুন', 'Learn by playing')}</p>
         <h1 className="mt-5 text-[46px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[64px]">
-          <span className="block">{T('মাঠের লড়াই', 'Field Fight')}</span>
+          <span className="block">{L(GAMES.play.name)}</span>
           <span className="block bg-[linear-gradient(100deg,#245a28_0%,#43863a_45%,#237479_100%)] bg-clip-text pb-2 text-transparent">{T('এক মৌসুমের গল্প', 'One season\'s story')}</span>
         </h1>
         <p className="mt-4 max-w-[34rem] text-[18px] leading-[1.65] text-ink/70 sm:text-[20px]">

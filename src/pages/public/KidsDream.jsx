@@ -11,6 +11,8 @@ import { CHILDREN, CHILD_IDS, MOODS, BADGES, dreamFor, cloudStars, blanketStars,
 import { landSummary } from '../../engine/landsat';
 import { createDreamSound } from '../../game/dreamSound';
 import { bnDigits } from '../../engine/dates';
+import { GAMES } from '../../data/games';
+import usePageMeta from '../../components/usePageMeta';
 
 const WHO = {
   parent: { bg: 'bg-amber-100', ring: 'ring-amber-300' },
@@ -29,10 +31,11 @@ export default function KidsDream() {
 
 function Picker({ onPick }) {
   const { T, L } = useStore();
+  usePageMeta(L(GAMES.kids.name), GAMES.kids.seo.en);
   return (
     <div className="page-shell pb-24 pt-[110px] sm:pt-[124px]">
       <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Sparkles size={15} />{T('ছোটদের জন্য', 'For children')}</p>
-      <h1 className="mt-4 text-[38px] font-semibold leading-tight sm:text-[52px]">{T('স্বপ্নের মাঠ', 'The Dream Field')}</h1>
+      <h1 className="mt-4 text-[38px] font-semibold leading-tight sm:text-[52px]">{L(GAMES.kids.name)}</h1>
       <p className="mt-2 max-w-2xl text-[17px] leading-8 text-ink/75">{T('এক রাতে বাবা-মায়ের চিন্তা শুনে ঘুমিয়ে পড়ো। স্বপ্নে নাসার উপগ্রহ "তারা" তোমাকে আকাশে নিয়ে যাবে, তোমাদের মাঠ বাঁচাতে খেলবে, আর দেখাবে আগে জানলে কী বদলায়। কার ছেলে বা মেয়ে হয়ে খেলবে?', 'One night you fall asleep hearing your family worry. In your dream Tara, a NASA satellite, flies you into the sky, you play to save your field, and you see what changes when people know in time. Whose child will you be?')}</p>
       <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {CHILD_IDS.map((id) => {

@@ -14,6 +14,8 @@ import { createPreview } from '../../game/three/stage';
 import { speak, stopSpeaking, ttsSupported } from '../../voice/speech';
 import { GameStage } from './FarmGame';
 import { CAST, CHAPTERS, START, METERS, NOTEBOOK, ENDINGS, SAGA_KEY, applyFx, seasonOf, seasonFx, quickSeason, ending, letter, future } from '../../game/saga';
+import { GAMES } from '../../data/games';
+import usePageMeta from '../../components/usePageMeta';
 
 const VOICE_KEY = 'fs360.saga.voice';
 const lookOf = (who) => (who === 'razib' ? REGIONS.razib.farmer.look : CAST[who]?.look);
@@ -23,6 +25,7 @@ const NOTE_YEAR = { heat: 2023, rain: 2024, storm: 2025 };
 
 export default function Saga() {
   const { T, L, s } = useStore();
+  usePageMeta(L(GAMES.saga.name), GAMES.saga.seo.en);
   const lang = s.lang;
   const [st, setSt] = useState(() => read() ?? fresh());
   const [clim, setClim] = useState(null);
@@ -105,7 +108,7 @@ function TitleCard({ ch, first, onGo }) {
       <div className="kenburns absolute inset-0 -z-10" style={{ '--kb-from': 'scale(1.15)', '--kb-to': 'scale(1.02)' }}><Photo name={photo} fill sizes="100vw" decorative /></div>
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,20,12,.25),rgba(8,20,12,.92))]" />
       <div className="max-w-3xl p-7 sm:p-12">
-        {first && <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-[13px] font-semibold backdrop-blur"><Gamepad2 size={15} />{T('মাঠের মানুষ · গল্পের অভিযান', 'Field Folk · story campaign')}</p>}
+        {first && <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-[13px] font-semibold backdrop-blur"><Gamepad2 size={15} />{L(GAMES.saga.name)} · {L(GAMES.saga.kind)}</p>}
         <p className="text-[14px] font-semibold uppercase tracking-[.22em] text-paddy-300">{L(ch.title)}</p>
         <h1 className="font-display mt-2 text-[44px] font-bold leading-[1.05] sm:text-[72px]">{first ? T('দশ বছরের উত্তরাধিকার', 'The Ten-Year Inheritance') : L(ch.heading)}</h1>
         {first && <p className="mt-4 max-w-2xl text-[17px] leading-8 text-white/85">{T('বাবা অসুস্থ। দুই বিঘা জমি আর চল্লিশ বছরের পুরোনো একটা খাতা এখন আপনার। কিন্তু খাতার আবহাওয়া আর আসে না। তিনটি আসল মৌসুম, তিনটি কঠিন সিদ্ধান্ত, আর ২০৪৫ সালে আপনার মেয়ে পাবে যা আপনি রেখে যাবেন।', 'Your father is ill. Two bigha and a forty-year-old notebook are yours now. But the notebook’s weather no longer comes. Three real seasons, hard choices, and in 2045 your daughter inherits whatever you leave.')}</p>}

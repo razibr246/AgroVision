@@ -8,6 +8,8 @@ import BD from '../../data/geo/bangladesh_crops.json';
 import { LEVELS, mapXY } from '../../data/stories';
 import { DANGERS, WEIGHTS } from '../../engine/missions';
 import { bnDigits } from '../../engine/dates';
+import { GAMES } from '../../data/games';
+import usePageMeta from '../../components/usePageMeta';
 
 const DIVISION_OF = {
   Dhaka: ['Dhaka', 'Gazipur', 'Narayanganj', 'Narsingdi', 'Manikganj', 'Munshiganj', 'Tangail', 'Kishoreganj', 'Faridpur', 'Gopalganj', 'Madaripur', 'Rajbari', 'Shariatpur'],
@@ -23,13 +25,14 @@ const DANGER_ICON = { 1: Skull, 2: Flame, 3: Waves, 4: Landmark };
 
 export default function Stories() {
   const { T, L, s } = useStore();
+  usePageMeta(L(GAMES.stories.name), GAMES.stories.seo.en);
   const lang = s.lang;
   const [W, H] = BD.viewBox;
   const tone = Object.fromEntries(LEVELS.map((l) => [l.division.en, l.tone]));
   return (
     <div className="page-shell pb-24 pt-[110px] sm:pt-[124px]">
       <div className="hero-rise max-w-3xl">
-        <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><MapPinned size={15} />{T('সাত বিভাগ, সাত কৃষক', 'Seven divisions, seven farmers')}</p>
+        <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><MapPinned size={15} />{L(GAMES.stories.name)}</p>
         <h1 className="mt-5 text-[40px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[56px]">
           <span className="block">{T('প্রতিটি বিভাগের', 'Every division has')}</span>
           <span className="block bg-[linear-gradient(100deg,#245a28_0%,#43863a_45%,#237479_100%)] bg-clip-text pb-2 text-transparent">{T('নিজের লড়াই।', 'its own fight.')}</span>

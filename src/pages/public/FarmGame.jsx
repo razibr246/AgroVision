@@ -21,6 +21,8 @@ import { PLACES } from '../../game/places';
 import { createGame, buy, note, answerQuiz, priceOf, dayOf, isNight, clock, quizOf, canMax, target, ripeAt, LEVELS, agriScorecard } from '../../game/sim';
 import { createStage, createPreview, portraits, xrModes, lightGraphics, QUALITY_KEY } from '../../game/three/stage';
 import { play, setMuted, startAmbience, stopAmbience, setScene, setMusic } from '../../game/sound';
+import { GAMES } from '../../data/games';
+import usePageMeta from '../../components/usePageMeta';
 
 const MUTE_KEY = 'fs360.game.muted';
 const MUSIC_KEY = 'fs360.game.music';
@@ -101,6 +103,7 @@ const stage = (cc) => `radial-gradient(110% 80% at 50% 85%, ${TONE[cc][0]}55, tr
 
 function SelectScreen({ who, setWho, onGo, onResume }) {
   const { T, L } = useStore();
+  usePageMeta(L(GAMES.farm.name), GAMES.farm.seo.en);
   const pics = usePortraits();
   const best = readBest();
   const won = FARMER_IDS.filter((id) => best[id]).length;
@@ -111,7 +114,7 @@ function SelectScreen({ who, setWho, onGo, onResume }) {
     <section className="scene-in field-folk-select">
       <div className="max-w-3xl">
         <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Globe2 size={15} />{T('খামারের খেলা · ১২টি নমুনা চরিত্র, ৬ দেশ', 'The farm game · 12 sample characters, 6 countries')}</p>
-        <h1 className="mt-4 text-[40px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[56px]">{T('মাঠের মানুষ', 'Field Folk')} <span className="bg-[linear-gradient(100deg,#1e5c22_0%,#3d8c34_40%,#1d717a_100%)] bg-clip-text text-transparent">3D</span></h1>
+        <h1 className="mt-4 text-[40px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[56px]">{L(GAMES.farm.name)} <span className="bg-[linear-gradient(100deg,#1e5c22_0%,#3d8c34_40%,#1d717a_100%)] bg-clip-text text-transparent">3D</span></h1>
         <p className="mt-3 max-w-2xl text-[17px] leading-[1.65] text-ink/70">{T('বাংলাদেশ ও প্রতিবেশী পাঁচ দেশের বাস্তব এলাকার পোশাক, ফসল আর বিপদের অনুপ্রেরণায় তৈরি ১২টি নমুনা কৃষক-চরিত্র। একজনকে বেছে নিন, সিমুলেটেড মাঠে নামুন, আর একটি মৌসুম পার করুন।', 'Twelve sample farmer characters inspired by the clothing, crops and hazards of real regions across Bangladesh and five neighbouring countries. Choose one, land in a simulated field, and play through a season.')}</p>
       </div>
       <Link to="/saga" className="mt-5 flex items-center gap-3 rounded-2xl border border-paddy-300/70 bg-paddy-50 p-4 text-[15px] font-semibold text-primary-950 transition hover:-translate-y-0.5 hover:shadow-md">
@@ -389,11 +392,11 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       x.font = `700 ${26 * u}px "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif`;
       x.fillText(`${L(R.farmer)} · ${L(R.place)}`, pad, c.height - pad - 26 * u);
       x.font = `500 ${16 * u}px "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif`; x.fillStyle = 'rgba(255,255,255,.8)';
-      x.fillText(`${T('মাঠের মানুষ', 'Field Folk')} · ${T(`দিন ${num(dayOf(g), 'bn')}`, `Day ${dayOf(g)}`)} · FieldShift 360`, pad, c.height - pad);
+      x.fillText(`${L(GAMES.farm.name)} · ${T(`দিন ${num(dayOf(g), 'bn')}`, `Day ${dayOf(g)}`)} · FieldShift 360`, pad, c.height - pad);
       const out = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.92));
       const name = `fieldshift-${(R.farmer.en || 'farm').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-day${dayOf(g)}.jpg`;
       const file = typeof File === 'function' ? new File([out], name, { type: 'image/jpeg' }) : null;
-      if (touch && file && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: T('মাঠের মানুষ', 'Field Folk') }).catch(() => {}); return; }
+      if (touch && file && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: L(GAMES.farm.name) }).catch(() => {}); return; }
       const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       setToast({ text: { bn: 'ছবি সেভ হয়েছে', en: 'Photo saved' }, k: Math.random() });
     } catch { setToast({ text: { bn: 'ছবি সেভ করা গেল না', en: 'The photo could not be saved' }, k: Math.random() }); }

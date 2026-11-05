@@ -13,6 +13,8 @@ import { REGIONS } from '../../game/regions';
 import { CHILDREN, CHILD_IDS } from '../../game/dream';
 import { bnDigits, num } from '../../engine/dates';
 import { play } from '../../game/sound';
+import { GAMES } from '../../data/games';
+import usePageMeta from '../../components/usePageMeta';
 
 // 8 agricultural and emotional postures with simulated biomechanical parameters
 const ACTIONS = [
@@ -28,6 +30,7 @@ const ACTIONS = [
 
 export default function People() {
   const { T, L, s } = useStore();
+  usePageMeta(L(GAMES.people.name), GAMES.people.seo.en);
   const host = useRef(null), stage = useRef(null);
   const [i, setI] = useState(0);
   const [ready, setReady] = useState(false);
@@ -135,7 +138,7 @@ export default function People() {
               <ArrowLeft size={20} />
             </Link>
             <span className="rounded-full bg-white/15 px-4 py-2 text-[13.5px] font-semibold backdrop-blur ring-1 ring-white/15">
-              {T('মাঠের মানুষেরা', 'Field Folk')} · {num(i + 1, s.lang)}/{num(CHILD_IDS.length, s.lang)}
+              {L(GAMES.people.name)} · {num(i + 1, s.lang)}/{num(CHILD_IDS.length, s.lang)}
             </span>
           </div>
 

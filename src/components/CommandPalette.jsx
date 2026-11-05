@@ -27,12 +27,15 @@ import {
   BookOpen,
   Building2,
   Command,
+  Users,
+  Swords,
 } from 'lucide-react';
 import { useStore, demo } from '../store';
 import { LEVELS } from '../data/stories';
 import { UPAZILAS } from '../data/upazilas';
 import { ABROAD } from '../data/abroad';
 import { startTour } from './tour/DemoTour';
+import { GAMES } from '../data/games';
 
 export function openCommandPalette() {
   window.dispatchEvent(new CustomEvent('fs:open-palette'));
@@ -113,10 +116,10 @@ export default function CommandPalette() {
         id: 'hub-farm-game',
         category: T('অ্যাপসমূহ', 'Applications'),
         icon: Gamepad2,
-        title: T('মাঠের মানুষ · ৩D খামার খেলা', 'Field Folk · 3D Farm Game'),
+        title: T(`${GAMES.farm.name.bn} · ৩D খামার খেলা`, `${GAMES.farm.name.en} · 3D Farm Game`),
         sub: T('১২টি চরিত্রের ৩D বাস্তব সিমুলেশন ও আবহাওয়া চ্যালেঞ্জ', '3D living-world farm simulation with 12 characters'),
         action: () => navigate('/farm'),
-        keywords: ['game', '3d', 'farm', 'khela', 'folk', 'play'],
+        keywords: ['game', '3d', 'farm', 'khela', 'folk', 'play', 'harvest', 'horizon', 'maather manush'],
       },
       {
         id: 'hub-saga',
@@ -131,11 +134,20 @@ export default function CommandPalette() {
         id: 'hub-kids',
         category: T('অ্যাপসমূহ', 'Applications'),
         icon: Sparkles,
-        title: T('স্বপ্নের মাঠ · ছোটদের ৩D স্বপ্ন (VR/AR)', 'The Dream Field · Kids 3D Journey (VR/AR)'),
+        title: T(`${GAMES.kids.name.bn} · ছোটদের ৩D স্বপ্ন (VR/AR)`, `${GAMES.kids.name.en} · Kids 3D Journey (VR/AR)`),
         sub: T('শিশুর চোখে তারা উপগ্রহের সঙ্গে মেঘ ও মাটির স্বপ্ন', 'Peaceful, non-violent children’s farming dream with Tara satellite'),
         action: () => navigate('/kids'),
-        keywords: ['kids', 'dream', 'children', 'vr', 'ar', 'chotoder'],
+        keywords: ['kids', 'dream', 'children', 'vr', 'ar', 'chotoder', 'tara', 'swapner math'],
       },
+      ...['play', 'stories', 'people'].map((k) => ({
+        id: `hub-${k}`,
+        category: T('অ্যাপসমূহ', 'Applications'),
+        icon: k === 'people' ? Users : k === 'stories' ? MapPinned : Swords,
+        title: T(`${GAMES[k].name.bn} · ${GAMES[k].kind.bn}`, `${GAMES[k].name.en} · ${GAMES[k].kind.en}`),
+        sub: T(`${GAMES[k].audience.bn} · ${GAMES[k].time.bn}`, `${GAMES[k].audience.en} · ${GAMES[k].time.en}`),
+        action: () => navigate(GAMES[k].to),
+        keywords: ['game', 'khela', 'play', k, ...GAMES[k].name.en.toLowerCase().split(/\W+/)],
+      })),
       {
         id: 'hub-science',
         category: T('অ্যাপসমূহ', 'Applications'),
