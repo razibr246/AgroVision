@@ -39,5 +39,6 @@ comes from is in [docs/DATA_SOURCES.md](../docs/DATA_SOURCES.md).
 | `data:onset-bmd` | `onset/compare_bmd.mjs` | The onset rule against BMD station onsets, `src/data/radar/onset_validation.json` |
 | `photos:abroad` | `photos/abroad_photos.py` | Neighbouring-country photos, `src/assets/images/abroad/` |
 | `photos:nasa` | `photos/nasa_images.py` | NASA Image and Video Library photos, `src/assets/images/nasa/`, `src/data/media/nasa_images.json` |
+| `photos:cards` | `photos/game_cards.py` | The two real game-card pictures on the play hub: a CC BY-SA farmer photo from Wikimedia Commons and NASA Terra MODIS true colour of Bangladesh (GIBS), `src/assets/images/{season-showdown,seven-fields}-*.webp` |
 | `sync:voice` | `sync-voice.mjs` | The voice brain, into `services/voice-agent/` |
 | `design:voice` | `design-bangla-voice.mjs` | Creates a reusable Gemini voice persona for conversational Bangladeshi female Bangla; saves a preview WAV to `.cache/voice/` and prints the voice ID to configure |

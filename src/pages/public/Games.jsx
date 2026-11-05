@@ -5,13 +5,14 @@
 import { Link } from 'react-router-dom';
 import { Swords, Sprout, ArrowRight, BookOpen, Gamepad2, MapPinned, Sparkles, Users, Droplets, Bug, CloudLightning, Coins, Clock, UserRound, Compass, FlaskConical } from 'lucide-react';
 import Photo from '../../components/Photo';
+import { IMAGES } from '../../assets/images';
 import { useStore } from '../../store';
 import BiomechanicsLab from '../../components/game/BiomechanicsLab';
 import usePageMeta from '../../components/usePageMeta';
 import { GAMES, SECTIONS, START_HERE } from '../../data/games';
 
 const ICON = { farm: Gamepad2, kids: Sparkles, people: Users, saga: BookOpen, stories: MapPinned, play: Swords };
-const PHOTO = { farm: 'farmGame', kids: 'heroDawn', people: 'farmer', saga: 'dhamraiBridge', stories: 'droughtFlood', play: 'farmer' };
+const PHOTO = { farm: 'farmGame', kids: 'heroDawn', people: 'farmer', saga: 'dhamraiBridge', stories: 'sevenFields', play: 'seasonShowdown' };
 
 function Chips({ g }) {
   const { L } = useStore();
@@ -31,6 +32,7 @@ function Card({ id, text, n }) {
       <div className="relative aspect-[16/9] overflow-hidden">
         <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-smooth)] group-hover:scale-110"><Photo name={PHOTO[id]} fill sizes="(min-width: 768px) 600px, 100vw" decorative /></div>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,26,14,0)_30%,rgba(8,26,14,.8)_100%)]" />
+        {IMAGES[PHOTO[id]]?.credit && <span className="absolute right-3 top-3 max-w-[75%] truncate rounded-full bg-black/35 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">{T('ছবি', 'Image')}: {IMAGES[PHOTO[id]].credit.artist} · {IMAGES[PHOTO[id]].credit.license}</span>}
         <span className="absolute bottom-4 left-5 grid h-14 w-14 place-items-center rounded-2xl bg-white/25 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.5),0_8px_20px_rgba(0,0,0,.3)] backdrop-blur-xl transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-primary-600/70"><Icon size={26} /></span>
       </div>
       <div className="flex flex-1 flex-col p-6">

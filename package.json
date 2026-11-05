@@ -34,6 +34,7 @@
     "data:srdi": "node scripts/build/build_srdi_frs.mjs",
     "photos:abroad": ".cache/venv-sr/bin/python scripts/photos/abroad_photos.py",
     "photos:nasa": ".cache/venv-sr/bin/python scripts/photos/nasa_images.py",
+    "photos:cards": ".cache/venv-sr/bin/python scripts/photos/game_cards.py",
     "radar": "python public/radar/serve.py",
     "sync:voice": "node scripts/sync-voice.mjs",
     "design:voice": "node scripts/design-bangla-voice.mjs"

@@ -10,6 +10,14 @@ import landParcels1600 from './land-parcels-aerial-1600.webp';
 import landParcels900 from './land-parcels-aerial-900.webp';
 import landParcels2400 from './land-parcels-aerial-2400.webp';
 import landParcels3200 from './land-parcels-aerial-3200.webp';
+import seasonShowdown900 from './season-showdown-900.webp';
+import seasonShowdown1600 from './season-showdown-1600.webp';
+import seasonShowdown2400 from './season-showdown-2400.webp';
+import seasonShowdown3200 from './season-showdown-3200.webp';
+import sevenFields900 from './seven-fields-900.webp';
+import sevenFields1600 from './seven-fields-1600.webp';
+import sevenFields2400 from './seven-fields-2400.webp';
+import sevenFields3200 from './seven-fields-3200.webp';
 import farmGame1600 from './farm-game-3d-1600.webp';
 import farmGame900 from './farm-game-3d-900.webp';
 import farmGame2400 from './farm-game-3d-2400.webp';
@@ -184,6 +192,18 @@ export const IMAGES = {
   landParcels: {
     src: landParcels1600, srcSet: import.meta.env.MODE === 'single' ? `${landParcels900} 900w, ${landParcels1600} 1600w` : `${landParcels900} 900w, ${landParcels1600} 1600w, ${landParcels2400} 2400w, ${landParcels3200} 3200w`, width: W, height: H, focus: '52% 62%',
     alt: { bn: 'আকাশ থেকে দেখা খেতের মধ্যে সাদা দাগে চিহ্নিত কয়েকটি জমি, পাশে পুকুর ও খাল', en: 'Aerial view of farm plots with three fields outlined in white, beside ponds and a canal' },
+  },
+  // Season Showdown's card: a real farmer in his mustard field on a winter (Rabi) morning (scripts/photos/game_cards.py).
+  seasonShowdown: {
+    src: seasonShowdown1600, srcSet: import.meta.env.MODE === 'single' ? `${seasonShowdown900} 900w, ${seasonShowdown1600} 1600w` : `${seasonShowdown900} 900w, ${seasonShowdown1600} 1600w, ${seasonShowdown2400} 2400w, ${seasonShowdown3200} 3200w`, width: 3200, height: 1800, focus: '58% 45%',
+    alt: { bn: 'শীতের সকালে ফুটে থাকা হলুদ সরিষাখেতের পাশে লাল-সাদা গামছা জড়ানো এক হাসিখুশি বয়স্ক কৃষক', en: 'A smiling older farmer wrapped in a red-and-white gamcha beside his blooming yellow mustard field on a winter morning' },
+    credit: { artist: 'Sanvi Ahmed Saim', license: 'CC BY-SA 4.0', page: 'https://commons.wikimedia.org/wiki/File:A_smiling_farmer_on_a_winter_morning.jpg' },
+  },
+  // Seven Fields Challenge's card: Bangladesh from space, NASA Terra MODIS true colour, 31 Oct 2023 (public domain).
+  sevenFields: {
+    src: sevenFields1600, srcSet: import.meta.env.MODE === 'single' ? `${sevenFields900} 900w, ${sevenFields1600} 1600w` : `${sevenFields900} 900w, ${sevenFields1600} 1600w, ${sevenFields2400} 2400w, ${sevenFields3200} 3200w`, width: 3200, height: 1800, focus: '50% 50%',
+    alt: { bn: 'মহাকাশ থেকে বাংলাদেশ: যমুনা, পদ্মা আর মেঘনা নদী, উত্তর-পূর্বের হাওর, দক্ষিণে সুন্দরবনের ব-দ্বীপ আর পূর্বে চট্টগ্রামের পাহাড় (নাসা টেরা মোডিস, ৩১ অক্টোবর ২০২৩)', en: 'Bangladesh from space: the Jamuna, Padma and Meghna rivers, the north-east wetlands, the Sundarbans delta in the south and the Chittagong hills in the east (NASA Terra MODIS, 31 October 2023)' },
+    credit: { artist: 'NASA Terra MODIS, via NASA GIBS', license: 'Public domain', page: 'https://worldview.earthdata.nasa.gov/?t=2023-10-31' },
   },
   // A frame of the 3D farm game "মাঠের মানুষ" (Rahima Begum's field, Gowainghat, Sylhet), captured from the game itself — its cover.
   farmGame: {
