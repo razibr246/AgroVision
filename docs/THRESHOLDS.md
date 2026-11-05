@@ -89,6 +89,14 @@ Yields are FAOSTAT 2024 national averages (real data), not thresholds.
 | Heavy and very heavy rain | 44 mm or more, and 89 mm or more, in a day (June–September) | Bangladesh Meteorological Department rainfall classes | |
 | Cold at flowering | Days with mean temperature below 20 °C | Consistent with BRRI's cold-injury guidance for rice at booting and flowering | |
 
+## Infiltration (`ksatOf`, `infiltrationChange` in `src/engine/fieldwater.js`)
+
+How fast rain soaks in is the saturated hydraulic conductivity of Saxton & Rawls (2006), eqs. 3–5 and 16, in mm/h,
+from the field's SoilGrids sand, clay and organic matter (or the farmer's soil test). Field Future shows each
+rotation's ten-year change, taking organic matter to move in proportion to its modelled soil carbon. Known limits: the
+equations ignore structure and compaction, so the plough pan under puddled rice (which slows water far more below
+15 cm) is not counted, and they hold only to 8% organic matter.
+
 ## Spraying weather (`src/engine/spray.js`)
 
 Each daylight hour (6:00–18:00) of the next two days with daylight, from the live Open-Meteo forecast, is marked

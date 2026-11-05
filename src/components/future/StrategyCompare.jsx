@@ -8,6 +8,7 @@ import { Card, ScoreRing, Tags } from '../ui';
 import { strategyBrief } from '../../engine/briefs';
 import { num } from '../../engine/dates';
 import { WATER_M3_PER_MM_BIGHA } from '../../engine/soilfuture';
+import { infiltrationChange } from '../../engine/fieldwater';
 
 const ROWS = [
   { k: 'why', icon: Lightbulb, bn: 'কেন এই পথ', en: 'Why it is here', tone: 'text-primary-700', n: 1 },
@@ -20,7 +21,7 @@ const signed = (x, lang, dp = 1) => { const r = Math.round(x * 10 ** dp) / 10 **
 
 // list: [{ id, kind, e, name, tone }] with the habit first; onDetails(id) opens the full brief for that strategy.
 export default function StrategyCompare({ list, sumOf, world, terrain, rotName, onDetails }) {
-  const { s, T, L, dispatch } = useStore();
+  const { s, T, L, dispatch, soil } = useStore();
   const lang = s.lang;
   // the farmer home's four-step path counts this step as done once the comparison has been seen
   useEffect(() => { if (!s.sawStrategies) dispatch({ type: 'set', patch: { sawStrategies: true } }); }, [s.sawStrategies, dispatch]);
@@ -56,6 +57,16 @@ export default function StrategyCompare({ list, sumOf, world, terrain, rotName, 
                 <div className="rounded-lg bg-canvas px-2 py-1.5"><dt className="text-muted">{T('সেচ/বিঘা/বছর', 'Water/bigha/yr')}</dt><dd className="font-bold tabular">{num(c.sm.waterMm * WATER_M3_PER_MM_BIGHA, lang)} {T('ঘনমিটার', 'm³')}</dd></div>
                 <div className="rounded-lg bg-canvas px-2 py-1.5"><dt className="text-muted">{T('লাভ/বিঘা/বছর', 'Profit/bigha/yr')}</dt><dd className="font-bold tabular">৳{num(c.sm.money, lang)}</dd></div>
                 <div className="rounded-lg bg-canvas px-2 py-1.5"><dt className="text-muted">{T('সীমা পেরোনো মৌসুম', 'Seasons over a limit')}</dt><dd className="font-bold tabular">{num(c.sm.risk * 100, lang)}%</dd></div>
+                {(() => {
+                  // how fast a heavy shower soaks in (Saxton & Rawls), moved by the rotation's change in organic matter
+                  const inf = infiltrationChange(soil, c.sm.dSoc);
+                  return inf && (
+                    <div className="col-span-2 rounded-lg bg-canvas px-2 py-1.5" title={T('মাটির বুনট আর জৈব পদার্থ থেকে হিসাব (স্যাক্সটন ও রলস ২০০৬); ধানের নিচের শক্ত তলা ধরা হয়নি', 'From soil texture and organic matter (Saxton & Rawls 2006); the plough pan under puddled rice is not counted')}>
+                      <dt className="text-muted">{T('বৃষ্টির পানি মাটিতে ঢোকার গতি, ১০ বছর', 'How fast rain soaks in, 10 yrs')}</dt>
+                      <dd className="font-bold tabular">{signed(inf.pct, lang)}% <span className="font-normal text-muted">({T(`এখন ঘণ্টায় ${num(inf.now, 'bn', { dp: 1 })} মিমি`, `now ${num(inf.now, 'en', { dp: 1 })} mm an hour`)})</span></dd>
+                    </div>
+                  );
+                })()}
               </dl>
               {ROWS.map((r) => c.b[r.k].length > 0 && (
                 <div key={r.k} className="mt-2.5">

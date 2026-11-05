@@ -33,6 +33,30 @@ export function soilWaterLimits(soil) {
   return { fc, wp, awc: Math.max(0.05, fc - wp) }; // awc: m³ of usable water per m³ of soil
 }
 
+// How fast water soaks in: saturated hydraulic conductivity, Saxton & Rawls (2006) eqs. 3–5 and 16, in mm/h, from
+// sand, clay and organic matter. More organic matter opens the soil (more pores at saturation), so a rotation that
+// builds organic matter lets more of a heavy shower in instead of running off or standing. It does not see the
+// plough pan that puddling for rice packs down, which slows water further below 15 cm.
+export function ksatOf(soil, omPct = soil?.om_pct) {
+  const lim = soilWaterLimits({ ...soil, om_pct: omPct });
+  if (!lim) return null;
+  const S = soil.sand / 100, C = soil.clay / 100, OM = Math.min(8, omPct ?? 2);
+  const ws33t = 0.278 * S + 0.034 * C + 0.022 * OM - 0.018 * S * OM - 0.027 * C * OM - 0.584 * S * C + 0.078;
+  const ws33 = ws33t + (0.636 * ws33t - 0.107);
+  const sat = lim.fc + ws33 - 0.097 * S + 0.043; // water content at saturation, m³/m³
+  const B = (Math.log(1500) - Math.log(33)) / (Math.log(lim.fc) - Math.log(lim.wp));
+  return 1930 * Math.max(0, sat - lim.fc) ** (3 - 1 / B);
+}
+// The change in infiltration over a rotation's ten years, from its change in soil carbon (organic matter moves with
+// carbon): { now, then, pct } in mm/h and percent.
+export function infiltrationChange(soil, dSocPct) {
+  const om0 = soil?.om_pct;
+  if (om0 == null) return null;
+  const now = ksatOf(soil, om0), then = ksatOf(soil, om0 * (1 + dSocPct / 100));
+  if (now == null || then == null || now <= 0) return null;
+  return { now, then, pct: ((then - now) / now) * 100 };
+}
+
 // Root depth on day d of a crop whose stage shares are in FAO56[cropId].stages.
 function rootDepth(cropId, d, days) {
   const r = ROOTS[cropId], f = FAO56[cropId];
