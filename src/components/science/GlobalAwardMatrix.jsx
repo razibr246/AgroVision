@@ -53,8 +53,8 @@ const CATEGORIES = [
     categoryEn: 'Best Use of Technology',
     winner2021: 'Change Maker (Malaysia)',
     desc2021: 'স্বয়ংক্রিয় রোভার অ্যালগরিদম ও পাথফাইন্ডিং।',
-    fs360EdgeBn: 'ক্লায়েন্ট-সাইড ব্রাউজারে সেকেন্ডের ভগ্নাংশে (<৩০০ মিলি.) শত শত ফসলচক্রের হিসাব; ৩২৭টি স্বয়ংক্রিয় টেস্টে শূন্য ত্রুটি প্রমাণিত; অফলাইন ভিলেজ এসএমএস ও ভয়েস।',
-    fs360EdgeEn: 'Sub-300ms client-side execution; 327 passing automated tests with zero server lag; offline feature-phone SMS and rural dialect voice.',
+    fs360EdgeBn: 'ক্লায়েন্ট-সাইড ব্রাউজারে সেকেন্ডের ভগ্নাংশে (<৩০০ মিলি.) শত শত ফসলচক্রের হিসাব; ৩৫৮টি স্বয়ংক্রিয় টেস্টে শূন্য ত্রুটি প্রমাণিত; অফলাইন ভিলেজ এসএমএস ও ভয়েস।',
+    fs360EdgeEn: 'Sub-300ms client-side execution; 358 passing automated tests with zero server lag; offline feature-phone SMS and rural dialect voice.',
     score: '20 / 20',
   },
   {

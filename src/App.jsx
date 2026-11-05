@@ -58,6 +58,8 @@ const AbPlan = load(() => import('./pages/abroad/farmer'), 'Plan');
 const AbRisks = load(() => import('./pages/abroad/farmer'), 'Risks');
 const AbFuture = load(() => import('./pages/abroad/farmer'), 'Future');
 const AbHelp = load(() => import('./pages/abroad/farmer'), 'Help');
+const AbToday = load(() => import('./pages/abroad/farmer'), 'Today');
+const AbSupport = load(() => import('./pages/abroad/farmer'), 'Support');
 const AbOverview = load(() => import('./pages/abroad/officer'), 'Overview');
 const AbAlerts = load(() => import('./pages/abroad/officer'), 'Alerts');
 const AbRequests = load(() => import('./pages/abroad/officer'), 'Requests');
@@ -149,6 +151,8 @@ export default function App() {
           <Route path="risks" element={page(<AbRisks />)} />
           <Route path="future" element={page(<AbFuture />)} />
           <Route path="help" element={page(<AbHelp />)} />
+          <Route path="today" element={page(<AbToday />)} />
+          <Route path="support" element={page(<AbSupport />)} />
           <Route path="officer" element={page(<AbOverview />)} />
           <Route path="officer/alerts" element={page(<AbAlerts />)} />
           <Route path="officer/requests" element={page(<AbRequests />)} />

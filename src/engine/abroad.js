@@ -225,6 +225,23 @@ export function seasonWater(plan, normals, year) {
 }
 export const addDaysIso = (iso, n) => new Date(Date.parse(`${iso}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
 
+// The season plan's steps on real dates, for the season that starts next (this year's sowing if still ahead or within
+// the last month, else next year's): { steps: [{ ...step, a, b }], nowIdx (the step due now or next, -1 when the
+// season is over), water }. a/b: ISO start and end ('b' null for a one-day step).
+export function datedSteps(plan, normals, today) {
+  const y = +today.slice(0, 4);
+  const sowY = plan.sow && `${y}-${plan.sow}` < addDaysIso(today, -30) ? y + 1 : y;
+  const water = seasonWater(plan, normals, sowY);
+  const at = (st) => {
+    if (st.at != null && water) return { a: addDaysIso(water.start, st.at), b: null };
+    if (st.atEnd && water) return { a: addDaysIso(water.end, -7), b: addDaysIso(water.end, 7) };
+    const yy = (m) => (m < '07-01' ? y + 1 : y);
+    return { a: `${yy(st.from)}-${st.from}`, b: st.to ? `${yy(st.to)}-${st.to}` : null };
+  };
+  const steps = plan.steps.map((st) => ({ ...st, ...at(st) })).sort((p, q) => p.a.localeCompare(q.a));
+  return { steps, nowIdx: steps.findIndex((st) => (st.b ?? st.a) >= today), water };
+}
+
 // ---- the local officer's alerts for the farm's area, each with an SMS in the farmers' own language ----
 const SMS = {
   hi: {

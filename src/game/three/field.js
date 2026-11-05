@@ -150,6 +150,15 @@ export function createField(scene, g) {
             const growing = p.crop && !p.dead; // a hotspot is a crop short of water; bare soil stays neutral
             P.ndvi.material.color.set(!growing ? '#8a7a5a' : p.moist > 0.5 ? '#2f7fd0' : p.moist > 0.25 ? '#c9c23a' : '#d6452f');
             P.ndvi.material.opacity = growing ? 0.62 : 0.25;
+          } else if (layer === 'temp') {
+            const hot = p.crop && !p.dead ? (p.moist > 0.4 || p.mulch ? 0 : p.moist > 0.2 ? 1 : 2) : (p.mulch ? 0 : 2);
+            P.ndvi.material.color.set(hot === 0 ? '#2ea87a' : hot === 1 ? '#e0983a' : '#e03a3a');
+            P.ndvi.material.opacity = 0.65;
+          } else if (layer === 'infilt') {
+            const f = p.fert / 0.6;
+            const ok = f > 0.3 || p.mulch || (p.crop && !p.dead);
+            P.ndvi.material.color.set(ok ? '#2a98c8' : f > 0.1 ? '#c9a23a' : '#d84b2e');
+            P.ndvi.material.opacity = 0.65;
           } else if (layer === 'soil') {
             const f = p.fert / 0.6;
             P.ndvi.material.color.set(f > 0.5 ? '#2e9d3a' : f > 0.15 ? '#c9a23a' : '#8a5a3a');

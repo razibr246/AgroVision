@@ -3,7 +3,7 @@
 // once here and handed to every tab (useAbroad()).
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useParams, Navigate, useOutletContext } from 'react-router-dom';
-import { ChevronLeft, UserRound, Building2, Home, MapPinned, Sprout, ShieldAlert, Telescope, LifeBuoy, LayoutDashboard, BellRing, UsersRound, Globe2, Map as MapIcon, CalendarRange, Search } from 'lucide-react';
+import { ChevronLeft, UserRound, Building2, Home, MapPinned, Sprout, ShieldAlert, Telescope, LifeBuoy, LayoutDashboard, BellRing, UsersRound, Globe2, Map as MapIcon, CalendarRange, Search, Droplets, HandCoins } from 'lucide-react';
 import BrandMark from '../components/brand/BrandMark';
 import { LangToggle, SkipToMain } from '../components/chrome';
 import { useStore } from '../store';
@@ -83,8 +83,10 @@ function Shell({ c }) {
       { to: base, end: true, icon: Home, label: T('হোম', 'Home') },
       { to: `${base}/field`, icon: MapPinned, label: T('আমার জমি', 'My field') },
       { to: `${base}/plan`, icon: Sprout, label: T('মৌসুমের পরিকল্পনা', 'Season plan') },
+      { to: `${base}/today`, icon: Droplets, label: T('আজকের কাজ', 'Today') },
       { to: `${base}/risks`, icon: ShieldAlert, label: T('বিপদ ও আগুন', 'Risks and fires') },
       { to: `${base}/future`, icon: Telescope, label: T('জমির ভবিষ্যৎ', 'Field future') },
+      { to: `${base}/support`, icon: HandCoins, label: T('সরকারি সহায়তা', 'Govt support') },
       { to: `${base}/help`, icon: LifeBuoy, label: T('সাহায্য', 'Help'), badge: req.list.filter((r) => r.reply && !r.seen).length },
     ];
   const here = tabs.find((t) => (t.end ? pathname === t.to : pathname.startsWith(t.to)));

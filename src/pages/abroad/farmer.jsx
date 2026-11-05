@@ -8,10 +8,11 @@ import LandFromSpace from '../../components/future/LandFromSpace';
 import { useStore } from '../../store';
 import { num, bnDigits } from '../../engine/dates';
 import { weatherOf } from '../../engine/forecast';
-import { todaysCall, PLANS, seasonWater, addDaysIso } from '../../engine/abroad';
+import { todaysCall, PLANS, datedSteps } from '../../engine/abroad';
 import { areaIn } from '../../data/abroad';
-import { IN_SUPPORT, CHECKED as IN_CHECKED } from '../../data/support/in_support';
-import { supportProfile, matchSupport, FIT, KINDS, STATUS } from '../../engine/support';
+import { ABROAD_SUPPORT, HOTLINE } from '../../data/support/abroad_support';
+import { supportProfile, matchSupport, askSupport, FIT, KINDS, STATUS } from '../../engine/support';
+import SprayCheck from '../../components/fields/SprayCheck';
 import { Tags } from '../../components/ui';
 import { useAbroad } from '../../layouts/AbroadLayout';
 import { WeatherIcon } from '../../components/charts/LiveWeather';
@@ -181,18 +182,7 @@ export function Plan() {
   const { c, data, now } = useAbroad();
   const plan = PLANS[c.id];
   const farm = data.points.farm;
-  // The season that starts next: this year's sowing date if it is still ahead (or within the last month), else next year's.
-  const y = +now.date.slice(0, 4);
-  const sowY = plan.sow && `${y}-${plan.sow}` < addDaysIso(now.date, -30) ? y + 1 : y;
-  const water = seasonWater(plan, farm.normals, sowY);
-  const at = (st) => {
-    if (st.at != null && water) return { a: addDaysIso(water.start, st.at), b: null };
-    if (st.atEnd && water) return { a: addDaysIso(water.end, -7), b: addDaysIso(water.end, 7) };
-    const yy = (m) => (m < '07-01' ? y + 1 : y);
-    return { a: `${yy(st.from)}-${st.from}`, b: st.to ? `${yy(st.to)}-${st.to}` : null };
-  };
-  const steps = plan.steps.map((st) => ({ ...st, ...at(st) })).sort((p, q) => p.a.localeCompare(q.a));
-  const nowIdx = steps.findIndex((st) => (st.b ?? st.a) >= now.date);
+  const { steps, nowIdx, water } = datedSteps(plan, farm.normals, now.date);
   return (
     <div className="page-shell space-y-5">
       <Section icon={Sprout} title={T(`মৌসুমের পরিকল্পনা: ${plan.crop.bn}`, `Season plan: ${plan.crop.en}`)} sub={T('ধাপে ধাপে কী কবে — আজকের দিনটি চিহ্নিত', 'What to do when, step by step — today is marked')}>
@@ -326,34 +316,83 @@ const TOPICS = [
   { k: 'loss', bn: 'ক্ষতি বা বিমা', en: 'Loss or insurance' },
   { k: 'other', bn: 'অন্য কিছু', en: 'Something else' },
 ];
-// Government support for the sample farmer in India (Punjab, rice–wheat), matched by engine/support.js.
-const IN_PROFILE = supportProfile({ area_dec: 1000, crops: [{ id: 'rice', name: { bn: 'ধান', en: 'Rice' } }, { id: 'wheat', name: { bn: 'গম', en: 'Wheat' } }], state: 'Punjab' });
+// ---- Government support: each country's own programmes, matched to its sample farmer (engine/support.js) ----
 const FIT_CHIP = { yes: 'bg-primary-100 text-primary-800', maybe: 'bg-amber-100 text-amber-900', no: 'bg-black/[.05] text-ink/65' };
-function IndiaSupport() {
-  const { T, L } = useStore();
-  const ms = matchSupport(IN_SUPPORT, IN_PROFILE);
+export function Support() {
+  const { s, T, L } = useStore();
+  const lang = s.lang;
+  const { c } = useAbroad();
+  const reg = ABROAD_SUPPORT[c.id];
+  const [q, setQ] = useState('');
+  if (!reg) return null;
+  const prof = supportProfile({ area_dec: c.farmer.farmDec, state: reg.profile.state, crops: reg.profile.crops.map(([id, bn, en]) => ({ id, name: { bn, en } })) });
+  const ms = matchSupport(reg.list, prof);
+  const hits = askSupport(q, reg.list);
+  const tel = HOTLINE[c.id];
+  const checked = lang === 'bn' ? bnDigits(reg.checked) : reg.checked;
   return (
-    <Section icon={Scale} title={T('সরকারি সহায়তা', 'Government support')} sub={T(`পাঞ্জাবের ধান–গম চাষির জন্য মিলিয়ে দেখা · তালিকা দেখা হয়েছে ${bnDigits(IN_CHECKED)}`, `Matched for a Punjab rice–wheat farmer · list checked ${IN_CHECKED}`)} tag={<Tags list={['RECORD', 'RULE']} />}>
-      <ul className="grid gap-2.5 sm:grid-cols-2">
-        {ms.map(({ p, fit, why }) => (
-          <li key={p.id} className={`rounded-2xl bg-white/80 p-3.5 ring-1 ring-white/80 ${fit === 'no' ? 'opacity-80' : ''}`}>
-            <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] font-semibold">
-              <span className={`rounded-full px-2 py-0.5 ${FIT_CHIP[fit]}`}>{L(FIT[fit])}</span>
-              <span className="rounded-full bg-canvas px-2 py-0.5 text-ink/70">{L(KINDS[p.kind])}</span>
-              {p.status !== 'running' && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-900">{L(STATUS[p.status])}</span>}
-            </div>
-            <p className="mt-1.5 text-[15px] font-bold leading-6">{L(p.name)}</p>
-            <p className="text-[13.5px] leading-6 text-ink/80">{L(p.benefit)}</p>
-            {why.length > 0 && <p className="mt-1 text-[12.5px] leading-5 text-muted">{why.map((w) => L(w)).join(' · ')}</p>}
-            {p.note && <p className="mt-1 text-[12.5px] leading-5 text-amber-900">{L(p.note)}</p>}
-            <a href={p.src} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex min-h-[44px] items-center text-[12.5px] font-semibold text-primary-700 sm:min-h-0">{T('উৎস', 'Source')} ↗</a>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 text-[12.5px] leading-5 text-muted">{T('নিয়ম আর দাম বদলায়; আবেদনের আগে ব্লক কৃষি অফিসে জেনে নিন।', 'Rules and prices change; check with the block agriculture office before applying.')}</p>
-    </Section>
+    <div className="page-shell space-y-5">
+      <Section icon={Scale} title={T(`সরকারি সহায়তা: ${c.name.bn}`, `Government support: ${c.name.en}`)}
+        sub={T(`${L(c.farmer.name)}-এর জমি (${num(c.farmer.farmDec / c.unit.dec, 'bn', { dp: 1 })} ${c.unit.bn}), ফসল আর এলাকা মিলিয়ে · তালিকা দেখা হয়েছে ${checked}`, `Matched to ${c.farmer.name.en}'s land (${num(c.farmer.farmDec / c.unit.dec, 'en', { dp: 1 })} ${c.unit.en}), crops and place · list checked ${checked}`)}
+        tag={<Tags list={['RECORD', 'RULE']} />}>
+        <label className="block text-[13.5px] font-semibold" htmlFor="ab-support-q">{T('নিজের প্রশ্ন লিখুন', 'Type your own question')}</label>
+        <input id="ab-support-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder={T('যেমন: বিমা, সার, ঋণ, যন্ত্র', 'For example: insurance, fertiliser, loan, machine')} className="mt-1 h-11 w-full rounded-xl border border-border bg-white px-3.5 text-[15px] outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/12" />
+        {q.trim() && <p className="mt-1.5 text-[13.5px] text-muted" aria-live="polite">{hits.length ? hits.map(({ p }) => L(p.name)).join(' · ') : T('এই তালিকায় মিল নেই; স্থানীয় কৃষি অফিসে জিজ্ঞেস করুন।', 'Nothing in this list matches; ask the local agriculture office.')}</p>}
+        <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          {ms.map(({ p, fit, why }) => (
+            <li key={p.id} className={`rounded-2xl bg-white/80 p-3.5 ring-1 ring-white/80 ${fit === 'no' ? 'opacity-80' : ''} ${hits.some((h) => h.p.id === p.id) ? 'ring-2 ring-primary-400' : ''}`}>
+              <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] font-semibold">
+                <span className={`rounded-full px-2 py-0.5 ${FIT_CHIP[fit]}`}>{L(FIT[fit])}</span>
+                <span className="rounded-full bg-canvas px-2 py-0.5 text-ink/70">{L(KINDS[p.kind])}</span>
+                {p.status !== 'running' && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-900">{L(STATUS[p.status])}</span>}
+              </div>
+              <p className="mt-1.5 text-[15px] font-bold leading-6">{L(p.name)}</p>
+              <p className="text-[12.5px] text-muted">{L(p.by)}</p>
+              <p className="mt-1 text-[13.5px] leading-6 text-ink/80">{L(p.benefit)}</p>
+              {why.length > 0 && <p className="mt-1 text-[12.5px] leading-5 text-muted">{why.map((w) => L(w)).join(' · ')}</p>}
+              {p.note && <p className="mt-1 rounded-lg bg-amber-50/80 px-2.5 py-1.5 text-[12.5px] leading-5 text-amber-950">{L(p.note)}</p>}
+              {fit !== 'no' && <p className="mt-1.5 text-[12.5px] leading-5"><b>{T('কোথায়', 'Where')}:</b> {L(p.where)}{p.docs.length > 0 && <> · <b>{T('সঙ্গে নিন', 'Bring')}:</b> {p.docs.map((d) => L(d)).join(', ')}</>}</p>}
+              <a href={p.src} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex min-h-[44px] items-center text-[12.5px] font-semibold text-primary-700 sm:min-h-0">{T('উৎস', 'Source')} ↗</a>
+            </li>
+          ))}
+        </ul>
+        {tel && <a href={`tel:${tel.tel}`} className="mt-3 inline-flex min-h-[44px] items-center gap-2 text-[14px] font-semibold text-primary-700"><Phone size={15} />{L(tel)}</a>}
+        <p className="mt-3 text-[12.5px] leading-5 text-muted">{T('সরকারি ঘোষণা আর খবর থেকে বানানো তালিকা, নিশ্চয়তা নয়। নিয়ম আর টাকার অঙ্ক বদলায়; আবেদনের আগে স্থানীয় কৃষি অফিসে জেনে নিন।', 'A list made from government notices and news, not a promise. Rules and amounts change; check with the local agriculture office before applying.')}</p>
+      </Section>
+    </div>
   );
 }
+
+// ---- Today: the step due now on the season plan, and whether the weather allows spraying (live, local clock) ----
+export function Today() {
+  const { s, T, L } = useStore();
+  const lang = s.lang;
+  const { c, data, now } = useAbroad();
+  const farm = data.points.farm;
+  const plan = PLANS[c.id];
+  const { steps, nowIdx } = datedSteps(plan, farm.normals, now.date);
+  const due = nowIdx >= 0 ? steps[nowIdx] : null, after = nowIdx >= 0 ? steps.slice(nowIdx + 1, nowIdx + 3) : [];
+  const live = due && due.a <= now.date;
+  const when = (st) => `${dayMonth(st.a, lang)}${st.b ? ` – ${dayMonth(st.b, lang)}` : ''}`;
+  return (
+    <div className="page-shell grid gap-5 lg:grid-cols-[1fr_1.1fr]">
+      <Section icon={CalendarDays} title={T('এখনকার কাজ', 'The work now')} sub={T(`${plan.crop.bn}-এর মৌসুমের পরিকল্পনা থেকে · আজ ${fullDate(now.date, 'bn')}`, `From the ${plan.crop.en.toLowerCase()} season plan · today ${fullDate(now.date, 'en')}`)} tag={<Tags list={['RULE']} />}>
+        {due ? (
+          <>
+            <div className="rounded-2xl p-4 text-white" style={{ background: `linear-gradient(135deg, ${c.tone}, #13261b)` }}>
+              <p className="text-[12.5px] font-semibold text-white/80">{live ? T('এখন করার সময়', 'Due now') : T('পরের কাজ', 'Next')} · {when(due)}</p>
+              <p className="mt-1 text-[17px] font-bold leading-7">{L(due)}</p>
+            </div>
+            {after.length > 0 && <ul className="mt-3 space-y-2">{after.map((st) => <li key={st.a + st.en} className="flex gap-2 rounded-xl bg-white/75 p-3 text-[14px] leading-6 ring-1 ring-white/80"><ArrowRight size={15} className="mt-1 shrink-0 text-primary-600" /><span><b className="tabular">{when(st)}</b> · {L(st)}</span></li>)}</ul>}
+          </>
+        ) : <p className="text-[14px] text-muted">{T('এই মৌসুমের কাজ শেষ।', 'This season’s work is done.')}</p>}
+        <Link to={`/abroad/${c.id}/plan`} className="mt-3 inline-flex min-h-[44px] items-center gap-1 text-[13.5px] font-semibold text-primary-700">{T('পুরো পরিকল্পনা দেখুন', 'See the whole plan')} <ArrowRight size={14} /></Link>
+      </Section>
+      <SprayCheck lat={farm.lat} lon={farm.lon} tz={data.provenance.tz} />
+    </div>
+  );
+}
+
 export function Help() {
   const { s, T, L } = useStore();
   const lang = s.lang;
@@ -403,7 +442,7 @@ export function Help() {
           </ul>
         )}
       </Section>
-      {c.id === 'india' && <div className="lg:col-span-2"><IndiaSupport /></div>}
+      <Link to={`/abroad/${c.id}/support`} className="lift flex items-center gap-3 rounded-2xl bg-white/80 p-4 ring-1 ring-white/80 lg:col-span-2"><Scale size={22} className="text-primary-700" /><span className="text-[14.5px] font-bold leading-5">{T('সরকারি সহায়তা: কোন কর্মসূচি আপনার জন্য', 'Government support: which programmes fit you')}<span className="block text-[12.5px] font-semibold text-muted">{T('বিমা, সার, ঋণ, যন্ত্র — উৎস সহ', 'Insurance, fertiliser, loans, machines — with sources')}</span></span><ArrowRight size={18} className="ml-auto text-primary-700" /></Link>
       <Link to={`/abroad/${c.id}/officer`} className="lift flex items-center gap-3 rounded-2xl p-4 text-white lg:col-span-2" style={{ background: c.tone }}>
         <Building2 size={22} /><span className="text-[14.5px] font-bold leading-5">{T('কর্মকর্তার চোখে দেখুন', 'See it as the officer')}<span className="block text-[12.5px] font-semibold text-white/80">{L(c.local.role)}</span></span><ArrowRight size={18} className="ml-auto" />
       </Link>

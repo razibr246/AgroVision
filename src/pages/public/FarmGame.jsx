@@ -644,14 +644,35 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         <RoundBtn onClick={() => setPaused(true)} label={T('বিরতি (Esc)', 'Pause (Esc)')}><Pause size={18} /></RoundBtn>
       </div>
       {sat && !intro && (() => {
-        const ly = SAT_LAYERS.find((x) => x.id === layer);
+        const ly = SAT_LAYERS.find((x) => x.id === layer) ?? SAT_LAYERS[0];
         return (
-          <div className={`absolute left-1/2 flex w-[min(94vw,560px)] -translate-x-1/2 flex-col items-center gap-1.5 ${touch ? 'bottom-[262px] sm:bottom-[132px]' : 'bottom-[132px]'}`}>
-            <div className="flex gap-1">{SAT_LAYERS.map((x) => <button key={x.id} type="button" onClick={() => { setLayer(x.id); st.current?.setLayer(x.id); play('tap'); }} aria-pressed={layer === x.id} className={`g3-hud rounded-full px-3 py-1 text-[12px] font-semibold ${layer === x.id ? '!bg-emerald-500/90' : ''}`}>{L(x)}</button>)}</div>
-            <div className="g3-hud flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-full px-3.5 py-1.5 text-[12px] font-semibold">
-              <Satellite size={13} className="text-emerald-300" /><span className="text-white/60">{ly.sat}</span>{ly.legend.map(([c, bn, en]) => <span key={c} className="inline-flex items-center gap-1"><i className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />{T(bn, en)}</span>)}
+          <div className={`absolute left-1/2 flex w-[min(94vw,620px)] -translate-x-1/2 flex-col items-center gap-1.5 ${touch ? 'bottom-[262px] sm:bottom-[132px]' : 'bottom-[132px]'}`}>
+            <div className="flex flex-wrap justify-center gap-1">
+              {SAT_LAYERS.map((x) => (
+                <button
+                  key={x.id}
+                  type="button"
+                  onClick={() => { setLayer(x.id); st.current?.setLayer(x.id); play('tap'); }}
+                  aria-pressed={layer === x.id}
+                  className={`g3-hud rounded-full px-3 py-1 text-[12px] font-semibold transition ${layer === x.id ? '!bg-emerald-500/90 text-white shadow-md' : 'hover:bg-white/20'}`}
+                >
+                  {L(x)}
+                </button>
+              ))}
             </div>
-            <p className="g3-hud rounded-full px-3.5 py-1 text-center text-[11px] leading-5 text-white/75">{T('রঙগুলো খেলার সিমুলেশন, এই মাঠের বাস্তব উপগ্রহ মাপ নয়।', 'Colours are simulated for play, not satellite measurements of this field.')}</p>
+            <div className="g3-hud flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-full px-3.5 py-1.5 text-[12px] font-semibold">
+              <Satellite size={13} className="text-emerald-300 animate-pulse" />
+              <span className="text-white/60 font-mono text-[11px]">{ly.sat}</span>
+              {ly.legend.map(([c, bn, en]) => (
+                <span key={c} className="inline-flex items-center gap-1">
+                  <i className="h-2.5 w-2.5 rounded-full ring-1 ring-white/30" style={{ background: c }} />
+                  {T(bn, en)}
+                </span>
+              ))}
+            </div>
+            <p className="g3-hud rounded-full px-3.5 py-1 text-center text-[11px] leading-5 text-white/75">
+              {T('রঙগুলো খেলার সিমুলেশন, এই মাঠের বাস্তব উপগ্রহ মাপ নয়।', 'Colours are simulated for play, not satellite measurements of this field.')}
+            </p>
           </div>
         );
       })()}

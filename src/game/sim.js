@@ -175,7 +175,7 @@ function plotAction(g, p) {
       g.count.dieselSaved = Math.round((g.count.dieselSaved + 1.2) * 10) / 10;
       gainXp(g, 15, { bn: 'ফসলচক্র', en: 'Crop Rotation' });
     }
-    floater(g, p.repeat ? { bn: `আবার ${C[p.crop].bn}: পোকা জমে উঠবে`, en: `${C[p.crop].en} again: pests build up` } : p.last ? { bn: `${C[p.crop].bn} বোনা হলো · ফসল বদল`, en: `${C[p.crop].en} sown · crop rotated` } : { bn: `${C[p.crop].bn} বোনা হলো`, en: `${C[p.crop].en} sown` }, p.x, p.z, p.repeat ? 'bad' : 'info'); return;
+    floater(g, p.repeat ? { bn: `আবার ${C[p.crop].bn}: পোকা জমে উঠবে`, en: `${C[p.crop].en} again: pests build up` } : p.last ? { bn: `${C[p.crop].bn} বোনা হলো · ফসল বদল (পোকার চক্র ভাঙল)`, en: `${C[p.crop].en} sown · crop rotated (pest cycle broken)` } : { bn: `${C[p.crop].bn} বোনা হলো`, en: `${C[p.crop].en} sown` }, p.x, p.z, p.repeat ? 'bad' : 'info'); return;
   }
   if (p.g >= ripeAt(g)) {
     const k = p.crop; g.basket[k]++; g.count.harvested++; p.last = k; if (C[k].soil) g.count.legumes++;
@@ -190,7 +190,7 @@ function plotAction(g, p) {
     }
     Object.assign(p, { crop: null, g: 0, health: 1, wilt: 0, fed: null, feed: 1 });
     startAct(g, 'harvest'); fx(g, 'harvest', p.x, p.z); sound(g, 'harvest');
-    floater(g, { bn: `+১ ${C[k].bn}${C[k].soil ? ' · মাটি উর্বর হলো' : ''}`, en: `+1 ${C[k].en}${C[k].soil ? ' · soil enriched' : ''}` }, p.x, p.z, 'good');
+    floater(g, { bn: `+১ ${C[k].bn}${C[k].soil ? ' · শিকড়ে নাইট্রোজেন সঞ্চয়' : ''}`, en: `+1 ${C[k].en}${C[k].soil ? ' · root nodules fixed N₂' : ''}` }, p.x, p.z, 'good');
     if (Math.random() < 0.35) say(g, 'harvest');
     return;
   }
@@ -378,7 +378,7 @@ function stepPlots(g, dt) {
   for (const p of g.plots) {
     if (!p.crop || p.dead) { p.moist = wet ? 1 : Math.max(0.2, p.moist - dt * 0.01); continue; }
     const c = g.R.crops[p.crop];
-    const rate = 0.03 * c.thirst * (heat ? ((p.mulch || g.perks.cool) ? 1.4 : 2.6) * (g.F.heatHardy ? 0.75 : 1) : 1) * (g.perks.drip ? 0.7 : 1) * g.mods.dry;
+    const rate = 0.03 * c.thirst * (heat ? ((p.mulch || g.perks.cool) ? 1.4 : 2.6) * (g.F.heatHardy ? 0.75 : 1) : 1) * (g.perks.drip ? 0.7 : 1) * (1 - (p.fert || 0) * 0.3) * g.mods.dry;
     p.moist = wet ? 1 : Math.max(0, p.moist - rate * dt);
     if (p.moist > 0.12) {
       p.wilt = Math.max(0, p.wilt - dt * 2);
@@ -446,9 +446,15 @@ function stepEvents(g, dt) {
       for (const p of g.plots) if (p.crop && !p.dead && p.g >= lim && !(g.perks.drains && k++ % 2 === 0)) kill(g, p, 'storm');
       // bare soil, with no roots to hold it, loses its richest top layer to the rain or the flood
       const bare = g.plots.filter((p) => !p.crop || p.dead);
-      for (const p of bare) p.fert = Math.max(0, p.fert - 0.15);
-      g.count.eroded += bare.length;
-      if (bare.length) emit(g, { type: 'toast', text: { bn: `ঝড়ে ${num(bare.length, 'bn')}টি খালি জমির ওপরের মাটি ধুয়ে গেল: জমি ঢেকে রাখলে মাটি থাকে।`, en: `The storm washed the topsoil off ${bare.length} bare plots: covered soil stays put.` } });
+      let washed = 0;
+      for (const p of bare) {
+        if (!p.mulch) {
+          p.fert = Math.max(0, p.fert - 0.15);
+          washed++;
+        }
+      }
+      g.count.eroded += washed;
+      if (washed) emit(g, { type: 'toast', text: { bn: `ঝড়ে ${num(washed, 'bn')}টি খালি জমির ওপরের মাটি ধুয়ে গেল: কভার ক্রপ বা মালচ মাটি রক্ষা করে।`, en: `The storm washed topsoil off ${washed} bare plots: cover crops or mulch protect the soil.` } });
       g.ev.done.storm = true; g.ev.zone = null; emit(g, { type: 'alert', ...A.stormOff });
     }
   } else if (g.ev.flood > 0) g.ev.flood = Math.max(0, g.ev.flood - dt / 8);

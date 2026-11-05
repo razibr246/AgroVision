@@ -16,14 +16,15 @@ const LOOK = {
   no: { icon: XCircle, cell: 'bg-red-500 text-white', text: 'text-red-700', bn: 'এখন নয়', en: 'Not now' },
 };
 
-export default function SprayCheck({ lat, lon, compact = false }) {
+// tz: the farm's own time zone (the neighbouring-country pages); the forecast's hours are then that clock's.
+export default function SprayCheck({ lat, lon, tz, compact = false }) {
   const { s, T, L } = useStore();
   const lang = s.lang;
   const [st, setSt] = useState({ status: 'loading', fc: null, at: null });
   const load = useCallback(() => {
     setSt((p) => ({ ...p, status: 'loading' }));
-    fetchForecast(lat, lon).then((fc) => setSt({ status: 'ok', fc, at: Date.now() }), () => setSt((p) => ({ ...p, status: p.fc ? 'ok' : 'error' })));
-  }, [lat, lon]);
+    fetchForecast(lat, lon, tz ? { tz } : {}).then((fc) => setSt({ status: 'ok', fc, at: Date.now() }), () => setSt((p) => ({ ...p, status: p.fc ? 'ok' : 'error' })));
+  }, [lat, lon, tz]);
   useEffect(() => { load(); }, [load]);
   const plan = useMemo(() => (st.fc ? sprayPlan(st.fc.hours, { fromTime: `${st.fc.current.time.slice(0, 13)}:00` }) : null), [st.fc]);
   const h = (x) => hourLabel(x % 24, lang, bnDigits);
@@ -82,7 +83,7 @@ export default function SprayCheck({ lat, lon, compact = false }) {
 
           <p className="mt-3 text-[12.5px] leading-5 text-muted">
             {T('বাতাস ৩–১৫ কিমি/ঘণ্টা, বৃষ্টি আসার ৪ ঘণ্টা আগে নয়, খুব গরম-শুকনো হাওয়ায় নয়। ওষুধের প্যাকেটের লেখা, মাস্ক-গ্লাভস আর ফসল তোলার আগের অপেক্ষার দিন মেনে চলুন।', 'Wind 3–15 km/h, not within 4 hours of rain, not in very hot dry air. Follow the product label, wear a mask and gloves, and keep its wait before harvest.')}
-            {st.at && <> {T(`পূর্বাভাস ${clockText(st.at, 'bn')}-এর; যাওয়ার আগে আবার দেখুন।`, `Forecast from ${clockText(st.at, 'en')}; check again before you go.`)}</>}
+            {st.at && <> {T(`পূর্বাভাস ${tz ? bnDigits(new Date(st.at).toLocaleTimeString('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' })) : clockText(st.at, 'bn')}-এর; যাওয়ার আগে আবার দেখুন।`, `Forecast from ${tz ? new Date(st.at).toLocaleTimeString('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' }) : clockText(st.at, 'en')}; check again before you go.`)}</>}
           </p>
         </div>
       )}

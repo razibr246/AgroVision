@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { zoneFlags, zoneLevel, todaysCall, PLANS, seasonWater, localAlerts } from './abroad.js';
+import { zoneFlags, zoneLevel, todaysCall, PLANS, seasonWater, localAlerts, datedSteps } from './abroad.js';
 
 const IDS = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar'];
 const load = (id) => JSON.parse(readFileSync(new URL(`../data/abroad/${id}.json`, import.meta.url)));
@@ -79,4 +79,15 @@ test('abroad: local alerts carry an SMS in the farmers’ language', () => {
   assert.match(rain.sms, /३५/); // 35 mm in Devanagari digits
   const pk = localAlerts('pakistan', load('pakistan'), null, '2026-11-05', 'ur');
   assert.match(pk.find((x) => x.key === 'sow').sms, /گندم/);
+});
+
+test('abroad: each season plan lands on real dates, in order, with the step due now found', () => {
+  for (const id of IDS) {
+    const { steps, nowIdx } = datedSteps(PLANS[id], load(id).points.farm.normals, '2026-11-05');
+    assert.ok(steps.length >= 3, id);
+    for (const st of steps) assert.match(st.a, /^\d{4}-\d{2}-\d{2}$/, `${id} ${st.en}`);
+    for (let i = 1; i < steps.length; i++) assert.ok(steps[i].a >= steps[i - 1].a, id);
+    assert.ok(nowIdx >= 0, `${id}: early November is inside the coming season`);
+    assert.ok((steps[nowIdx].b ?? steps[nowIdx].a) >= '2026-11-05', id);
+  }
 });

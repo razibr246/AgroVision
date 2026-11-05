@@ -504,6 +504,8 @@ export const STEP_LABEL = {
 // The satellite-style game view uses simulated colours. Real local NASA and SoilGrids records appear in the FieldShift kiosk.
 export const SAT_LAYERS = [
   { id: 'health', sat: 'SIM · inspired by Landsat / MODIS NDVI', bn: 'ফসলের স্বাস্থ্য', en: 'Crop health', legend: [['#2e9d3a', 'সুস্থ', 'Healthy'], ['#c9c23a', 'চাপে আছে', 'Stressed'], ['#d6452f', 'বিপদে', 'In danger']] },
-  { id: 'water', sat: 'SIM · inspired by SMAP', bn: 'পানির চাপ', en: 'Water stress', legend: [['#2f7fd0', 'ভেজা', 'Moist'], ['#c9c23a', 'শুকাচ্ছে', 'Drying'], ['#d6452f', 'পানির চাপের জায়গা', 'Water-stress hotspot']] },
+  { id: 'water', sat: 'SIM · inspired by SMAP L4', bn: 'পানির চাপ', en: 'Water stress', legend: [['#2f7fd0', 'ভেজা', 'Moist'], ['#c9c23a', 'শুকাচ্ছে', 'Drying'], ['#d6452f', 'পানির চাপের জায়গা', 'Water-stress hotspot']] },
+  { id: 'temp', sat: 'SIM · inspired by ECOSTRESS / MODIS LST', bn: 'মাটির তাপমাত্রা', en: 'Land surface temperature', legend: [['#2ea87a', 'শীতল', 'Cool buffer'], ['#e0983a', 'উষ্ণ', 'Elevated heat'], ['#e03a3a', 'চরম তাপ হটস্পট', 'Extreme thermal hotspot']] },
+  { id: 'infilt', sat: 'SIM · inspired by SRTM & Infiltration', bn: 'অনুপ্রবেশ ও ক্ষয় ঝুঁকি', en: 'Infiltration & runoff', legend: [['#2a98c8', 'দ্রুত শোষণ', 'Rapid infiltration'], ['#c9a23a', 'মাঝারি প্রবাহ', 'Ponding risk'], ['#d84b2e', 'ক্ষয়প্রবণ মাটি', 'Erosion prone']] },
   { id: 'soil', sat: 'SIM · inspired by SoilGrids', bn: 'মাটির স্বাস্থ্য', en: 'Soil health', legend: [['#2e9d3a', 'উর্বর', 'Rich'], ['#c9a23a', 'মাঝারি', 'Middling'], ['#8a5a3a', 'ক্ষয়ে যাওয়া', 'Worn out']] },
 ];

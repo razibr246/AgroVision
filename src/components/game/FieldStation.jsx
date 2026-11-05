@@ -8,7 +8,7 @@
 //               limits the player sets, each with why, evidence, benefits, gaps and what to check locally
 //   What if     temperature and rain sliders that re-run the rotations, and can replay the season under that weather
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { Satellite, Sprout, SlidersHorizontal, Smartphone, Lightbulb, FileSearch, ThumbsUp, HelpCircle, ShieldAlert, Users, Play, Loader2 } from 'lucide-react';
+import { Satellite, Sprout, SlidersHorizontal, Smartphone, Lightbulb, FileSearch, ThumbsUp, HelpCircle, ShieldAlert, Users, Play, Loader2, Layers, Database, Sparkles, Scale, Droplets, Thermometer, Wind } from 'lucide-react';
 import { useStore, loadClimate, soilData, srdi, demo } from '../../store';
 import { num, MONTHS_BN, MONTHS_EN } from '../../engine/dates';
 import { fieldContext, fieldFuture, climateChange, cropOf, RABI_OPTS, K1_OPTS, WATER_M3_PER_MM_BIGHA, ureaSavedKgPerBigha } from '../../engine/soilfuture';
@@ -143,7 +143,13 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
   const abName = (o) => o.cycle.map((y) => y.map((k) => L(cropAbroad(k).name)).join(' → ')).join(T(' | পরের বছর ', ' | next year ')) + (o.residue === 'retain' ? T(' · খড় জমিতে', ' · straw kept') : '');
   const sumOf = (e) => (world === 'fut' && e.sFut ? e.sFut : e.sNow);
   const futLabel = slider ? T('আপনার "যদি এমন হয়"', 'Your what-if') : T('২০৪০-এর দশক (নাসা CMIP6)', 'The 2040s (NASA CMIP6)');
-  const TABS = [['today', Smartphone, 'আজ', 'Today'], ['space', Satellite, 'উপগ্রহ থেকে', 'From space'], ['rot', Sprout, 'ফসলচক্র', 'Rotations'], ['what', SlidersHorizontal, 'যদি এমন হয়', 'What if']];
+  const TABS = [
+    ['today', Smartphone, 'আজ', 'Today'],
+    ['space', Satellite, 'উপগ্রহ থেকে', 'From space'],
+    ['rot', Sprout, 'ফসলচক্র', 'Rotations'],
+    ['what', SlidersHorizontal, 'যদি এমন হয়', 'What if'],
+    ['fusion', Layers, 'ডেটা ফিউশন', 'Data Fusion'],
+  ];
   const loading = <p className="mt-4 flex items-center gap-2 text-[14px] text-white/70"><Loader2 size={16} className="animate-spin" />{T('জলবায়ু ও মাটির তথ্য খোলা হচ্ছে…', 'Loading climate and soil records…')}</p>;
   const loadError = <p role="status" className="mt-3 rounded-xl bg-red-400/10 p-3 text-[14px] leading-6 text-red-100">{T('এই জায়গার জলবায়ু বা মাটির তথ্য খোলা গেল না। পরে আবার চেষ্টা করুন।', 'Could not load this place’s climate or soil records. Try again later.')}</p>;
 
@@ -197,11 +203,20 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
           const b = strategyBrief({ s: sumOf(at.e), b: sumOf(base.e), rot: at.e.rot, kind: at.kind, world });
           return (<>
             <div className="mt-3 grid gap-2">
-              {bd.list.map((c) => {
+              {bd.list.map((c, idx) => {
                 const x = sumOf(c.e);
+                const stratLabel = c.kind === 'habit'
+                  ? T('১. বর্তমান প্রচলিত চাষ (ভিত্তি)', '1. Current Baseline Habit')
+                  : idx === 1
+                  ? T('২. জলবায়ু-সহনশীল সেরা পথ', '2. Climate-Resilient Top Rank')
+                  : T(`৩. বিকল্প ডাল ও পানি সাশ্রয়ী পথ (${idx})`, `3. Legume & Water-Saving Option (${idx})`);
                 return (
                   <button key={c.id} type="button" onClick={() => setPick(c.id)} aria-pressed={c === at} className={`rounded-2xl p-3 text-left ring-1 transition ${c === at ? 'bg-emerald-400/15 ring-emerald-300' : 'bg-white/[.07] ring-white/10 hover:bg-white/[.1]'}`}>
-                    <p className="flex flex-wrap items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-white/60">{c.kind === 'habit' ? T('এখন যেমন চাষ হয়', 'Farming as now') : c.id === 'best' ? T('আপনার জন্য সবচেয়ে ভালো', 'Best for you') : T('আরেকটি ভালো পথ', 'Another good option')}<span className="normal-case text-white/45">{T(`স্কোর ${num(Math.round(c.e.score), 'bn')}/১০০`, `score ${Math.round(c.e.score)}/100`)}</span><Tag k="RULE" /></p>
+                    <p className="flex flex-wrap items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-white/60">
+                      <span className="text-emerald-300">{stratLabel}</span>
+                      <span className="normal-case text-white/45">{T(`স্কোর ${num(Math.round(c.e.score), 'bn')}/১০০`, `score ${Math.round(c.e.score)}/100`)}</span>
+                      <Tag k="RULE" />
+                    </p>
                     <p className="mt-1 text-[15px] font-semibold">{rotName(c.e.rot)}</p>
                     <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[12.5px] text-white/75 sm:grid-cols-3">
                       <span>{T(`সেচ: বিঘায় ${num(Math.round(x.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার/বছর`, `Water: ${Math.round(x.waterMm * WATER_M3_PER_MM_BIGHA)} m³/bigha/yr`)}</span>
@@ -274,6 +289,74 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
           {onWhatIf && <button type="button" onClick={() => onWhatIf({ dT, rain })} className="btn-gloss ml-2 mt-3 inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-white"><Play size={16} />{T('এই আবহাওয়ায় মৌসুম খেলুন', 'Play the season in this weather')}</button>}
           <p className="mt-2 text-[12.5px] text-white/55">{T(`খেলায়: তাপপ্রবাহ ${num(Math.round((sliderMods(dT, rain).heat - 1) * 100), 'bn')}% কড়া, মাটি ${num(Math.round(Math.abs(sliderMods(dT, rain).dry - 1) * 100), 'bn')}% ${rain < 0 ? 'দ্রুত' : 'ধীরে'} শুকায়।`, `In the game: heatwaves ${Math.round((sliderMods(dT, rain).heat - 1) * 100)}% stronger, soil drying ${Math.round(Math.abs(sliderMods(dT, rain).dry - 1) * 100)}% ${rain < 0 ? 'faster' : 'slower'}.`)}</p>
         </>) : <p className="mt-3 text-[13.5px] text-white/60">{T('স্লাইডার সরালে ফল দেখা যাবে।', 'Move a slider to see the result.')}</p>}
+      </>)}
+
+      {tab === 'fusion' && (<>
+        <p className="font-display text-[20px] font-semibold">{T('নাসা ডেটা ফিউশন ও রেজোলিউশন হারমোনাইজেশন', 'NASA Data Fusion & Resolution Harmonization')}</p>
+        <p className="mt-1 text-[13.5px] text-white/65">{T('আলাদা রেজোলিউশনের উপগ্রহ তথ্য কীভাবে একটি নির্দিষ্ট চাষের জমিতে নির্ভুলভাবে সমন্বিত হয়।', 'How multi-resolution satellite observations are downscaled and harmonized to a single field parcel.')}</p>
+
+        {/* Multi-Resolution Pipeline Cards */}
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Box className="border-sky-400/20 bg-sky-950/20">
+            <p className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-sky-300">
+              <Satellite size={13} /> {T('ম্যাক্রো গ্রিড (১০–৫০ কিমি)', 'Macro Grids (10–50 km)')}
+            </p>
+            <ul className="mt-2 space-y-1 text-[12.5px] leading-5 text-white/80">
+              <li>• <b>NASA POWER:</b> {T('দৈনিক তাপ, রোদ ও বাতাস (৫০ কিমি)', 'Daily solar, heat & wind (50 km)')}</li>
+              <li>• <b>GPM IMERG:</b> {T('আধা ঘণ্টার বৃষ্টি ও বর্ষা আগমন (১০ কিমি)', 'Half-hourly rain & onset (10 km)')}</li>
+              <li>• <b>GRACE-FO:</b> {T('ভূগর্ভস্থ গভীর পানির স্তর (৩০০ কিমি)', 'Deep aquifer storage trend (300 km)')}</li>
+            </ul>
+          </Box>
+
+          <Box className="border-emerald-400/20 bg-emerald-950/20">
+            <p className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-emerald-300">
+              <Layers size={13} /> {T('মেসো গ্রিড (২৫০ মি–৯ কিমি)', 'Meso Grids (250 m–9 km)')}
+            </p>
+            <ul className="mt-2 space-y-1 text-[12.5px] leading-5 text-white/80">
+              <li>• <b>SMAP L4:</b> {T('শিকড়ের আর্দ্রতা ও অসংগতি (৯ কিমি)', 'Root-zone soil moisture anomaly (9 km)')}</li>
+              <li>• <b>MODIS LST:</b> {T('মাটির তাপমাত্রা ও তাপপ্রবাহ (১ কিমি)', 'Land surface temperature (1 km)')}</li>
+              <li>• <b>SoilGrids 2.0:</b> {T('মাটির কাদা, বালি ও জৈব কার্বন (২৫০ মি)', 'ISRIC clay, sand & SOC stock (250 m)')}</li>
+            </ul>
+          </Box>
+
+          <Box className="border-amber-400/20 bg-amber-950/20">
+            <p className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-amber-300">
+              <Sparkles size={13} /> {T('মাইক্রো ও জমির সীমানা (১০–৩০ মি)', 'Micro / Field Grid (10–30 m)')}
+            </p>
+            <ul className="mt-2 space-y-1 text-[12.5px] leading-5 text-white/80">
+              <li>• <b>SRTM & ASTER:</b> {T('উচ্চতা, ঢাল ও জলাবদ্ধতা খাদ (৩০ মি)', 'DEM slope & hollow pooling (30 m)')}</li>
+              <li>• <b>Landsat / Sentinel-2:</b> {T('জমির ভেতরের সবুজ ও ফসল শনাক্ত (১০–৩০ মি)', 'Parcel NDVI & crop masking (10–30 m)')}</li>
+              <li>• <b>SRDI Lab Test:</b> {T('কৃষকের নিজস্ব মাটি পরীক্ষা লেয়ার', 'Farmer’s ground soil test calibration')}</li>
+            </ul>
+          </Box>
+        </div>
+
+        {/* Scientific Terms & Physical Formulas */}
+        <p className="mt-4 text-[12.5px] font-bold uppercase tracking-wide text-white/55">{T('বৈজ্ঞানিক পরিভাষা ও হিসাবের নিয়ম', 'Scientific Terms & Equations')}</p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <Box>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-emerald-200"><Droplets size={14} />{T('বাষ্পীভবন-প্রস্বেদন (ET = ET₀ × Kc)', 'Evapotranspiration (ET = ET₀ × Kc)')}</p>
+            <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('FAO-56 পেনম্যান-মন্টিথ নিয়মে বাতাস, রোদ ও আর্দ্রতা থেকে ঘাসের বাষ্পীভবন (ET₀) এবং ফসলের বৃদ্ধির ধাপের সহগ (Kc) গুণ করে নিখুঁত পানির চাহিদা বের করা হয়।', 'Calculated using FAO-56 Penman-Monteith from radiation, wind and humidity (ET₀), multiplied by crop growth-stage coefficient (Kc).')}</p>
+          </Box>
+          <Box>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-sky-200"><Scale size={14} />{T('মাটির আর্দ্রতা অসংগতি (Soil Moisture Anomaly)', 'Soil Moisture Anomaly (SMA)')}</p>
+            <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('আজকের আর্দ্রতা ওই মাসের দীর্ঘমেয়াদি গড়ের তুলনায় কত স্ট্যান্ডার্ড ডেভিয়েশন নিচে বা ওপরে। শূন্যের নিচে নামলে সেচ বা খরা-সহনশীল ফসলের সংকেত।', 'Departure of current SMAP root moisture from the multi-year monthly mean. Sub-zero anomalies trigger thriftier rotation alerts.')}</p>
+          </Box>
+          <Box>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-amber-200"><Wind size={14} />{T('পানির ব্যালেন্স ও অনুপ্রবেশ (P - ET & Infiltration)', 'Water Balance & Soil Infiltration')}</p>
+            <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('বৃষ্টি ও সেচ থেকে বাষ্পীভবন বাদ দিয়ে শিকড়ের পানির সঞ্চয় মাপা হয়। স্যাক্সটন-রলস (২০০৬) নিয়মে জৈব পদার্থ বাড়লে ভারী বৃষ্টির পানি মাটিতে দ্রুত ঢোকে, ক্ষয় কমে।', 'Rain + irrigation minus ET gives root zone water balance. Under Saxton & Rawls (2006), higher organic matter speeds infiltration and stops runoff.')}</p>
+          </Box>
+          <Box>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-rose-200"><Thermometer size={14} />{T('উপগ্রহ বনাম মাটির পর্যবেক্ষণ (Satellite vs Ground)', 'Satellite vs Ground Truth')}</p>
+            <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('উপগ্রহ বিশাল এলাকা প্রতিদিন দেখে কিন্তু পিক্সেলের গড় দেখায়; আবহাওয়া কেন্দ্র ও মাটি পরীক্ষা এক বিন্দুতে নিখুঁত। দুটির মেলবন্ধনই সবচেয়ে বিশ্বস্ত সিদ্ধান্ত দেয়।', 'Satellites provide continuous spatial coverage; ground stations calibrate sensor biases. Combining both yields maximum agronomic accuracy.')}</p>
+          </Box>
+        </div>
+
+        {/* Human-in-the-loop Reminder */}
+        <p className="mt-3 flex items-start gap-2 rounded-2xl bg-emerald-400/10 p-3 text-[13.5px] leading-6 text-emerald-100 ring-1 ring-emerald-300/20">
+          <Users size={16} className="mt-1 shrink-0 text-emerald-300" />
+          {T('সিদ্ধান্ত কৃষকের: এই টুল মহাকাশ তথ্য ও বিজ্ঞানের মাধ্যমে সম্ভাব্য পথ দেখায়, কিন্তু কৃষকের বাস্তব অভিজ্ঞতা এবং উপজেলা কৃষি কর্মকর্তার মাঠ পর্যায়ের পরামর্শের বিকল্প নয়।', 'Farmer in Control: FieldShift synthesizes NASA space data to illuminate possibilities, but never replaces the farmer’s hands-on experience or extension officer’s ground wisdom.')}
+        </p>
       </>)}
     </div>
   );

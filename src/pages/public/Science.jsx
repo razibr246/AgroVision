@@ -24,6 +24,7 @@ import SatelliteInspector from '../../components/science/SatelliteInspector';
 import OrbitConstellation from '../../components/science/OrbitConstellation';
 import EarthdataSTAC from '../../components/science/EarthdataSTAC';
 import ChallengeDossier from '../../components/science/ChallengeDossier';
+import DataFusionHarmonizer from '../../components/science/DataFusionHarmonizer';
 import GlobalAwardMatrix from '../../components/science/GlobalAwardMatrix';
 import SoilGeochemistryExplorer from '../../components/science/SoilGeochemistryExplorer';
 
@@ -243,6 +244,8 @@ export default function Science() {
       <MachineLearning />
 
       <SoilGeochemistryExplorer />
+
+      <DataFusionHarmonizer />
 
       <ChallengeDossier />
 

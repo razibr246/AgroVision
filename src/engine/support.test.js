@@ -104,3 +104,27 @@ test('the question box is measured on farmer-style questions it was not tuned to
   assert.ok(r.hit3 >= 0.95, `hit@3 ${r.hit3}`);
   assert.ok(r.mrr >= 0.9, `MRR ${r.mrr}`);
 });
+
+test('neighbouring countries: every programme sourced and dated; each sample farmer gets a sensible answer', async () => {
+  const { ABROAD_SUPPORT } = await import('../data/support/abroad_support.js');
+  const { ABROAD, ABROAD_ORDER } = await import('../data/abroad.js');
+  for (const id of ABROAD_ORDER) {
+    const reg = ABROAD_SUPPORT[id];
+    assert.ok(reg && reg.list.length > 0, id);
+    assert.match(reg.checked, /^\d{4}-\d{2}-\d{2}$/);
+    for (const p of reg.list) {
+      assert.match(p.src, /^https:\/\//, p.id);
+      assert.ok(KINDS[p.kind] && STATUS[p.status], p.id);
+      for (const k of ['name', 'by', 'benefit', 'who', 'where']) assert.ok(p[k]?.bn && p[k]?.en, `${p.id}.${k}`);
+    }
+    const prof = supportProfile({ area_dec: ABROAD[id].farmer.farmDec, state: reg.profile.state, crops: reg.profile.crops.map(([cid, bn, en]) => ({ id: cid, name: { bn, en } })) });
+    const ms = matchSupport(reg.list, prof);
+    assert.ok(ms.some((m) => m.fit !== 'no'), `${id}: nothing fits the sample farmer`);
+  }
+  // the Sindh wheat grower on 8 acres qualifies for the Sindh wheat package; a Punjab farmer would not
+  const pk = ABROAD_SUPPORT.pakistan;
+  const sindh = supportProfile({ area_dec: 800, state: 'Sindh', crops: [{ id: 'wheat', name: { bn: 'গম', en: 'Wheat' } }] });
+  assert.equal(matchOne(pk.list[0], sindh).fit, 'yes');
+  assert.equal(matchOne(pk.list[0], { ...sindh, state: 'Punjab' }).fit, 'no');
+  assert.equal(matchOne(pk.list[0], supportProfile({ area_dec: 4000, state: 'Sindh', crops: sindh.crops })).fit, 'no');
+});
