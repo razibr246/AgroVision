@@ -18,6 +18,10 @@ import sevenFields900 from './seven-fields-900.webp';
 import sevenFields1600 from './seven-fields-1600.webp';
 import sevenFields2400 from './seven-fields-2400.webp';
 import sevenFields3200 from './seven-fields-3200.webp';
+import taraDream900 from './tara-dream-900.webp';
+import taraDream1600 from './tara-dream-1600.webp';
+import meetFarmers900 from './meet-farmers-900.webp';
+import meetFarmers1600 from './meet-farmers-1600.webp';
 import farmGame1600 from './farm-game-3d-1600.webp';
 import farmGame900 from './farm-game-3d-900.webp';
 import farmGame2400 from './farm-game-3d-2400.webp';
@@ -192,6 +196,18 @@ export const IMAGES = {
   landParcels: {
     src: landParcels1600, srcSet: import.meta.env.MODE === 'single' ? `${landParcels900} 900w, ${landParcels1600} 1600w` : `${landParcels900} 900w, ${landParcels1600} 1600w, ${landParcels2400} 2400w, ${landParcels3200} 3200w`, width: W, height: H, focus: '52% 62%',
     alt: { bn: 'আকাশ থেকে দেখা খেতের মধ্যে সাদা দাগে চিহ্নিত কয়েকটি জমি, পাশে পুকুর ও খাল', en: 'Aerial view of farm plots with three fields outlined in white, beside ponds and a canal' },
+  },
+  // AI images made with ChatGPT for the project (supplied 2026-11-05): illustrations, not photographs of real people.
+  // Only 1672 px wide, so two sizes; the game cards show them at most ~600 px wide.
+  taraDream: {
+    src: taraDream1600, srcSet: `${taraDream900} 900w, ${taraDream1600} 1600w`, width: 1672, height: 941, focus: '45% 45%',
+    alt: { bn: 'স্বপ্নে লাল ফ্রক পরা হাসিখুশি এক বাংলাদেশি মেয়ে হাসিমুখের ছোট্ট উপগ্রহ তারার হাত ধরে ভোরের আকাশে উড়ছে; নিচে সবুজ ধানখেত, নদী, টিনের ঘর, আর শুকনো জমিতে পড়া বৃষ্টির ফোঁটা', en: 'In a dream, a laughing Bangladeshi girl in a red frock flies through the dawn sky holding hands with Tara, a small smiling satellite; below are green paddy fields, a river, tin-roofed homes, and raindrops falling on a dry field' },
+    credit: { artist: 'AI image (ChatGPT)', license: 'made for FieldShift 360', ai: true },
+  },
+  meetFarmers: {
+    src: meetFarmers1600, srcSet: `${meetFarmers900} 900w, ${meetFarmers1600} 1600w`, width: 1672, height: 941, focus: '50% 40%',
+    alt: { bn: 'গোধূলির আলোয় খেতের ধারে বাংলাদেশ, ভারত, পাকিস্তান, নেপাল, ভুটান আর মিয়ানমারের কৃষক পরিবার, নিজেদের পোশাকে, হাতে কাস্তে, কোদাল, ধানের আঁটি আর ঝুড়ি, পাশে তাঁদের সন্তান', en: 'At golden hour, farming families from Bangladesh, India, Pakistan, Nepal, Bhutan and Myanmar stand at the edge of a field in their own clothes, holding a sickle, a hoe, sheaves and a basket, with their children beside them' },
+    credit: { artist: 'AI image (ChatGPT)', license: 'made for FieldShift 360', ai: true },
   },
   // Season Showdown's card: a real farmer in his mustard field on a winter (Rabi) morning (scripts/photos/game_cards.py).
   seasonShowdown: {
