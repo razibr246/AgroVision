@@ -3,7 +3,7 @@
 // farm a season through heat, pests, a storm with a closing safe zone, and a price crash — with FieldShift's
 // warnings on the phone. The 3D world lives in src/game/three; the rules in src/game/sim.js.
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Music, Gauge, Coins, Droplets, ShoppingBasket, Satellite, Smartphone, Volume2, VolumeX, Hand, Sun, Moon, CloudLightning, Bug, TrendingDown, Star, RotateCcw, Users, Sprout, Check, X, ArrowRight, Sparkles, Info, Pause, Play, LogOut, MapPin, ShieldAlert, Footprints, Keyboard, Globe2, Glasses, View, Camera, SlidersHorizontal } from 'lucide-react';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../components/Motion';
@@ -47,13 +47,22 @@ const POINTS = { 0: ['উ', 'N'], 45: ['উপূ', 'NE'], 90: ['পূ', 'E'], 
 const COMPASS = Array.from({ length: 49 }, (_, k) => { const d = -360 + k * 15; return [d, POINTS[((d % 360) + 360) % 360] ?? null]; });
 
 export default function FarmGame() {
-  const [screen, setScreen] = useState('select'); // select | brief | play | end
-  const [who, setWho] = useState(FARMER_IDS[0]);
+  const [searchParams] = useSearchParams();
+  const paramWho = searchParams.get('who');
+  const validWho = FARMER_IDS.includes(paramWho) ? paramWho : FARMER_IDS[0];
+  const [screen, setScreen] = useState(() => (searchParams.get('play') === '1' ? 'play' : 'select')); // select | brief | play | end
+  const [who, setWho] = useState(validWho);
   const [result, setResult] = useState(null);
   const [run, setRun] = useState(0);
   const [whatIf, setWhatIf] = useState(null); // { dT, rain } from the station's sliders, or null for the real season
   const [resume, setResume] = useState(false); // continue the saved season instead of starting a new one
   useEffect(() => { scrollToTop(true); }, [screen]);
+  useEffect(() => {
+    if (paramWho && FARMER_IDS.includes(paramWho)) {
+      setWho(paramWho);
+      if (searchParams.get('play') === '1') setScreen('play');
+    }
+  }, [paramWho, searchParams]);
   return (
     <div className="page-shell pb-24 pt-[100px] sm:pt-[112px]" data-no-reveal>
       {screen === 'select' && <SelectScreen who={who} setWho={setWho} onGo={() => { setResume(false); setScreen('brief'); }} onResume={() => { setResume(true); setWhatIf(null); setRun((r) => r + 1); setScreen('play'); }} />}

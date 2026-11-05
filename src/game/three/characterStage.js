@@ -19,6 +19,8 @@ export function createCharacterStage(host) {
   renderer.toneMappingExposure = 1.15;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap; // PCFSoftShadowMap was removed from three.js
+  renderer.domElement.style.touchAction = 'none';
+  renderer.domElement.style.cursor = 'grab';
   host.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
@@ -92,7 +94,11 @@ export function createCharacterStage(host) {
     a.play(); p.now = a;
     if (once) setTimeout(() => play(p, 'Idle'), (a.getClip().duration * 1000) | 0);
   }
+
   let token = 0;
+  let activeAdultAction = 'Victory';
+  let activeKidAction = 'Jump';
+
   async function show(adult, kid) {
     const my = ++token;
     const [a, k] = await Promise.all([person(adult, -0.35), person(kid, 0.75)]);
@@ -100,37 +106,141 @@ export function createCharacterStage(host) {
     for (const p of cast.splice(0)) { scene.remove(p.root); disposePerson(p); }
     cast.push(a, k);
     scene.add(a.root, k.root);
-    if (!reducedMotion) { play(a, 'Victory', true); play(k, 'Jump', true); }
+    if (!reducedMotion) {
+      play(a, activeAdultAction, activeAdultAction === 'Victory');
+      play(k, activeKidAction, activeKidAction === 'Jump');
+    }
     spin = -0.6;
   }
 
+  // Camera & Turntable Drag Controls
   const clock = new THREE.Timer(); // THREE.Clock is deprecated
   let spin = 0, angle = 0.35;
+  let autoRotate = true;
+  let isDragging = false, dragStartX = 0;
+  let camMode = 'full'; // 'full' | 'portrait' | 'action'
+  let curR = 5.6, curY = 1.45, curLookX = 0.15, curLookY = 1.05;
+
+  const onPointerDown = (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    renderer.domElement.style.cursor = 'grabbing';
+  };
+  const onPointerMove = (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartX;
+    dragStartX = e.clientX;
+    angle -= dx * 0.007;
+    spin = -dx * 0.004;
+  };
+  const onPointerUp = () => {
+    isDragging = false;
+    renderer.domElement.style.cursor = 'grab';
+  };
+
+  renderer.domElement.addEventListener('pointerdown', onPointerDown);
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+
   const onMotionPreference = (event) => {
     reducedMotion = event.matches;
     spin = 0;
     if (reducedMotion) for (const p of cast) { p.mixer?.stopAllAction(); p.now = null; }
   };
   motionQuery.addEventListener?.('change', onMotionPreference);
+
   renderer.setAnimationLoop(() => {
     clock.update(); const dt = Math.min(clock.getDelta(), 0.05), t = clock.getElapsed();
     const motion = previewFrame({ dt, t, angle, spin, reduced: reducedMotion });
-    angle = motion.angle; spin = motion.spin;
-    if (motion.animateCharacters) for (const p of cast) p.mixer?.update(dt);
-    const r = camera.aspect < 1 ? 9.2 : 5.6;
-    camera.position.set(Math.sin(angle) * r, motion.cameraY, Math.cos(angle) * r);
-    camera.lookAt(0.15, camera.aspect < 1 ? 1.75 : 1.05, 0); // on a phone the people stand low, under the name
+
+    if (autoRotate && !isDragging) {
+      angle = motion.angle;
+    }
+    spin = motion.spin;
+
+    if (!reducedMotion) {
+      for (const p of cast) p.mixer?.update(dt);
+    }
+
+    // Camera target configuration based on framing mode
+    const isMobile = camera.aspect < 1;
+    let targetR, targetY, targetLookX, targetLookY;
+
+    if (camMode === 'portrait') {
+      targetR = isMobile ? 3.4 : 2.5;
+      targetY = 1.46;
+      targetLookX = -0.35; // adult center
+      targetLookY = 1.42;
+    } else if (camMode === 'action') {
+      targetR = isMobile ? 6.2 : 4.4;
+      targetY = 0.95;
+      targetLookX = -0.15;
+      targetLookY = 0.88;
+    } else {
+      // 'full'
+      targetR = isMobile ? 9.2 : 5.6;
+      targetY = motion.cameraY;
+      targetLookX = 0.15;
+      targetLookY = isMobile ? 1.75 : 1.05;
+    }
+
+    // Smooth cinematic camera pan
+    const lerpK = Math.min(1, dt * 5);
+    curR += (targetR - curR) * lerpK;
+    curY += (targetY - curY) * lerpK;
+    curLookX += (targetLookX - curLookX) * lerpK;
+    curLookY += (targetLookY - curLookY) * lerpK;
+
+    camera.position.set(Math.sin(angle) * curR, curY, Math.cos(angle) * curR);
+    camera.lookAt(curLookX, curLookY, 0);
+
     ring.material.emissiveIntensity = motion.ringIntensity;
     dust.rotation.y += motion.dustDelta;
     renderer.render(scene, camera);
   });
+
   const onResize = () => { camera.aspect = host.clientWidth / host.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(host.clientWidth, host.clientHeight); };
   window.addEventListener('resize', onResize);
+
   return {
     show,
-    cheer() { if (!reducedMotion) { if (cast[0]) play(cast[0], 'Victory', true); if (cast[1]) play(cast[1], 'Jump', true); } },
+    cheer() {
+      if (!reducedMotion) {
+        if (cast[0]) play(cast[0], 'Victory', true);
+        if (cast[1]) play(cast[1], 'Jump', true);
+      }
+    },
+    playAction(name, target = 'adult', loop = true) {
+      if (reducedMotion) return;
+      if (target === 'adult' || target === 'both') {
+        activeAdultAction = name;
+        if (cast[0]) play(cast[0], name, !loop);
+      }
+      if (target === 'kid' || target === 'both') {
+        const kidAction = ['SwordSlash', 'PickUp'].includes(name) ? 'Jump' : name;
+        activeKidAction = kidAction;
+        if (cast[1]) play(cast[1], kidAction, !loop);
+      }
+    },
+    setCameraMode(mode) {
+      camMode = mode;
+    },
+    toggleSpin() {
+      autoRotate = !autoRotate;
+      return autoRotate;
+    },
+    setAutoRotate(enabled) {
+      autoRotate = !!enabled;
+    },
+    rotateBy(delta) {
+      angle += delta;
+      spin = delta * 0.4;
+    },
     dispose() {
       token++;
+      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
       for (const p of cast.splice(0)) { scene.remove(p.root); disposePerson(p); }
       renderer.setAnimationLoop(null);
       motionQuery.removeEventListener?.('change', onMotionPreference);

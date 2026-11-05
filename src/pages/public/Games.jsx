@@ -92,7 +92,9 @@ export default function Games() {
       </div>
 
       {/* 3D Biomechanical & Soil Ground Physics Lab */}
-      <BiomechanicsLab />
+      <div id="biomechanics">
+        <BiomechanicsLab />
+      </div>
 
       <p className="mt-8 flex items-center gap-2 text-[13.5px] text-muted"><Sprout size={15} />{T('খেলার টাকা আর সংখ্যা শেখানোর জন্য বানানো, আসল হিসাব নয়।', 'Money and numbers in the games are for learning, not real estimates.')}</p>
     </div>
