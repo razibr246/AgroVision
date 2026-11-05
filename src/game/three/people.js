@@ -557,6 +557,12 @@ export function buildFarmer(look) {
     brows.push({ pivot: browPivot, side: s, baseRotZ: s * -0.12 });
   }
   P.brows = brows;
+  // Dynamic mouth articulation for breathing, effort, and gestures
+  const mouthPivot = group(head, [0, -0.048, 0.108]);
+  const mouthLipM = mat(look.skin, { rough: 0.75, sheen: 0.2 });
+  mesh(geo.sphere(0.012, 8, 6), mouthLipM, mouthPivot, [0, 0, 0], [0, 0, 0], [1.15, 0.45, 0.55]);
+  mouthPivot.scale.set(1, 0.02, 1);
+  P.mouth = mouthPivot;
   if (look.beard) {
     // a full beard that follows the jaw from the cheeks round the chin, and a moustache curving over the lip
     const bm = mat(look.beard, { rough: 1, sheen: 0.4, sheenRough: 0.9, side: THREE.DoubleSide });
@@ -873,6 +879,13 @@ export function animate(P, st, dt) {
       b.pivot.rotation.z = lerp(b.pivot.rotation.z, b.baseRotZ + b.side * expr.browTilt, browLerp);
     }
   }
+  if (P.mouth) {
+    const mouthLerp = Math.min(1, dt * 10);
+    const targetMouthY = -0.048 - (expr.mouthOpen ?? 0) * 0.007;
+    const targetMouthScaleY = 0.02 + (expr.mouthOpen ?? 0) * 0.85;
+    P.mouth.position.y = lerp(P.mouth.position.y, targetMouthY, mouthLerp);
+    P.mouth.scale.y = lerp(P.mouth.scale.y, targetMouthScaleY, mouthLerp);
+  }
 
   const act = st.act;
   if (act) {
@@ -964,8 +977,9 @@ export function animate(P, st, dt) {
   if (P.skirtGroup) {
     const sway = Math.sin(ph) * 0.075 * a;
     const billow = -speed * 0.026;
+    const brakeBillow = Math.min(0.22, Math.max(-0.05, decelSettle * 0.95));
     P.skirtGroup.rotation.z = lerp(P.skirtGroup.rotation.z, -hips.rotation.z * 0.65 + sway, k);
-    P.skirtGroup.rotation.x = lerp(P.skirtGroup.rotation.x, billow - lean * 0.35, k);
+    P.skirtGroup.rotation.x = lerp(P.skirtGroup.rotation.x, billow - lean * 0.35 + brakeBillow, k);
   }
 
   if (!act || act.type !== 'water') tools.can.rotation.x = 0;

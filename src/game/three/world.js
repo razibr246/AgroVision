@@ -74,9 +74,18 @@ function scenery(kind, group) {
     }
   };
   if (kind === 'plain') {
+    // the village tree line on the horizon: each one a grove (a trunk or two under a crown of clumps, darker below,
+    // lit on top) and not a single faceted ball, which looked like a green rock once the camera turned towards it
+    const tones = ['#3f6a34', '#4f7a3f', '#5a8a44'];
     for (let k = 0; k < 120; k++) {
-      const a = rnd() * Math.PI * 2, r = 85 + rnd() * 65, b = blob(group, 3.2 + rnd() * 3.5, '#4f7a3f', [Math.cos(a) * r, 3.2, Math.sin(a) * r], [1.1, 1.5, 1.1], 0);
-      b.castShadow = false;
+      const a = rnd() * Math.PI * 2, r = 85 + rnd() * 65, x = Math.cos(a) * r, z = Math.sin(a) * r, R = 3 + rnd() * 3.2, h = 2.4 + rnd() * 2;
+      const col = tones[k % 3], dark = '#2f5229';
+      cyl(group, R * 0.06, R * 0.09, h + R * 0.4, '#5a4632', [x, (h + R * 0.4) / 2, z]).castShadow = false;
+      blob(group, R, dark, [x, h + R * 0.75, z], [1.15, 0.85, 1.15], 1).castShadow = false;
+      for (let j = 0; j < 3; j++) {
+        const b = j * 2.1 + rnd(), d = R * 0.55;
+        blob(group, R * (0.55 + rnd() * 0.15), col, [x + Math.cos(b) * d, h + R * (0.95 + rnd() * 0.3), z + Math.sin(b) * d], [1, 0.8, 1], 1).castShadow = false;
+      }
     }
   }
   if (kind === 'kirthar') { ridge(32, 120, 180, Math.PI * 0.75, Math.PI * 1.25, 20, 48, '#9a7a56'); for (let k = 0; k < 55; k++) { const a = rnd() * Math.PI * 2, r = 80 + rnd() * 60; blob(group, 2.2 + rnd() * 2.2, '#7d8a4a', [Math.cos(a) * r, 2, Math.sin(a) * r], [1.3, 0.5, 1.2], 0).castShadow = false; } }
@@ -232,6 +241,55 @@ export function createWorld(scene, g, { light = false } = {}) {
   const flood = new THREE.Mesh(new THREE.PlaneGeometry(90, 70).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#8a7a58', roughness: 0.2, metalness: 0.1, transparent: true, opacity: 0.85 }));
   flood.position.set(0, -1, -4); flood.visible = false; scene.add(flood);
 
+  // Ground mist sheets (কুয়াশা): soft horizontal misty layers hovering over low terrain, ponds, and open fields
+  const mistTex = (() => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+    const x = cv.getContext('2d');
+    const gr = x.createRadialGradient(64, 64, 4, 64, 64, 62);
+    gr.addColorStop(0, 'rgba(235,242,248,0.7)');
+    gr.addColorStop(0.4, 'rgba(235,242,248,0.4)');
+    gr.addColorStop(0.8, 'rgba(235,242,248,0.1)');
+    gr.addColorStop(1, 'rgba(235,242,248,0)');
+    x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })();
+  const MIST_N = light ? 5 : 12;
+  const mistGroup = new THREE.Group(); scene.add(mistGroup);
+  const mistSheets = [];
+  const mistMat = new THREE.MeshBasicMaterial({
+    map: mistTex,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const mistGeo = new THREE.PlaneGeometry(38, 38); mistGeo.rotateX(-Math.PI / 2);
+  for (let k = 0; k < MIST_N; k++) {
+    const a = (k / MIST_N) * Math.PI * 2 + (k % 2) * 0.4;
+    const dist = 18 + (k % 4) * 15;
+    const mx = Math.cos(a) * dist, mz = Math.sin(a) * dist;
+    const my = L.ground(mx, mz) + 0.45 + (k % 3) * 0.35;
+    const m = new THREE.Mesh(mistGeo, mistMat);
+    m.position.set(mx, my, mz);
+    m.scale.setScalar(0.75 + (k % 3) * 0.25);
+    mistGroup.add(m);
+    mistSheets.push({ mesh: m, base: [mx, my, mz], ph: k * 1.7, rot: (k % 2 ? 1 : -1) * 0.05 });
+  }
+
+  // Rain puddle ripple reflections across the terrain during wet weather
+  const PR_COUNT = light ? 12 : 28;
+  const prGeo = new THREE.RingGeometry(0.85, 1.0, 24); prGeo.rotateX(-Math.PI / 2);
+  const prMat = new THREE.MeshBasicMaterial({ color: '#d2e8fa', transparent: true, opacity: 0.65, depthWrite: false });
+  const prMesh = new THREE.InstancedMesh(prGeo, prMat, PR_COUNT);
+  prMesh.count = 0; prMesh.frustumCulled = false; prMesh.renderOrder = 2; scene.add(prMesh);
+  const puddleRipples = Array.from({ length: PR_COUNT }, () => ({
+    x: 0, y: 0, z: 0,
+    age: Math.random(),
+    duration: 0.6 + Math.random() * 0.4,
+    maxR: 0.45 + Math.random() * 0.4,
+  }));
+  const prDummy = new THREE.Object3D();
+
   // the storm's safe circle: a glowing wall of light, like a closing zone, and a ring on the ground
   const zoneMat = new THREE.MeshBasicMaterial({ color: '#7fd0ff', transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false });
   const zone = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 14, 48, 1, true), zoneMat); zone.visible = false; scene.add(zone);
@@ -250,7 +308,7 @@ export function createWorld(scene, g, { light = false } = {}) {
     sky: skyM,
     flash() { flash = 0.35; },
     marker(pos) { marker.visible = !!pos; if (pos) marker.position.set(pos[0], L.ground(pos[0], pos[1]) + 4.6, pos[1]); },
-    update(t, dt, phase, ev, camPos, focus) {
+    update(t, dt, phase, ev, camPos, focus, me = null) {
       // the sun across the sky; colours blend between the keyframes
       let i = 0; while (DAYCOL[i + 1][0] < phase) i++;
       const A = DAYCOL[i], B = DAYCOL[i + 1], f = (phase - A[0]) / (B[0] - A[0]);
@@ -264,7 +322,28 @@ export function createWorld(scene, g, { light = false } = {}) {
       flash = Math.max(0, flash - dt); if (flash > 0) { hemiI += flash * 6; cTop.lerp(C('#ffffff'), flash); }
       const day = phase < 0.75;
       const wet0 = ev.storm > 0, wind0 = wet0 ? 2.4 : ev.zone ? 1.5 : 0.8;
-      nature.update(t, dt, wind0, cMid, storm, day, focus);
+      nature.update(t, dt, wind0, cMid, storm, day, focus, me);
+
+      // Low ground morning/evening mist update (কুয়াশা)
+      const fogWeather = storm && g.R.storm?.kind === 'fog';
+      let mistAlpha = 0;
+      if (fogWeather) {
+        mistAlpha = 0.58;
+      } else if (phase < 0.22) {
+        mistAlpha = (1.0 - phase / 0.22) * 0.44;
+      } else if (phase > 0.66 && phase < 0.82) {
+        mistAlpha = ((phase - 0.66) / 0.16) * 0.38;
+      }
+      mistMat.opacity = mistAlpha;
+      mistGroup.visible = mistAlpha > 0.01;
+      if (mistGroup.visible) {
+        for (const ms of mistSheets) {
+          ms.mesh.rotation.y = t * ms.rot;
+          const drift = Math.sin(t * 0.35 + ms.ph) * 2.2;
+          ms.mesh.position.x = ms.base[0] + drift * wind0 * 0.45;
+          ms.mesh.position.z = ms.base[2] + Math.cos(t * 0.28 + ms.ph) * 1.5;
+        }
+      }
 
       // Dynamic wet ground sheen during rain, showers and rising water
       const wetSheen = ev.storm > 0 ? 0.85 : ev.shower > 0 ? 0.5 : ev.flood > 0.05 ? 0.65 : 0;
@@ -300,6 +379,31 @@ export function createWorld(scene, g, { light = false } = {}) {
           rp.set([x, y, z, x + 0.25, y + 0.9, z], k * 6);
         }
         rainGeo.attributes.position.needsUpdate = true;
+      }
+
+      // Rain puddle ripple reflections across the terrain
+      prMesh.visible = rain.visible;
+      if (prMesh.visible) {
+        let prCount = 0;
+        for (const pr of puddleRipples) {
+          pr.age += dt / pr.duration;
+          if (pr.age >= 1.0) {
+            pr.age = 0;
+            const a = Math.random() * Math.PI * 2, r = 2.5 + Math.random() * 22;
+            pr.x = focus.x + Math.cos(a) * r;
+            pr.z = focus.z + Math.sin(a) * r;
+            pr.y = L.ground(pr.x, pr.z) + 0.025;
+            pr.duration = 0.55 + Math.random() * 0.45;
+            pr.maxR = 0.35 + Math.random() * 0.45;
+          }
+          const s = pr.maxR * (0.08 + pr.age * 0.92);
+          prDummy.position.set(pr.x, pr.y, pr.z);
+          prDummy.scale.set(s, 1, s);
+          prDummy.updateMatrix();
+          prMesh.setMatrixAt(prCount++, prDummy.matrix);
+        }
+        prMesh.count = prCount;
+        prMesh.instanceMatrix.needsUpdate = true;
       }
       hail.visible = wet && g.R.storm.kind === 'hail';
       if (hail.visible) { for (let k = 0; k < 500; k++) { const s = stones[k]; s[1] -= dt * 18; if (s[1] < 0) s[1] = 25; hp.set([camPos.x + s[0], s[1], camPos.z + s[2]], k * 3); } hailGeo.attributes.position.needsUpdate = true; }

@@ -1162,6 +1162,10 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
   box-shadow: 0 14px 36px -10px rgba(0,0,0,.55), 0 4px 10px -4px rgba(0,0,0,.3);
   margin-top: -10px;
 }
+/* photo mode: everything over the picture goes except the shutter bar (and the flash when it fires) */
+.g3-photo-on > :not(canvas):not(.g3-photo-bar):not(.g3-flash):not(.g3-toast) { display: none !important; }
+.g3-flash { animation: g3-flash .45s ease-out forwards; }
+@keyframes g3-flash { from { opacity: .85; } to { opacity: 0; } }
 .g3-bubble::after {
   content: ''; position: absolute; left: 50%; bottom: -7px;
   width: 14px; height: 14px;

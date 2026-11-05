@@ -107,16 +107,23 @@ export function createNature(scene, L, { light = false } = {}) {
   const seed = Math.floor(Math.abs((L.patches?.[0]?.[0] ?? 1) * 1e4)) + L.props.length;
   const rng = mulberry(seed);
   const time = { value: 0 }, wind = { value: 0.8 };
+  const playerPos = { value: new THREE.Vector3(0, 0, 0) };
+  const playerRadius = { value: 1.45 };
   const geos = shapes(rng);
   const group = new THREE.Group(); scene.add(group);
   const mats = [];
   // the sway: the higher a vertex, the further it bends; a slow gust and a quick flutter that travel across the land
+  // plus dynamic interactive foliage displacement when the player walks or runs through vegetation
   const swayMat = (amp) => {
     const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, side: THREE.DoubleSide });
     const ampU = { value: amp };
     m.onBeforeCompile = (sh) => {
-      sh.uniforms.uTime = time; sh.uniforms.uWind = wind; sh.uniforms.uAmp = ampU;
-      sh.vertexShader = `uniform float uTime; uniform float uWind; uniform float uAmp;\n${sh.vertexShader}`.replace('#include <begin_vertex>', `#include <begin_vertex>
+      sh.uniforms.uTime = time;
+      sh.uniforms.uWind = wind;
+      sh.uniforms.uAmp = ampU;
+      sh.uniforms.uPlayerPos = playerPos;
+      sh.uniforms.uPlayerRadius = playerRadius;
+      sh.vertexShader = `uniform float uTime; uniform float uWind; uniform float uAmp; uniform vec3 uPlayerPos; uniform float uPlayerRadius;\n${sh.vertexShader}`.replace('#include <begin_vertex>', `#include <begin_vertex>
         #ifdef USE_INSTANCING
           vec2 ip = vec2(instanceMatrix[3][0], instanceMatrix[3][2]);
         #else
@@ -125,12 +132,24 @@ export function createNature(scene, L, { light = false } = {}) {
         float bend = transformed.y * transformed.y;
         float gust = sin(uTime * 1.3 - ip.x * 0.09 - ip.y * 0.05) * 0.65 + sin(uTime * 3.4 + ip.x * 1.1 + ip.y * 0.7) * 0.35;
         transformed.x += gust * uWind * uAmp * bend;
-        transformed.z += gust * uWind * uAmp * 0.45 * bend;`);
+        transformed.z += gust * uWind * uAmp * 0.45 * bend;
+
+        // Player physical foliage displacement: vegetation parts around feet and hips
+        vec2 diffP = (ip + transformed.xz) - uPlayerPos.xz;
+        float distP = length(diffP);
+        float maxR = max(0.4, uPlayerRadius);
+        if (distP < maxR && transformed.y > 0.035) {
+          float pushNorm = 1.0 - (distP / maxR);
+          float pushFactor = pushNorm * pushNorm * min(transformed.y * 1.5, 0.92);
+          vec2 pushDir = distP > 0.001 ? (diffP / distP) : vec2(0.0, 1.0);
+          transformed.xz += pushDir * pushFactor * 0.82;
+          transformed.y -= pushFactor * 0.28;
+        }`);
       // a two-sided material flips the normal on the back face; blades keep their up-facing normal on both sides,
       // or half of every tuft is lit from below and turns black
       sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n        normal = normalize(vNormal);');
     };
-    m.customProgramCacheKey = () => 'fs-sway';
+    m.customProgramCacheKey = () => 'fs-sway-v2';
     mats.push(m);
     return m;
   };
@@ -309,10 +328,16 @@ export function createNature(scene, L, { light = false } = {}) {
   });
 
   return {
-    // w: the weather's wind (0.8 breeze, 2.4 storm); sky: the sky's middle colour; storm 0–1; day: is the sun up; focus: player position
-    update(t, dt, w, sky, storm, day, focus) {
+    // w: the weather's wind (0.8 breeze, 2.4 storm); sky: the sky's middle colour; storm 0–1; day: is the sun up; focus: player position; player: optional farmer state
+    update(t, dt, w, sky, storm, day, focus, player = null) {
       time.value = t;
       gustWind += (w - gustWind) * Math.min(1, dt * 0.8); wind.value = gustWind;
+      if (player) {
+        playerPos.value.set(player.x, player.y ?? focus.y, player.z);
+        playerRadius.value = player.run ? 1.65 : 1.35;
+      } else if (focus) {
+        playerPos.value.set(focus.x, focus.y, focus.z);
+      }
       clouds.rotation.y += dt * 0.002 * gustWind;
       cloudCol.set(day ? '#ffffff' : '#3a4566').lerp(sky, day ? 0.25 : 0.5).lerp(C('#59636e'), storm * 0.85);
       cloudMat.color.copy(cloudCol); cloudMat.opacity = day ? 0.85 + storm * 0.1 : 0.45;

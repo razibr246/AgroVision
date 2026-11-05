@@ -130,7 +130,8 @@ export function createField(scene, g) {
     root,
     // layer: what the satellite view shows: 'health' (NDVI-style greenness), 'water' (water-stress hotspots, SMAP-style)
     // or 'soil' (each plot's soil health, raised by legumes and lost when bare soil washes away)
-    update(t, wind, sat, scanner, layer = 'health') {
+    // playerPos: optional player position for real-time crop stalk displacement when walking between rows
+    update(t, wind, sat, scanner, layer = 'health', playerPos = null) {
       for (const im of buckets.values()) im.count = 0;
       const lim = ripeAt(g);
       g.plots.forEach((p, i) => {
@@ -170,8 +171,23 @@ export function createField(scene, g) {
         SPOTS9.forEach(([dx, dz], j) => {
           const n = im.count++;
           const sway = Math.sin(t * 1.8 + p.x * 0.7 + dx * 2) * 0.06 * wind;
-          e.set(sway + droop * 0.35, (i * 9 + j) * 2.4, sway * 0.6);
-          q.setFromEuler(e); v.set(p.x + dx + ((j * 37) % 7 - 3) * 0.03, 0.1, p.z + dz + ((j * 53) % 7 - 3) * 0.03);
+          let ex = sway + droop * 0.35;
+          const ey = (i * 9 + j) * 2.4;
+          let ez = sway * 0.6;
+          const px = p.x + dx + ((j * 37) % 7 - 3) * 0.03;
+          const pz = p.z + dz + ((j * 53) % 7 - 3) * 0.03;
+          if (playerPos) {
+            const dpx = px - playerPos.x, dpz = pz - playerPos.z;
+            const dp = Math.hypot(dpx, dpz);
+            if (dp < 1.15) {
+              const push = (1 - dp / 1.15) * 0.38;
+              const ang = Math.atan2(dpz, dpx);
+              ex += Math.sin(ang) * push;
+              ez -= Math.cos(ang) * push;
+            }
+          }
+          e.set(ex, ey, ez);
+          q.setFromEuler(e); v.set(px, 0.1, pz);
           const s = grow * (0.9 + ((j * 13) % 5) * 0.04); sc.set(s, s * (1 - droop * 0.3), s);
           m4.compose(v, q, sc); im.setMatrixAt(n, m4); im.setColorAt(n, col);
         });

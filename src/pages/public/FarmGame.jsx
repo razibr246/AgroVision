@@ -4,7 +4,7 @@
 // warnings on the phone. The 3D world lives in src/game/three; the rules in src/game/sim.js.
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Music, Gauge, Coins, Droplets, ShoppingBasket, Satellite, Smartphone, Volume2, VolumeX, Hand, Sun, Moon, CloudLightning, Bug, TrendingDown, Star, RotateCcw, Users, Sprout, Check, X, ArrowRight, Sparkles, Info, Pause, Play, LogOut, MapPin, ShieldAlert, Footprints, Keyboard, Globe2, Glasses, View } from 'lucide-react';
+import { Music, Gauge, Coins, Droplets, ShoppingBasket, Satellite, Smartphone, Volume2, VolumeX, Hand, Sun, Moon, CloudLightning, Bug, TrendingDown, Star, RotateCcw, Users, Sprout, Check, X, ArrowRight, Sparkles, Info, Pause, Play, LogOut, MapPin, ShieldAlert, Footprints, Keyboard, Globe2, Glasses, View, Camera } from 'lucide-react';
 import { useStore } from '../../store';
 import { scrollToTop } from '../../components/Motion';
 import { num } from '../../engine/dates';
@@ -217,7 +217,7 @@ function BriefScreen({ who, onDone, onBack }) {
           </div>
           <div className="glass flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[22px] px-4 py-3 text-[13px] text-ink/75">
             <span className="flex items-center gap-1.5 font-semibold text-ink"><Keyboard size={14} />{T('নিয়ন্ত্রণ', 'Controls')}</span>
-            <span>WASD / ↑↓←→ {T('হাঁটা', 'walk')}</span><span>Shift / R {T('ধরে দৌড় / টগল', 'hold to run / toggle')}</span><span>E / F / Space {T('কাজ', 'act')}</span><span>{T('মাউস টেনে চারপাশ দেখা', 'drag to look')}</span><span>1–4 {T('বীজ', 'seed')}</span><span>N {T('উপগ্রহ', 'satellite')}</span><span>Esc {T('বিরতি', 'pause')}</span>
+            <span>WASD / ↑↓←→ {T('হাঁটা', 'walk')}</span><span>Shift / R {T('ধরে দৌড় / টগল', 'hold to run / toggle')}</span><span>E / F / Space {T('কাজ', 'act')}</span><span>{T('মাউস টেনে চারপাশ দেখা', 'drag to look')}</span><span>1–4 {T('বীজ', 'seed')}</span><span>N {T('উপগ্রহ', 'satellite')}</span><span>Esc {T('বিরতি', 'pause')}</span><span>{T('গেমপ্যাড: A কাজ · B পেছনে · X উপগ্রহ · Y FieldShift · LB/RB বীজ · Start বিরতি', 'Gamepad: A act · B back · X satellite · Y FieldShift · LB/RB seed · Start pause')}</span>
           </div>
         </div>
       </div>
@@ -265,6 +265,10 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   const [failed, setFailed] = useState(false);
   const [modes, setModes] = useState([]); // AR and VR this device can play
   const [xr, setXr] = useState(null);
+  const padRef = useRef(null); // gamepad buttons the stage hands to the page (B back, X satellite, Y kiosk, LB/RB seed, Start pause)
+  const [photo, setPhoto] = useState(false); // photo mode: the season holds still, the HUD goes, the player frames a picture
+  const [flash, setFlash] = useState(0);
+  const [idle, setIdle] = useState(false); // desktop: the cursor hides after 1.5 s without moving
   const [muted, setMute] = useState(() => { try { return localStorage.getItem(MUTE_KEY) === '1'; } catch { return false; } });
   const [music, setMusicOn] = useState(() => { try { return localStorage.getItem(MUSIC_KEY) !== '0'; } catch { return true; } });
   useEffect(() => { setMusic(music); try { localStorage.setItem(MUSIC_KEY, music ? '1' : '0'); } catch { /* storage unavailable */ } }, [music]);
@@ -289,6 +293,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
           else if (e.type === 'open') { setPanel(e.panel); g.paused = true; }
           else if (e.type === 'introDone') { setIntro(false); if (kit.current?.length) setToast({ text: { bn: `সঙ্গে আছে: ${kit.current.map((u) => u.title.bn).join(' · ')}`, en: `Your kit: ${kit.current.map((u) => u.title.en).join(' · ')}` }, k: Math.random() }); }
           else if (e.type === 'xr') setXr(e.mode);
+          else if (e.type === 'pad') padRef.current?.(e.action);
           else if (e.type === 'quest') setBanner({ kind: 'quest', i: e.index, k: Math.random() });
           else if (e.type === 'questDone') setBanner({ kind: 'done', i: e.index, k: Math.random() });
           else if (e.type === 'hurt') setBanner({ kind: 'hurt', fine: e.fine, k: Math.random() });
@@ -314,7 +319,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   useEffect(() => { let on = true; xrModes().then((m) => on && setModes(m)); return () => { on = false; }; }, []);
   const goXR = (mode) => st.current?.enterXR(mode, rootRef.current).catch(() => setToast({ text: { bn: 'এই যন্ত্রে AR/VR চালু করা গেল না', en: 'AR/VR could not start on this device' }, k: Math.random() }));
   const xrBtns = (size) => modes.map((m) => <RoundBtn key={m} onClick={() => goXR(m)} label={m === 'ar' ? T('AR: ঘরের মেঝেতে বা টেবিলে খামার', 'AR: the farm on your table') : T('VR: হেডসেটে নিজের মাঠে দাঁড়ান', 'VR: stand in the field in a headset')}>{m === 'ar' ? <View size={size} /> : <Glasses size={size} />}</RoundBtn>);
-  useEffect(() => { st.current?.setPaused(paused || !!panel); g.paused = paused || !!panel; }, [paused, panel, g]);
+  useEffect(() => { const hold = paused || !!panel || photo; st.current?.setPaused(hold); g.paused = hold; }, [paused, panel, photo, g]);
   useEffect(() => {
     const modal = rootRef.current?.querySelector('[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"]');
     if (!modal) return undefined;
@@ -336,22 +341,66 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   }, [paused, panel, broke]);
   useEffect(() => { if (!toast) return undefined; const t = setTimeout(() => setToast(null), 2600); return () => clearTimeout(t); }, [toast]);
   useEffect(() => { if (!placeCard) return undefined; const t = setTimeout(() => setPlaceCard(null), 4600); return () => clearTimeout(t); }, [placeCard]);
+  useEffect(() => { st.current?.setHush(!!banner); }, [banner]);
   useEffect(() => { if (!banner || banner.kind === 'win') return undefined; const t = setTimeout(() => setBanner(null), banner.kind === 'quest' ? 3200 : 2600); return () => clearTimeout(t); }, [banner]);
 
   const closePanel = useCallback(() => { setPanel(null); g.paused = false; play('tap'); }, [g]);
   // keys the stage does not own: pause, seeds, satellite
   useEffect(() => {
     const down = (e) => {
+      if (photo) { if (e.code === 'Escape' || e.code === 'KeyP') setPhoto(false); else if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); shoot(); } return; }
       if (e.code === 'Escape') { if (broke) return; if (panel && panel !== 'quiz') closePanel(); else if (!panel) setPaused((p) => !p); return; }
       if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
       if (panel || paused) return;
       if (/^Digit[1-4]$/.test(e.code)) { g.sel = Object.keys(R.crops)[+e.code.slice(5) - 1]; play('tap'); }
       else if (e.code === 'KeyN') setSat(st.current?.toggleSat() ?? false);
+      else if (e.code === 'KeyP') setPhoto(true);
       else if (e.code === 'KeyR') setRunning((r) => { st.current?.setRun(!r); return !r; });
     };
     window.addEventListener('keydown', down);
     return () => window.removeEventListener('keydown', down);
-  }, [g, panel, paused, broke, closePanel, R]);
+  }, [g, panel, paused, broke, closePanel, R, photo]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the picture: the canvas as it is, with the place, the farmer and the day written in the corner
+  const shoot = async () => {
+    const blob = await st.current?.snap(); if (!blob) return;
+    play('tap'); setFlash(Math.random());
+    try {
+      const img = await createImageBitmap(blob), c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height; const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+      const u = c.height / 720, pad = 22 * u;
+      const grad = x.createLinearGradient(0, c.height - 120 * u, 0, c.height); grad.addColorStop(0, 'rgba(0,0,0,0)'); grad.addColorStop(1, 'rgba(0,0,0,.55)');
+      x.fillStyle = grad; x.fillRect(0, c.height - 120 * u, c.width, 120 * u);
+      x.fillStyle = '#fff'; x.textBaseline = 'alphabetic';
+      x.font = `700 ${26 * u}px "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif`;
+      x.fillText(`${L(R.farmer)} · ${L(R.place)}`, pad, c.height - pad - 26 * u);
+      x.font = `500 ${16 * u}px "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif`; x.fillStyle = 'rgba(255,255,255,.8)';
+      x.fillText(`${T('মাঠের মানুষ', 'Field Folk')} · ${T(`দিন ${num(dayOf(g), 'bn')}`, `Day ${dayOf(g)}`)} · FieldShift 360`, pad, c.height - pad);
+      const out = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.92));
+      const name = `fieldshift-${(R.farmer.en || 'farm').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-day${dayOf(g)}.jpg`;
+      const file = typeof File === 'function' ? new File([out], name, { type: 'image/jpeg' }) : null;
+      if (touch && file && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: T('মাঠের মানুষ', 'Field Folk') }).catch(() => {}); return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      setToast({ text: { bn: 'ছবি সেভ হয়েছে', en: 'Photo saved' }, k: Math.random() });
+    } catch { setToast({ text: { bn: 'ছবি সেভ করা গেল না', en: 'The photo could not be saved' }, k: Math.random() }); }
+  };
+  padRef.current = (a) => {
+    if (broke) return;
+    if (photo) { if (a === 'back' || a === 'pause') setPhoto(false); else if (a === 'kiosk' || a === 'sat') shoot(); return; }
+    if (a === 'back') { if (panel && panel !== 'quiz') closePanel(); else if (paused) setPaused(false); return; }
+    if (a === 'pause') { if (!panel) setPaused((p) => !p); return; }
+    if (panel || paused) return;
+    if (a === 'sat') setSat(st.current?.toggleSat() ?? false);
+    else if (a === 'kiosk') { note(g, 'advised'); setPanel('kiosk'); g.paused = true; play('tap'); }
+    else if (a === 'prev' || a === 'next') { const ks = Object.keys(R.crops), i = ks.indexOf(g.sel); g.sel = ks[(i + (a === 'next' ? 1 : ks.length - 1)) % ks.length]; play('tap'); }
+  };
+  useEffect(() => {
+    if (touch) return undefined;
+    let t;
+    const move = () => { setIdle(false); clearTimeout(t); t = setTimeout(() => setIdle(true), 1500); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mousedown', move);
+    return () => { clearTimeout(t); window.removeEventListener('mousemove', move); window.removeEventListener('mousedown', move); };
+  }, [touch]);
 
   const q = QUESTS[hud.quest];
   const levelInfo = LEVELS.find((x) => x.level === hud.level) ?? LEVELS[0];
@@ -375,7 +424,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   );
 
   return (
-    <div ref={rootRef} className={`g3 fixed inset-0 z-[3000] select-none overflow-hidden text-white ${xr === 'ar' ? 'bg-transparent' : 'bg-[#0d1a12]'}`}>
+    <div ref={rootRef} className={`g3 fixed inset-0 z-[3000] select-none overflow-hidden text-white ${idle && !panel && !paused && !broke ? 'cursor-none' : ''} ${photo ? 'g3-photo-on' : ''} ${xr === 'ar' ? 'bg-transparent' : 'bg-[#0d1a12]'}`}>
       {/* in AR this whole layer is the dom-overlay over the camera; the canvas's last flat frame must not cover it */}
       <canvas ref={cv} className={`absolute inset-0 h-full w-full touch-none ${xr === 'ar' ? 'invisible' : ''}`} aria-label={T(`${R.farmer.bn}-এর মাঠ — ত্রিমাত্রিক খেলা`, `${R.farmer.en}’s field — 3D game`)} />
       <div ref={overlay} className="pointer-events-none absolute inset-0 overflow-hidden" />
@@ -414,6 +463,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
             <RoundBtn onClick={() => setPaused(true)} label={T('বিরতি', 'Pause')}><Pause size={17} /></RoundBtn>
             <RoundBtn onClick={() => setSat(st.current?.toggleSat() ?? false)} on={sat} label={T('উপগ্রহ', 'Satellite')}><Satellite size={17} /></RoundBtn>
             <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="FieldShift"><Smartphone size={17} /></RoundBtn>
+            <RoundBtn onClick={() => setPhoto(true)} label={T('ছবি তোলা', 'Photo mode')}><Camera size={17} /></RoundBtn>
             {xrBtns(17)}
           </div>
         )}
@@ -590,6 +640,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="FieldShift"><Smartphone size={18} /></RoundBtn>
         <RoundBtn onClick={() => setMute(!muted)} label={muted ? T('শব্দ চালু', 'Sound on') : T('শব্দ বন্ধ', 'Sound off')}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</RoundBtn>
         <RoundBtn onClick={() => setMusicOn(!music)} on={music} label={music ? T('সুর বন্ধ', 'Music off') : T('সুর চালু', 'Music on')}><Music size={18} /></RoundBtn>
+        <RoundBtn onClick={() => setPhoto(true)} label={T('ছবি তোলা (P)', 'Photo mode (P)')}><Camera size={18} /></RoundBtn>
         <RoundBtn onClick={() => setPaused(true)} label={T('বিরতি (Esc)', 'Pause (Esc)')}><Pause size={18} /></RoundBtn>
       </div>
       {sat && !intro && (() => {
@@ -605,7 +656,20 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         );
       })()}
 
-      {toast && <div key={toast.k} className="hint-in g3-hud absolute bottom-[150px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium">{L(toast.text)}</div>}
+      {toast && <div key={toast.k} className="g3-toast hint-in g3-hud absolute bottom-[150px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium">{L(toast.text)}</div>}
+
+      {/* photo mode: only the picture and this bar */}
+      {photo && (
+        <div className="g3-photo-bar absolute inset-x-0 bottom-0 flex flex-col items-center gap-2 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-10">
+          <p className="g3-hud rounded-full px-3 py-1 text-[12.5px] text-white/80">{touch ? T('আঙুলে টেনে ঘোরান, দুই আঙুলে জুম', 'Drag to turn, pinch to zoom') : T('মাউস টেনে ঘোরান, চাকায় জুম · Enter ছবি · Esc ফেরা', 'Drag to turn, wheel to zoom · Enter shoots · Esc returns')}</p>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => setPhoto(false)} className="g3-hud grid h-11 w-11 place-items-center rounded-full" aria-label={T('খেলায় ফিরুন', 'Back to the game')}><X size={18} /></button>
+            <button type="button" onClick={shoot} className="grid h-16 w-16 place-items-center rounded-full border-4 border-white/90 bg-white/20 shadow-2xl transition-transform hover:scale-105 active:scale-95" aria-label={T('ছবি তুলুন', 'Take the photo')}><span className="h-11 w-11 rounded-full bg-white" /></button>
+            <span className="h-11 w-11" aria-hidden="true" />
+          </div>
+        </div>
+      )}
+      {flash ? <div key={flash} className="g3-flash pointer-events-none absolute inset-0 bg-white" onAnimationEnd={() => setFlash(0)} /> : null}
 
       {/* the drop from orbit */}
       {intro && (
@@ -616,6 +680,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
             <p className="mt-1 text-[16px] font-semibold text-white/85">{L(R.place.area)}</p>
             <p className="mt-2 flex items-center justify-center gap-1.5 text-[12px] text-white/50"><MapPin size={11} />{L(R.farmer)} · {L(R.farmer.trait)}</p>
           </div>
+          <IntroTip L={L} T={T} />
           <button type="button" onClick={() => st.current?.skipIntro()} className="g3-hud rounded-full px-5 py-2 text-[14px] font-semibold hover:scale-105 transition-transform">{T('এড়িয়ে যান', 'Skip')} →</button>
         </div>
       )}
@@ -676,6 +741,19 @@ function RoundBtn({ children, onClick, label, on }) {
 }
 
 // A thumb stick on the left half; the action and run buttons on the right, like a mobile shooter.
+// while the camera drops from orbit, one mission tip at a time (the idea of a loading screen's rotating tips)
+function IntroTip({ L, T }) {
+  const tips = QUESTS.filter((x) => x.how);
+  const [i, setI] = useState(() => Math.floor(Math.random() * tips.length));
+  useEffect(() => { const t = setInterval(() => setI((n) => (n + 1) % tips.length), 2800); return () => clearInterval(t); }, [tips.length]);
+  if (!tips.length) return null;
+  return (
+    <p key={i} aria-live="polite" className="g3-tip mx-auto max-w-[min(92vw,520px)] text-center text-[13px] leading-5 text-white/75">
+      <span className="mr-1.5 font-bold uppercase tracking-wider text-emerald-300">{T('টিপ', 'Tip')}</span>{L(tips[i].how)}
+    </p>
+  );
+}
+
 function TouchControls({ stage, prompt, running, setRunning }) {
   const { T } = useStore();
   const base = useRef(null), knob = useRef(null), id = useRef(null);

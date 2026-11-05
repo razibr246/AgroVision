@@ -99,22 +99,25 @@ export function ageStoop(age = 30) {
 // Returns brow tilt (positive arches outer, negative furrows), brow vertical shift, and eyelid squint.
 export function expressionFromState(st = {}) {
   if (st.down > 0) {
-    return { mood: 'hurt', browTilt: -0.25, browY: -0.005, lidSquint: 0.35 };
+    return { mood: 'hurt', browTilt: -0.25, browY: -0.005, lidSquint: 0.35, mouthOpen: 0.3 };
   }
   const act = st.act?.type;
   if (act === 'cheer') {
-    return { mood: 'happy', browTilt: 0.18, browY: 0.006, lidSquint: 0.12 };
+    return { mood: 'happy', browTilt: 0.18, browY: 0.006, lidSquint: 0.12, smile: 0.35 };
   }
   if (act === 'water' || act === 'plant' || act === 'harvest' || act === 'spray' || act === 'clear' || act === 'pump') {
-    return { mood: 'focused', browTilt: -0.12, browY: -0.003, lidSquint: 0.08 };
+    return { mood: 'focused', browTilt: -0.12, browY: -0.003, lidSquint: 0.08, mouthOpen: 0.08 };
   }
   if (st.carrying) {
-    return { mood: 'effort', browTilt: -0.1, browY: -0.002, lidSquint: 0.15 };
+    return { mood: 'effort', browTilt: -0.1, browY: -0.002, lidSquint: 0.15, mouthOpen: 0.1 };
+  }
+  if (st.run && (st.speed ?? 0) > 2.0) {
+    return { mood: 'sprint', browTilt: -0.14, browY: -0.003, lidSquint: 0.2, mouthOpen: 0.18 };
   }
   if (st.stress || st.worried) {
-    return { mood: 'worried', browTilt: -0.22, browY: 0.004, lidSquint: 0.18 };
+    return { mood: 'worried', browTilt: -0.22, browY: 0.004, lidSquint: 0.18, mouthOpen: 0.05 };
   }
-  return { mood: 'calm', browTilt: 0, browY: 0, lidSquint: 0 };
+  return { mood: 'calm', browTilt: 0, browY: 0, lidSquint: 0, smile: 0, mouthOpen: 0 };
 }
 
 // blink(t, seed) → how closed the eyes are (0 open, 1 shut): a quick close and a slower open every 2.5–5 seconds.

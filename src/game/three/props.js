@@ -330,13 +330,35 @@ function flagline(p) {
 
 // ---- trees ----
 const trunk = (g, h, r, c = '#6b4a2b') => cyl(g, r * 0.7, r, h, c, [0, h / 2, 0], [0, 0, 0], 7);
+// A leafy crown: a shaded core with clumps of leaves round it and a sunlit top, so a tree reads as foliage from the
+// farmer's height and not as one faceted ball. Each tree uses three tones of its colour, and bake() merges by material,
+// so this costs vertices, not draw calls. The clumps come from a fixed sequence: the same world grows the same trees.
+let leafSeed = 7;
+const leafRnd = () => { leafSeed = (leafSeed * 16807) % 2147483647; return leafSeed / 2147483647; };
+const shade = (c, k) => '#' + new THREE.Color(c).lerp(new THREE.Color(k < 0 ? '#0b1a0b' : '#f2f5c4'), Math.abs(k)).getHexString();
+function canopy(g, R, col, [cx, cy, cz], sy = 0.8, n = 8) {
+  const dark = shade(col, -0.3), lite = shade(col, 0.18);
+  blob(g, R * 0.82, dark, [cx, cy - R * 0.08, cz], [1, sy, 1]);
+  for (let k = 0; k < n; k++) {
+    const a = (k / n) * Math.PI * 2 + leafRnd() * 0.7, up = leafRnd() - 0.4;
+    const d = R * (0.58 + leafRnd() * 0.16), r = R * (0.4 + leafRnd() * 0.18);
+    blob(g, r, up > 0.1 ? col : dark, [cx + Math.cos(a) * d, cy + up * R * sy, cz + Math.sin(a) * d], [1, 0.82, 1]);
+  }
+  for (let k = 0; k < 3; k++) { const a = k * 2.1 + leafRnd(); blob(g, R * (0.36 + leafRnd() * 0.1), lite, [cx + Math.cos(a) * R * 0.3, cy + R * sy * 0.62, cz + Math.sin(a) * R * 0.3], [1, 0.75, 1]); }
+}
+// two or three limbs out of the trunk top into the crown, so the crown does not float on a post
+function limbs(g, h, r, c, spread, n = 3) {
+  for (let k = 0; k < n; k++) { const a = k * (Math.PI * 2 / n) + 0.4, L = spread * 0.9; cyl(g, r * 0.35, r * 0.6, L, c, [Math.cos(a) * L * 0.35, h + L * 0.3, Math.sin(a) * L * 0.35], [Math.sin(a) * 0.85, 0, -Math.cos(a) * 0.85], 6); }
+}
 function tree(type) {
   const g = G();
   if (type === 'mango' || type === 'sal' || type === 'tamarind') {
     const h = type === 'sal' ? 5.5 : type === 'tamarind' ? 2.6 : 2.2, col = type === 'sal' ? '#2f5d2a' : type === 'tamarind' ? '#5b7f3a' : '#2f6a2e';
     trunk(g, h, type === 'tamarind' ? 0.4 : 0.28, type === 'sal' ? '#5a4632' : '#6b4a2b');
     const R = type === 'tamarind' ? 3 : type === 'sal' ? 1.9 : 2.1;
-    blob(g, R, col, [0, h + R * 0.6, 0], [1, type === 'tamarind' ? 0.55 : 0.8, 1]); blob(g, R * 0.7, col, [R * 0.6, h + R * 0.3, 0.3], [1, 0.75, 1]); blob(g, R * 0.65, col, [-R * 0.55, h + R * 0.4, -0.3], [1, 0.75, 1]);
+    const bark = type === 'sal' ? '#5a4632' : '#6b4a2b';
+    if (type !== 'sal') limbs(g, h - 0.2, type === 'tamarind' ? 0.4 : 0.28, bark, R * 0.7);
+    canopy(g, R * 1.12, col, [0, h + R * 0.62, 0], type === 'tamarind' ? 0.58 : type === 'sal' ? 1.05 : 0.82, type === 'tamarind' ? 10 : 8);
   } else if (type === 'eucalyptus') {
     trunk(g, 9, 0.2, '#d9d2c2'); blob(g, 1.2, '#6f8f5a', [0, 8.5, 0], [0.8, 1.6, 0.8]); blob(g, 0.9, '#6f8f5a', [0.4, 6.8, 0.2], [0.8, 1.4, 0.8]);
   } else if (type === 'poplar') {
@@ -540,13 +562,13 @@ function treeBD(type) {
     for (let k = 0; k < 9; k++) { const a = k * 0.7, r = 0.3 + (k % 3) * 0.2; cyl(g, 0.06, 0.07, 7, '#8aa04a', [Math.cos(a) * r, 3.5, Math.sin(a) * r], [Math.cos(a) * 0.12, 0, Math.sin(a) * 0.12], 5); }
     blob(g, 1.6, '#6f9f3a', [0, 6.6, 0], [1.2, 1.3, 1.2], 0);
   } else if (type === 'hijal') {
-    trunk(g, 2.2, 0.25, '#4a3628'); blob(g, 2, '#3f7a34', [0, 3.4, 0], [1.2, 0.7, 1.2]);
+    trunk(g, 2.2, 0.25, '#4a3628'); limbs(g, 2, 0.25, '#4a3628', 1.4); canopy(g, 2.2, '#3f7a34', [0, 3.4, 0], 0.65);
   } else if (type === 'nipa') {
     for (let k = 0; k < 7; k++) { const a = (k / 7) * Math.PI * 2; box(g, 0.3, 0.03, 3, '#5f8f38', [Math.cos(a) * 1.1, 1.2, Math.sin(a) * 1.1], [-0.9, -a + Math.PI / 2, 0]); }
   } else if (type === 'guava') {
-    trunk(g, 1.4, 0.15, '#7a5a40'); blob(g, 1.3, '#5a9a3c', [0, 2.2, 0], [1, 0.8, 1]); for (let k = 0; k < 5; k++) blob(g, 0.1, '#b5d06a', [Math.cos(k) * 1, 1.9, Math.sin(k) * 1], [1, 1, 1], 0);
+    trunk(g, 1.4, 0.15, '#7a5a40'); canopy(g, 1.35, '#5a9a3c', [0, 2.2, 0], 0.8, 6); for (let k = 0; k < 5; k++) blob(g, 0.1, '#b5d06a', [Math.cos(k) * 1, 1.9, Math.sin(k) * 1], [1, 1, 1], 0);
   } else if (type === 'mangrove') {
-    trunk(g, 2.6, 0.22, '#4a3628'); blob(g, 2.2, '#24502c', [0, 3.6, 0], [1.1, 0.9, 1.1]);
+    trunk(g, 2.6, 0.22, '#4a3628'); canopy(g, 2.3, '#2c5a32', [0, 3.6, 0], 0.85);
     for (let k = 0; k < 6; k++) cone(g, 0.05, 0.4, '#5a4632', [Math.cos(k) * 1.2, 0.2, Math.sin(k) * 1.2], [0, 0, 0], 4);
   }
   return g;

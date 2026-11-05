@@ -172,6 +172,64 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     }
   }
 
+  // ---- dynamic footprints on soil, mud, sand and paths ----
+  const FP_CAP = light ? 36 : 96;
+  const fpGeo = new THREE.PlaneGeometry(0.12, 0.24); fpGeo.rotateX(-Math.PI / 2);
+  const fpMat = new THREE.MeshBasicMaterial({
+    color: '#ffffff',
+    transparent: true,
+    opacity: 0.65,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -1.8,
+    polygonOffsetUnits: -1.8,
+  });
+  const fpMesh = new THREE.InstancedMesh(fpGeo, fpMat, FP_CAP);
+  fpMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(FP_CAP * 3), 3);
+  fpMesh.count = 0; fpMesh.frustumCulled = false; fpMesh.renderOrder = 1; scene.add(fpMesh);
+
+  const footprints = [];
+  let fpFootLeft = false;
+  const fpDummy = new THREE.Object3D(), fpCol = new THREE.Color();
+  const FP_COLORS = {
+    mud: '#241408',
+    soil: '#3c2411',
+    path: '#4f3e29',
+    sand: '#6e5a3c',
+    grass: '#2b3614',
+    wood: '#44301d',
+    water: '#5890b0',
+  };
+
+  function addFootprint(x, y, z, yaw, surf, isRun) {
+    if (surf === 'wood') return; // no footprints on wooden boards
+    const baseCol = new THREE.Color(FP_COLORS[surf] ?? '#443322');
+    const maxLife = surf === 'mud' ? 14 : surf === 'sand' ? 10 : surf === 'soil' ? 11 : 7;
+    if (footprints.length >= FP_CAP) footprints.shift();
+    footprints.push({
+      x, y: y + 0.015, z, yaw,
+      surf,
+      life: maxLife,
+      maxLife,
+      col: baseCol,
+      scale: isRun ? 1.08 : 0.95,
+    });
+  }
+
+  // Water footstep ripple rings
+  const WR_CAP = light ? 12 : 24;
+  const wrGeo = new THREE.RingGeometry(0.85, 1.0, 32); wrGeo.rotateX(-Math.PI / 2);
+  const wrMat = new THREE.MeshBasicMaterial({ color: '#bce0fa', transparent: true, opacity: 0.65, depthWrite: false });
+  const wrMesh = new THREE.InstancedMesh(wrGeo, wrMat, WR_CAP);
+  wrMesh.count = 0; wrMesh.frustumCulled = false; wrMesh.renderOrder = 2; scene.add(wrMesh);
+  const waterRipples = [];
+  const wrDummy = new THREE.Object3D();
+
+  function addWaterRipple(x, y, z, scaleMax = 0.55) {
+    if (waterRipples.length >= WR_CAP) waterRipples.shift();
+    waterRipples.push({ x, y: y + 0.02, z, progress: 0, scaleMax, life: 0.75 });
+  }
+
   // ---- overlay: names, bubble, floaters, marker tag ----
   const el = (cls, html = '') => { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; overlay.appendChild(d); return d; };
   const labels = STATIONS.concat('safe').map((id) => ({ id, d: el('g3-label') }));
@@ -181,7 +239,8 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
   const actionTag = el('g3-action-tag'); actionTag.style.display = 'none';
   actionTag.onclick = (e) => { e.stopPropagation(); if (cam.intro === 0) simAct(g); };
   const floats = [];
-  let bubbleT = 0;
+  let snapReq = null; // photo mode: read the canvas straight after a render, before the browser clears it
+  let bubbleT = 0, hush = false; // hush: a centre banner is up, so the bubble waits instead of talking over it
   const T = (o) => (o ? o[lang] ?? o.bn : '');
   const setNames = () => { for (const l of labels) l.d.textContent = T(g.R.names[l.id]); };
   setNames();
@@ -444,8 +503,24 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
   const project = (x, y, z) => { tmpV.set(x, y, z).project(renderer.xr.isPresenting ? renderer.xr.getCamera() : camera); return [(tmpV.x * 0.5 + 0.5) * canvas.clientWidth, (-tmpV.y * 0.5 + 0.5) * canvas.clientHeight, tmpV.z < 1]; };
 
   const MOVE = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+  // A gamepad in the standard layout: left stick walks, right stick looks, A acts, either trigger runs; B, X, Y, the
+  // shoulders and Start go to the HUD as 'pad' events (back, satellite, FieldShift, seed left and right, pause).
+  const pad = { x: 0, y: 0, run: false, held: new Set() };
+  const PAD_EVENTS = { 1: 'back', 2: 'sat', 3: 'kiosk', 4: 'prev', 5: 'next', 9: 'pause' };
+  function readPad(dt) {
+    const gp = typeof navigator !== 'undefined' && [...(navigator.getGamepads?.() ?? [])].find((p) => p?.connected && p.mapping === 'standard');
+    if (!gp) { pad.x = pad.y = 0; pad.run = false; return; }
+    const dz = (v) => (Math.abs(v ?? 0) < 0.18 ? 0 : v);
+    const edge = (i) => { const on = !!gp.buttons[i]?.pressed, was = pad.held.has(i); if (on) pad.held.add(i); else pad.held.delete(i); return on && !was; };
+    pad.x = dz(gp.axes[0]); pad.y = -dz(gp.axes[1]);
+    pad.run = (gp.buttons[6]?.value ?? 0) > 0.4 || (gp.buttons[7]?.value ?? 0) > 0.4 || !!gp.buttons[10]?.pressed;
+    const rx = dz(gp.axes[2]), ry = dz(gp.axes[3]);
+    if (rx || ry) { cam.yaw -= rx * dt * 2.4; cam.pitch = Math.min(1.25, Math.max(0.08, cam.pitch + ry * dt * 1.6)); cam.look = 1.5; }
+    if (edge(0) && cam.intro === 0 && !paused && !g.paused) simAct(g);
+    for (const [i, action] of Object.entries(PAD_EVENTS)) if (edge(+i)) onEvent({ type: 'pad', action });
+  }
   function inputVector() {
-    if (route.auto && (MOVE.some((k) => keys.has(k)) || Math.hypot(joy.x, joy.y) > 0.15)) route.auto = false; // the player takes over
+    if (route.auto && (MOVE.some((k) => keys.has(k)) || Math.hypot(joy.x, joy.y) > 0.15 || Math.hypot(pad.x, pad.y) > 0)) route.auto = false; // the player takes over
     if (route.auto && route.pts) {
       const me = g.me; let p = route.pts[route.step];
       while (p && Math.hypot(p[0] - me.x, p[1] - me.z) < 0.7 && route.step < route.pts.length - 1) p = route.pts[++route.step];
@@ -457,11 +532,11 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     if (keys.has('KeyS') || keys.has('ArrowDown')) fz -= 1;
     if (keys.has('KeyD') || keys.has('ArrowRight')) fx += 1;
     if (keys.has('KeyA') || keys.has('ArrowLeft')) fx -= 1;
-    fx += joy.x; fz += joy.y;
+    fx += joy.x + pad.x; fz += joy.y + pad.y;
     const l = Math.hypot(fx, fz); if (l > 1) { fx /= l; fz /= l; }
     const s = Math.sin(cam.yaw), c = Math.cos(cam.yaw);
     // forward is from the camera towards the farmer; right is forward × up
-    return { mx: -s * fz + c * fx, mz: -c * fz - s * fx, run: runHeld || runToggle || xr.run || Math.hypot(joy.x, joy.y) > 0.95 };
+    return { mx: -s * fz + c * fx, mz: -c * fz - s * fx, run: pad.run || runHeld || runToggle || xr.run || Math.hypot(joy.x, joy.y) > 0.95 };
   }
 
   function frame(now) {
@@ -476,6 +551,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
         if (Math.hypot(xr.dir.x, xr.dir.z) > 0.1) cam.yaw = Math.atan2(-xr.dir.x, -xr.dir.z);
         if (xr.pads) pollPads();
       }
+      if (!xrOn) readPad(dt);
       const inp = inputVector();
       if (cam.intro > 0) { cam.introT += dt; if (cam.introT > 5.2) { cam.intro = 0; onEvent({ type: 'introDone' }); } }
       if (gradPass) gradPass.uniforms.uTime.value = t;
@@ -528,10 +604,22 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
         stepT -= dt;
         if (stepT <= 0) {
           stepT = me.run ? 0.22 : 0.36;
-          const surf = surfaceAt(L, g, me.x, me.z);
+          fpFootLeft = !fpFootLeft;
+          const sideOffset = fpFootLeft ? -0.13 : 0.13;
+          const fx = me.x + Math.cos(me.yaw) * sideOffset;
+          const fz = me.z - Math.sin(me.yaw) * sideOffset;
+          const fy = L.ground(fx, fz);
+          const surf = surfaceAt(L, g, fx, fz);
           onEvent({ type: 'sound', s: 'step', surface: surf, run: me.run });
-          const dustCol = surf === 'water' ? '#7dd3fc' : surf === 'mud' ? '#4a301a' : surf === 'grass' ? '#8cb852' : surf === 'wood' ? '#8c6d48' : '#c4ad84';
-          footDust(me.x, gy, me.z, me.run ? 4 : 2, dustCol, me.run);
+
+          if (surf === 'water' || (g.ev.flood > 0.15 && Math.abs(fx) < FIELD_W / 2 + 4 && Math.abs(fz) < FIELD_D / 2 + 4)) {
+            addWaterRipple(fx, fy, fz, me.run ? 0.65 : 0.42);
+            footDust(fx, fy, fz, me.run ? 5 : 2, '#7dd3fc', me.run);
+          } else {
+            addFootprint(fx, fy, fz, me.yaw, surf, me.run);
+            const dustCol = surf === 'mud' ? '#382212' : surf === 'grass' ? '#688c3a' : surf === 'sand' ? '#c4ad84' : surf === 'wood' ? '#8c6d48' : '#947a5a';
+            footDust(fx, fy, fz, me.run ? 4 : 2, dustCol, me.run);
+          }
         }
       } else {
         stepT = 0.08;
@@ -576,9 +664,9 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       personLight.value = 0.35 + 0.65 * Math.min(1, sunUp * 2.5);
       fill.intensity = 0.25 + 0.45 * Math.min(1, sunUp * 2.5);
       fill.position.copy(eye).add(tmpV.set(0, 2, 0)); fill.target.position.copy(focus);
-      const { wind } = world.update(t, dt, ph, g.ev, eye, focus);
+      const { wind } = world.update(t, dt, ph, g.ev, eye, focus, me);
       if (xr.mode === 'ar') { scene.fog.near = 1e4; scene.fog.far = 2e4; } // the room is the horizon
-      field.update(t, wind, g.ndvi || cam.sat, g.F.scanner, cam.layer);
+      field.update(t, wind, g.ndvi || cam.sat, g.F.scanner, cam.layer, me);
       life.update(t, paused || cam.intro ? 0 : dt, project, eye);
       if (sign.visible) { signT -= dt; sign.position.set(me.x, gy + (xr.mode === 'ar' ? 8 : 3.3), me.z); if (signT <= 0 || !xrOn) sign.visible = false; }
       // Action-driven dynamic particles (water stream from can, aerosol spray from lance)
@@ -631,6 +719,52 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       }
       pGeo.setDrawRange(0, parts.length);
       if (parts.length) { pGeo.attributes.position.needsUpdate = true; pGeo.attributes.color.needsUpdate = true; }
+
+      // Dynamic footprints update
+      let fpCount = 0;
+      for (let i = footprints.length - 1; i >= 0; i--) {
+        const fp = footprints[i];
+        fp.life -= dt;
+        if (fp.life <= 0) {
+          footprints.splice(i, 1);
+          continue;
+        }
+        const alpha = Math.min(1.0, fp.life / fp.maxLife);
+        const curScale = fp.scale * (0.8 + alpha * 0.2);
+        fpDummy.position.set(fp.x, fp.y, fp.z);
+        fpDummy.rotation.set(0, fp.yaw, 0);
+        fpDummy.scale.set(curScale, 1, curScale);
+        fpDummy.updateMatrix();
+        fpMesh.setMatrixAt(fpCount, fpDummy.matrix);
+        fpCol.copy(fp.col).multiplyScalar(alpha * 0.85);
+        fpMesh.setColorAt(fpCount, fpCol);
+        fpCount++;
+      }
+      fpMesh.count = fpCount;
+      if (fpCount > 0) {
+        fpMesh.instanceMatrix.needsUpdate = true;
+        if (fpMesh.instanceColor) fpMesh.instanceColor.needsUpdate = true;
+      }
+
+      // Dynamic water footstep ripples update
+      let wrCount = 0;
+      for (let i = waterRipples.length - 1; i >= 0; i--) {
+        const wr = waterRipples[i];
+        wr.progress += dt / wr.life;
+        if (wr.progress >= 1.0) {
+          waterRipples.splice(i, 1);
+          continue;
+        }
+        const s = wr.scaleMax * (0.15 + wr.progress * 0.85);
+        wrDummy.position.set(wr.x, wr.y, wr.z);
+        wrDummy.scale.set(s, 1, s);
+        wrDummy.updateMatrix();
+        wrMesh.setMatrixAt(wrCount, wrDummy.matrix);
+        wrCount++;
+      }
+      wrMesh.count = wrCount;
+      if (wrCount > 0) wrMesh.instanceMatrix.needsUpdate = true;
+
       if (composer && !xrOn) {
         try {
           composer.render(dt);
@@ -641,6 +775,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       } else {
         renderer.render(scene, camera);
       }
+      if (snapReq) { const done = snapReq; snapReq = null; canvas.toBlob(done, 'image/jpeg', 0.92); }
       // overlay
       for (const l of labels) {
         const s = g.S[l.id], d = Math.hypot(s.x - me.x, s.z - me.z);
@@ -650,8 +785,8 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
         l.d.style.display = vis ? '' : 'none'; l.d.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`; l.d.style.opacity = String(Math.min(1, (16 - d) / 5));
       }
       if (bubbleT > 0) {
-        bubbleT -= dt; const [x, y, vis] = project(me.x, gy + 2.15, me.z);
-        bubble.style.display = vis && !cam.intro ? '' : 'none'; bubble.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+        if (!hush) bubbleT -= dt; const [x, y, vis] = project(me.x, gy + 2.15, me.z);
+        bubble.style.display = vis && !cam.intro && !hush ? '' : 'none'; bubble.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
         if (bubbleT <= 0) bubble.style.display = 'none';
       }
       for (let i = floats.length - 1; i >= 0; i--) {
@@ -727,7 +862,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
 
       if (compass) compass.style.setProperty('--heading', String((((-cam.yaw * 180) / Math.PI) % 360 + 540) % 360 - 180));
       mapT -= dt; if (mapT <= 0) { mapT = 0.08; drawMap(t, goalPos); }
-    } catch (err) {
+    } catch (err) { if (import.meta.env.DEV && !frame.warned) { frame.warned = true; console.error("[stage frame]", err); }
       try { renderer.render(scene, camera); } catch {}
     }
   }
@@ -743,6 +878,8 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     toggleSat() { cam.sat = !cam.sat; g.ndvi = cam.sat; if (cam.sat) note(g, 'satViews'); if (cam.sat && cam.layer === 'water') note(g, 'waterLayer'); return cam.sat; },
     get sat() { return cam.sat; },
     setLayer(l) { cam.layer = l; if (l === 'water' && cam.sat) note(g, 'waterLayer'); },
+    setHush(v) { hush = !!v; },
+    snap: () => new Promise((resolve) => { snapReq = resolve; }),
     skipIntro() { if (cam.intro) cam.introT = Math.max(cam.introT, 4.6); },
     setPaused(p) { paused = p; if (p) clearInput(); },
     setLang(l) { lang = l; setNames(); life.setLang(l); },
@@ -752,7 +889,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     get xr() { return xr.mode; },
     dispose() {
       clearTimeout(navTimer); minimap?.removeEventListener('pointerdown', mapTap);
-      alive = false; renderer.xr.getSession()?.end().catch(() => {}); renderer.setAnimationLoop(null); ro.disconnect(); signTex.dispose(); life.dispose(); composer?.dispose(); gtao?.dispose?.(); gradPass?.dispose?.();
+      alive = false; renderer.xr.getSession()?.end().catch(() => {}); renderer.setAnimationLoop(null); ro.disconnect(); signTex.dispose(); life.dispose(); composer?.dispose(); gtao?.dispose?.(); gradPass?.dispose?.(); fpMat.dispose(); wrMat.dispose();
       window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); window.removeEventListener('blur', clearInput); document.removeEventListener('visibilitychange', onVisibility);
       overlay.replaceChildren();
       scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
