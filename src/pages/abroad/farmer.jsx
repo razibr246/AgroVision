@@ -325,11 +325,11 @@ export function Support() {
   const reg = ABROAD_SUPPORT[c.id];
   const [q, setQ] = useState('');
   if (!reg) return null;
-  const prof = supportProfile({ area_dec: c.farmer.farmDec, state: reg.profile.state, crops: reg.profile.crops.map(([id, bn, en]) => ({ id, name: { bn, en } })) });
+  const prof = supportProfile({ area_dec: c.farmer.farmDec, unit: c.unit, state: reg.profile.state, crops: reg.profile.crops.map(([id, bn, en]) => ({ id, name: { bn, en } })) });
   const ms = matchSupport(reg.list, prof);
   const hits = askSupport(q, reg.list);
   const tel = HOTLINE[c.id];
-  const checked = lang === 'bn' ? bnDigits(reg.checked) : reg.checked;
+  const checked = fullDate(reg.checked, lang);
   return (
     <div className="page-shell space-y-5">
       <Section icon={Scale} title={T(`সরকারি সহায়তা: ${c.name.bn}`, `Government support: ${c.name.en}`)}

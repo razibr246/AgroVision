@@ -57,7 +57,8 @@ added there.
   is checked against the app data it was sent by `src/engine/replyCheck.js` (rule ids such as `R1_RAIN_OFFSET`,
   `R3_OWN_DOSE`), asked for once more if it fails, then repaired; new rules go there with a test. Anything sent in the office's
   name needs an officer's approval in every mode; keep it that way.
-- Government support (`/farmer/support`, and the India help tab): the programmes are hand-entered records in
+- Government support (`/farmer/support`, and `/abroad/:cc/support` for every neighbouring country from
+  `src/data/support/abroad_support.js`): the programmes are hand-entered records in
   `src/data/support/` (each with its source URL and the `CHECKED` date; re-check them, never guess a figure), matched
   to the farmer's land, crops, water and place by `src/engine/support.js`. A pilot, announced or ended programme is never
   shown as a plain yes. The question box's score on `src/data/support/ask_eval.js` is a floor in the tests: add a

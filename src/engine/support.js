@@ -43,10 +43,12 @@ export const FIT = {
 const AREA = { coastal: { bn: 'উপকূল', en: 'coastal' }, haor: { bn: 'হাওর', en: 'haor' }, barind: { bn: 'বরেন্দ্র', en: 'Barind' } };
 
 // What the matcher knows about the farmer. crops: [{ id, name: { bn, en } }] for this year (Rabi and the next crops).
-export function supportProfile({ area_dec, crops = [], irrigation = null, area = null, district = null, state = null }) {
+// unit: { bn, en, dec } for a country that measures land in its own unit (acre, bigha): the land is then said in that
+// unit against the programme's own limit, not in Bangladesh's census classes.
+export function supportProfile({ area_dec, crops = [], irrigation = null, area = null, district = null, state = null, unit = null }) {
   const seen = new Set();
   const list = crops.filter((c) => c && !seen.has(c.id) && seen.add(c.id));
-  return { dec: area_dec ?? 0, holding: holdingClass(area_dec), crops: list, irrigation, area, district, state };
+  return { dec: area_dec ?? 0, holding: holdingClass(area_dec), crops: list, irrigation, area, district, state, unit };
 }
 
 const names = (cs) => ({ bn: cs.map((c) => c.name.bn).join(', '), en: cs.map((c) => c.name.en).join(', ') });
@@ -57,7 +59,11 @@ export function matchOne(p, prof) {
   const why = [];
   let fit = 'yes';
   const no = (m) => { fit = 'no'; why.push(m); };
-  if (r.maxDec != null) {
+  if (r.maxDec != null && prof.unit) {
+    const u = prof.unit, have = +(prof.dec / u.dec).toFixed(1), max = +(r.maxDec / u.dec).toFixed(1);
+    if (prof.dec > r.maxDec) no({ bn: `জমি ${nb(have)} ${u.bn}; এটি ${nb(max)} ${u.bn} পর্যন্ত চাষির জন্য`, en: `Your land is ${have} ${u.en}s; this is for farmers with up to ${max}` });
+    else why.push({ bn: `জমি ${nb(have)} ${u.bn}, সীমা ${nb(max)} ${u.bn} পর্যন্ত`, en: `${have} ${u.en}s, within the limit of ${max}` });
+  } else if (r.maxDec != null) {
     if (prof.dec > r.maxDec) no({ bn: `জমি ${nb(prof.dec)} শতক; এটি ${nb(r.maxDec)} শতক পর্যন্ত (ক্ষুদ্র ও প্রান্তিক) কৃষকের জন্য`, en: `Your land is ${prof.dec} decimals; this is for farmers with up to ${r.maxDec} (small and marginal)` });
     else why.push({ bn: `জমি ${nb(prof.dec)} শতক, তাই আপনি ${prof.holding.name.bn} কৃষক`, en: `${prof.dec} decimals makes you a ${prof.holding.name.en.toLowerCase()} farmer` });
   }

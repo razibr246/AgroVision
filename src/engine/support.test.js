@@ -127,4 +127,9 @@ test('neighbouring countries: every programme sourced and dated; each sample far
   assert.equal(matchOne(pk.list[0], sindh).fit, 'yes');
   assert.equal(matchOne(pk.list[0], { ...sindh, state: 'Punjab' }).fit, 'no');
   assert.equal(matchOne(pk.list[0], supportProfile({ area_dec: 4000, state: 'Sindh', crops: sindh.crops })).fit, 'no');
+  // abroad, land is said in the country's own unit, not Bangladesh's census classes
+  const acre = { bn: 'একর', en: 'acre', dec: 100 };
+  const m = matchOne(pk.list[0], supportProfile({ area_dec: 800, unit: acre, state: 'Sindh', crops: sindh.crops }));
+  assert.match(m.why[0].en, /8 acres, within the limit of 25/);
+  assert.match(m.why[0].bn, /৮ একর/);
 });
