@@ -73,20 +73,20 @@ function scenery(kind, group) {
       if (snow && h > hMax * 0.6) { const s = cone(group, h * 0.38, h * 0.3, '#f4f6f8', [Math.cos(a) * r, h - 2 - h * 0.15 + 0.2, Math.sin(a) * r], [0, rnd() * 3, 0], 6); s.castShadow = false; }
     }
   };
-  if (kind === 'plain') {
-    // the village tree line on the horizon: each one a grove (a trunk or two under a crown of clumps, darker below,
-    // lit on top) and not a single faceted ball, which looked like a green rock once the camera turned towards it
-    const tones = ['#3f6a34', '#4f7a3f', '#5a8a44'];
-    for (let k = 0; k < 120; k++) {
-      const a = rnd() * Math.PI * 2, r = 85 + rnd() * 65, x = Math.cos(a) * r, z = Math.sin(a) * r, R = 3 + rnd() * 3.2, h = 2.4 + rnd() * 2;
-      const col = tones[k % 3], dark = '#2f5229';
-      cyl(group, R * 0.06, R * 0.09, h + R * 0.4, '#5a4632', [x, (h + R * 0.4) / 2, z]).castShadow = false;
-      blob(group, R, dark, [x, h + R * 0.75, z], [1.15, 0.85, 1.15], 1).castShadow = false;
-      for (let j = 0; j < 3; j++) {
-        const b = j * 2.1 + rnd(), d = R * 0.55;
-        blob(group, R * (0.55 + rnd() * 0.15), col, [x + Math.cos(b) * d, h + R * (0.95 + rnd() * 0.3), z + Math.sin(b) * d], [1, 0.8, 1], 1).castShadow = false;
-      }
+  // A village tree line on the horizon: each one a grove (a trunk under a crown of clumps, darker below, lit on top),
+  // not a single faceted ball, which looked like a green rock once the camera turned towards it. Nothing here casts
+  // a shadow, and bake() merges it by material, so it costs vertices only.
+  const grove = (x, z, R, col) => {
+    const h = 2.4 + rnd() * 2, dark = '#' + new THREE.Color(col).multiplyScalar(0.68).getHexString();
+    cyl(group, R * 0.06, R * 0.09, h + R * 0.4, '#5a4632', [x, (h + R * 0.4) / 2, z]).castShadow = false;
+    blob(group, R, dark, [x, h + R * 0.75, z], [1.15, 0.85, 1.15], 1).castShadow = false;
+    for (let j = 0; j < 3; j++) {
+      const b = j * 2.1 + rnd(), d = R * 0.55;
+      blob(group, R * (0.55 + rnd() * 0.15), col, [x + Math.cos(b) * d, h + R * (0.95 + rnd() * 0.3), z + Math.sin(b) * d], [1, 0.8, 1], 1).castShadow = false;
     }
+  };
+  if (kind === 'plain') {
+    for (let k = 0; k < 120; k++) { const a = rnd() * Math.PI * 2, r = 85 + rnd() * 65; grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, ['#3f6a34', '#4f7a3f', '#5a8a44'][k % 3]); }
   }
   if (kind === 'kirthar') { ridge(32, 120, 180, Math.PI * 0.75, Math.PI * 1.25, 20, 48, '#9a7a56'); for (let k = 0; k < 55; k++) { const a = rnd() * Math.PI * 2, r = 80 + rnd() * 60; blob(group, 2.2 + rnd() * 2.2, '#7d8a4a', [Math.cos(a) * r, 2, Math.sin(a) * r], [1.3, 0.5, 1.2], 0).castShadow = false; } }
   if (kind === 'churia') { ridge(38, 110, 160, -Math.PI * 0.95, -Math.PI * 0.05, 22, 50, '#3f6a3a'); ridge(25, 160, 220, -Math.PI * 0.9, -Math.PI * 0.1, 45, 78, '#5b7a76'); }
@@ -100,7 +100,7 @@ function scenery(kind, group) {
   }
 
   if (kind === 'dhaka') {
-    for (let k = 0; k < 85; k++) { const a = rnd() * Math.PI * 2, r = 85 + rnd() * 60; blob(group, 3.2 + rnd() * 3.5, '#5f8f45', [Math.cos(a) * r, 3, Math.sin(a) * r], [1, 1.4, 1], 0).castShadow = false; }
+    for (let k = 0; k < 85; k++) { const a = rnd() * Math.PI * 2, r = 85 + rnd() * 60; grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, k % 2 ? '#5f8f45' : '#4f7f3c'); }
     for (let k = 0; k < 12; k++) { const a = -Math.PI * 0.85 + k * 0.18, r = 110 + rnd() * 40, x = Math.cos(a) * r, z = Math.sin(a) * r;
       box(group, 18, 7, 10, k % 2 ? '#9aa4ad' : '#b7aa96', [x, 3.5, z]).castShadow = false; cyl(group, 0.8, 1, 16, '#8a8178', [x + 6, 8, z], [0, 0, 0], 8).castShadow = false; }
   }
@@ -109,7 +109,7 @@ function scenery(kind, group) {
     const t = new THREE.Group(); t.position.set(110, 34, -10); group.add(t); box(t, 3, 4, 3, '#f2ede2', [0, 2, 0]); cone(t, 2, 3, '#c9482e', [0, 5.5, 0], [0, Math.PI / 4, 0], 4); // Chandranath on its hill
     for (let k = 0; k < 7; k++) { const z = -60 + k * 26, x = -110 - rnd() * 35; box(group, 6, 4, 26, k % 2 ? '#8a3a2a' : '#4a5a6a', [x, 1, z]).castShadow = false; box(group, 4, 5, 6, '#e8e4da', [x, 5, z - 8]).castShadow = false; cyl(group, 0.2, 0.2, 18, '#d6a020', [x + 10, 9, z + 4], [0, 0, 0], 5).castShadow = false; }
   }
-  if (kind === 'rivers' || kind === 'char') for (let k = 0; k < 95; k++) { const a = rnd() * Math.PI * 2, r = 80 + rnd() * 70; blob(group, 3.2 + rnd() * 3.5, kind === 'char' ? '#7f9f55' : '#4f8a3c', [Math.cos(a) * r, 3, Math.sin(a) * r], [1, 1.4, 1], 0).castShadow = false; }
+  if (kind === 'rivers' || kind === 'char') for (let k = 0; k < 95; k++) { const a = rnd() * Math.PI * 2, r = 80 + rnd() * 70; grove(Math.cos(a) * r, Math.sin(a) * r, 3 + rnd() * 3.2, kind === 'char' ? '#7f9f55' : k % 2 ? '#4f8a3c' : '#437a34'); }
   if (kind === 'char') for (let k = 0; k < 180; k++) { const x = -70 + rnd() * 140, z = 26 + rnd() * 18; cone(group, 0.35, 1.6, '#e9e4d6', [x, 0.8, z], [0, 0, (rnd() - 0.5) * 0.4], 4).castShadow = false; }
   if (kind === 'meghalaya') {
     ridge(38, 110, 160, -Math.PI * 0.95, -Math.PI * 0.05, 34, 68, '#3a6a4a'); ridge(26, 160, 220, -Math.PI * 0.9, -Math.PI * 0.1, 68, 102, '#6a8a96');

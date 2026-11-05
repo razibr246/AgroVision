@@ -73,32 +73,32 @@ export default function Home() {
             </div>
 
             {/* Quick-Jump Action Ribbon */}
-            <div className="mt-5 flex flex-wrap items-center gap-1.5 text-[12.5px] font-semibold">
-              <span className="text-muted/80 mr-1 text-[11.5px] uppercase tracking-wider">{T('দ্রুত নেভিগেশন:', 'Quick jump:')}</span>
-              <Link to="/farmer/plan" className="glass-pill rounded-full px-3 py-1 text-ink hover:text-primary-800 transition-colors flex items-center gap-1.5"><Sprout size={13} className="text-primary-600" />{T('পরিকল্পনা', 'Plan')}</Link>
-              <Link to="/farmer/doctor" className="glass-pill rounded-full px-3 py-1 text-ink hover:text-primary-800 transition-colors flex items-center gap-1.5"><ScanLine size={13} className="text-primary-600" />{T('ফসলের ডাক্তার', 'Crop Doctor')}</Link>
-              <Link to="/farmer/future" className="glass-pill rounded-full px-3 py-1 text-ink hover:text-primary-800 transition-colors flex items-center gap-1.5"><Layers size={13} className="text-primary-600" />{T('জমির ভবিষ্যৎ', 'Field Future')}</Link>
-              <Link to="/officer/radar" className="glass-pill rounded-full px-3 py-1 text-ink hover:text-primary-800 transition-colors flex items-center gap-1.5"><RadarIcon size={13} className="text-primary-600" />{T('রোপণ রাডার', 'Radar')}</Link>
-              <Link to="/science" className="glass-pill rounded-full px-3 py-1 text-ink hover:text-primary-800 transition-colors flex items-center gap-1.5"><Satellite size={13} className="text-sky-600" />{T('বিজ্ঞান ও ভূ-রসায়ন', 'Science & Geochem')}</Link>
-              <Link to="/games" className="glass-pill rounded-full px-3 py-1 text-ink hover:text-primary-800 transition-colors flex items-center gap-1.5"><Activity size={13} className="text-amber-600" />{T('বায়োমেকানিক্স', 'Biomechanics')}</Link>
-              <Link to="/farm" className="glass-pill rounded-full px-3 py-1 text-ink hover:text-primary-800 transition-colors flex items-center gap-1.5"><Swords size={13} className="text-emerald-600" />{T('৩ডি খেলা', '3D Game')}</Link>
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[12.5px] font-semibold">
+              <span className="text-muted/80 mr-1 text-[11.5px] uppercase tracking-wider font-bold">{T('দ্রুত নেভিগেশন:', 'Quick jump:')}</span>
+              <Link to="/farmer/plan" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Sprout size={13.5} className="text-primary-600" />{T('পরিকল্পনা', 'Plan')}</Link>
+              <Link to="/farmer/doctor" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><ScanLine size={13.5} className="text-primary-600" />{T('ফসলের ডাক্তার', 'Crop Doctor')}</Link>
+              <Link to="/farmer/future" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Layers size={13.5} className="text-primary-600" />{T('জমির ভবিষ্যৎ', 'Field Future')}</Link>
+              <Link to="/officer/radar" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><RadarIcon size={13.5} className="text-primary-600" />{T('রোপণ রাডার', 'Radar')}</Link>
+              <Link to="/science" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-sky-800 hover:border-sky-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Satellite size={13.5} className="text-sky-600" />{T('বিজ্ঞান ও ভূ-রসায়ন', 'Science & Geochem')}</Link>
+              <Link to="/games" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-amber-800 hover:border-amber-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Activity size={13.5} className="text-amber-600" />{T('বায়োমেকানিক্স', 'Biomechanics')}</Link>
+              <Link to="/farm" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-emerald-800 hover:border-emerald-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Swords size={13.5} className="text-emerald-600" />{T('৩ডি খেলা', '3D Game')}</Link>
             </div>
 
             {/* 4-Metric Verified Telemetry Grid */}
-            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              <div className="glass rounded-2xl p-3 text-center transition-all hover:bg-white/95">
+            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4 stagger-grid">
+              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
                 <span className="font-display block text-[20px] font-bold leading-tight text-primary-900 tabular">{T('১৬.৮৮M+', '16.88M+')}</span>
                 <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('কৃষি পরিবার', 'Farm Households')}</span>
               </div>
-              <div className="glass rounded-2xl p-3 text-center transition-all hover:bg-white/95">
+              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
                 <span className="font-display block text-[20px] font-bold leading-tight text-sky-800 tabular">{T('১২+', '12+')}</span>
                 <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('নাসা মিশন', 'NASA Missions')}</span>
               </div>
-              <div className="glass rounded-2xl p-3 text-center transition-all hover:bg-white/95">
+              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
                 <span className="font-display block text-[20px] font-bold leading-tight text-emerald-800 tabular">{T('১০ বছর', '10-Year')}</span>
                 <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('মাটি কার্বন RDM', 'Soil Carbon RDM')}</span>
               </div>
-              <div className="glass rounded-2xl p-3 text-center transition-all hover:bg-white/95">
+              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
                 <span className="font-display block text-[20px] font-bold leading-tight text-amber-800 tabular">{T('০ সেকেন্ড', '0s Latency')}</span>
                 <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('ক্লায়েন্ট গণনা', 'Browser Compute')}</span>
               </div>

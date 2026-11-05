@@ -106,10 +106,11 @@
   body::before {
     content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background:
-      radial-gradient(46vmax 34vmax at 8% 12%, rgba(141, 190, 120, .34), transparent 62%),
-      radial-gradient(40vmax 30vmax at 92% 8%, rgba(237, 192, 103, .26), transparent 62%),
-      radial-gradient(48vmax 36vmax at 86% 88%, rgba(120, 184, 185, .26), transparent 62%),
-      radial-gradient(40vmax 30vmax at 12% 94%, rgba(217, 154, 115, .16), transparent 62%);
+      radial-gradient(54vmax 40vmax at 6% 10%, rgba(141, 190, 120, .36), transparent 64%),
+      radial-gradient(46vmax 34vmax at 94% 6%, rgba(237, 192, 103, .28), transparent 64%),
+      radial-gradient(52vmax 38vmax at 88% 88%, rgba(120, 184, 185, .30), transparent 64%),
+      radial-gradient(42vmax 32vmax at 10% 92%, rgba(217, 154, 115, .18), transparent 64%),
+      radial-gradient(38vmax 30vmax at 50% 45%, rgba(240, 246, 236, .45), transparent 75%);
   }
   /* Apple-style tracking: the bigger the type, the tighter. Bangla is kept close to neutral (see the :lang rules
      below), because pulling Bangla letters together makes the vowel signs and conjuncts collide. */
@@ -567,6 +568,53 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
     transform: scale(.96);
     transition-duration: .1s;
   }
+  .btn-gloss-teal {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #2f8a8f 0%, #237479 55%, #184d52 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), inset 0 -1px 0 rgba(0, 0, 0, .18), 0 6px 18px -6px rgba(35, 116, 121, .6);
+    transition: transform .4s var(--ease-spring), box-shadow .3s var(--ease-smooth), filter .3s var(--ease-smooth);
+  }
+  .btn-gloss-teal::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, .28) 45%, rgba(255, 255, 255, .38) 50%, transparent 68%);
+    transform: translateX(-120%);
+    transition: transform .65s var(--ease-smooth);
+  }
+  .btn-gloss-teal:hover::after { transform: translateX(120%); }
+  .btn-gloss-teal:hover {
+    transform: translateY(-1.5px);
+    filter: brightness(1.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 12px 28px -8px rgba(35, 116, 121, .7);
+  }
+  .btn-gloss-teal:active { transform: scale(.96); transition-duration: .1s; }
+
+  .btn-gloss-gold {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #e0a12b 0%, #d08f26 55%, #87580e 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), inset 0 -1px 0 rgba(0, 0, 0, .18), 0 6px 18px -6px rgba(208, 143, 38, .6);
+    transition: transform .4s var(--ease-spring), box-shadow .3s var(--ease-smooth), filter .3s var(--ease-smooth);
+  }
+  .btn-gloss-gold::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, .28) 45%, rgba(255, 255, 255, .38) 50%, transparent 68%);
+    transform: translateX(-120%);
+    transition: transform .65s var(--ease-smooth);
+  }
+  .btn-gloss-gold:hover::after { transform: translateX(120%); }
+  .btn-gloss-gold:hover {
+    transform: translateY(-1.5px);
+    filter: brightness(1.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 12px 28px -8px rgba(208, 143, 38, .7);
+  }
+  .btn-gloss-gold:active { transform: scale(.96); transition-duration: .1s; }
 }
 /* The header's sliding active pill: same gloss as the main buttons, gliding on the spring curve. */
 .nav-pill {
@@ -673,20 +721,39 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
 }
 
 /* Interactive cursor spotlight on cards */
-.spotlight-card {
+.spotlight-card, .surface-card {
   position: relative;
-  overflow: hidden;
 }
-.spotlight-card::before {
+.spotlight-card::before, .surface-card::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(360px circle at var(--mouse-x, -50%) var(--mouse-y, -50%), rgba(67, 134, 58, .12), transparent 70%);
+  background: radial-gradient(380px circle at var(--mouse-x, -50%) var(--mouse-y, -50%), rgba(67, 134, 58, .10), transparent 70%);
   opacity: var(--spotlight-opacity, 0);
   transition: opacity .35s var(--ease-smooth);
-  z-index: 1;
+  z-index: 0;
+}
+
+/* Radiant text gradients */
+.gradient-text-emerald {
+  background: linear-gradient(135deg, #245a28 0%, #43863a 50%, #237479 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.gradient-text-gold {
+  background: linear-gradient(135deg, #b8761b 0%, #d08f26 50%, #e0a12b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.gradient-text-teal {
+  background: linear-gradient(135deg, #184d52 0%, #2f8a8f 50%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Viewfinder reticle corners for CropDoctor and camera views */
@@ -739,16 +806,31 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
   will-change: opacity, transform;
 }
 /* Page entry: a short, quiet settle makes route changes feel connected without delaying content. */
-.page-enter > * > *:not([data-reveal]) { animation: page-in .24s var(--ease-smooth) both; }
+.page-enter > * > *:not([data-reveal]) { animation: page-in .26s var(--ease-smooth) both; will-change: opacity, transform; }
 .page-enter > * > *:nth-child(1) { animation-delay: 0ms; }
 .page-enter > * > *:nth-child(2) { animation-delay: 18ms; }
 .page-enter > * > *:nth-child(3) { animation-delay: 36ms; }
 .page-enter > * > *:nth-child(4) { animation-delay: 54ms; }
-.page-enter > * > *:nth-child(n+5) { animation-delay: 60ms; }
+.page-enter > * > *:nth-child(5) { animation-delay: 72ms; }
+.page-enter > * > *:nth-child(n+6) { animation-delay: 85ms; }
+
+/* Grid child cascade animation */
+.stagger-grid > * {
+  animation: page-in .3s var(--ease-smooth) both;
+}
+.stagger-grid > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-grid > *:nth-child(2) { animation-delay: 24ms; }
+.stagger-grid > *:nth-child(3) { animation-delay: 48ms; }
+.stagger-grid > *:nth-child(4) { animation-delay: 72ms; }
+.stagger-grid > *:nth-child(5) { animation-delay: 96ms; }
+.stagger-grid > *:nth-child(6) { animation-delay: 120ms; }
+.stagger-grid > *:nth-child(7) { animation-delay: 144ms; }
+.stagger-grid > *:nth-child(n+8) { animation-delay: 168ms; }
+
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 7px, 0);
+    transform: translate3d(0, 8px, 0) scale(.995);
   }
   to {
     opacity: 1;

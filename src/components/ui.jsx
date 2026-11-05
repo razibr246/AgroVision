@@ -40,17 +40,17 @@ export function Button({ to, variant = 'primary', loading = false, disabled = fa
 }
 
 const BADGE = {
-  green: 'border-primary-200/90 bg-primary-50/90 text-primary-800 hover:border-primary-300 shadow-2xs',
-  amber: 'border-amber-200/90 bg-amber-50/90 text-amber-800 hover:border-amber-300 shadow-2xs',
-  red: 'border-red-200/90 bg-red-50/90 text-red-700 hover:border-red-300 shadow-2xs',
-  blue: 'border-sky-200/90 bg-sky-50/90 text-sky-800 hover:border-sky-300 shadow-2xs',
-  violet: 'border-violet-200/90 bg-violet-50/90 text-violet-700 hover:border-violet-300 shadow-2xs',
-  slate: 'border-slate-200/90 bg-slate-50/90 text-slate-700 hover:border-slate-300 shadow-2xs',
+  green: 'border-primary-200/90 bg-gradient-to-r from-primary-50/95 to-primary-100/70 text-primary-800 hover:border-primary-300 shadow-2xs',
+  amber: 'border-amber-200/90 bg-gradient-to-r from-amber-50/95 to-amber-100/70 text-amber-800 hover:border-amber-300 shadow-2xs',
+  red: 'border-red-200/90 bg-gradient-to-r from-red-50/95 to-red-100/70 text-red-700 hover:border-red-300 shadow-2xs',
+  blue: 'border-sky-200/90 bg-gradient-to-r from-sky-50/95 to-sky-100/70 text-sky-800 hover:border-sky-300 shadow-2xs',
+  violet: 'border-violet-200/90 bg-gradient-to-r from-violet-50/95 to-violet-100/70 text-violet-700 hover:border-violet-300 shadow-2xs',
+  slate: 'border-slate-200/90 bg-gradient-to-r from-slate-50/95 to-slate-100/70 text-slate-700 hover:border-slate-300 shadow-2xs',
   dark: 'border-primary-700 bg-primary-800 text-white shadow-2xs',
 };
 export function Badge({ tone = 'green', dot = false, children, className = '' }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[12.5px] font-semibold transition-all duration-200 hover:scale-[1.03] ${BADGE[tone]} ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[12.5px] font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] ${BADGE[tone]} ${className}`}>
       {dot && <span className="live-dot shrink-0" />}
       {children}
     </span>
@@ -96,6 +96,14 @@ const STAT_GLOW = {
   violet: 'hover:border-violet-300 hover:shadow-[0_18px_38px_-12px_rgba(139,92,246,0.28)] hover:-translate-y-1',
   clay: 'hover:border-clay-300 hover:shadow-[0_18px_38px_-12px_rgba(168,85,42,0.28)] hover:-translate-y-1',
 };
+const STAT_ACCENT = {
+  green: 'from-primary-500/0 via-primary-500/40 to-primary-500/0',
+  blue: 'from-sky-500/0 via-sky-500/40 to-sky-500/0',
+  amber: 'from-amber-500/0 via-amber-500/40 to-amber-500/0',
+  red: 'from-red-500/0 via-red-500/40 to-red-500/0',
+  violet: 'from-violet-500/0 via-violet-500/40 to-violet-500/0',
+  clay: 'from-clay-500/0 via-clay-500/40 to-clay-500/0',
+};
 export function StatCard({ icon: Icon, label, value, note, tone = 'green', tag, to }) {
   const body = (
     <>
@@ -106,10 +114,11 @@ export function StatCard({ icon: Icon, label, value, note, tone = 'green', tag, 
       <p className="font-display mt-1 min-w-0 pr-4 text-[24px] font-bold leading-tight text-ink tabular tracking-tight">{value}</p>
       {note && <p className="mt-1 text-[13px] leading-5 text-muted truncate">{note}</p>}
       {tag && <div className="mt-2"><Tags list={[tag]} /></div>}
+      <span aria-hidden="true" className={`pointer-events-none absolute inset-x-4 bottom-0 h-[2px] bg-gradient-to-r opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${STAT_ACCENT[tone] || STAT_ACCENT.green}`} />
       {to && <ChevronRight aria-hidden="true" size={17} className="stat-card-arrow absolute bottom-3.5 right-3.5 text-muted/60 transition-all duration-250 group-hover:translate-x-1 group-hover:text-primary-700" />}
     </>
   );
-  const cls = `stat-card surface-card group relative block rounded-2xl p-4 transition-all duration-300 ease-[var(--ease-smooth)] ${to ? 'pb-8' : ''} ${STAT_GLOW[tone] || ''}`;
+  const cls = `stat-card surface-card group relative block overflow-hidden rounded-2xl p-4 transition-all duration-300 ease-[var(--ease-smooth)] ${to ? 'pb-8' : ''} ${STAT_GLOW[tone] || ''}`;
   return to ? <Link to={to} className={`${cls} lift`}>{body}</Link> : <div className={cls}>{body}</div>;
 }
 
@@ -176,10 +185,26 @@ export function ScoreRing({ value, size = 48, color, track = '#e5ece1', textColo
   const r = (size - 6) / 2, c = 2 * Math.PI * r, v = Math.max(0, Math.min(100, value));
   const strokeColor = color ?? (v >= 80 ? '#2f6e2f' : v >= 60 ? '#b8761b' : '#a8552a');
   const txt = Math.round(v);
+  const gradId = `score-grad-${size}-${txt}`;
+  const gradStops = color
+    ? null
+    : v >= 80
+      ? ['#43863a', '#245a28']
+      : v >= 60
+        ? ['#edc067', '#b8761b']
+        : ['#e0753d', '#a8552a'];
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`${s.lang === 'bn' ? 'স্কোর' : 'score'} ${txt}`} className="shrink-0 transition-transform duration-300 hover:scale-105">
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`${s.lang === 'bn' ? 'স্কোর' : 'score'} ${txt}`} className="shrink-0 transition-transform duration-300 hover:scale-105 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.06)]">
+      {gradStops && (
+        <defs>
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={gradStops[0]} />
+            <stop offset="100%" stopColor={gradStops[1]} />
+          </linearGradient>
+        </defs>
+      )}
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth="5" />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={strokeColor} strokeWidth="5" strokeLinecap="round" strokeDasharray={`${(c * v) / 100} ${c}`} strokeDashoffset={drawn ? 0 : (c * v) / 100} transform={`rotate(-90 ${size / 2} ${size / 2})`} style={{ transition: 'stroke-dasharray .7s cubic-bezier(.22,1,.36,1), stroke-dashoffset .7s cubic-bezier(.22,1,.36,1)' }} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={gradStops ? `url(#${gradId})` : strokeColor} strokeWidth="5" strokeLinecap="round" strokeDasharray={`${(c * v) / 100} ${c}`} strokeDashoffset={drawn ? 0 : (c * v) / 100} transform={`rotate(-90 ${size / 2} ${size / 2})`} style={{ transition: 'stroke-dasharray .7s cubic-bezier(.22,1,.36,1), stroke-dashoffset .7s cubic-bezier(.22,1,.36,1)' }} />
       <text x="50%" y="54%" textAnchor="middle" dominantBaseline="middle" fontSize={size * 0.32} fontWeight="700" fill={textColor}>{s.lang === 'bn' ? bnDigits(txt) : txt}</text>
     </svg>
   );
@@ -218,14 +243,14 @@ export function WhyButton({ payload, small, className = '', inverse = false }) {
 
 export function Note({ children, tone = 'info', className = '' }) {
   const map = {
-    info: ['border-l-4 border-l-sky-500 border-sky-100/90 bg-sky-50/80 text-sky-950 shadow-2xs', Info, 'text-sky-600'],
-    gold: ['border-l-4 border-l-amber-500 border-amber-200/90 bg-amber-50/85 text-amber-950 shadow-2xs', Info, 'text-amber-600'],
-    warn: ['border-l-4 border-l-red-500 border-red-200/90 bg-red-50/85 text-red-950 shadow-2xs', AlertTriangle, 'text-red-600'],
-    ok: ['border-l-4 border-l-emerald-600 border-primary-200/90 bg-primary-50/85 text-primary-950 shadow-2xs', CheckCircle2, 'text-emerald-600'],
+    info: ['border-l-4 border-l-sky-500 border-sky-200/80 bg-gradient-to-r from-sky-50/90 via-sky-50/60 to-white/70 text-sky-950 shadow-2xs hover:shadow-xs', Info, 'text-sky-600'],
+    gold: ['border-l-4 border-l-amber-500 border-amber-200/80 bg-gradient-to-r from-amber-50/90 via-amber-50/60 to-white/70 text-amber-950 shadow-2xs hover:shadow-xs', Info, 'text-amber-600'],
+    warn: ['border-l-4 border-l-red-500 border-red-200/80 bg-gradient-to-r from-red-50/90 via-red-50/60 to-white/70 text-red-950 shadow-2xs hover:shadow-xs', AlertTriangle, 'text-red-600'],
+    ok: ['border-l-4 border-l-emerald-600 border-primary-200/80 bg-gradient-to-r from-primary-50/90 via-primary-50/60 to-white/70 text-primary-950 shadow-2xs hover:shadow-xs', CheckCircle2, 'text-emerald-600'],
   };
   const [cls, Icon, iconCls] = map[tone] || map.info;
   return (
-    <div className={`status-note flex gap-2.5 rounded-xl border px-3.5 py-2.5 text-[14px] leading-6 transition-all duration-200 backdrop-blur-xs ${cls} ${className}`}>
+    <div className={`status-note flex gap-2.5 rounded-xl border px-3.5 py-2.5 text-[14px] leading-6 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-xs ${cls} ${className}`}>
       <Icon size={18} className={`mt-0.5 shrink-0 ${iconCls}`} />
       <div className="min-w-0 flex-1">{children}</div>
     </div>
