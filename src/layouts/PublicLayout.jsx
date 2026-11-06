@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Swords, Search } from 'lucide-react';
+import { Menu, X, Swords, Search, Sparkles } from 'lucide-react';
 import BrandMark from '../components/brand/BrandMark';
 import { LangToggle, PlaceholderBanner, SkipToMain } from '../components/chrome';
 import { useStore } from '../store';
@@ -41,7 +41,8 @@ export default function PublicLayout() {
 
   const nav = [['how', T('কীভাবে কাজ করে', 'How it works')], ['land', T('জমি বাছাই', 'Your field')], ['data', T('তথ্যের উৎস', 'Data')], ['officer', T('কৃষি কর্মকর্তা', 'Officers')]];
   const onGames = GAME_PATHS.some((p) => loc.pathname === p || loc.pathname.startsWith(`${p}/`));
-  const active = onGames ? 'games' : loc.pathname === '/' ? spy : null;
+  const onScience = loc.pathname === '/science' || loc.pathname.startsWith('/science/');
+  const active = onGames ? 'games' : onScience ? 'science' : loc.pathname === '/' ? spy : null;
 
   // Section links live on the home page; from another page, go home first and scroll once it has rendered.
   const go = (id) => {
@@ -119,6 +120,14 @@ export default function PublicLayout() {
     return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', esc); };
   }, [open]);
 
+  // In the wide bar the label is short, so the whole row fits inside the glass; the menu and tooltip keep the full name.
+  const scienceLink = (cls, slide = false) => (
+    <NavLink to="/science" data-nav={slide ? 'science' : undefined} onClick={() => setOpen(false)} title={T('বিজ্ঞান ও মডেল', 'Science & Models')}
+      className={`${cls} ${onScience ? (slide ? '!bg-transparent !text-white !ring-transparent' : 'bg-sky-700 !text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)]') : ''}`}>
+      <Sparkles size={16} />{slide ? T('বিজ্ঞান', 'Science') : T('বিজ্ঞান ও মডেল', 'Science & Models')}
+    </NavLink>
+  );
+
   const playLink = (cls, slide = false) => (
     <NavLink to="/games" data-nav={slide ? 'games' : undefined} onClick={() => setOpen(false)}
       className={`${cls} ${onGames ? (slide ? '!bg-transparent !text-white !ring-transparent' : 'bg-primary-700 !text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)]') : ''}`}>
@@ -142,12 +151,14 @@ export default function PublicLayout() {
               )}
               {nav.map(([id, label]) => (
                 <button key={id} type="button" data-nav={id} onClick={() => go(id)} aria-current={active === id ? 'true' : undefined}
-                  className={`relative rounded-full px-3.5 py-2 text-[15px] font-semibold transition-colors duration-300 ${active === id ? 'text-white' : 'text-ink/75 hover:bg-white/60 hover:text-primary-800 hover:shadow-[inset_0_1px_0_#fff,0_4px_12px_-6px_rgba(13,38,20,.25)]'}`}>{label}</button>
+                  className={`relative rounded-full px-3 py-2 text-[15px] font-semibold transition-colors duration-300 ${active === id ? 'text-white' : 'text-ink/75 hover:bg-white/60 hover:text-primary-800 hover:shadow-[inset_0_1px_0_#fff,0_4px_12px_-6px_rgba(13,38,20,.25)]'}`}>{label}</button>
               ))}
+              {scienceLink('relative ml-1 inline-flex min-h-11 items-center gap-1.5 rounded-full bg-sky-600/10 px-3.5 py-2 text-[15px] font-semibold text-sky-800 ring-1 ring-sky-600/20 transition-colors duration-300 hover:bg-sky-600/20', true)}
               {playLink('relative ml-1 inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary-600/10 px-3.5 py-2 text-[15px] font-semibold text-primary-800 ring-1 ring-primary-600/20 transition-colors duration-300 hover:bg-primary-600/20', true)}
             </nav>
             <div className="ml-auto hidden items-center gap-2 whitespace-nowrap sm:flex xl:ml-0">
-              <span className="xl:hidden">{playLink('inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary-600/10 px-3.5 py-2 text-[15px] font-semibold text-primary-800 ring-1 ring-primary-600/20 transition hover:bg-primary-600/20')}</span>
+              <span className="hidden lg:inline xl:hidden">{scienceLink('inline-flex min-h-11 items-center gap-1.5 rounded-full bg-sky-600/10 px-3.5 py-2 text-[15px] font-semibold text-sky-800 ring-1 ring-sky-600/20 transition hover:bg-sky-600/20')}</span>
+              <span className="hidden lg:inline xl:hidden">{playLink('inline-flex min-h-11 items-center gap-1.5 rounded-full bg-primary-600/10 px-3.5 py-2 text-[15px] font-semibold text-primary-800 ring-1 ring-primary-600/20 transition hover:bg-primary-600/20')}</span>
               <button
                 type="button"
                 onClick={openCommandPalette}
@@ -155,8 +166,8 @@ export default function PublicLayout() {
                 aria-label={T('খুঁজুন (Cmd+K)', 'Search (Cmd+K)')}
               >
                 <Search size={16} className="text-primary-700" />
-                <span className="hidden md:inline text-muted font-normal text-[13px]">{T('খুঁজুন', 'Search')}</span>
-                <kbd className="hidden lg:inline-flex items-center rounded border border-border/70 bg-black/[0.04] px-1.5 py-0.5 text-[10px] font-bold text-muted">
+                <span className="hidden md:inline xl:hidden text-muted font-normal text-[13px]">{T('খুঁজুন', 'Search')}</span>
+                <kbd className="hidden lg:inline-flex xl:hidden items-center rounded border border-border/70 bg-black/[0.04] px-1.5 py-0.5 text-[10px] font-bold text-muted">
                   ⌘K
                 </kbd>
               </button>
@@ -168,6 +179,7 @@ export default function PublicLayout() {
           <div className={`grid transition-[grid-template-rows,opacity] duration-[500ms] ease-[cubic-bezier(.34,1.4,.64,1)] xl:hidden ${open ? 'mt-2 grid-rows-[1fr] opacity-100' : 'pointer-events-none grid-rows-[0fr] opacity-0'}`}>
             <div className="-mx-3 overflow-hidden px-3 pb-6">
               <div className="glass ml-auto flex max-w-md flex-col gap-1 rounded-[24px] border border-white/60 !bg-white/90 p-2.5 shadow-xl backdrop-blur-xl">
+                {scienceLink('flex items-center gap-2 rounded-2xl bg-sky-600/10 px-3.5 py-3 text-[15.5px] font-semibold text-sky-800 transition-all active:scale-[0.98]')}
                 {playLink('flex items-center gap-2 rounded-2xl bg-primary-600/10 px-3.5 py-3 text-[15.5px] font-semibold text-primary-800 transition-all active:scale-[0.98]')}
                 {nav.map(([id, label], i) => (
                   <button key={id} type="button" onClick={() => go(id)} aria-current={active === id ? 'true' : undefined}
