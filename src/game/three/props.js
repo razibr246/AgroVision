@@ -4,6 +4,9 @@
 // tagged in userData so world.js can animate them; everything else is merged into a few big meshes after building.
 import * as THREE from 'three';
 import { mat, canvasTex } from './people';
+import { buildBanana } from './banana';
+import { buildCattle } from './cattle';
+let bananaSeed = 0; // each banana plant grows its own way, the same way every visit
 
 const M = (c, o = {}) => mat(c, { flat: true, ...o });
 function put(p, g, c, pos = [0, 0, 0], rot = [0, 0, 0], scale) {
@@ -390,18 +393,8 @@ function tree(type) {
     crown.userData.crown = true; crown.userData.swayAmp = 0.035;
     for (let k = 0; k < 4; k++) cone(crown, 1.7 - k * 0.35, 2.2, '#2a5a48', [0, k * 1.35, 0], [0, 0, 0], 8);
   } else if (type === 'banana') {
-    trunk(g, 1.8, 0.16, '#6f8a3a');
-    const crown = G(); crown.position.set(0, 1.85, 0); g.add(crown);
-    crown.userData.crown = true; crown.userData.swayAmp = 0.11;
-    for (let k = 0; k < 7; k++) {
-      const a = (k / 7) * Math.PI * 2;
-      box(crown, 0.52, 0.04, 2.4, '#5fa02c', [Math.cos(a) * 0.9, 0.2, Math.sin(a) * 0.9], [0.55, -a + Math.PI / 2, 0]);
-    }
-    cyl(crown, 0.035, 0.03, 0.55, '#4f7a28', [0.25, -0.2, 0.2], [0.8, 0, 0.3]);
-    cone(crown, 0.11, 0.3, '#831843', [0.38, -0.42, 0.32], [Math.PI, 0, 0], 6);
-    for (let b = 0; b < 6; b++) {
-      cyl(crown, 0.03, 0.025, 0.18, '#70a530', [0.28 + (b % 2) * 0.12, -0.15 - Math.floor(b / 2) * 0.08, 0.24], [1.1, 0, b * 0.4], 4);
-    }
+    // a real banana plant: sheathed stem, torn arching leaves, a hanging bunch and its bud (banana.js)
+    g.add(buildBanana({ seed: ++bananaSeed, h: 1.9 + (bananaSeed % 4) * 0.12 }));
   } else { // palms: date, toddy (palmyra)
     const toddy = type === 'toddy', h = toddy ? 10 : 6;
     cyl(g, 0.22, toddy ? 0.34 : 0.3, h, '#6b5340', [0, h / 2, 0], [0, 0, 0], 7);
@@ -432,6 +425,7 @@ function tree(type) {
 
 // ---- animals ----
 export function animal(type) {
+  if (type === 'cow' || type === 'ox') return buildCattle(type); // sculpted cattle (cattle.js)
   const g = G();
   if (type === 'egret') {
     // White wetland egret (সাদা বক): slender elegant body, S-curved long neck, golden spear bill, wading legs, wings
