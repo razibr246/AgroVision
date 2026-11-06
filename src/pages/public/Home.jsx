@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Pause, Play, MapPinned, Sprout, ShieldCheck, CloudSun, Layers, SlidersHorizontal, RefreshCw, TrendingDown, Droplets, Wheat, Satellite, Mic, Radar as RadarIcon, Swords, ScanLine, LifeBuoy, Clapperboard, Sparkles, Activity, Volume2, VolumeX, Ruler } from 'lucide-react';
+import { Bell, Camera, Send, Eye, CalendarDays, ArrowRight, Users, ChevronLeft, ChevronRight, Pause, Play, MapPinned, Sprout, ShieldCheck, CloudSun, Layers, SlidersHorizontal, RefreshCw, TrendingDown, Droplets, Wheat, Satellite, Mic, Radar as RadarIcon, Swords, ScanLine, LifeBuoy, Clapperboard, Sparkles, Activity, Volume2, VolumeX, Ruler } from 'lucide-react';
 import { Button, Tags, LABEL_STYLE, ScoreRing, climateTag } from '../../components/ui';
 import BrandMark from '../../components/brand/BrandMark';
 import { IMAGES } from '../../assets/images';
@@ -30,6 +30,7 @@ import { num, fmtDate, fmtBangla, banglaDate, daysBetween, bnDigits } from '../.
 import { THEN, NOW } from '../../engine/climate';
 import { PROJECT_NAME, PROJECT_TAGLINE, PROJECT_EVENT, PROJECT_TEAM } from '../../config/brand';
 import { GAMES } from '../../data/games';
+import { SYMPTOMS, UNIONS } from '../../data/demo';
 
 export default function Home() {
   const { s, T, L, decision: d, dispatch, today } = useStore();
@@ -81,7 +82,7 @@ export default function Home() {
               <Link to="/farmer/future" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Layers size={13.5} className="text-primary-600" />{T('জমির ভবিষ্যৎ', 'Field Future')}</Link>
               <Link to="/officer/radar" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><RadarIcon size={13.5} className="text-primary-600" />{T('রোপণ রাডার', 'Radar')}</Link>
               <Link to="/science" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-sky-800 hover:border-sky-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Satellite size={13.5} className="text-sky-600" />{T('বিজ্ঞান ও ভূ-রসায়ন', 'Science & Geochem')}</Link>
-              <Link to="/games" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-amber-800 hover:border-amber-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Activity size={13.5} className="text-amber-600" />{T('বায়োমেকানিক্স', 'Biomechanics')}</Link>
+              <Link to="/games#biomechanics" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-amber-800 hover:border-amber-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Activity size={13.5} className="text-amber-600" />{T('বায়োমেকানিক্স', 'Biomechanics')}</Link>
               <Link to="/farm" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-emerald-800 hover:border-emerald-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Swords size={13.5} className="text-emerald-600" />{T('৩ডি খেলা', '3D Game')}</Link>
             </div>
 
@@ -269,26 +270,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* People: the farmer photo with the officer support story. */}
-      <section id="officer" className="scroll-mt-20 py-16 sm:py-20">
-        <div className="page-shell grid items-stretch gap-8 lg:grid-cols-[1.05fr_1fr]">
-          <figure data-reveal className="relative min-h-[320px] overflow-hidden rounded-[22px] shadow-[var(--shadow-card)]">
-            <Photo name="farmer" fill sizes="(min-width: 1024px) 620px, 100vw" />
-          </figure>
-          <div data-reveal style={{ '--d': '120ms' }} className="flex flex-col justify-center">
-            <h2 className="text-[32px] font-bold sm:text-[40px]">{T('কৃষকের পাশে কৃষি কর্মকর্তা', 'Your agriculture officer, in the loop')}</h2>
-            <p className="mt-3 text-[16.5px] leading-8 text-muted">{T('অ্যাপ সব প্রশ্নের উত্তর দেয় না, দেওয়ার কথাও না। পাতার দাগ নিয়ে সন্দেহ, সেচের পানি না পাওয়া, যেকোনো সমস্যা ছবি আর জায়গাসহ সরাসরি গোদাগাড়ী উপজেলা কৃষি অফিসে যায়।', 'An app cannot answer everything and should not try. Unsure about leaf spots, not getting irrigation water — any problem goes straight to the Godagari upazila agriculture office with a photo and location.')}</p>
-            <ul className="mt-5 space-y-3 text-[15.5px] leading-7">
-              <li className="flex gap-3"><LifeDot />{T('কাছাকাছি কয়েকজন একই সমস্যা জানালে কর্মকর্তা এলাকার সতর্কতা পান, আর একবারে সবাইকে পরামর্শ পাঠাতে পারেন।', 'When several nearby farmers report the same problem, the officer gets an area alert and can advise all of them at once.')}</li>
-              <li className="flex gap-3"><LifeDot />{T('উপজেলা কৃষি অফিসার একজনই — তিনি এক জায়গা থেকে উপজেলার সব ইউনিয়ন আর গ্রাম দেখেন।', 'One upazila agriculture officer sees every union and village in the upazila from one place.')}</li>
-              <li className="flex gap-3"><LifeDot />{T('কোন সপ্তাহে কোন ইউনিয়নে কত ফসল উঠবে, সেটাও আগে থেকে জানা যায়।', 'Officers can also see how much crop each union will harvest, week by week.')}</li>
-            </ul>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button to="/officer/upazila"><ShieldCheck size={18} />{T('উপজেলা কৃষি অফিসারের পাতা', 'Upazila agriculture officer view')}</Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* People: the farmer photo with the officer support story, the live sample requests and what the officer sees. */}
+      <OfficerSection />
 
       {/* Voice + Aman radar: the two modules merged into the main app. */}
       <section id="voice-radar" className="scroll-mt-20 py-16 sm:py-20">
@@ -327,16 +310,97 @@ export default function Home() {
           <Link to="/farmer/harvest" className="hover:text-white transition-colors duration-150"><Wheat size={14} className="mr-1.5 inline text-primary-300" />{T('ফসল তোলার হিসাব', 'Harvest timing')}</Link>
           <Link to="/officer" className="hover:text-white transition-colors duration-150"><ShieldCheck size={14} className="mr-1.5 inline text-primary-300" />{T('কর্মকর্তার পাতা', 'Officer view')}</Link>
           <Link to="/officer/radar" className="hover:text-white transition-colors duration-150"><RadarIcon size={14} className="mr-1.5 inline text-primary-300" />{T('রোপণ রাডার', 'Ropan Radar')}</Link>
-          <Link to="/games" className="hover:text-white transition-colors duration-150"><Swords size={14} className="mr-1.5 inline text-primary-300" />{T('খেলে শিখুন', 'Games')}</Link>
+          <Link to="/science" className="hover:text-white transition-colors duration-150"><Satellite size={14} className="mr-1.5 inline text-primary-300" />{T('বিজ্ঞান ও ভূ-রসায়ন', 'Science & Geochem')}</Link>
+          <Link to="/farm" className="hover:text-white transition-colors duration-150"><Swords size={14} className="mr-1.5 inline text-primary-300" />{T('মাঠের মানুষ ৩ডি গেম', '3D Farm Game')}</Link>
+          <Link to="/stories" className="hover:text-white transition-colors duration-150"><MapPinned size={14} className="mr-1.5 inline text-primary-300" />{T('মাঠের গল্প ও ধাপ', 'Stories & Levels')}</Link>
+          <Link to="/kids" className="hover:text-white transition-colors duration-150"><Sparkles size={14} className="mr-1.5 inline text-primary-300" />{T('স্বপ্নের মাঠ', 'Kids Dream Field')}</Link>
+          <Link to="/abroad/india" className="hover:text-white transition-colors duration-150"><CloudSun size={14} className="mr-1.5 inline text-primary-300" />{T('আন্তর্জাতিক বিস্তার (৮ দেশ)', 'Abroad (8 Nations)')}</Link>
         </div>
       </footer>
     </>
   );
 }
 
-function LifeDot() {
-  return <span className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-primary-500" aria-hidden="true" />;
+// "Your agriculture officer, in the loop": how a farmer's problem reaches the upazila office and what the officer
+// can do with it. The request card and the area-alert count come from the app's sample requests (DEMO).
+function OfficerSection() {
+  const { s, T, L, hotspots } = useStore();
+  const lang = s.lang;
+  const open = s.requests.filter((r) => r.status === 'open');
+  const req = open.find((r) => r.text && r.village) ?? open[0];
+  const hot = [...hotspots].sort((a, b) => b.members.length - a.members.length)[0];
+  const unionName = (id) => { const u = UNIONS.find((x) => x.id === id); return u ? L({ bn: u.bn, en: u.en }) : id; };
+  const flow = [
+    [Camera, T('কৃষক জানান', 'The farmer reports'), T('ছবি, কথা আর জমির জায়গা', 'Photo, words and the field’s location')],
+    [Eye, T('কর্মকর্তা দেখেন', 'The officer reviews'), T('জমির উপগ্রহ ও আবহাওয়ার তথ্যসহ', 'With the field’s satellite and weather record')],
+    [Send, T('পরামর্শ ফেরে', 'Advice comes back'), T('অ্যাপে, এসএমএসে বা ফোনে', 'In the app, by SMS or a call')],
+  ];
+  const cards = [
+    [Bell, '/officer/alerts', T('এলাকার সতর্কতা', 'Area alerts'), T('কাছাকাছি কয়েকজন একই সমস্যা জানালে সতর্কতা আসে; একবারে সবাইকে পরামর্শ পাঠানো যায়।', 'When several nearby farmers report the same problem, an alert appears and one advisory reaches them all.')],
+    [MapPinned, '/officer/map', T('পুরো উপজেলা এক মানচিত্রে', 'The whole upazila on one map'), T('উপজেলা কৃষি অফিসার একজনই; সব ইউনিয়ন আর গ্রাম তিনি এক জায়গা থেকে দেখেন।', 'One upazila agriculture officer sees every union and village from one place.')],
+    [CalendarDays, '/officer/supply', T('কবে কত ফসল উঠবে', 'Harvest, week by week'), T('কোন সপ্তাহে কোন ইউনিয়নে কত ফসল উঠবে, আগে থেকেই জানা যায়।', 'How much crop each union will harvest, and in which week, known ahead.')],
+  ];
+  return (
+    <section id="officer" className="scroll-mt-20 py-16 sm:py-20">
+      <div className="page-shell grid items-stretch gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
+        <figure data-reveal className="relative min-h-[470px] overflow-hidden rounded-[26px] shadow-[var(--shadow-card)] sm:min-h-[480px]">
+          <Photo name="farmer" fill sizes="(min-width: 1024px) 620px, 100vw" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-950/75 via-primary-950/10 to-transparent" aria-hidden="true" />
+          {hot && (
+            <div className="absolute right-4 top-4 flex max-w-[calc(100%-2rem)] items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 text-[13px] font-semibold text-ink shadow-md ring-1 ring-black/5 backdrop-blur-md">
+              <span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:hidden" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" /></span>
+              <Users size={14} className="text-primary-700" />
+              {T(`${num(hot.members.length, 'bn')} জন, একই সমস্যা · এলাকার সতর্কতা`, `${hot.members.length} farmers, one problem · area alert`)}
+            </div>
+          )}
+          {req && (
+            <figcaption className="absolute inset-x-4 bottom-4 rounded-2xl bg-white/92 p-4 text-ink shadow-xl ring-1 ring-black/5 backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:max-w-[400px]">
+              <div className="flex items-center justify-between gap-2 text-[12.5px] font-semibold text-muted">
+                <span className="inline-flex items-center gap-1.5"><Camera size={14} className="text-primary-700" />{T('কৃষকের অনুরোধ', 'A farmer’s request')} · {lang === 'bn' ? req.villageBn ?? req.village : req.village}, {unionName(req.union)}</span>
+                <Tags list={['DEMO']} />
+              </div>
+              <p className="mt-2 text-[15px] leading-6">“{L(req.text)}”</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[12.5px]">
+                {req.symptom && SYMPTOMS[req.symptom] && <span className="rounded-full bg-amber-100 px-2.5 py-1 font-semibold text-amber-900">{L(SYMPTOMS[req.symptom])}</span>}
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2.5 py-1 font-semibold text-primary-800"><ShieldCheck size={13} />{T('উপজেলা কৃষি অফিসে পৌঁছেছে', 'Reached the upazila office')}</span>
+              </div>
+            </figcaption>
+          )}
+        </figure>
+        <div data-reveal style={{ '--d': '120ms' }} className="flex flex-col justify-center">
+          <p className="glass-pill inline-flex w-fit items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><ShieldCheck size={15} />{T('মানুষ থাকে সিদ্ধান্তে', 'A person stays in the decision')}</p>
+          <h2 className="mt-4 text-[32px] font-bold leading-tight sm:text-[40px]">{T('কৃষকের পাশে কৃষি কর্মকর্তা', 'Your agriculture officer, in the loop')}</h2>
+          <p className="mt-3 text-[16.5px] leading-8 text-muted">{T('অ্যাপ সব প্রশ্নের উত্তর দেয় না, দেওয়ার কথাও না। পাতার দাগ নিয়ে সন্দেহ, সেচের পানি না পাওয়া, যেকোনো সমস্যা ছবি আর জায়গাসহ সরাসরি গোদাগাড়ী উপজেলা কৃষি অফিসে যায়।', 'An app cannot answer everything and should not try. Unsure about leaf spots, not getting irrigation water — any problem goes straight to the Godagari upazila agriculture office with a photo and location.')}</p>
+          <ol className="mt-6 grid gap-2 sm:grid-cols-3">
+            {flow.map(([Icon, h, d], i) => (
+              <li key={i} className="relative flex gap-3 rounded-2xl bg-primary-50/70 p-3 ring-1 ring-primary-100 sm:flex-col sm:gap-2">
+                <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-primary-700 shadow-sm"><Icon size={18} /><span className="absolute -right-1.5 -top-1.5 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-primary-700 px-1 text-[10.5px] font-bold text-white">{num(i + 1, lang)}</span></span>
+                <span><span className="block text-[14.5px] font-semibold leading-6">{h}</span><span className="block text-[13px] leading-5 text-muted">{d}</span></span>
+                {i < flow.length - 1 && <ArrowRight size={16} className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 text-primary-400 sm:block" aria-hidden="true" />}
+              </li>
+            ))}
+          </ol>
+          <ul className="mt-5 grid gap-2.5">
+            {cards.map(([Icon, to, h, d]) => (
+              <li key={to}>
+                <Link to={to} className="group flex items-start gap-3.5 rounded-2xl border border-border bg-white/70 p-3.5 transition hover:-translate-y-0.5 hover:border-primary-300 hover:bg-white hover:shadow-md">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-600 text-white"><Icon size={19} /></span>
+                  <span className="min-w-0 flex-1"><span className="block text-[15.5px] font-semibold leading-6">{h}</span><span className="block text-[14px] leading-6 text-muted">{d}</span></span>
+                  <ArrowRight size={17} className="mt-3 shrink-0 text-primary-500 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button to="/officer/upazila"><ShieldCheck size={18} />{T('উপজেলা কৃষি অফিসারের পাতা', 'Upazila agriculture officer view')}</Button>
+            <Button to="/farmer/help" variant="secondary"><Camera size={17} />{T('কৃষক হিসেবে সমস্যা জানান', 'Report a problem as a farmer')}</Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
+
 
 // Hero gallery. The first photo is picked for the time of day in Bangladesh (seedlings at sunrise in the early
 // morning, the bullock cart under a blue sky by day, the fields at sunset in the late afternoon, the fields from orbit
