@@ -259,7 +259,7 @@ export const ABROAD = {
   // Beyond South Asia. The USA farm is the setting of the NASA challenge brief's own photo: an irrigated alfalfa centre
   // pivot in Diamond Valley, Nevada (39.648 N, 115.960 W, green in Sentinel-2 in August 2025 and 2026). The farmer is a sample person.
   usa: {
-    id: 'usa', flag: '🇺🇸', tone: '#2f5f9e', soft: '#e6eef8', world: true,
+    id: 'usa', flag: '🇺🇸', tone: '#2f5f9e', soft: '#e6eef8', world: true, readOn: '2026-11-05',
     name: { bn: 'যুক্তরাষ্ট্র', en: 'United States', local: 'United States' },
     unit: { bn: 'একর', en: 'acre', dec: 100 },
     farmer: {

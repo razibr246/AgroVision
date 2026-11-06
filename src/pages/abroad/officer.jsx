@@ -97,7 +97,7 @@ function OfficeCard({ national = false }) {
               <div className="mt-1 text-[17px] font-bold leading-tight">{L(head.name)}</div>
               <div className="mt-0.5 text-[12.5px] leading-4 text-muted">{L(head.role)}</div>
               <a href={head.source.url} target="_blank" rel="noopener noreferrer" className="mt-2.5 inline-flex items-center gap-1 text-[12.5px] font-semibold text-primary-700 hover:underline">{T('উৎস', 'Source')}: {head.source.label}<ExternalLink size={11} /></a>
-              <div className="mt-0.5 text-[11.5px] text-muted">{T(`পড়া হয়েছে ${fullDate(READ_ON, 'bn')}`, `Read ${fullDate(READ_ON, 'en')}`)}</div>
+              <div className="mt-0.5 text-[11.5px] text-muted">{T(`পড়া হয়েছে ${fullDate(c.readOn ?? READ_ON, 'bn')}`, `Read ${fullDate(c.readOn ?? READ_ON, 'en')}`)}</div>
             </>
           ) : <div className="flex gap-2.5 text-[13px] leading-5 text-muted"><Info size={17} className="mt-0.5 shrink-0" />{L(c.officer.noHead)}</div>) : (
             <>
