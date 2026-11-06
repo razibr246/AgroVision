@@ -85,17 +85,24 @@ function PageLoading() {
   );
 }
 // If a page's code cannot be fetched (offline before it was ever opened, or a new version was deployed), say so
-// plainly and offer a retry instead of a blank screen.
+// plainly and offer a retry instead of a blank screen. Any other error is a fault in the page itself: say that, not
+// "check the internet", and log it so it can be found.
 class PageError extends Component {
   constructor(p) { super(p); this.state = { failed: false }; }
-  static getDerivedStateFromError() { return { failed: true }; }
+  static getDerivedStateFromError(error) {
+    const msg = String(error?.message ?? error);
+    return { failed: true, network: /dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk|Failed to fetch/i.test(msg) };
+  }
+  componentDidCatch(error, info) { console.error('Page error:', error, info?.componentStack); }
   render() {
     if (!this.state.failed) return this.props.children;
     const bn = document.documentElement.lang !== 'en';
     return (
       <div className="page-shell py-16 text-center" role="alert">
         <p className="text-[20px] font-bold">{bn ? 'এই পাতাটি খোলা গেল না' : 'This page could not be opened'}</p>
-        <p className="mt-2 text-[15px] text-muted">{bn ? 'প্রথমবার খুলতে ইন্টারনেট লাগে। সংযোগ দেখে আবার চেষ্টা করুন।' : 'It needs the internet the first time. Check the connection and try again.'}</p>
+        <p className="mt-2 text-[15px] text-muted">{this.state.network
+          ? (bn ? 'প্রথমবার খুলতে ইন্টারনেট লাগে। সংযোগ দেখে আবার চেষ্টা করুন।' : 'It needs the internet the first time. Check the connection and try again.')
+          : (bn ? 'পাতাটিতে একটি ত্রুটি হয়েছে। আবার চেষ্টা করুন, না হলে অন্য পাতা থেকে ঘুরে আসুন।' : 'Something went wrong on this page. Try again, or come back from another page.')}</p>
         <button type="button" onClick={() => window.location.reload()} className="btn-gloss mt-5 inline-flex h-11 items-center rounded-full px-6 text-[15px] font-semibold text-white">{bn ? 'আবার চেষ্টা করুন' : 'Try again'}</button>
       </div>
     );

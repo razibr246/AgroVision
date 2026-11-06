@@ -51,13 +51,9 @@ export default function EarthdataSTAC() {
   const upz = UPAZILAS[selectedUpz] || UPAZILAS.godagari;
   const coll = COLLECTIONS.find((c) => c.id === selectedColl) || COLLECTIONS[0];
 
-  // Geodetic Bounding Box (+/- 0.08 deg around center)
-  const bbox = [
-    Math.round((upz.lon - 0.08) * 1000) / 1000,
-    Math.round((upz.lat - 0.08) * 1000) / 1000,
-    Math.round((upz.lon + 0.08) * 1000) / 1000,
-    Math.round((upz.lat + 0.08) * 1000) / 1000,
-  ];
+  // The upazila's own box (UPAZILAS bounds, [[south, west], [north, east]]) as a STAC bbox: west, south, east, north
+  const [[south, west], [north, east]] = upz.bounds;
+  const bbox = [west, south, east, north];
 
   const dateRange = '2026-01-01T00:00:00Z/2026-03-31T23:59:59Z';
 
@@ -162,7 +158,7 @@ export default function EarthdataSTAC() {
           >
             {Object.values(UPAZILAS).map((u) => (
               <option key={u.id} value={u.id}>
-                {u.name.bn} ({u.name.en}) — {u.lat.toFixed(2)}°N, {u.lon.toFixed(2)}°E
+                {u.name.bn} ({u.name.en}) — {((u.bounds[0][0] + u.bounds[1][0]) / 2).toFixed(2)}°N, {((u.bounds[0][1] + u.bounds[1][1]) / 2).toFixed(2)}°E
               </option>
             ))}
           </select>
