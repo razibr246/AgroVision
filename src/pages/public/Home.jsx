@@ -31,6 +31,7 @@ import { THEN, NOW } from '../../engine/climate';
 import { PROJECT_NAME, PROJECT_TAGLINE, PROJECT_EVENT, PROJECT_TEAM } from '../../config/brand';
 import { GAMES } from '../../data/games';
 import ChakraLogo from '../../components/chakra/ChakraLogo';
+import { DATASETS } from '../../engine/provenance';
 import { SYMPTOMS, UNIONS } from '../../data/demo';
 
 export default function Home() {
@@ -53,7 +54,7 @@ export default function Home() {
       <section className="relative isolate overflow-hidden" {...swipe(gallery)}>
         <HeroBackdrop gallery={gallery} />
         <div className="page-shell pb-10 pt-[120px] sm:pt-[140px]">
-          <div className="hero-rise max-w-[640px]">
+          <div className="hero-rise max-w-[760px]">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-[12px] font-semibold text-muted">
                 {T('রবি মৌসুম ২০২৬–২৭', 'Rabi season 2026–27')}
@@ -69,15 +70,18 @@ export default function Home() {
               {T(<>আপনার জমির মাটির আনুমানিক হিসাব, <span className="font-medium text-ink">২৫ বছরের নাসার আবহাওয়া</span> আর পাশের কৃষকেরা কী লাগাচ্ছেন — সব মিলিয়ে {PROJECT_NAME} বলে দেয় কোন ফসল, কবে লাগালে <span className="font-medium text-ink">লাভ বেশি, ঝুঁকি কম</span>।</>,
                 <>An estimate of your soil, <span className="font-medium text-ink">25 years of NASA weather</span> and what your neighbours are planting — {PROJECT_NAME} weighs it all and tells you which crop to sow, and when, for <span className="font-medium text-ink">more profit and less risk</span>.</>)}
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-3">
               <Button to="/farmer/plan" className="btn-gloss !rounded-full px-6 py-3 text-[16px]"><Sprout size={19} />{T('আমার জমির হিসাব দেখুন', 'Work out my field')}</Button>
-              <Button to="/officer" variant="ghost" className="glass-pill !rounded-full px-6 py-3 text-[16px]"><ShieldCheck size={19} />{T('কৃষি কর্মকর্তার পাতা', 'Officer view')}</Button>
-              <button type="button" onClick={() => startTour(dispatch, navigate)} className="glass-pill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold text-primary-800"><Clapperboard size={19} />{T('৩ মিনিটের ডেমো গল্প', '3-minute demo story')}</button>
+              <Button to="/officer" variant="ghost" className="glass-pill !rounded-full px-5 py-3 text-[16px]"><ShieldCheck size={19} />{T('কৃষি কর্মকর্তার পাতা', 'Officer view')}</Button>
+              <button type="button" onClick={() => startTour(dispatch, navigate)} className="group inline-flex items-center gap-2 rounded-full px-2 py-2 text-[15.5px] font-semibold text-primary-800 hover:text-primary-950">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-white/80 shadow-sm ring-1 ring-primary-200 transition-transform group-hover:scale-110"><Play size={15} className="ml-0.5 fill-primary-700 text-primary-700" /></span>
+                {T('৩ মিনিটের ডেমো দেখুন', 'Watch the 3-minute demo')}
+              </button>
             </div>
 
             {/* Quick-Jump Action Ribbon */}
-            <div className="mt-5 flex flex-wrap items-center gap-2 text-[12.5px] font-semibold">
-              <span className="text-muted/80 mr-1 text-[11.5px] uppercase tracking-wider font-bold">{T('দ্রুত নেভিগেশন:', 'Quick jump:')}</span>
+            <p className="mt-7 text-[13.5px] font-semibold text-ink/60">{T('সরাসরি যান', 'Jump straight to')}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] font-semibold">
               <Link to="/farmer" state={{ chakra: true }} title={T('চক্র এজেন্ট: কৃষকের পাতায় খুলবে', 'Chakra Agent: opens on the farmer page')} className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><ChakraLogo size={17} />{T('চক্র এজেন্ট', 'Chakra Agent')}</Link>
               <Link to="/farmer/plan" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Sprout size={13.5} className="text-primary-600" />{T('পরিকল্পনা', 'Plan')}</Link>
               <Link to="/farmer/doctor" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><ScanLine size={13.5} className="text-primary-600" />{T('ফসলের ডাক্তার', 'Crop Doctor')}</Link>
@@ -88,23 +92,23 @@ export default function Home() {
               <Link to="/farm" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-emerald-800 hover:border-emerald-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Swords size={13.5} className="text-emerald-600" />{T('৩ডি খেলা', '3D Game')}</Link>
             </div>
 
-            {/* 4-Metric Verified Telemetry Grid */}
-            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4 stagger-grid">
-              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
-                <span className="font-display block text-[20px] font-bold leading-tight text-primary-900 tabular">{T('১৬.৮৮M+', '16.88M+')}</span>
-                <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('কৃষি পরিবার', 'Farm Households')}</span>
+            {/* Four plain facts behind the app; each traces to a source (the census, the dataset register, the app's own range). */}
+            <div className="mt-7 grid grid-cols-2 gap-2.5 sm:grid-cols-4 stagger-grid">
+              <div className="glass surface-card rounded-2xl px-3 py-3.5 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
+                <span className="font-display block text-[22px] font-bold leading-tight text-primary-900 tabular">{T('১.৬৯ কোটি', '16.9 million')}</span>
+                <span className="mt-1 block text-[12.5px] font-medium leading-snug text-muted">{T('কৃষক পরিবার (কৃষি শুমারি ২০১৯)', 'farm households (Census 2019)')}</span>
               </div>
-              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
-                <span className="font-display block text-[20px] font-bold leading-tight text-sky-800 tabular">{T('১২+', '12+')}</span>
-                <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('নাসা মিশন', 'NASA Missions')}</span>
+              <div className="glass surface-card rounded-2xl px-3 py-3.5 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
+                <span className="font-display block text-[22px] font-bold leading-tight text-sky-800 tabular">{num(DATASETS.filter((x) => x.kind !== 'DEMO' && x.id !== 'soiltest').length, lang)}</span>
+                <span className="mt-1 block text-[12.5px] font-medium leading-snug text-muted">{T('আসল তথ্যের উৎস, নাসাসহ', 'real data sources, NASA included')}</span>
               </div>
-              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
-                <span className="font-display block text-[20px] font-bold leading-tight text-emerald-800 tabular">{T('১০ বছর', '10-Year')}</span>
-                <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('মাটি কার্বন RDM', 'Soil Carbon RDM')}</span>
+              <div className="glass surface-card rounded-2xl px-3 py-3.5 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
+                <span className="font-display block text-[22px] font-bold leading-tight text-emerald-800 tabular">{T('২৫ বছর', '25 years')}</span>
+                <span className="mt-1 block text-[12.5px] font-medium leading-snug text-muted">{T('নাসার আবহাওয়া, ২০০১–২০২৫', 'of NASA weather, 2001–2025')}</span>
               </div>
-              <div className="glass surface-card rounded-2xl p-3 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
-                <span className="font-display block text-[20px] font-bold leading-tight text-amber-800 tabular">{T('০ সেকেন্ড', '0s Latency')}</span>
-                <span className="mt-0.5 block text-[11.5px] font-medium text-muted leading-tight">{T('ক্লায়েন্ট গণনা', 'Browser Compute')}</span>
+              <div className="glass surface-card rounded-2xl px-3 py-3.5 text-center transition-all hover:bg-white/95 hover:-translate-y-1 hover:shadow-md">
+                <span className="font-display block text-[22px] font-bold leading-tight text-amber-800 tabular">{T('১০ বছর', '10 years')}</span>
+                <span className="mt-1 block text-[12.5px] font-medium leading-snug text-muted">{T('ফসলচক্র আগে থেকে হিসাব', 'of crop rotation, worked out ahead')}</span>
               </div>
             </div>
 
