@@ -443,7 +443,7 @@ export function FuturePanel({ id }) {
             <div><div className="font-display text-[28px] font-bold leading-none text-clay-700 tabular">+{f1(c.dT.med)}°</div><div className="mt-1 text-[12px] text-muted">{T('গড় তাপমাত্রা', 'Mean temperature')}</div></div>
             <div><div className={`font-display text-[28px] font-bold leading-none tabular ${c.rainPct.med >= 0 ? 'text-sky-700' : 'text-clay-700'}`}>{c.rainPct.med >= 0 ? '+' : '−'}{num(Math.abs(Math.round(c.rainPct.med)), lang)}%</div><div className="mt-1 text-[12px] text-muted">{T('বছরের বৃষ্টি', 'Yearly rain')}</div></div>
           </div>
-          <div className="mt-2 text-[12px] leading-4 text-muted">{T(`${num(c.n, lang)}টি মডেলের মাঝামাঝি; পরিসর ${f1(c.dT.min)}° থেকে ${f1(c.dT.max)}°, বৃষ্টি ${num(Math.round(c.rainPct.min), lang)}% থেকে ${num(Math.round(c.rainPct.max), lang)}%`, `Median of ${c.n} models; range ${f1(c.dT.min)}° to ${f1(c.dT.max)}°, rain ${Math.round(c.rainPct.min)}% to ${Math.round(c.rainPct.max)}%`)}</div>
+          <div className="mt-2 text-[12px] leading-4 text-muted">{T(`${num(c.n, lang)}টি মডেলের মাঝামাঝি; পরিসর ${f1(c.dT.min)}° থেকে ${f1(c.dT.max)}°, বৃষ্টি ${num((Math.round(c.rainPct.min) || 0), lang)}% থেকে ${num((Math.round(c.rainPct.max) || 0), lang)}%`, `Median of ${c.n} models; range ${f1(c.dT.min)}° to ${f1(c.dT.max)}°, rain ${(Math.round(c.rainPct.min) || 0)}% to ${(Math.round(c.rainPct.max) || 0)}%`)}</div>
         </div>
       ))}
       <p className="text-[12.5px] leading-5 text-muted sm:col-span-2">{T('২০৪১–২০৫০ বনাম ২০০৫–২০১৪, নাসা NEX-GDDP-CMIP6 (০.২৫°, বায়াস-সংশোধিত)।', '2041–2050 against 2005–2014, NASA NEX-GDDP-CMIP6 (0.25°, bias-corrected).')}</p>

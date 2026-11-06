@@ -162,8 +162,12 @@ for (const [key, cell] of cells) {
 if (!Object.keys(out).length) { console.error('no complete cell yet'); process.exit(1); }
 // Each upazila's own cell, or (while a download is unfinished) the nearest complete one, which the file says.
 const nearest = (p) => Object.values(out).map((c) => c.cell).sort((a, b) => Math.hypot(a[0] - p[0], a[1] - p[1]) - Math.hypot(b[0] - p[0], b[1] - p[1]))[0].join(',');
-const upazilas = Object.fromEntries(Object.entries(UPAZILAS).map(([id, p]) => [id, out[cellOf(p).join(',')] ? cellOf(p).join(',') : nearest(p)]));
-const borrowed = Object.entries(UPAZILAS).filter(([, p]) => !out[cellOf(p).join(',')]).map(([id]) => id);
+// A farm abroad never borrows: the nearest finished cell could be another country (Nevada's nearest was Myanmar's).
+// It is left out until its own cell is complete, and the page says the projection is still downloading.
+const upazilas = Object.fromEntries(Object.entries(UPAZILAS)
+  .filter(([id, p]) => out[cellOf(p).join(',')] || !id.startsWith('abroad_'))
+  .map(([id, p]) => [id, out[cellOf(p).join(',')] ? cellOf(p).join(',') : nearest(p)]));
+const borrowed = Object.entries(UPAZILAS).filter(([id, p]) => !out[cellOf(p).join(',')] && !id.startsWith('abroad_')).map(([id]) => id);
 const json = {
   provenance: {
     status: 'REAL',
