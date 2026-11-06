@@ -30,6 +30,7 @@ import { num, fmtDate, fmtBangla, banglaDate, daysBetween, bnDigits } from '../.
 import { THEN, NOW } from '../../engine/climate';
 import { PROJECT_NAME, PROJECT_TAGLINE, PROJECT_EVENT, PROJECT_TEAM } from '../../config/brand';
 import { GAMES } from '../../data/games';
+import ChakraLogo from '../../components/chakra/ChakraLogo';
 import { SYMPTOMS, UNIONS } from '../../data/demo';
 
 export default function Home() {
@@ -77,6 +78,7 @@ export default function Home() {
             {/* Quick-Jump Action Ribbon */}
             <div className="mt-5 flex flex-wrap items-center gap-2 text-[12.5px] font-semibold">
               <span className="text-muted/80 mr-1 text-[11.5px] uppercase tracking-wider font-bold">{T('দ্রুত নেভিগেশন:', 'Quick jump:')}</span>
+              <Link to="/farmer" state={{ chakra: true }} title={T('চক্র এজেন্ট: কৃষকের পাতায় খুলবে', 'Chakra Agent: opens on the farmer page')} className="rounded-full bg-primary-950 px-3.5 py-1.5 text-white shadow-sm ring-1 ring-primary-700 hover:bg-primary-900 hover:shadow-md transition-all flex items-center gap-1.5 active:scale-95"><ChakraLogo size={17} />{T('চক্র এজেন্ট', 'Chakra Agent')}</Link>
               <Link to="/farmer/plan" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Sprout size={13.5} className="text-primary-600" />{T('পরিকল্পনা', 'Plan')}</Link>
               <Link to="/farmer/doctor" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><ScanLine size={13.5} className="text-primary-600" />{T('ফসলের ডাক্তার', 'Crop Doctor')}</Link>
               <Link to="/farmer/future" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Layers size={13.5} className="text-primary-600" />{T('জমির ভবিষ্যৎ', 'Field Future')}</Link>

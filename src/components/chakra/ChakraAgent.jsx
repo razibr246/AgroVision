@@ -2,7 +2,7 @@
 // security) and, for the officer, the pop-up where a person approves what the agent drafted before it goes out.
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { X, Maximize2, Minimize2, Volume2, VolumeX, Keyboard, SendHorizontal, ShieldCheck, ShieldAlert, ListChecks, MessageCircle, CheckCircle2, ChevronRight, Smartphone, Gavel, UsersRound, Route, Target, Brain } from 'lucide-react';
 import { useStore } from '../../store';
 import { Tags } from '../ui';
@@ -328,6 +328,9 @@ export default function ChakraAgent({ role }) {
   const [open, setOpen] = useState(false);
   const [verdict, setVerdict] = useState(null);
   const [later, setLater] = useState(() => new Set()); // verdicts the officer put off this visit
+  // A link elsewhere in the app (the home page's quick jump) can arrive with { chakra: true } to open the agent.
+  const loc = useLocation();
+  useEffect(() => { if (loc.state?.chakra) setOpen(true); }, [loc.key, loc.state]);
   c.openVerdict = (t) => setVerdict(t);
   c.close = () => setOpen(false);
   // Agent mode on the officer side: the next draft pops up for a verdict by itself.
