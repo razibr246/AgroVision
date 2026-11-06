@@ -241,4 +241,40 @@ export const PLACES = {
     dawn: q('পাহাড়ের ওপারে আলো, সেজব্রাশে শিশির — ভোর হলো উপত্যকায়।', 'Light over the range, dew on the sagebrush — dawn in the valley.'),
     dusk: q('পাহাড়ের ছায়া লম্বা হচ্ছে, বাতাস ঠান্ডা। রাতের সেচের জন্য পিভট চালু করি।', 'The range’s shadow stretches out and the air turns cold. Time to start the pivot for the night watering.'),
   },
+  caio: {
+    places: [
+      { id: 'home', at: ['house', -2, 5], r: 5, name: q('খামারবাড়ি', 'Farmhouse'), line: q('ভোরে বৃষ্টির মাপ দেখি, তারপর বীজ আর যন্ত্র গুছাই।', 'I check the rain gauge at dawn, then ready the seed and machinery.') },
+      { id: 'field', at: [24, 7], r: 5, name: q('সয়াবিনের খেত', 'Soybean field'), line: q('খড় পুড়িয়ে নয়, মাটিতে রেখে ভেজা আর জৈব পদার্থ বাঁচাই।', 'I keep straw on the soil instead of burning it, to hold moisture and organic matter.') },
+      { id: 'shed', at: ['shed', -4, 3], r: 4, name: q('সমবায়ের যন্ত্রঘর', 'Co-op machinery shed'), line: q('সয়াবিন কাটার পর যত দ্রুত সম্ভব ভুট্টার বীজ বুনতে হবে।', 'After soybean harvest, maize seed needs to go in promptly.') },
+      { id: 'silo', at: ['market', -3, -3], r: 4, name: q('শস্যের সাইলো', 'Grain silo'), line: q('ফসল শুকনো আছে কি না দেখে তারপর সংগ্রহ কেন্দ্রে দিই।', 'I check that grain is dry before taking it to the collection point.') },
+      { id: 'office', at: ['kiosk', -3, 3], r: 4, name: q('সম্প্রসারণ অফিস', 'Extension office'), line: q('বপন ক্যালেন্ডার ও পোকা সামলানোর স্থানীয় পরামর্শ এখানে পাই।', 'I get local advice on sowing calendars and pest management here.') },
+      { id: 'hall', at: ['safe', 3, 6], r: 5, name: q('কমিউনিটি হল', 'Community hall'), line: q('বজ্রঝড় এলে খোলা মাঠ ছেড়ে পাকা ঘরে আশ্রয় নিই।', 'When thunderstorms arrive, we leave the open field for a solid building.') },
+    ],
+    folk: [
+      { id: 'co-op', name: q('যন্ত্র সমবায়ের কর্মী', 'Co-op machinery operator'), look: { skin: '#b97c55', hair: '#261c17', build: 1, head: 'cap', headA: '#1c8a55', headB: '#f2c52b', top: 'shirt', topA: '#425d4a', topB: '#d5cdb8', lower: 'cargo', lowA: '#4e6449', lowB: '#354632', feet: 'shoe', feetA: '#49372c' }, does: 'stand', at: ['shed', -3, 2], hello: q('কম্বাইন ফিরলেই বীজ বপনযন্ত্র প্রস্তুত রাখব।', 'I’ll have the planter ready as soon as the combine is back.') },
+      { id: 'neighbour', name: q('প্রতিবেশী চাষি', 'Neighbouring farmer'), look: { skin: '#8c5a3f', hair: '#17120f', build: 0.96, head: 'bare', top: 'polo', topA: '#e2c34a', topB: '#346b47', lower: 'cargo', lowA: '#5b5543', lowB: '#403d32', feet: 'shoe', feetA: '#382e25' }, does: 'walk', route: [[-28, -14], [28, -14]], hello: q('বৃষ্টি থিতু হয়েছে কি না IMERG-এ মিলিয়ে দেখেছ?', 'Did you compare the rain onset with IMERG?') },
+      { id: 'extension', name: q('সম্প্রসারণ পরামর্শক', 'Extension adviser'), look: { skin: '#d2a57f', hair: '#38261b', build: 0.9, female: true, head: 'cap', headA: '#e3d8b8', headB: '#1c8a55', top: 'shirt', topA: '#e3d8b8', topB: '#756545', lower: 'cargo', lowA: '#49634f', lowB: '#35493a', feet: 'shoe', feetA: '#43352a' }, does: 'walk', route: [[18, -18], [18, 18]], hello: q('পোকা চিনে সংখ্যা গুনে তারপর ব্যবস্থা নিন।', 'Identify and count the pest before deciding what to do.') },
+    ],
+    signs: { shed: { t: 'COOPERATIVA', sub: 'Máquinas e sementes' }, market: { t: 'SILOS GRÃO', sub: 'Recebimento' }, kiosk: { t: 'EMPAER-MT', sub: 'Extensão Rural' }, safe: { t: 'SALÃO COMUNITÁRIO' } },
+    dawn: q('বৃষ্টি থেমেছে — মাটি ভেজা থাকতেই বোনার কাজ গুছাই।', 'The rain has stopped — let’s sow while the soil still holds moisture.'),
+    dusk: q('রোদ নামছে; যন্ত্র গুছিয়ে কালকের বৃষ্টির পূর্বাভাস দেখি।', 'The sun is setting; I park the machinery and check tomorrow’s rain forecast.'),
+  },
+  lucia: {
+    places: [
+      { id: 'grove', at: [23, 7], r: 5, name: q('অলিভ বাগান', 'Olive grove'), line: q('সারির মাঝের কভার ক্রপ বৃষ্টিতে মাটি ধুয়ে যাওয়া কমাতে সাহায্য করে।', 'Cover crops between rows help limit soil washing away in rain.') },
+      { id: 'shed', at: ['shed', -4, 3], r: 4, name: q('সরঞ্জামঘর', 'Equipment shed'), line: q('মাটি ভেজা থাকলে ঢালে ভারী যন্ত্র চালাই না।', 'I keep heavy machinery off slopes when the soil is wet.') },
+      { id: 'water', at: ['water', 0, 3], r: 5, name: q('সেচের পালা', 'Irrigation turn'), line: q('সমিতির বরাদ্দ মেনে পানি দিই; আগে মাটির ভেজা দেখি।', 'I follow the community allocation and check soil moisture first.') },
+      { id: 'market', at: ['market', -3, -3], r: 4, name: q('অலிவ সমবায়', 'Olive cooperative'), line: q('ফল তোলার সময় আবহাওয়া আর সমবায়ের পালা দুটোই মেলাতে হয়।', 'Harvest timing has to fit both weather and the cooperative’s schedule.') },
+      { id: 'office', at: ['kiosk', -3, 3], r: 4, name: q('OCA কৃষি অফিস', 'OCA agricultural office'), line: q('পানির বরাদ্দ ও বর্তমান সহায়তার নিয়ম এখান থেকে যাচাই করি।', 'I check water allocations and current support rules here.') },
+      { id: 'safe', at: ['safe', 3, 6], r: 5, name: q('গ্রামের কেন্দ্র', 'Village centre'), line: q('ভারী বৃষ্টি আসার আগে ঢালের নালা পরিষ্কার আছে কি দেখি।', 'Before heavy rain, I check that the slope drains are clear.') },
+    ],
+    folk: [
+      { id: 'cooperative', name: q('সমবায়ের কর্মী', 'Cooperative worker'), look: { skin: '#c68a5e', hair: '#30231d', build: 1, head: 'short', headA: '#30231d', headB: '#30231d', top: 'shirt', topA: '#e8e1d1', topB: '#607956', lower: 'cargo', lowA: '#55584b', lowB: '#44473d', feet: 'shoe', feetA: '#49372c' }, does: 'stand', at: ['market', -3, 2], hello: q('সকালেই আবহাওয়া দেখে ফল তোলার পালা ঠিক করি।', 'We check the weather early before setting the harvest schedule.') },
+      { id: 'neighbour', name: q('প্রতিবেশী অলিভ চাষি', 'Neighbouring olive grower'), look: { skin: '#b97c55', hair: '#4b3025', build: 0.96, head: 'cap', headA: '#c59b52', headB: '#d5c5a0', top: 'polo', topA: '#799064', topB: '#e6ddc8', lower: 'cargo', lowA: '#55584b', lowB: '#44473d', feet: 'shoe', feetA: '#49372c' }, does: 'walk', route: [[-28, -14], [28, -14]], hello: q('কভার ক্রপ কেটে মাটিতেই রাখব।', 'I’ll mow the cover crop and leave it on the soil.') },
+      { id: 'extension', name: q('OCA সম্প্রসারণ পরামর্শক', 'OCA extension adviser'), look: { skin: '#d5a078', hair: '#38261b', build: 0.9, female: true, head: 'short', headA: '#38261b', headB: '#38261b', top: 'shirt', topA: '#f0eee5', topB: '#617b59', lower: 'cargo', lowA: '#53634d', lowB: '#3b4939', feet: 'shoe', feetA: '#43352a' }, does: 'walk', route: [[18, -18], [18, 18]], hello: q('সেচের বর্তমান বরাদ্দ অফিসে যাচাই করুন।', 'Check the current irrigation allocation with the office.') },
+    ],
+    signs: { shed: { t: 'ALMACÉN AGRÍCOLA' }, market: { t: 'COOPERATIVA OLIVARERA' }, kiosk: { t: 'OFICINA COMARCAL AGRARIA' }, safe: { t: 'CENTRO VECINAL' } },
+    dawn: q('সূর্য ওঠার আগে বাগানের মাটি আর আবহাওয়া দেখি।', 'Before sunrise, I check the grove soil and the forecast.'),
+    dusk: q('দিনের গরম কমেছে — বরাদ্দ থাকলে এখন সেচের পালা।', 'The day’s heat has eased — if allocated, now is the irrigation turn.'),
+  },
 };

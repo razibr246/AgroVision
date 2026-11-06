@@ -27,6 +27,8 @@ const EVENTS = {
   nepal: [{ key: 'rain2021', kind: 'rain', title: { bn: '১৭–২০ অক্টোবর ২০২১: কাটা ধানের ওপর বৃষ্টি', en: '17–20 October 2021: rain on the cut paddy' } }],
   bhutan: [{ key: 'rain2025', kind: 'rain', title: { bn: '৩–৬ অক্টোবর ২০২৫: ফসল তোলার মুখে ভারী বৃষ্টি', en: '3–6 October 2025: heavy rain on the eve of harvest' } }],
   usa: [{ key: 'heat2021', kind: 'heat', title: { bn: 'জুন–জুলাই ২০২১: পশ্চিমজুড়ে তাপপ্রবাহ', en: 'June–July 2021: the heatwave across the West' } }, { key: 'snow2023', kind: 'rain', title: { bn: 'জানুয়ারি–মার্চ ২০২৩: স্বাভাবিকের চেয়ে অনেক ভেজা আর ঠান্ডা শীত', en: 'January–March 2023: an unusually wet, cold winter' } }],
+  brazil: [{ key: 'drought2023', kind: 'rain', title: { bn: 'অক্টোবর ২০২৩–ফেব্রুয়ারি ২০২৪: সোরিসোতে কম বৃষ্টি, বেশি গরম', en: 'October 2023–February 2024: less rain and hotter days at Sorriso' } }, { key: 'heat2024', kind: 'heat', title: { bn: 'জানুয়ারি–মার্চ ২০২৪: গরম দিন, কম বৃষ্টি', en: 'January–March 2024: hotter days and less rain' } }],
+  spain: [{ key: 'drought2023', kind: 'rain', title: { bn: 'মার্চ–মে ২০২৩: মার্তোসে কম বৃষ্টি, বেশি গরম', en: 'March–May 2023: less rain and warmer days at Martos' } }, { key: 'heat2023', kind: 'heat', title: { bn: '২৪–৩০ এপ্রিল ২০২৩: মার্তোসে তাপ স্বাভাবিকের চেয়ে বেশি', en: '24–30 April 2023: Martos much hotter than normal' } }],
   myanmar: [{ key: 'heat2024', kind: 'heat', title: { bn: 'এপ্রিল ২০২৪: মিয়ানমারের সবচেয়ে গরম এপ্রিল', en: 'April 2024: Myanmar’s hottest April' } }, { key: 'yagi2024', kind: 'rain', title: { bn: 'সেপ্টেম্বর ২০২৪: টাইফুন ইয়াগির বৃষ্টি', en: 'September 2024: the rain of Typhoon Yagi' } }],
 };
 const TONE = {

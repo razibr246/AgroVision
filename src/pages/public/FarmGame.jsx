@@ -98,7 +98,7 @@ function usePortraits() {
   }, []);
   return pics;
 }
-const TONE = { bangladesh: ['#2e9d5a', '#0f3d26'], india: ['#f4a23a', '#1f7a3a'], pakistan: ['#1f7a4a', '#0f3d26'], nepal: ['#c8283a', '#23407a'], bhutan: ['#f2b23a', '#d0572a'], myanmar: ['#f2c21b', '#2e8b57'], usa: ['#3c78c8', '#1f3d6e'] };
+const TONE = { bangladesh: ['#2e9d5a', '#0f3d26'], india: ['#f4a23a', '#1f7a3a'], pakistan: ['#1f7a4a', '#0f3d26'], nepal: ['#c8283a', '#23407a'], bhutan: ['#f2b23a', '#d0572a'], myanmar: ['#f2c21b', '#2e8b57'], usa: ['#3c78c8', '#1f3d6e'], brazil: ['#229e57', '#174b38'], spain: ['#c6533b', '#6f342c'] };
 const stage = (cc) => `radial-gradient(110% 80% at 50% 85%, ${TONE[cc][0]}55, transparent 60%), linear-gradient(180deg, #0f2418 0%, #163a26 55%, ${TONE[cc][1]} 140%)`;
 
 function SelectScreen({ who, setWho, onGo, onResume }) {
@@ -113,9 +113,9 @@ function SelectScreen({ who, setWho, onGo, onResume }) {
   return (
     <section className="scene-in field-folk-select">
       <div className="max-w-3xl">
-        <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Globe2 size={15} />{T('খামারের খেলা · ১৩টি নমুনা চরিত্র, ৭ দেশ', 'The farm game · 13 sample characters, 7 countries')}</p>
+        <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Globe2 size={15} />{T('খামারের খেলা · ১৫টি নমুনা চরিত্র, ৯ দেশ', 'The farm game · 15 sample characters, 9 countries')}</p>
         <h1 className="mt-4 text-[40px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[56px]">{L(GAMES.farm.name)} <span className="bg-[linear-gradient(100deg,#1e5c22_0%,#3d8c34_40%,#1d717a_100%)] bg-clip-text text-transparent">3D</span></h1>
-        <p className="mt-3 max-w-2xl text-[17px] leading-[1.65] text-ink/70">{T('বাংলাদেশ, প্রতিবেশী পাঁচ দেশ আর যুক্তরাষ্ট্রের বাস্তব এলাকার পোশাক, ফসল আর বিপদের অনুপ্রেরণায় তৈরি ১৩টি নমুনা কৃষক-চরিত্র। একজনকে বেছে নিন, সিমুলেটেড মাঠে নামুন, আর একটি মৌসুম পার করুন।', 'Thirteen sample farmer characters inspired by the clothing, crops and hazards of real regions across Bangladesh, five neighbouring countries and the USA. Choose one, land in a simulated field, and play through a season.')}</p>
+        <p className="mt-3 max-w-2xl text-[17px] leading-[1.65] text-ink/70">{T('বাংলাদেশ, প্রতিবেশী পাঁচ দেশ, যুক্তরাষ্ট্র, ব্রাজিল আর স্পেনের বাস্তব এলাকার পোশাক, ফসল আর বিপদের অনুপ্রেরণায় তৈরি ১৫টি নমুনা কৃষক-চরিত্র। একজনকে বেছে নিন, সিমুলেটেড মাঠে নামুন, আর একটি মৌসুম পার করুন।', 'Fifteen sample farmer characters inspired by real regions across Bangladesh, five neighbouring countries, the USA, Brazil and Spain. Choose one, land in a simulated field, and play through a season.')}</p>
       </div>
       <Link to="/saga" className="mt-5 flex items-center gap-3 rounded-2xl border border-paddy-300/70 bg-paddy-50 p-4 text-[15px] font-semibold text-primary-950 transition hover:-translate-y-0.5 hover:shadow-md">
         <Sparkles size={20} className="shrink-0 text-paddy-600" />

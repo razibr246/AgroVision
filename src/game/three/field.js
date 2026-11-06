@@ -62,6 +62,8 @@ const SHAPE = {
   sainfoin: (o, st) => bush(o, st, { leaf: '#5a9a44', ripeLeaf: '#8a9a52', flower: '#e07aa0', size: 0.95, tall: 1 }),
   chickpea: (o, st) => bush(o, st, { leaf: '#6f9f4a', ripeLeaf: '#b9a764', flower: '#e5a0c0', size: 0.85 }),
   lentil: (o, st) => bush(o, st, { leaf: '#6aa14a', ripeLeaf: '#b9a764', flower: '#e8e2f2', size: 0.8, tall: 0.8 }),
+  soybean: (o, st) => bush(o, st, { leaf: '#548f36', ripeLeaf: '#a99b4b', flower: '#f5e9c4', fruit: st >= 2 ? '#7f6e36' : null, fruitN: 4, fruitScale: [0.045, 0.035, 0.03], size: 0.95, tall: 0.8 }),
+  olive: (o, st) => bush(o, st, { leaf: '#667c45', ripeLeaf: '#75834b', flower: '#e6e0c8', fruit: st >= 2 ? '#394d2c' : null, fruitN: 5, fruitScale: [0.035, 0.07, 0.035], size: 1.05, tall: 1.15 }),
   pea: (o, st) => bush(o, st, { leaf: '#5aa04a', flower: '#f4f4f4', fruit: '#7cc04a', fruitScale: [0.03, 0.08, 0.03] }),
   groundnut: (o, st) => bush(o, st, { leaf: '#5a9a3c', ripeLeaf: '#a8a04a', flower: '#f2c21b', size: 1, tall: 0.6 }),
   pigeonpea: (o, st) => bush(o, st, { leaf: '#5a8a3a', ripeLeaf: '#8a8a3a', flower: '#f2c21b', fruit: '#6a5a2a', fruitScale: [0.03, 0.09, 0.03], size: 1.2, tall: 2.6 }),

@@ -194,6 +194,96 @@ const USA = [
   },
 ];
 
+const BRAZIL = [
+  {
+    id: 'br_pronaf', kind: 'credit', status: 'running',
+    name: { bn: 'পারিবারিক কৃষির ঋণ (PRONAF)', en: 'Family farming credit (PRONAF)' },
+    by: { bn: 'কৃষি উন্নয়ন ও পারিবারিক কৃষি মন্ত্রণালয় (MDA), অংশগ্রহণকারী ব্যাংক ও সমবায়', en: 'Ministry of Agrarian Development and Family Farming (MDA), participating banks and cooperatives' },
+    benefit: { bn: 'বৈধ CAF-সহ পারিবারিক খামারের জন্য চাষের খরচ ও বিনিয়োগ ঋণের বিভিন্ন লাইন; ঋণ অনুমোদন ব্যাংকের যাচাইসাপেক্ষ।', en: 'Seasonal and investment credit lines for family farms with a valid CAF; approval depends on the lender’s assessment.' },
+    who: { bn: 'CAF-এ নিবন্ধিত পারিবারিক কৃষক', en: 'Family farmers registered with a valid CAF' }, rule: { states: ['Mato Grosso'] },
+    docs: [{ bn: 'বৈধ CAF', en: 'Valid CAF' }, { bn: 'খামারের পরিকল্পনা ও পরিচয়পত্র', en: 'Farm plan and identification' }],
+    where: { bn: 'PRONAF-এ অংশ নেওয়া ব্যাংক বা ঋণ সমবায়', en: 'A bank or credit cooperative participating in PRONAF' },
+    src: 'https://www.gov.br/pt-br/servicos/acessar-o-programa-nacional-de-fortalecimento-da-agricultura-familiar-pronaf',
+    note: { bn: 'সুদের হার ও সীমা সাফ্রা ২০২৬/২৭-এ বদলেছে; আবেদন করার সময় বর্তমান লাইন যাচাই করুন।', en: 'Rates and limits change by Safra year; confirm the current 2026/27 line when applying.' },
+    words: ['pronaf', 'credit', 'ঋণ', 'family', 'পরিবার', 'soybean', 'সয়াবিন', 'farm', 'খামার'],
+  },
+  {
+    id: 'br_plano_safra', kind: 'credit', status: 'running',
+    name: { bn: 'প্লানো সাফ্রা ২০২৬/২৭ গ্রামীণ ঋণ', en: 'Plano Safra 2026/27 rural credit' },
+    by: { bn: 'কৃষি ও পশুপালন মন্ত্রণালয় (MAPA)', en: 'Ministry of Agriculture and Livestock (MAPA)' },
+    benefit: { bn: 'উৎপাদন খরচ, বিপণন ও বিনিয়োগের জন্য ঋণ-লাইন; কৃষক কোন লাইনে পড়েন ও অর্থ আছে কি না ব্যাংক থেকে জেনে নিন।', en: 'Credit lines for production costs, marketing and investment; ask a lender which line fits and has funds available.' },
+    who: { bn: 'যোগ্য গ্রামীণ উৎপাদক; শর্ত ঋণ-লাইনের ওপর নির্ভর করে', en: 'Eligible rural producers; terms depend on the credit line' }, rule: { states: ['Mato Grosso'] },
+    docs: [{ bn: 'গ্রামীণ উৎপাদক নিবন্ধন ও খামারের নথি', en: 'Rural producer registration and farm records' }],
+    where: { bn: 'গ্রামীণ ঋণ দেয় এমন ব্যাংক বা সমবায়', en: 'A bank or cooperative that provides rural credit' },
+    src: 'https://www.gov.br/mda/pt-br/noticias/2026/07/plano-safra-da-agricultura-familiar-2026-2027',
+    note: { bn: 'এই প্রোফাইলের ছোট নমুনা খামার কোনো নির্দিষ্ট ঋণের জন্য যোগ্য — এমন নিশ্চয়তা নেই।', en: 'The sample farm is not guaranteed to qualify for any particular credit line.' },
+    words: ['plano safra', 'safra', 'credit', 'ঋণ', 'loan', 'marketing', 'বিপণন'],
+  },
+  {
+    id: 'br_proagro', kind: 'insurance', status: 'running',
+    name: { bn: 'প্রোআগরো: আবহাওয়া-ঝুঁকির কৃষিঋণ সুরক্ষা', en: 'Proagro: weather-risk protection for rural credit' },
+    by: { bn: 'ব্রাজিলের কেন্দ্রীয় ব্যাংক; ঋণদাতা প্রতিষ্ঠানের মাধ্যমে', en: 'Central Bank of Brazil, through the lending institution' },
+    benefit: { bn: 'নিয়মে থাকা প্রাকৃতিক কারণে উৎপাদন ক্ষতি হলে যোগ্য গ্রামীণ ঋণের কিস্তি মওকুফে সহায়তা করতে পারে; শর্ত ও দাবি প্রমাণ লাগবে।', en: 'May help release eligible rural-credit instalments after covered natural losses, subject to rules and proof.' },
+    who: { bn: 'Proagro-তে অন্তর্ভুক্ত যোগ্য গ্রামীণ ঋণ নেওয়া উৎপাদক', en: 'Producers with eligible rural credit enrolled in Proagro' }, rule: { states: ['Mato Grosso'] },
+    docs: [{ bn: 'ঋণ চুক্তি, বপনের নথি ও ক্ষতির প্রমাণ', en: 'Loan contract, sowing records and evidence of loss' }],
+    where: { bn: 'যে ব্যাংক বা সমবায় ঋণ দিয়েছে', en: 'The bank or cooperative that issued the credit' },
+    src: 'https://www.bcb.gov.br/estabilidadefinanceira/proagro',
+    note: { bn: 'ক্ষতির পরে দ্রুত ঋণদাতাকে জানান; সব ফসল ও সব কারণে দাবি গ্রহণ হয় না।', en: 'Notify the lender promptly after a loss; not all crops and causes are covered.' },
+    words: ['proagro', 'insurance', 'বিমা', 'drought', 'খরা', 'loss', 'ক্ষতি', 'loan', 'ঋণ'],
+  },
+  {
+    id: 'br_psr', kind: 'insurance', status: 'check',
+    name: { bn: 'গ্রামীণ বিমা প্রিমিয়াম ভর্তুকি (PSR)', en: 'Rural insurance premium subsidy (PSR)' },
+    by: { bn: 'কৃষি ও পশুপালন মন্ত্রণালয় (MAPA)', en: 'Ministry of Agriculture and Livestock (MAPA)' },
+    benefit: { bn: 'তালিকাভুক্ত শস্য-বিমার প্রিমিয়ামের অংশ সরকার দেয়; ফসল, পৌরসভা ও বরাদ্দ অনুযায়ী যোগ্যতা বদলায়।', en: 'The government subsidises part of eligible crop-insurance premiums; eligibility varies by crop, municipality and budget.' },
+    who: { bn: 'PSR-এ থাকা ফসল ও এলাকার জন্য অনুমোদিত বিমা কেনা উৎপাদক', en: 'Producers buying an approved policy for a crop and area included in PSR' }, rule: { states: ['Mato Grosso'] },
+    docs: [{ bn: 'বিমা প্রস্তাব ও খামারের নথি', en: 'Insurance proposal and farm records' }],
+    where: { bn: 'অনুমোদিত কৃষি বিমা কোম্পানি বা এজেন্ট', en: 'An authorised agricultural insurer or agent' },
+    src: 'https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/seguro-rural',
+    note: { bn: '২০২৬/২৭ মৌসুমে Sorriso-র সয়াবিনের জন্য ভর্তুকি আছে কি না বিমা কেনার আগে যাচাই করুন।', en: 'Check whether the 2026/27 subsidy is available for soybean in Sorriso before buying a policy.' },
+    words: ['psr', 'insurance', 'বিমা', 'premium', 'ভর্তুকি', 'crop', 'ফসল'],
+  },
+];
+
+const SPAIN = [
+  {
+    id: 'es_cap', kind: 'cash', status: 'running',
+    name: { bn: 'সাধারণ কৃষিনীতি (CAP/PEPAC ২০২৩–২০২৭)', en: 'Common Agricultural Policy (CAP/PEPAC 2023–2027)' },
+    by: { bn: 'স্পেনের কৃষি, মৎস্য ও খাদ্য মন্ত্রণালয় এবং আঞ্চলিক কর্তৃপক্ষ', en: 'Spain’s Ministry of Agriculture, Fisheries and Food and regional authorities' },
+    benefit: { bn: 'যোগ্য কৃষকের জন্য সরাসরি সহায়তা ও ইকো-স্কিম; আবেদন, জমি ও পরিবেশগত শর্ত বার্ষিক নির্দেশিকায় যাচাই করুন।', en: 'Direct support and eco-schemes for eligible farmers; check annual guidance for application, land and environmental conditions.' },
+    who: { bn: 'যোগ্য সক্রিয় কৃষক; প্রতিটি হেক্টর ও স্কিমের শর্ত আলাদা', en: 'Eligible active farmers; conditions vary by hectare and scheme' }, rule: { states: ['Andalusia'] },
+    docs: [{ bn: 'বার্ষিক একক আবেদন ও জমির পার্সেল তথ্য', en: 'Annual single application and parcel details' }],
+    where: { bn: 'আন্দালুসিয়ার CAP একক আবেদন পোর্টাল বা OCA', en: 'Andalusia CAP single-application portal or an OCA' },
+    src: 'https://www.mapa.gob.es/es/pac/pac-2023-2027/plan-estrategico-pac',
+    note: { bn: 'সহায়তার পরিমাণ ও আবেদন-সময় বদলায়; নমুনা খামারের যোগ্যতা নিশ্চিত নয়।', en: 'Payment amounts and dates can change; the sample farm is not confirmed eligible.' },
+    words: ['cap', 'pepac', 'eco-scheme', 'ecoesquema', 'grant', 'সহায়তা', 'olive', 'olives', 'অলিভ'],
+  },
+  {
+    id: 'es_irrigation', kind: 'irrigation', status: 'check',
+    name: { bn: 'আন্দালুসিয়ায় সেচ আধুনিকীকরণ সহায়তা', en: 'Andalusia irrigation modernisation support' },
+    by: { bn: 'আন্দালুসিয়া আঞ্চলিক সরকার', en: 'Junta de Andalucía' },
+    benefit: { bn: 'সমবায় সেচ অবকাঠামো উন্নত করার জন্য বিভিন্ন কর্মসূচি/আহ্বান হতে পারে; বর্তমান আহ্বান ও আবেদনকারী-ধরন যাচাই করুন।', en: 'Programmes and calls may support improvements to community irrigation infrastructure; verify an open call and applicant eligibility.' },
+    who: { bn: 'সেচ সমিতি ও যোগ্য অবকাঠামো আবেদনকারী; ব্যক্তিগত খামারের জন্য সরাসরি নয়ও হতে পারে', en: 'Irrigation communities and eligible infrastructure applicants; an individual farm may not apply directly' }, rule: { states: ['Andalusia'] },
+    docs: [{ bn: 'সেচ সমিতির প্রকল্প ও পানির ব্যবহার-পরিকল্পনা', en: 'Irrigation-community project and water-use plan' }],
+    where: { bn: 'Junta de Andalucía Regadíos দপ্তর বা OCA', en: 'Junta de Andalucía Regadíos office or an OCA' },
+    src: 'https://www.juntadeandalucia.es/organismos/agriculturapescaaguaydesarrollorural/areas/infraestructuras-agrarias/regadios.html',
+    note: { bn: 'বর্তমান খোলা অনুদান-আহ্বান নিশ্চিত নয় — OCA-তে জেনে নিন।', en: 'An open grant call is not confirmed; ask the OCA.' },
+    words: ['irrigation', 'regadío', 'water', 'সেচ', 'water allocation', 'olive'],
+  },
+  {
+    id: 'es_enesa', kind: 'insurance', status: 'running',
+    name: { bn: 'ENESA কৃষিবিমা প্রিমিয়াম সহায়তা (২০২৬ পরিকল্পনা)', en: 'ENESA agricultural insurance premium support (2026 plan)' },
+    by: { bn: 'স্পেনের কৃষি, মৎস্য ও খাদ্য মন্ত্রণালয় (ENESA)', en: 'Spain’s Ministry of Agriculture, Fisheries and Food (ENESA)' },
+    benefit: { bn: 'যোগ্য কৃষিবিমা পলিসির প্রিমিয়ামে সরকারি ভর্তুকি; ফসল, অঞ্চল, পলিসি ও কৃষকের প্রোফাইল অনুযায়ী শর্ত বদলায়।', en: 'Public subsidy towards eligible agricultural insurance premiums; terms vary by crop, area, policy and farmer profile.' },
+    who: { bn: 'চলতি পরিকল্পনার শর্তে যোগ্য কৃষক যিনি নির্ধারিত পলিসি কেনেন', en: 'Farmers who buy an eligible policy under the current plan' }, rule: { states: ['Andalusia'] },
+    docs: [{ bn: 'পলিসি, কৃষক ও খামারের নথি', en: 'Policy, farmer and farm records' }],
+    where: { bn: 'অনুমোদিত Agroseguro বিমা বিক্রেতা', en: 'An authorised Agroseguro insurance seller' },
+    src: 'https://www.mapa.gob.es/es/enesa/plan_de_seguros_agrarios_y_subvenciones/plan-2026',
+    note: { bn: 'কোনো নির্দিষ্ট অলিভ পলিসি ও এই খামারের ভর্তুকি আগে নিশ্চিত করুন।', en: 'Confirm the specific olive policy and subsidy for this farm before purchase.' },
+    words: ['enesa', 'insurance', 'seguro', 'বিমা', 'olive', 'olives', 'drought', 'খরা'],
+  },
+];
+
 export const ABROAD_SUPPORT = {
   india: { list: IN_SUPPORT, checked: '2026-11-04', profile: { state: 'Punjab', crops: [['rice', 'ধান', 'Rice'], ['wheat', 'গম', 'Wheat']] } },
   pakistan: { list: PAKISTAN, checked: CHECKED, profile: { state: 'Sindh', crops: [['rice', 'ধান', 'Rice'], ['wheat', 'গম', 'Wheat']] } },
@@ -201,6 +291,8 @@ export const ABROAD_SUPPORT = {
   bhutan: { list: BHUTAN, checked: CHECKED, profile: { state: 'Punakha', crops: [['rice', 'ধান', 'Rice'], ['vegetables', 'শীতের সবজি', 'Winter vegetables']] } },
   usa: { list: USA, checked: CHECKED, profile: { state: 'Nevada', crops: [['alfalfa', 'আলফালফা', 'Alfalfa']] } },
   myanmar: { list: MYANMAR, checked: CHECKED, profile: { state: 'Mandalay', crops: [['sesame', 'তিল', 'Sesame'], ['chickpea', 'ছোলা', 'Chickpea'], ['pigeonpea', 'অড়হর', 'Pigeon pea']] } },
+  brazil: { list: BRAZIL, checked: '2026-11-06', profile: { state: 'Mato Grosso', crops: [['soybean', 'সয়াবিন', 'Soybean'], ['maize', 'ভুট্টা', 'Maize'], ['corn', 'ভুট্টা', 'Maize']] } },
+  spain: { list: SPAIN, checked: '2026-11-06', profile: { state: 'Andalusia', crops: [['olive', 'অলিভ', 'Olive'], ['olives', 'অলিভ', 'Olives']] } },
 };
 // What a farmer in each country can call for advice (only where a public number was confirmed).
 export const HOTLINE = { india: { bn: 'কিষাণ কল সেন্টার ১৮০০-১৮০-১৫৫১', en: 'Kisan Call Centre 1800-180-1551', tel: '18001801551' } };

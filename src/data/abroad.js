@@ -5,9 +5,9 @@
 // Every number on the pages comes from src/data/abroad/<country>.json (scripts/build/build_neighbours.py) or from the
 // live forecast; the facts below carry their source.
 
-export const ABROAD_ORDER = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar', 'usa'];
+export const ABROAD_ORDER = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar', 'usa', 'brazil', 'spain'];
 // The farms beyond South Asia (shown apart from the neighbours on the home page).
-export const WORLD = new Set(['usa']);
+export const WORLD = new Set(['usa', 'brazil', 'spain']);
 export const READ_ON = '2026-10-19';
 
 const src = (label, url) => ({ label, url });
@@ -302,6 +302,89 @@ export const ABROAD = {
       { bn: 'নাসা-সমর্থিত OpenET উপগ্রহের হিসাবে ডায়মন্ড ভ্যালির জমির পানি খরচ মিটারের মাপের ৭%-এর মধ্যে মিলেছে (ডেজার্ট রিসার্চ ইনস্টিটিউট, ২০২৪) — উপগ্রহ দিয়েই পাম্পিং দেখা যায়।', en: 'NASA-backed OpenET satellite estimates of crop water use came within 7% of the metered pumping in Diamond Valley (Desert Research Institute, 2024) — pumping can be watched from space.', src: [src('Desert Research Institute, 2024', 'https://dri.edu/groundwater-use-can-be-accurately-monitoredwith-satellites-using-openet')] },
     ],
     sources: [src('Eureka Sentinel: Diamond Valley growers get creative as water limits tighten (2026)', 'https://eurekasentinel.com/2026/01/16/diamond-valley-growers-get-creative-as-water-limits-tighten/'), src('UNR Great Basin Research and Extension Center', 'https://www.unr.edu/nevada-today/news/2020/great-basin-research-and-extension')],
+  },
+  // Beyond South Asia. Sample smallholder at a real soybean field inside Sorriso's ADM2 boundary; satellite evidence
+  // and the generated weather series are in src/data/abroad/brazil.json.
+  brazil: {
+    id: 'brazil', flag: '🇧🇷', tone: '#1c8a55', soft: '#e5f4ea', world: true, readOn: '2026-11-06',
+    name: { bn: 'ব্রাজিল', en: 'Brazil', local: 'Brasil' },
+    unit: { bn: 'হেক্টর', en: 'hectare', dec: 247.105 },
+    farmer: {
+      id: 'CAIO', name: { bn: 'কাইও মোরেইরা', en: 'Caio Moreira', local: 'Caio Moreira' },
+      village: { bn: 'সোরিসো', en: 'Sorriso' },
+      place: { bn: 'সোরিসো পৌরসভা, মাতুগ্রোসু', en: 'Sorriso municipality, Mato Grosso' },
+      farmDec: 2471,
+      water: { bn: 'বৃষ্টিনির্ভর; দরকারে সমবায়ের বীজ-সার ও সেচযন্ত্র', en: 'Rain-fed; cooperative access to seed, inputs and machinery when needed' },
+      now: { bn: 'অক্টোবরের প্রথম বৃষ্টির পর সয়াবিন বোনা', en: 'Sowing soybean after the first October rains' },
+      next: { bn: 'সয়াবিন কাটার পর দ্রুত সাফ্রিনিয়া ভুট্টা বোনা', en: 'Sow second-crop maize quickly after soybean harvest' },
+      intro: {
+        bn: 'কাইওর ছোট নমুনা খামারটি মাতুগ্রোসুর সোরিসোর সয়াবিন অঞ্চলে। সয়াবিনের পর একই জমিতে সাফ্রিনিয়া ভুট্টা বুনতে হলে সময় কম: বর্ষা দেরি হলে সয়াবিন বোনা পিছোয়, আর পরের ভুট্টা শুকনো মৌসুমে ঢোকে। তাই বৃষ্টি থিতু হয়েছে কি না, মাটিতে খড় আছে কি না, আর বীজ বোনার বিরতি কতটা—এই তিনটি দেখে সিদ্ধান্ত নেন।',
+        en: 'Caio’s small sample farm is in the soybean belt around Sorriso, Mato Grosso. The second-crop maize window after soybean is tight: when the rains start late, soybean sowing slips and maize enters the dry season. He watches whether the rains have settled, whether straw covers the soil, and how quickly he can sow after harvest.',
+      },
+    },
+    local: {
+      role: { bn: 'কৃষি সম্প্রসারণ কর্মকর্তা, সোরিসো', en: 'Agricultural extension officer, Sorriso' },
+      office: { bn: 'এমপাইয়ার-এমটি কৃষি সম্প্রসারণ; স্থানীয় সহায়তা ও প্রযুক্তিগত নির্দেশনা', en: 'EMPAER-MT agricultural extension; local support and technical guidance' },
+      area: { bn: 'সোরিসো পৌরসভা', en: 'Sorriso municipality' }, level: { bn: 'পৌরসভা', en: 'Municipality' },
+      source: src('EMPAER-MT', 'https://www.empaer.mt.gov.br/'),
+      noName: { bn: 'কোনো বর্তমান কর্মকর্তার নাম নিশ্চিত করা যায়নি — তাই নাম দেখানো হচ্ছে না।', en: 'No current officer name was verified, so none is shown.' }, sms: 'en',
+    },
+    officer: { office: { bn: 'কৃষি ও পশুপালন মন্ত্রণালয় (MAPA)', en: 'Ministry of Agriculture and Livestock (MAPA)' }, city: { bn: 'ব্রাসিলিয়া', en: 'Brasília' }, head: null },
+    zones: {
+      sorriso: { name: { bn: 'সোরিসো, মাতুগ্রোসু', en: 'Sorriso, Mato Grosso' }, crop: { bn: 'সয়াবিন–সাফ্রিনিয়া ভুট্টা', en: 'Soybean–second-crop maize' }, line: { bn: 'বৃষ্টি দেরি, দুই ফসলের মাঝের সময় ছোট', en: 'Late rains compress the gap between crops' } },
+      rio_grande: { name: { bn: 'রিও গ্রান্দে দো সুল', en: 'Rio Grande do Sul' }, crop: { bn: 'ধান, সয়াবিন, গম', en: 'Rice, soybean, wheat' }, line: { bn: '২০২৪ সালের বন্যা', en: '2024 floods' } },
+      matopiba: { name: { bn: 'মাতোপিবা, বাহিয়া', en: 'Matopiba, Bahia' }, crop: { bn: 'সয়াবিন, তুলা', en: 'Soybean, cotton' }, line: { bn: 'অনিয়মিত বৃষ্টি ও খরা', en: 'Irregular rain and drought' } },
+      sao_paulo: { name: { bn: 'সাও পাওলো', en: 'São Paulo' }, crop: { bn: 'আখ', en: 'Sugarcane' }, line: { bn: 'বৃষ্টি ও তাপের চাপ', en: 'Rainfall and heat stress' } },
+      parana: { name: { bn: 'পারানা', en: 'Paraná' }, crop: { bn: 'সয়াবিন, ভুট্টা, গম', en: 'Soybean, maize, wheat' }, line: { bn: 'ভারী বৃষ্টি ও বন্যা ঝুঁকি', en: 'Heavy rain and flood risk' } },
+      amazon_frontier: { name: { bn: 'আমাজন সীমান্ত, মাতুগ্রোসু', en: 'Amazon frontier, Mato Grosso' }, crop: { bn: 'সয়াবিন, গবাদিপশু', en: 'Soybean, cattle' }, line: { bn: 'বন-সীমান্তে আগুন ও ভূমি ব্যবহারের চাপ', en: 'Fire and land-use pressure at the forest frontier' } },
+    },
+    facts: [
+      { bn: 'সোরিসোতে ২০২১ সালে ১২ লাখ হেক্টরের বেশি অস্থায়ী ফসল তোলা হয়েছিল; বেশিরভাগ জমিতে বছরে দুই ফসলের চক্র ছিল।', en: 'Sorriso harvested more than 1.2 million hectares of temporary crops in 2021, mostly in double-cropping systems.', src: [src('Embrapa study using Landsat and Sentinel-2', 'https://www.alice.cnptia.embrapa.br/alice/bitstream/doc/1155214/1/AP-Mapping-agricultural-intensification-2023.pdf')] },
+      { bn: 'মাতুগ্রোসু ব্রাজিলের প্রধান সয়াবিন উৎপাদক রাজ্য; সয়াবিন কাটার পর দক্ষিণ-মধ্য ব্রাজিলে দ্বিতীয় ফসলের ভুট্টা বোনা হয়।', en: 'Mato Grosso is Brazil’s leading soybean-producing state; across central-southern Brazil, second-crop maize is sown after soybean harvest.', src: [src('Brazil Ministry of Mines and Energy agrivoltaic study (CONAB/Embrapa data)', 'https://www.gov.br/mme/pt-br/assuntos/secretarias/sntep/parcerias-energeticas/publicacoes/EstudoAgriPVEN.pdf')] },
+      { bn: 'এই মাঠের নিজস্ব ERA5 ও IMERG রেকর্ডে অক্টোবর ২০২৩–ফেব্রুয়ারি ২০২৪ বৃষ্টি স্বাভাবিকের চেয়ে কম ছিল; এটি স্থানীয় আবহাওয়া-রেকর্ড, ENSO-র কারণ নির্ধারণ নয়।', en: 'At this field point, ERA5 and IMERG both show below-normal rain from October 2023 to February 2024; this is a local weather record, not an attribution to ENSO.', src: [src('NASA/JAXA GPM IMERG', 'https://gpm.nasa.gov/data/imerg'), src('Open-Meteo ERA5 archive', 'https://open-meteo.com/en/docs/historical-weather-api')] },
+    ],
+    sources: [src('IBGE: soybean production in Mato Grosso', 'https://www.ibge.gov.br/explica/producao-agropecuaria/soja/mt'), src('EMPAER-MT', 'https://www.empaer.mt.gov.br/'), src('FAO-56 crop evapotranspiration', 'https://www.fao.org/4/x0490e/x0490e00.htm')],
+  },
+  // Beyond South Asia. Lucia is a sample farmer; the field record and municipal boundary are generated separately.
+  spain: {
+    id: 'spain', flag: '🇪🇸', tone: '#b74b35', soft: '#faece7', world: true, readOn: '2026-11-06',
+    name: { bn: 'স্পেন', en: 'Spain', local: 'España' },
+    unit: { bn: 'হেক্টর', en: 'hectare', dec: 247.105 },
+    farmer: {
+      id: 'LUCIA', name: { bn: 'লুসিয়া গার্সিয়া', en: 'Lucía García', local: 'Lucía García' },
+      village: { bn: 'মার্তোস', en: 'Martos' }, place: { bn: 'মার্তোস পৌরসভা, হায়েন, আন্দালুসিয়া', en: 'Martos municipality, Jaén, Andalusia' },
+      farmDec: 1236,
+      water: { bn: 'সমবায় সেচের পালা; বরাদ্দ ও জলাধারের অবস্থা স্থানীয়ভাবে যাচাই করুন', en: 'Community irrigation turns; check current allocations and reservoir conditions locally' },
+      now: { bn: 'শীতে মাটির আচ্ছাদন রাখা; বসন্তে গরম ও পানির পালা দেখে সেচ', en: 'Keep winter ground cover; plan spring irrigation around heat and water turns' },
+      next: { bn: 'অলিভ গাছের সারির মাঝের কভার ক্রপ কেটে মাটিতে রাখা', en: 'Mow the olive-row cover crop and leave it on the soil' },
+      intro: {
+        bn: 'লুসিয়ার নমুনা খামারটি হায়েন প্রদেশের মার্তোসে, আন্দালুসিয়ার অলিভ অঞ্চলে। সেচের পালা ও পানির বরাদ্দ বদলালে গ্রীষ্মের তাপে অলিভ বাগানে চাপ পড়ে। সারির মাঝের ঘাস ও কভার ক্রপ বৃষ্টির ফোঁটা ঠেকায়, মাটির ক্ষয় কমাতে সাহায্য করে; বসন্তের আগাছা ও পানির ব্যবহারও সামলাতে হয়।',
+        en: 'Lucía’s sample farm is in Martos, in Jaén province’s olive-growing area of Andalusia. Changes to irrigation turns and allocations can leave olive trees exposed to summer heat. Grass and cover crops between rows soften raindrop impact and help limit erosion, while spring growth must be managed against water use.',
+      },
+    },
+    local: {
+      role: { bn: 'কৃষি সম্প্রসারণ কর্মকর্তা, ওসিএ হায়েন', en: 'Agricultural extension officer, OCA Jaén' },
+      office: { bn: 'আন্দালুসিয়া কৃষি, মৎস্য, পানি ও গ্রামীণ উন্নয়ন দপ্তরের আঞ্চলিক কৃষি অফিস', en: 'Junta de Andalucía regional agricultural office (Oficina Comarcal Agraria)' },
+      area: { bn: 'মার্তোস ও হায়েন অঞ্চল', en: 'Martos and Jaén area' }, level: { bn: 'কমার্কা', en: 'Comarca' },
+      source: src('Junta de Andalucía: OCA Jaén jurisdiction', 'https://www.juntadeandalucia.es/boja/1999/21/32'),
+      noName: { bn: 'বর্তমান কর্মকর্তার নাম নিশ্চিত করা যায়নি — তাই নাম দেখানো হচ্ছে না।', en: 'No current officer name was verified, so none is shown.' }, sms: 'en',
+    },
+    officer: { office: { bn: 'কৃষি, মৎস্য ও খাদ্য মন্ত্রণালয় (MAPA)', en: 'Ministry of Agriculture, Fisheries and Food (MAPA)' }, city: { bn: 'মাদ্রিদ', en: 'Madrid' }, head: null },
+    zones: {
+      ecija: { name: { bn: 'গুয়াদালকিভির উপত্যকা', en: 'Guadalquivir valley' }, crop: { bn: 'অলিভ', en: 'Olives' }, line: { bn: 'খরা, তাপ ও সেচ বরাদ্দ', en: 'Drought, heat and irrigation allocations' } },
+      almeria: { name: { bn: 'আলমেরিয়া–মুরসিয়া', en: 'Almería–Murcia' }, crop: { bn: 'সবজি, গ্রিনহাউস', en: 'Vegetables, greenhouses' }, line: { bn: 'পানি ও ভূগর্ভস্থ জলচাপ', en: 'Water demand and aquifer pressure' } },
+      ebro: { name: { bn: 'এব্রো উপত্যকা', en: 'Ebro valley' }, crop: { bn: 'সেচের শস্য', en: 'Irrigated cereals' }, line: { bn: 'পানি ভাগ ও সেচ', en: 'Water sharing and irrigation' } },
+      castilla: { name: { bn: 'কাস্তিয়া ই লেওন', en: 'Castile and León' }, crop: { bn: 'গম ও বার্লি', en: 'Wheat and barley' }, line: { bn: 'শুষ্কভূমির বৃষ্টি-ঝুঁকি', en: 'Rain risk for dryland crops' } },
+      donana: { name: { bn: 'দোনিয়ানা', en: 'Doñana' }, crop: { bn: 'স্ট্রবেরি ও জলাভূমি', en: 'Strawberries and wetlands' }, line: { bn: 'পানি ও জলাভূমি সংরক্ষণ', en: 'Water use and wetland protection' } },
+      valencia: { name: { bn: 'ভ্যালেন্সিয়া', en: 'Valencia' }, crop: { bn: 'ধান, সাইট্রাস', en: 'Rice, citrus' }, line: { bn: 'ডানা বন্যা ও ভারী বৃষ্টি', en: 'DANA floods and heavy rain' } },
+    },
+    facts: [
+      { bn: 'মার্তোসে প্রধান সেচযোগ্য কাঠজাত ফসল জলপাই; এই খামারবিন্দু ২০২৫ ও ২০২৬ সালের পরিষ্কার সেন্টিনেল-২ দৃশ্যে সবুজ ছিল।', en: 'Olives are Martos’s main irrigated woody crop; this farm point was green in clear Sentinel-2 scenes in 2025 and 2026.', src: [src('Andalusia SIMA: Martos crops', 'https://ws089.juntadeandalucia.es/sima/ficha.htm?mun=23060')] },
+      { bn: 'স্পেনের PEPAC ২০২৩–২০২৭ পরিকল্পনায় সরাসরি সহায়তা ও পরিবেশভিত্তিক ইকো-স্কিম রয়েছে; নির্দিষ্ট যোগ্যতা বার্ষিক আবেদনে যাচাই করতে হয়।', en: 'Spain’s 2023–2027 CAP Strategic Plan includes direct support and eco-schemes; check eligibility in the annual application.', src: [src('MAPA: Spain CAP Strategic Plan', 'https://www.mapa.gob.es/es/pac/pac-2023-2027/plan-estrategico-pac')] },
+      { bn: '২০২৩ সালের বসন্তে স্পেনে খরা ও তাপের ঘটনা ঘটেছিল; এখানে দেখানো ইভেন্টের সংখ্যা এ মাঠবিন্দুর আবহাওয়া রেকর্ড থেকে।', en: 'Spain experienced drought and heat in spring 2023; event values shown here come from this field point’s weather record.', src: [src('AEMET climate reports', 'https://www.aemet.es/en/serviciosclimaticos/vigilancia_clima/resumenes')] },
+      { bn: 'আন্দালুসিয়ার সেচ নীতিতে সীমিত পানির যুক্তিসংগত ব্যবহার ও সেচ অবকাঠামোর আধুনিকীকরণ লক্ষ্য; বর্তমান সাহায্যের আহ্বান আলাদাভাবে যাচাই করুন।', en: 'Andalusia’s irrigation policy aims at rational use of limited water and modernised infrastructure; verify whether a current grant call is open.', src: [src('Junta de Andalucía: irrigation', 'https://www.juntadeandalucia.es/organismos/agriculturapescaaguaydesarrollorural/areas/infraestructuras-agrarias/regadios.html')] },
+    ],
+    sources: [src('Andalusia SIMA: Martos crops', 'https://ws089.juntadeandalucia.es/sima/ficha.htm?mun=23060'), src('MAPA: PEPAC 2023–2027', 'https://www.mapa.gob.es/es/pac/pac-2023-2027/plan-estrategico-pac'), src('Junta de Andalucía: irrigation policy', 'https://www.juntadeandalucia.es/organismos/agriculturapescaaguaydesarrollorural/areas/infraestructuras-agrarias/regadios.html'), src('FAO-56 crop evapotranspiration', 'https://www.fao.org/4/x0490e/x0490e00.htm')],
   },
 };
 

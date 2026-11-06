@@ -16,7 +16,7 @@ export const GAMES = {
     name: { bn: 'ফসলের দিগন্ত', en: 'Harvest Horizon' },
     kind: { bn: 'বড়দের ৩D খামারের খেলা', en: '3D farming game for grown-ups' },
     audience: { bn: 'বড়দের জন্য', en: 'For grown-ups' }, time: { bn: '২০–৪০ মিনিট', en: '20–40 min' },
-    seo: { en: 'Harvest Horizon: a 3D climate-smart farming game. Play one of 13 farmers from South Asia and the USA, plant, water, beat pests and storms, and sell at market on real NASA weather.' },
+    seo: { en: 'Harvest Horizon: a 3D climate-smart farming game. Play one of 15 farmers from South Asia, the USA, Brazil and Spain, plant, water, beat pests and storms, and sell at market on real NASA weather.' },
   },
   kids: {
     to: '/kids', section: 'people',
@@ -28,9 +28,9 @@ export const GAMES = {
   people: {
     to: '/people', section: 'people',
     name: { bn: 'কৃষকদের সাথে পরিচয়', en: 'Meet the Farmers' },
-    kind: { bn: '১৩ জন কৃষক আর তাঁদের সন্তান · ৩D', en: '13 farmers and their children · 3D' },
+    kind: { bn: '১৫ জন কৃষক আর তাঁদের সন্তান · ৩D', en: '15 farmers and their children · 3D' },
     audience: { bn: 'সবার জন্য', en: 'For everyone' }, time: { bn: '২ মিনিট', en: '2 min' },
-    seo: { en: 'Meet the Farmers: twelve 3D farmers and their children from Bangladesh, India, Pakistan, Nepal, Bhutan and Myanmar, and the weather each one fears.' },
+    seo: { en: 'Meet the Farmers: 3D farmers and their children from Bangladesh, five neighbouring countries, the USA, Brazil and Spain, and the weather each one fears.' },
   },
   saga: {
     to: '/saga', section: 'stories',

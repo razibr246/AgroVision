@@ -1,7 +1,7 @@
 """Neighbouring countries -> src/data/abroad/<country>.json (+ src/assets/fields/<field>-{tc.jpg,ndvi.png})
 
 One sample farm and six farming zones for each of India, Pakistan, Nepal, Bhutan and Myanmar, and beyond South Asia
-the USA (Nevada), Kenya and Brazil, all on real data (build one with: python3 build_neighbours.py usa):
+the USA (Nevada), Kenya, Brazil and Spain, all on real data (build one with: python3 build_neighbours.py usa):
   * Daily weather 2001 to about six days ago from ERA5 (ECMWF reanalysis, through the Open-Meteo archive API, no key,
     models=era5). Pure ERA5 on purpose: the API's default "best match" blends in ECMWF IFS from 2017, which in the
     mountains steps the rain record down by a third (Punakha: about 3,600 mm a year before 2017, 2,000 after).
@@ -47,7 +47,7 @@ OUT = SRC_DATA / 'abroad'
 SATS = [('Suomi NPP', 'suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2'), ('NOAA-20', 'noaa-20-viirs-c2/csv/J1_VIIRS_C2'), ('NOAA-21', 'noaa-21-viirs-c2/csv/J2_VIIRS_C2')]
 # FIRMS 7-day region file(s) holding each country (Kenya straddles the two African files).
 REGIONS = {'india': ['South_Asia'], 'pakistan': ['South_Asia'], 'nepal': ['South_Asia'], 'bhutan': ['South_Asia'], 'myanmar': ['South_Asia'],
-           'usa': ['USA_contiguous_and_Hawaii'], 'kenya': ['Northern_and_Central_Africa', 'Southern_Africa'], 'brazil': ['South_America']}
+           'usa': ['USA_contiguous_and_Hawaii'], 'kenya': ['Northern_and_Central_Africa', 'Southern_Africa'], 'brazil': ['South_America'], 'spain': ['Europe']}
 FIRMS = {s: p for s, p in SATS}  # satellite -> path prefix
 
 # Country -> sample farm (a cropland point on the Esri/IO 10 m land-cover map, next to a GeoNames village) and six
@@ -86,6 +86,23 @@ COUNTRIES = {
         'zones': {
             'diamond': (39.6475, -115.96), 'fresno': (36.60, -119.90), 'gardencity': (37.97, -100.87),
             'ames': (42.03, -93.62), 'greenville': (33.41, -90.98), 'yuma': (32.69, -114.62)},
+    },
+    # Beyond South Asia: a soy-growing field by Sorriso, Mato Grosso. Sentinel-2 L2A statistics over this small square
+    # were clear and green on 2025-12-11 (NDVI 0.908) and 2026-01-15 (NDVI 0.669), in the peak-season window for both
+    # of the last two years. Farmer remains a sample person.
+    'brazil': {
+        'farm': {'id': 'BR-MT-0101', 'lat': -12.60, 'lon': -55.75, 'area_dec': 100},
+        'zones': {
+            'sorriso': (-12.60, -55.75), 'rio_grande': (-29.95, -51.17), 'matopiba': (-11.18, -45.74),
+            'sao_paulo': (-21.17, -48.12), 'parana': (-24.95, -53.46), 'amazon_frontier': (-10.18, -54.93)},
+    },
+    # Beyond South Asia: irrigated olive grove near Martos, Jaén. Sentinel-2 at 10 m shows persistent orchard-like
+    # row texture; clear autumn passes: NDVI 0.300 (2025-11-03), 0.327 (2026-10-21), 0.308 (2026-10-24).
+    'spain': {
+        'farm': {'id': 'ES-AN-0101', 'lat': 37.72, 'lon': -4.02, 'area_dec': 100},
+        'zones': {
+            'ecija': (37.54, -5.08), 'almeria': (36.84, -2.46), 'ebro': (41.65, -0.88),
+            'castilla': (41.65, -4.72), 'donana': (37.0, -6.4), 'valencia': (39.47, -0.38)},
     },
     'myanmar': {
         'farm': {'id': 'MM-MG-0101', 'lat': 20.93, 'lon': 94.864, 'area_dec': 300},
@@ -266,7 +283,14 @@ def event(rows, imerg, start, end, BASE=BASE):
     s, e = date.fromisoformat(start), date.fromisoformat(end)
     days = [s + timedelta(days=i) for i in range((e - s).days + 1)]
     got = [idx[d.isoformat()] for d in days if d.isoformat() in idx]
-    same = lambda y: [d.replace(year=y).isoformat() for d in days]
+    def same(y):
+        out = []
+        for d in days:
+            try:
+                out.append(d.replace(year=y).isoformat())
+            except ValueError:  # map 29 February onto the last day of February in non-leap normal years
+                out.append(d.replace(year=y, day=28).isoformat())
+        return out
     norm_rain = [sum(idx[k][3] for k in same(y) if k in idx) for y in range(BASE[0], BASE[1] + 1)]
     norm_im = [sum(imerg[k] for k in same(y) if k in imerg) for y in range(BASE[0], BASE[1] + 1)]
     norm_tx = [mean([idx[k][1] for k in same(y) if k in idx]) for y in range(BASE[0], BASE[1] + 1)]
@@ -314,6 +338,9 @@ EVENTS = {
     'bhutan': {'rain2025': ('2025-10-03', '2025-10-06'), 'harvest2025': ('2025-10-15', '2025-11-15')},
     'myanmar': {'heat2024': ('2024-04-01', '2024-04-30'), 'yagi2024': ('2024-09-09', '2024-09-14')},
     'usa': {'heat2021': ('2021-06-26', '2021-07-15'), 'snow2023': ('2023-01-01', '2023-03-31')},
+    # Avoid leap-day in the event-window normal calculation (which maps each date onto the same date in 2001-2025).
+    'brazil': {'drought2023': ('2023-10-01', '2024-02-28'), 'heat2024': ('2024-01-01', '2024-03-31')},
+    'spain': {'drought2023': ('2023-03-01', '2023-05-31'), 'heat2023': ('2023-04-24', '2023-04-30')},
 }
 
 
@@ -350,7 +377,7 @@ def fires_near(fires, lat, lon):
             'points': [[round(f[0], 4), round(f[1], 4), f[2]] for f in in50][:400]}
 
 
-ISO = {'india': 'IND', 'pakistan': 'PAK', 'nepal': 'NPL', 'bhutan': 'BTN', 'myanmar': 'MMR', 'usa': 'USA', 'kenya': 'KEN', 'brazil': 'BRA'}
+ISO = {'india': 'IND', 'pakistan': 'PAK', 'nepal': 'NPL', 'bhutan': 'BTN', 'myanmar': 'MMR', 'usa': 'USA', 'kenya': 'KEN', 'brazil': 'BRA', 'spain': 'ESP'}
 
 
 def gb_file(cc, lvl):
@@ -398,8 +425,8 @@ def fires_by_province(fires, cc):
 
 # The local officer's own area, the size of a Bangladesh upazila: the geoBoundaries unit that holds the farm
 # (India tehsil, Pakistan taluka, Nepal palika: ADM3; Bhutan gewog and Myanmar township-level unit: ADM2).
-AREA_LEVEL = {'india': 'ADM3', 'pakistan': 'ADM3', 'nepal': 'ADM3', 'bhutan': 'ADM2', 'myanmar': 'ADM2', 'usa': 'ADM2', 'kenya': 'ADM2', 'brazil': 'ADM2'}
-GN = {'india': 'IN', 'pakistan': 'PK', 'nepal': 'NP', 'bhutan': 'BT', 'myanmar': 'MM', 'usa': 'US', 'kenya': 'KE', 'brazil': 'BR'}
+AREA_LEVEL = {'india': 'ADM3', 'pakistan': 'ADM3', 'nepal': 'ADM3', 'bhutan': 'ADM2', 'myanmar': 'ADM2', 'usa': 'ADM2', 'kenya': 'ADM2', 'brazil': 'ADM2', 'spain': 'ADM3'}
+GN = {'india': 'IN', 'pakistan': 'PK', 'nepal': 'NP', 'bhutan': 'BT', 'myanmar': 'MM', 'usa': 'US', 'kenya': 'KE', 'brazil': 'BR', 'spain': 'ES'}
 
 
 # Where UN OCHA's common operational boundaries (from the national statistics offices, on HDX) go finer or are more

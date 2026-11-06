@@ -26,9 +26,11 @@ export const CHILDREN = {
   kinley: { name: q('তাশি', 'Tashi'), age: 8, girl: false, calls: q('আমা', 'Ama'), rel: q('কিনলে ওয়াংমোর ছেলে', 'Kinley Wangmo’s son'), land: 'bhutan', item: 'wheel' },
   kyawwin: { name: q('মিন থু', 'Min Thu'), age: 9, girl: false, calls: q('দাদু', 'Grandpa'), rel: q('উ চ উইনের নাতি', 'U Kyaw Win’s grandson'), land: 'myanmar', item: 'cricket' },
   ellen: { name: q('লিলি', 'Lily'), age: 8, girl: true, calls: q('মম', 'Mom'), rel: q('এলেন হার্টলির মেয়ে', 'Ellen Hartley’s daughter'), land: 'usa', item: 'kite' },
+  caio: { name: q('ইসাবেলা', 'Isabela'), age: 9, girl: true, calls: q('পাই', 'Dad'), rel: q('কাইও মোরেইরার মেয়ে', 'Caio Moreira’s daughter'), land: 'brazil', item: 'basket' },
+  lucia: { name: q('কারমেন', 'Carmen'), age: 8, girl: true, calls: q('মামা', 'Mamá'), rel: q('লুসিয়া গার্সিয়ার মেয়ে', 'Lucía García’s daughter'), land: 'spain', item: 'basket' },
 };
 export const CHILD_IDS = Object.keys(CHILDREN);
-export const WOMEN = ['rahima', 'rampyari', 'kinley'];
+export const WOMEN = ['rahima', 'rampyari', 'kinley', 'ellen', 'lucia'];
 
 // Moods drive the grown-up's animation, the colour of the light and the music.
 // Peaceful motion constraint: no combat or violent defeat animation.

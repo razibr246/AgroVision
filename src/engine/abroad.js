@@ -145,6 +145,44 @@ export function todaysCall(id, data, fc, today) {
     return { tone: 'go', facts, title: { bn: 'শুকনো দিন — কাটা আর বেল বাঁধার ভালো সময়', en: 'Dry days — good for cutting and baling' }, body: { bn: 'কাটার আগে দেখুন বাকি পানির বরাদ্দ পরের কাটা পর্যন্ত চলবে কি না।', en: 'Before cutting, check the water allocation left will carry the next cutting.' } };
   }
 
+  // Sorriso, Brazil: wait for established rains before soybean sowing, protect soil with retained straw, then
+  // get the second-crop maize in promptly after soybean harvest. Thresholds are weather prompts, not a crop model.
+  if (id === 'brazil') {
+    const days7 = fc?.days?.slice(0, 7) ?? [];
+    const rain7 = sum(days7.map((d) => d.rain));
+    const hi = days7.length ? Math.max(...days7.map((d) => d.max)) : null;
+    const dryDays = days7.filter((d) => d.rain < 1).length;
+    const facts = [rainLine, pastLine, ...(hi != null ? [{ bn: `আগামী ৭ দিনে সর্বোচ্চ তাপ ${mm(hi)}°সে`, en: `Next 7 days: highest temperature ${mm(hi)}°C` }] : [])];
+    const m = today.slice(5);
+    if (m >= '10-01' && m <= '12-31') {
+      if (!live || r30.rain < 40) return { tone: 'wait', facts, title: { bn: 'বৃষ্টি এখনো থিতু হয়নি — জমির ভেজা দেখে বুনুন', en: 'The rains may not be established — check soil moisture before sowing' }, body: { bn: 'বৃষ্টির পর বীজতলার মাটি হাতে চেপে দেখুন। অল্প বিচ্ছিন্ন বৃষ্টিতে তাড়াহুড়ো করে বুনলে অঙ্কুর শুকাতে পারে। আগের ফসলের খড় জমিতে রাখুন।', en: 'Squeeze the seedbed soil after rain. Sowing into isolated showers can leave seedlings without moisture; retain the previous crop’s straw as cover.' } };
+      if (rain7 >= 70) return { tone: 'wait', facts, title: { bn: 'ভারী বৃষ্টি আসছে — জমিতে পানি নামার পর বুনুন', en: 'Heavy rain is forecast — sow after the field drains' }, body: { bn: 'জমিতে পানি দাঁড়ালে যন্ত্র চালাবেন না; মাটি ভেঙে যাওয়া ও বীজ সরে যাওয়ার ঝুঁকি আছে।', en: 'Keep machinery off a waterlogged field; wet traffic damages soil structure and can move seed.' } };
+      return { tone: 'go', facts, title: { bn: 'বৃষ্টির পর মাটি ভেজা — সয়াবিন বোনার আগে জমির অবস্থা দেখুন', en: 'Rain has wetted the soil — check field conditions before sowing soybean' }, body: { bn: 'জমিতে পানি জমে না থাকলে এবং আগামী কয়েক দিনে অতিবৃষ্টি না এলে বুনুন। খড় পুড়িয়ে ফেলবেন না; আচ্ছাদন মাটির ভেজা ধরে রাখতে সাহায্য করে।', en: 'Sow when the field is trafficable and no heavy rain is forecast. Keep straw as cover to help the soil retain moisture.' } };
+    }
+    if (m >= '01-01' && m <= '03-31') {
+      if (live && hi != null && hi >= 35) return { tone: 'warn', facts, title: { bn: 'শুকনো-মৌসুমের তাপ — সাফ্রিনিয়া ভুট্টার জমির ভেজা দেখুন', en: 'Dry-season heat — check moisture for second-crop maize' }, body: { bn: 'সয়াবিন কাটার পর দেরি না করে ভুট্টা বুনুন, তবে বীজের স্তরে ভেজা না থাকলে আগে মাটির আর্দ্রতা যাচাই করুন। খড় দিয়ে মাটি ঢেকে রাখুন।', en: 'Sow maize promptly after soybean harvest, but verify moisture at seed depth before planting. Retain straw to cover the soil.' } };
+      if (live && dryDays >= 5) return { tone: 'wait', facts, title: { bn: 'সপ্তাহটি শুষ্ক — ভুট্টা বোনার আগে বীজতলার ভেজা মাপুন', en: 'A dry week — check seedbed moisture before sowing maize' }, body: { bn: 'সাফ্রিনিয়া ভুট্টা দেরিতে বুনলে শুকনো মৌসুমে ফুল ও দানা ভরার ঝুঁকি বাড়ে; তবে শুকনো মাটিতে বীজ দেবেন না।', en: 'Late second-crop maize can face dry conditions during flowering and grain fill; do not plant into dry seedbed soil.' } };
+      return { tone: 'go', facts, title: { bn: 'সয়াবিন কাটার পর সাফ্রিনিয়া ভুট্টার সময়', en: 'Second-crop maize follows soybean harvest' }, body: { bn: 'সয়াবিন কাটা শেষ হলে জমি যত দ্রুত সম্ভব প্রস্তুত করুন। বৃষ্টির বিরতি ও মাটির ভেজা দেখে বুনুন; খড় মাটিতে রাখুন।', en: 'After soybean harvest, prepare the field promptly. Sow according to the rain break and soil moisture, keeping the straw on the ground.' } };
+    }
+    return { tone: 'wait', facts, title: { bn: 'ফসলের মাঝের বিরতি — মাটি ঢেকে ও যন্ত্র গুছিয়ে রাখুন', en: 'Between crops — keep soil covered and machinery ready' }, body: { bn: 'খড় জমিতে রাখুন, বীজ ও বপনযন্ত্র প্রস্তুত করুন; স্থানীয় বপন ক্যালেন্ডার EMPAER বা কৃষি কর্মকর্তার সঙ্গে মিলিয়ে নিন।', en: 'Retain straw and prepare seed and machinery; confirm the local sowing calendar with EMPAER or an extension officer.' } };
+  }
+
+  // Écija, Andalusia: olive grove advice follows forecast heat/frost/rain and the farm's recent rain record.
+  if (id === 'spain') {
+    const days7 = fc?.days?.slice(0, 7) ?? [];
+    const rain7 = sum(days7.map((d) => d.rain));
+    const hi = days7.length ? Math.max(...days7.map((d) => d.max)) : null;
+    const lo = days7.length ? Math.min(...days7.map((d) => d.min)) : null;
+    const dryDays = days7.filter((d) => d.rain < 1).length;
+    const facts = [rainLine, pastLine, ...(hi != null ? [{ bn: `আগামী ৭ দিনে সর্বোচ্চ তাপ ${mm(hi)}°সে`, en: `Next 7 days: highest temperature ${mm(hi)}°C` }] : [])];
+    const m = today.slice(5);
+    if (live && lo != null && lo <= -2) return { tone: 'warn', facts, title: { bn: 'তুষারের ঝুঁকি — কচি ডাল ও সেচের পাইপ দেখুন', en: 'Frost risk — check young shoots and irrigation lines' }, body: { bn: 'ঠান্ডা হাওয়ার নিচু জায়গায় ক্ষতি বেশি হতে পারে। স্থানীয় পূর্বাভাস দেখুন এবং গাছের ক্ষতি হলে OCA-র পরামর্শ নিন।', en: 'Cold-air pockets may be more exposed. Check the local forecast and ask the OCA if trees are damaged.' } };
+    if (live && hi != null && hi >= 35) return { tone: 'warn', facts, title: { bn: 'গরমের দিন — অনুমোদিত সেচের পালা রাতে দিন', en: 'A hot spell — use your allocated irrigation turn at night' }, body: { bn: 'আজকের পানির পালা থাকলে সন্ধ্যা বা রাতে সেচ দিন, তবে বর্তমান বরাদ্দ ও সমিতির নিয়ম মেনে। পাতার ভেজা নয়, মাটির আর্দ্রতা দেখুন।', en: 'If today is your irrigation turn, irrigate in the evening or at night, following current allocations and community rules. Check soil moisture, not just leaf appearance.' } };
+    if (m >= '03-01' && m <= '05-31' && dryDays >= 5 && r30.rain < 20) return { tone: 'wait', facts, title: { bn: 'বসন্ত শুকনো — কভার ক্রপের বৃদ্ধি ও পানির পালা মিলিয়ে দেখুন', en: 'A dry spring — weigh cover-crop growth against your water turn' }, body: { bn: 'সারির মাঝের কভার ক্রপ প্রতিযোগিতা করলে ফুলের আগে ছেঁটে মাটিতে বিছিয়ে দিন। সেচ বরাদ্দ স্থানীয়ভাবে নিশ্চিত না করে অতিরিক্ত পানি ধরে নেবেন না।', en: 'If the inter-row cover is competing for water, mow it before flowering and leave the cuttings as mulch. Do not assume extra irrigation without confirming your local allocation.' } };
+    if (live && rain7 >= 20) return { tone: 'go', facts, title: { bn: 'বৃষ্টি আসছে — মাটি ঢেকে ক্ষয় কমান', en: 'Rain is forecast — keep the soil covered to limit erosion' }, body: { bn: 'সারির মাঝের ঘাস ও গাছের অবশিষ্টাংশ মাটিতে রাখুন; ঢালু জমিতে খালি মাটি এড়ান।', en: 'Keep inter-row vegetation and prunings on the soil; avoid bare ground on slopes.' } };
+    return { tone: 'wait', facts, title: { bn: 'সেচ বরাদ্দ ও মাটির ভেজা যাচাই করুন', en: 'Check the irrigation allocation and soil moisture' }, body: { bn: 'জলাধার ও সেচ সমিতির সর্বশেষ নিয়ম স্থানীয়ভাবে যাচাই করুন। গাছের গোড়ায় মাটির আর্দ্রতা দেখে পরের সেচের সময় ঠিক করুন।', en: 'Check the latest reservoir and irrigation-community rules locally. Use soil moisture around the root zone to time the next irrigation.' } };
+  }
+
   // Myanmar: chickpea sown into the moisture the rains leave behind. Rain minus ET0 over 30 days is the store.
   const bal = r30.balance, balN = r30.balanceNormal;
   const facts = [rainLine, { bn: `গত ৩০ দিনে বৃষ্টি বাদ বাষ্পীভবন ${mm(bal)} মিমি (স্বাভাবিক ${mm(balN)} মিমি)`, en: `Last 30 days, rain minus evaporation: ${mm(bal)} mm (normal ${mm(balN)} mm)` }];
@@ -225,6 +263,29 @@ export const PLANS = {
       { at: 140, bn: 'তৃতীয় কাটা? বাকি পানির বরাদ্দ আর খরচ মিলিয়ে ঠিক করুন', en: 'A third cutting? Weigh it against the water allocation left and its cost' },
       { at: 175, bn: 'শরতের বিশ্রাম: প্রথম কঠিন তুষারপাতের আগে কাটা থামান, শিকড়ে খাবার জমুক', en: 'Autumn rest: stop cutting before the first killing frost so the roots store reserves' },
       { atEnd: true, bn: 'পিভট আর পাইপ শীতের জন্য খালি করুন', en: 'Drain and winterise the pivot and lines' },
+    ],
+  },
+  brazil: {
+    crop: { bn: 'সয়াবিন', en: 'Soybean' }, sow: '10-20', stages: [20, 30, 60, 30], kc: [0.4, 1.15, 0.5], irrigated: false,
+    steps: [
+      { at: 0, bn: 'বৃষ্টির শুরু: মাটি ভেজা ও জমিতে যন্ত্র চালানোর অবস্থা যাচাই', en: 'Rain onset: check seedbed moisture and whether the field can carry machinery', key: true },
+      { at: 20, bn: 'চারা গজানো: আগাছা ও কাটুই পোকার ক্ষতি দেখুন', en: 'Establishment: scout for weeds and cutworm damage' },
+      { at: 50, bn: 'ফুল আসার সময়: জমির ভেজা ও পাতার স্বাস্থ্য দেখুন', en: 'Flowering: check soil moisture and leaf health' },
+      { at: 100, bn: 'শুঁটি ভরা: তাপ ও বৃষ্টির পূর্বাভাস দেখে ফসল পর্যবেক্ষণ', en: 'Pod fill: monitor the crop against heat and rain forecasts' },
+      { at: 140, bn: 'সয়াবিন কাটুন; জমি ও বৃষ্টির সুযোগ থাকলে দ্রুত সাফ্রিনিয়া ভুট্টা বুনুন', en: 'Harvest soybean; sow second-crop maize promptly when field and rain conditions allow' },
+      { at: 141, bn: 'অবশিষ্ট খড় জমিতে রাখুন; পোড়াবেন না', en: 'Retain crop residue on the soil; do not burn it' },
+    ],
+  },
+  // FAO-56 Table 12 typical mid-season values for olives; an indicative season, not a local irrigation prescription.
+  spain: {
+    crop: { bn: 'সেচের অলিভ বাগান', en: 'Irrigated olive grove' }, sow: '10-01', stages: [30, 90, 150, 95], kc: [0.65, 0.7, 0.65], irrigated: true,
+    steps: [
+      { at: 0, bn: 'শরৎ: মাটির আচ্ছাদন ও সেচের বরাদ্দ যাচাই', en: 'Autumn: check ground cover and irrigation allocation', key: true },
+      { at: 30, bn: 'শীত: কভার ক্রপের বৃদ্ধি দেখুন; ঢালু জমি খালি রাখবেন না', en: 'Winter: monitor cover crop; keep sloping ground covered' },
+      { at: 150, bn: 'বসন্ত: গরম বাড়লে ফুল ও মাটির ভেজা পর্যবেক্ষণ', en: 'Spring: monitor flowering and soil moisture as heat rises' },
+      { at: 230, bn: 'গ্রীষ্ম: অনুমোদিত পালা অনুযায়ী গভীর সেচ, সম্ভব হলে রাতে', en: 'Summer: irrigate deeply on your allocated turn, preferably at night' },
+      { at: 300, bn: 'ফল পাকার সময়: কাটার আগে শ্রম ও আবহাওয়া পরিকল্পনা', en: 'Fruit maturation: plan labour and weather before harvest' },
+      { atEnd: true, bn: 'ফসল তোলা শেষ হলে গাছের ছাঁটাই ও মাটি-আচ্ছাদন পরিকল্পনা', en: 'After harvest, plan pruning and soil cover' },
     ],
   },
 };
@@ -327,7 +388,7 @@ SMS.dz = {
 export const SMS_DRAFT = new Set(['my', 'dz']);
 
 // English messages keep to the basic SMS alphabet (straight quotes, plain hyphen) so they go as 160-character parts.
-const OFFICE_SIGN = { india: 'ब्लॉक कृषि कार्यालय, संगरूर', pakistan: 'تعلقہ زراعت آفس، دادو', nepal: 'कृषि शाखा, जानकी गाउँपालिका', bhutan: 'Gewog Agriculture Extension, Bapisa', usa: 'UNR Extension, Eureka County', myanmar: 'Township Agriculture Office, Nyaung-U' };
+const OFFICE_SIGN = { india: 'ब्लॉक कृषि कार्यालय, संगरूर', pakistan: 'تعلقہ زراعت آفس، دادو', nepal: 'कृषि शाखा, जानकी गाउँपालिका', bhutan: 'Gewog Agriculture Extension, Bapisa', usa: 'UNR Extension, Eureka County', myanmar: 'Township Agriculture Office, Nyaung-U', brazil: 'EMPAER-MT, Sorriso', spain: 'OCA Estepa, Andalucía' };
 const OFFICE_SIGN_LOCAL = { bhutan: 'སྦ་པི་ས་ རྒེད་འོག་ སོ་ནམ་ཡིག་ཚང་', myanmar: 'ညောင်ဦးမြို့နယ် စိုက်ပျိုးရေးဦးစီးဌာန' };
 const DIGITS = { ne: '०१२३४५६७८९', my: '၀၁၂၃၄၅၆၇၈၉', dz: '༠༡༢༣༤༥༦༧༨༩' };
 function sms(lang, key, id, vals) {

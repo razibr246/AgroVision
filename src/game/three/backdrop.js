@@ -24,6 +24,8 @@ const SETS = {
   terai: { crop: 'mustard', trees: ['dome', 'dome', 'bamboo', 'dome'], far: 'hills', farColor: '#4f7a46' }, // the Churia hills
   punakha: { crop: 'paddy', trees: ['pine', 'pine', 'dome', 'pine'], far: 'snow', farColor: '#6f7f8f', marks: ['dzong'] },
   nevada: { crop: 'low', trees: ['tall', 'tall', 'dome'], far: 'mountains', farColor: '#8b8a8e', marks: ['hay'] }, // Diamond Valley: alfalfa pivots between bare ranges
+  cerrado: { crop: 'maize', trees: ['tall', 'dome', 'tall', 'dome'], far: 'basin', farColor: '#89906b' }, // Sorriso: broad Cerrado fields and grain silos
+  andalucia: { crop: 'low', trees: ['tall', 'dome', 'tall', 'dome'], far: 'basin', farColor: '#b4a17d' }, // Martos: olive groves in Jaén
   dryzone: { crop: 'low', trees: ['palm', 'palm', 'palm'], marks: ['pagoda'] }, // Nyaung-U: Bagan's brick pagodas, toddy palms
 };
 const CROP = {

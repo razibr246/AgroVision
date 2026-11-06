@@ -20,6 +20,7 @@ import { UPAZILAS } from '../../src/data/upazilas.js';
 import { decodePng, colourMap, WMS } from '../lib/gibs.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const EXISTING = path.join(ROOT, 'src', 'data', 'water', 'water_sat.json');
 const CAPS = 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/wmts.cgi?SERVICE=WMTS&REQUEST=GetCapabilities';
 const LAYERS = {
   grace: { id: 'GRACE_Tellus_Liquid_Water_Equivalent_Thickness_Mascon_CRI', cmap: 'GRACE_Tellus_Liquid_Water_Equivalent_Thickness_Mascon_CRI', unit: 'cm water' },
@@ -123,5 +124,13 @@ for (const key of ['grace', 'smap']) {
     }
   }
 }
-await writeFile(path.join(ROOT, 'src', 'data', 'water', 'water_sat.json'), JSON.stringify(out));
+// Keep the established series byte-for-byte stable. GIBS can shorten or recolour its
+// published history; adding a new farm must not rewrite the existing records.
+try {
+  const prior = JSON.parse(readFileSync(EXISTING, 'utf8'));
+  for (const [id, p] of Object.entries(prior.points || {})) {
+    if (out.points[id] && JSON.stringify(out.points[id].at) === JSON.stringify(p.at)) out.points[id] = p;
+  }
+} catch { /* first generation has no prior file */ }
+await writeFile(EXISTING, JSON.stringify(out));
 for (const [id, p] of Object.entries(out.points)) console.log(`  ${id}: GRACE ${Object.keys(p.grace).length} months, SMAP ${Object.keys(p.smap).length} months`);

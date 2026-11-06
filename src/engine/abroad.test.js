@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { zoneFlags, zoneLevel, todaysCall, PLANS, seasonWater, localAlerts, datedSteps } from './abroad.js';
 
-const IDS = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar'];
+const IDS = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar', 'brazil', 'spain'];
 const load = (id) => JSON.parse(readFileSync(new URL(`../data/abroad/${id}.json`, import.meta.url)));
 
 test('abroad: every country has a real farm and six zones, ERA5 to within a week of the build', () => {
@@ -90,4 +90,18 @@ test('abroad: each season plan lands on real dates, in order, with the step due 
     assert.ok(nowIdx >= 0, `${id}: early November is inside the coming season`);
     assert.ok((steps[nowIdx].b ?? steps[nowIdx].a) >= '2026-11-05', id);
   }
+});
+
+test('abroad: Brazil soybean steps cross into the second-crop window on the next calendar year', () => {
+  const { steps } = datedSteps(PLANS.brazil, load('brazil').points.farm.normals, '2026-11-06');
+  assert.equal(steps[0].a, '2026-10-20');
+  assert.equal(steps.find((s) => s.en.includes('Harvest soybean')).a, '2027-03-09');
+  assert.ok(steps.every((s) => s.at != null || s.atEnd), 'Brazil uses days after sowing for the crossing-year season');
+});
+
+test('abroad: Spain olive plan uses real dates and a full crop year', () => {
+  const { steps } = datedSteps(PLANS.spain, load('spain').points.farm.normals, '2026-11-06');
+  assert.equal(steps[0].a, '2027-10-01');
+  assert.ok(steps.every((s) => s.at != null || s.atEnd));
+  assert.equal(steps.at(-1).a, '2028-09-22');
 });

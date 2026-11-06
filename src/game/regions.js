@@ -539,6 +539,67 @@ const ABROAD = {
   },
 };
 
+// Sorriso, Mato Grosso. Caio is a fictional smallholder on the real crop calendar and satellite field records.
+ABROAD.caio = {
+  ...ABROAD.ellen,
+  country: 'brazil', flag: '🇧🇷', dinner: { bn: 'ভাত, বিনস আর ভাজা কাসাভা', en: 'rice, beans and fried cassava' }, cur: 'R$',
+  farmer: {
+    ...ABROAD.ellen.farmer, bn: 'কাইও মোরেইরা', en: 'Caio Moreira', local: 'Caio Moreira', age: 34,
+    trait: q('সময় মেনে বোনেন, মাটিতে খড় রাখেন', 'Times sowing carefully and keeps straw on the soil'),
+    skill: q('আবহাওয়া আর বৃষ্টির রেকর্ড দেখে দুই ফসলের বিরতি সামলান', 'Uses weather and rain records to manage the gap between crops'),
+    dress: [q('সবুজ ছায়ার টুপি', 'Green sun hat'), q('হালকা কাজের শার্ট', 'Light work shirt'), q('কাজের প্যান্ট', 'Work trousers'), q('রাবারের বুট', 'Rubber boots')],
+    look: { face: 'caio', skin: '#b97c55', hair: '#261c17', build: 1.02, head: 'cap', headA: '#1c8a55', headB: '#f2c52b', top: 'shirt', topA: '#e9e1ce', topB: '#5b7a59', lower: 'cargo', lowA: '#4e6449', lowB: '#354632', feet: 'shoe', feetA: '#49372c' },
+  },
+  place: { bn: 'সোরিসো, মাতুগ্রোসু', en: 'Sorriso, Mato Grosso', area: q('সয়াবিনের পর দ্বিতীয় ফসলের ভুট্টা', 'Soybean followed by second-crop maize'), local: [q('লাল-বাদামি সেররাডো মাটি', 'Red-brown Cerrado soil'), q('দুই ফসলের সোজা খেত', 'Long fields with two crops a year'), q('খড়-ঢাকা জমি', 'Fields covered with crop straw'), q('শস্যের সাইলো', 'Grain silos'), q('ইউক্যালিপটাসের বাতাস-আড়াল', 'Eucalyptus windbreaks')], hazard: q('বৃষ্টি দেরি হলে সয়াবিন বোনা ও সাফ্রিনিয়া ভুট্টার জানালা ছোট হয়', 'Late rains delay soybean and compress the second-crop maize window') },
+  names: { shed: q('বীজ ও যন্ত্রের সমবায়', 'Seed and machinery co-op'), water: q('বৃষ্টির পানি জমার ট্যাংক', 'Rainwater tank'), market: q('শস্য সংগ্রহ কেন্দ্র', 'Grain collection point'), kiosk: q('EMPAER সম্প্রসারণ অফিস', 'EMPAER extension office'), safe: q('কমিউনিটি হল', 'Community hall') },
+  world: 'cerrado',
+  crops: {
+    soybean: { bn: 'সয়াবিন', en: 'Soybean', kind: 'soybean', cost: 18, price: 62, grow: 34, thirst: 1.0, pest: 0.35, soil: true },
+    maize: { bn: 'সাফ্রিনিয়া ভুট্টা', en: 'Second-crop maize', kind: 'maize', cost: 16, price: 58, grow: 32, thirst: 1.1, pest: 0.3 },
+    beans: { bn: 'শুকনো বিনস', en: 'Dry beans', kind: 'bittergourd', cost: 12, price: 48, grow: 26, thirst: 0.65, pest: 0.25, soil: true },
+    sorghum: { bn: 'সর্গাম', en: 'Sorghum', kind: 'wheat', cost: 10, price: 40, grow: 25, thirst: 0.55, pest: 0.15 },
+  },
+  glut: 'maize', pestWord: q('শুঁটি ও পাতার পোকা', 'pod and leaf pests'), storm: { kind: 'rain', bn: 'ভারী বৃষ্টি ও জলাবদ্ধতা', en: 'Heavy rain and waterlogging' },
+  quiz: {
+    plant: { q: q('বৃষ্টি অনিয়মিত, বোনার দিন ঠিক করবেন কীভাবে?', 'Rain is irregular. How do you decide when to sow?'), options: [q('প্রথম ঝিরিঝিরি বৃষ্টিতেই সব বীজ বুনব', 'Sow everything at the first light shower'), ok('মাটির ভেজা ও পরের দিনের পূর্বাভাস দেখে বুনব', 'Check soil moisture and the forecast before sowing'), q('খড় পুড়িয়ে জমি খালি করব', 'Burn the straw and leave the soil bare')], why: q('মাটিতে যথেষ্ট ভেজা থাকা দরকার; খড়ের আচ্ছাদন ভেজা ধরে রাখে।', 'Seed needs reliable moisture, and straw cover helps the soil retain it.'), perk: 'mulch', perkText: q('খড়ের আচ্ছাদন', 'Straw cover') },
+    water: { q: q('দুই ফসলের মাঝের সময় ছোট। কীভাবে সেচের পানি বাঁচাবেন?', 'The gap between crops is short. How do you use irrigation water carefully?'), options: [q('সব জমি একসঙ্গে ভাসিয়ে দেব', 'Flood every plot at once'), ok('মাটির ভেজা দেখে প্রয়োজনের জমিতে সেচ দেব', 'Check soil moisture and irrigate only where needed'), q('খড় পুড়িয়ে মাটি গরম করব', 'Burn straw to warm the soil')], why: q('মাটির ভেজা দেখে সেচ দিলে পানি ও জ্বালানির অপচয় কমে।', 'Checking soil moisture helps avoid wasting water and fuel.'), perk: 'drip', perkText: q('মেপে সেচ', 'Measured irrigation') },
+    heat: { q: q('শুকনো-মৌসুমে তাপ বাড়লে কী করবেন?', 'What should you do when dry-season heat rises?'), options: [ok('মাটির ভেজা ও গাছের চাপ দেখব, খড় মাটিতে রাখব', 'Check soil moisture and crop stress, keep straw cover'), q('দুপুরে বেশি পানি ঢালব', 'Apply extra water at midday'), q('খড় পুড়িয়ে ফেলব', 'Burn the straw')], why: q('মাটি ঢাকা থাকলে রোদ ও বাতাসে ভেজা দ্রুত হারায় না।', 'Soil cover slows moisture loss to sun and wind.'), perk: 'cool', perkText: q('মাটির আচ্ছাদন', 'Soil cover') },
+    pests: { q: q('সয়াবিনের পাতায় ক্ষতির দাগ দেখলেন। প্রথমে কী করবেন?', 'You see damaged soybean leaves. What do you do first?'), options: [q('সব জমিতে একই ওষুধ ছিটাব', 'Spray the same product across every plot'), ok('পোকা শনাক্ত ও সংখ্যা দেখে স্থানীয় সম্প্রসারণ পরামর্শ নেব', 'Identify and count the pest, then ask extension for guidance'), q('পাতা না দেখে উপেক্ষা করব', 'Ignore it without checking the leaves')], why: q('পোকা শনাক্ত না করে স্প্রে করলে উপকারী পোকা ও খরচ—দুটোরই ক্ষতি হতে পারে।', 'Spraying before identifying the pest can harm beneficial insects and waste money.'), perk: 'neem', perkText: q('আগে দেখে, পরে ব্যবস্থা', 'Scout before acting') },
+    storm: { q: q('ভারী বৃষ্টির সতর্কতা এসেছে, কী করবেন?', 'A heavy-rain alert arrives. What do you do?'), options: [ok('যন্ত্র সরিয়ে, নালা খোলা আছে কি দেখে নিরাপদ জায়গায় যাব', 'Move machinery, check drainage, and go to shelter'), q('খোলা মাঠে থাকব', 'Stay out in the open field'), q('নিচু জমিতে যন্ত্র চালাব', 'Drive machinery through low wet ground')], why: q('জলাবদ্ধ মাটিতে ভারী যন্ত্র চালালে মাটি চেপে যায়; বজ্রঝড়ে খোলা মাঠ বিপজ্জনক।', 'Heavy machinery compacts wet soil, and open fields are unsafe in lightning.'), perk: 'warn', perkText: q('আগাম সতর্কতা', 'Early warning') },
+    profit: glutQuiz(q('সয়াবিন', 'soybean'), q('শস্য সংগ্রহ কেন্দ্রে', 'the grain collection point')),
+  },
+  intro: [q('হাই, আমি {name}; সোরিসোতে সয়াবিন আর সাফ্রিনিয়া ভুট্টা করি।', 'Hi, I’m {name}; I grow soybean and second-crop maize near Sorriso.'), q('বৃষ্টি দেরি হলে বোনার ক্যালেন্ডার পিছিয়ে যায়।', 'When the rains start late, the sowing calendar slips.'), q('সয়াবিন কাটার পর ভুট্টার জন্য সময় কম থাকে।', 'There is little time for maize after soybean harvest.'), q('খড় মাটিতে রাখি আর আবহাওয়া দেখে সিদ্ধান্ত নিই।', 'I keep straw on the soil and use the weather to guide decisions.'), q('চলুন, ফসল দুটো সামলাই!', 'Let’s manage both crops!')],
+  lines: { hello: q('চলুন, বৃষ্টির খবর দেখে আসি।', 'Let’s check the rain.'), idle: q('মাটির ভেজা দেখে নিই…', 'Let me check the soil moisture…'), harvest: q('সয়াবিন উঠেছে, ভুট্টার পালা!', 'Soybean is harvested; maize is next!'), heat: q('খড় মাটিতে থাক, ভেজা ধরে রাখুক।', 'Let the straw keep moisture in the soil.'), pest: q('আগে পোকাটা চিনে নিই।', 'Let’s identify the pest first.'), storm: q('ভারী বৃষ্টি — যন্ত্র সরিয়ে নিরাপদে যাই।', 'Heavy rain — move the machinery and get to safety.'), dry: q('মাটি শুকনো — বৃষ্টির অপেক্ষা করি।', 'The soil is dry — let’s wait for rain.'), seeds: q('বীজ শেষ — সমবায়ে যেতে হবে।', 'Out of seed — time for the co-op.'), hurt: q('ভেজা জমিতে যন্ত্র চালানো ঠিক হয়নি।', 'I shouldn’t have driven over the wet field.'), win: q('দুই ফসল, মাটি ঢাকা — ভালো মৌসুম!', 'Two crops, covered soil — a good season!') },
+};
+
+// Martos, Jaén. Lucía and her family are fictional; the olive grove reflects the local crop setting.
+ABROAD.lucia = {
+  ...ABROAD.caio,
+  country: 'spain', flag: '🇪🇸', dinner: { bn: 'গাজপাচো, রুটি ও অলিভ', en: 'gazpacho, bread and olives' }, cur: '€',
+  farmer: { ...ABROAD.caio.farmer, bn: 'লুসিয়া গার্সিয়া', en: 'Lucía García', local: 'Lucía García', age: 38,
+    trait: q('মাটির আচ্ছাদন রেখে পানি বাঁচান', 'Keeps soil covered and uses water carefully'),
+    skill: q('সেচের পালা ও আবহাওয়া মিলিয়ে নেন', 'Plans around irrigation turns and weather'),
+    dress: [q('খড়ের টুপি', 'Straw hat'), q('হালকা কাজের শার্ট', 'Light work shirt'), q('কাজের ট্রাউজার', 'Work trousers'), q('কাজের জুতো', 'Work shoes')],
+    look: { face: 'lucia', female: true, skin: '#d5a078', hair: '#4b3025', build: 0.92, head: 'short', headA: '#e0bd68', headB: '#e0bd68', top: 'shirt', topA: '#d6e2d1', topB: '#6c8b62', lower: 'cargo', lowA: '#59604d', lowB: '#454b3c', feet: 'shoe', feetA: '#553e2c' } },
+  place: { bn: 'মার্তোস, হায়েন', en: 'Martos, Jaén', area: q('সেচের অলিভ বাগান', 'Irrigated olive grove'), local: [q('অলিভ গাছের সারি', 'Rows of olive trees'), q('মাঝের কভার ক্রপ', 'Inter-row cover crops'), q('সেচের নালা', 'Irrigation channels'), q('গ্রাম্য পথ', 'Rural tracks'), q('ফসল তোলার ট্রেলার', 'Harvest trailers')], hazard: q('খরা, গ্রীষ্মের তাপ আর ঢালু জমির ক্ষয়', 'Drought, summer heat and erosion on slopes') },
+  names: { shed: q('কৃষি সরঞ্জাম', 'Farm supplies'), water: q('সেচ সমিতির পানি', 'Irrigation community water'), market: q('অলিভ সমবায়', 'Olive cooperative'), kiosk: q('OCA কৃষি অফিস', 'OCA agricultural office'), safe: q('গ্রামের কেন্দ্র', 'Village centre') },
+  world: 'andalucia', crops: {
+    olive: { bn: 'অলিভ', en: 'Olives', kind: 'olive', cost: 20, price: 70, grow: 38, thirst: 0.65, pest: 0.2, soil: true },
+    wheat: { bn: 'গম', en: 'Wheat', kind: 'wheat', cost: 13, price: 46, grow: 30, thirst: 0.8, pest: 0.25 },
+    sunflower: { bn: 'সূর্যমুখী', en: 'Sunflower', kind: 'sunflower', cost: 14, price: 50, grow: 31, thirst: 0.75, pest: 0.2 },
+    chickpea: { bn: 'ছোলা', en: 'Chickpea', kind: 'chickpea', cost: 11, price: 43, grow: 28, thirst: 0.5, pest: 0.2, soil: true },
+  },
+  glut: 'olive', pestWord: q('অলিভ মাছি', 'olive fruit fly'), storm: { kind: 'rain', bn: 'ভারী বৃষ্টি ও মাটির ক্ষয়', en: 'Heavy rain and soil erosion' },
+  quiz: {
+    plant: { q: q('ঢালু অলিভ বাগানে মাটি কীভাবে রক্ষা করবেন?', 'How do you protect soil in a sloping olive grove?'), options: [q('সব গাছের মাঝের মাটি খালি রাখব', 'Leave all inter-rows bare'), ok('কভার ক্রপ রেখে প্রয়োজনে কেটে মাটিতে বিছাব', 'Keep a cover crop and mow it when needed, leaving it as mulch'), q('ঢাল বরাবর গভীর চাষ করব', 'Deep-plough straight down the slope')], why: q('মাটির আচ্ছাদন বৃষ্টির আঘাত ও উপরিভাগের প্রবাহ কমাতে সাহায্য করে।', 'Ground cover helps reduce raindrop impact and surface runoff.'), perk: 'mulch', perkText: q('মাটির আচ্ছাদন', 'Soil cover') },
+    water: { q: q('পানির পালা সীমিত। কী করবেন?', 'Your irrigation turn is limited. What do you do?'), options: [q('বরাদ্দ না দেখে সেচ দেব', 'Irrigate without checking allocation'), ok('মাটির ভেজা ও সমিতির পালা দেখে সেচ দেব', 'Check soil moisture and the community irrigation turn'), q('গরম দুপুরে সেচ দেব', 'Irrigate in the hot midday')], why: q('বরাদ্দ মেনে, মাটির ভেজা দেখে সেচ দিলে পানি অপচয় কমে।', 'Following the allocation and checking soil moisture helps avoid waste.'), perk: 'drip', perkText: q('মেপে সেচ', 'Measured irrigation') },
+    heat: { q: q('গ্রীষ্মের তাপ বাড়লে?', 'When summer heat rises?'), options: [ok('অনুমোদিত পালায় সন্ধ্যা বা রাতে সেচ দেব', 'Use the allocated turn in the evening or at night'), q('পাতা ভিজিয়ে দুপুরে পানি দেব', 'Wet leaves at midday'), q('কভার ক্রপ পুড়িয়ে দেব', 'Burn the cover crop')], why: q('রাতের সেচে বাষ্পীভবন কম হতে পারে; স্থানীয় বরাদ্দ অবশ্যই মানুন।', 'Night irrigation can reduce evaporation; always follow local allocation.'), perk: 'cool', perkText: q('পানি বাঁচানো', 'Save water') },
+    pests: ABROAD.caio.quiz.pests, storm: ABROAD.caio.quiz.storm, profit: glutQuiz(q('অলিভ', 'olives'), q('অলিভ সমবায়ে', 'the olive cooperative')),
+  },
+  intro: [q('আমি {name}, আন্দালুসিয়ায় অলিভ চাষ করি।', 'I’m {name}; I grow olives in Andalusia.'), q('গ্রীষ্মে সেচের পালা বুঝে পানি দিই।', 'In summer I plan around my irrigation turn.'), q('সারির মাঝের কভার ক্রপ মাটিকে ধরে রাখে।', 'Cover crops between rows help hold the soil.'), q('বৃষ্টির আগে ঢালের জমি খালি রাখি না।', 'I keep sloping ground covered before rain.'), q('চলুন, বাগানের যত্ন নিই!', 'Let’s care for the grove!')],
+  lines: { hello: q('আজকের পানির পালা দেখে নিই।', 'Let’s check today’s irrigation turn.'), idle: q('মাটির ভেজা মেপে নিই…', 'Let me check the soil moisture…'), harvest: q('অলিভ তোলার সময় হয়েছে!', 'It’s time to harvest olives!'), heat: q('সন্ধ্যায় সেচ দেব, পানি বাঁচাই।', 'I’ll irrigate in the evening and save water.'), pest: q('আগে অলিভ মাছি আছে কি দেখি।', 'Let’s check for olive fruit fly first.'), storm: q('বৃষ্টি আসছে — মাটি ঢেকে রাখি।', 'Rain is coming — let’s keep the soil covered.'), dry: q('বরাদ্দ জেনে তারপর সেচ দেব।', 'I’ll check the allocation before irrigating.'), seeds: q('বীজ আনতে সমবায়ে যাই।', 'I’ll get seed from the cooperative.'), hurt: q('ঢালে সাবধানে চলতে হবে।', 'I need to take care on the slope.'), win: q('ভালো ফসল, মাটিও ঢাকা!', 'A good harvest, with the soil covered!') },
+};
+
 // Bangladesh's seven division farmers first, then the five neighbours.
 export const REGIONS = { ...REGIONS_BD, ...ABROAD };
 export const FARMER_IDS = Object.keys(REGIONS);

@@ -412,6 +412,42 @@ const WORLDS = {
   // Singu: the village strung along a sandy road south of the field, toddy palms all along it, water pots for
   // passers-by, the stilt house and the seed shop on the road, the ox cart east to Chauk, the pond west, the township
   // office north-east, the monastery on its mound north, a white zedi, the Ayeyarwady to the west, hot orange air.
+  // Sorriso, Mato Grosso: open Cerrado fields, two crops a year, a machinery co-op and grain collection point.
+  cerrado: () => {
+    const S = stations({ start: [-17, -13], house: [-25, -19], shed: [-21, 3], kiosk: [21, -14], water: [7, -13], market: [-17, 25], safe: [4, -30] });
+    const { r, props, add, addBehind, common } = maker(73, S);
+    common({ house: 'brickhouse', shed: 'brick', kiosk: 'office', neighbours: [[-34, -30], [33, -28]], shedFaces: [-16, 3] });
+    row(add, 'eucalyptus', [-42, -12.4], [42, -12.4], 6, [[S.water.x, S.water.z, 4], [S.kiosk.x, S.kiosk.z, 5], [-16, -12.4, 3], [S.safe.x - 1, -12.4, 3]]);
+    add('tractor', -22, -12.2, { rot: Math.PI / 2, s: 1 });
+    add('truck', S.market.x + 2.6, S.market.z, { rot: 0, s: 1 });
+    add('pumphouse', S.water.x, S.water.z, { rot: 0, s: 1 });
+    addBehind('school', 'safe', 5);
+    [[-10, -8.6], [0, -8.6], [14, -8.6], [28, -8.6]].forEach(([x, z]) => add('pole', x, z, { rot: 0, s: 1 }));
+    return {
+      spots: S, grass: '#779752', soil: '#76563d', path: '#a88a66', sky: 'hazy',
+      paths: [[[-44, -10], [44, -10]], [[-16.5, -44], [-16.5, 44]], [[-16.5, -13], [-25, -16]], [[-16.5, 3], [-21, 3]], [[7, -10], [7, -11]], [[21, -10], [21, -12]], [[4, -10], [4, -25]], [[-16.5, 25], [-14, 25]]],
+      water: [], far: 'basin', air: { fog: '#d9d4bd', near: 75, far: 330 },
+      patches: patchwork(r, ['soybean', 'stubble', 'maize', 'bare', 'soybean']), props,
+      height: (x, z) => roll(x, z) * 0.35 * nearField(x, z),
+    };
+  },
+  // Martos, Jaén: olive rows, inter-row cover, cooperative and dry summer air.
+  andalucia: () => {
+    const S = stations({ start: [-17, -13], house: [-25, -19], shed: [-21, 3], kiosk: [21, -14], water: [7, -13], market: [-17, 25], safe: [4, -30] });
+    const { r, props, add, addBehind, common } = maker(84, S);
+    common({ house: 'brickhouse', shed: 'brick', kiosk: 'office', neighbours: [[-34, -30], [33, -28]], shedFaces: [-16, 3] });
+    row(add, 'eucalyptus', [-42, -12.4], [42, -12.4], 5, [[S.water.x, S.water.z, 4], [S.kiosk.x, S.kiosk.z, 5], [-16, -12.4, 3], [S.safe.x - 1, -12.4, 3]]);
+    add('tractor', -22, -12.2, { rot: Math.PI / 2, s: 0.9 });
+    add('truck', S.market.x + 2.6, S.market.z, { rot: 0, s: 1 });
+    addBehind('school', 'safe', 5);
+    return {
+      spots: S, grass: '#8a985c', soil: '#936f4e', path: '#b79c72', sky: 'hot',
+      paths: [[[-44, -10], [44, -10]], [[-16.5, -44], [-16.5, 44]], [[-16.5, -13], [-25, -16]], [[-16.5, 3], [-21, 3]], [[7, -10], [7, -11]], [[21, -10], [21, -12]], [[4, -10], [4, -25]], [[-16.5, 25], [-14, 25]]],
+      water: [], far: 'basin', air: { fog: '#e6d7b5', near: 75, far: 330 },
+      patches: patchwork(r, ['olive', 'olive', 'stubble', 'bare', 'olive']), props,
+      height: (x, z) => roll(x, z) * 0.5 * nearField(x, z) + ridge(z, -12.4, 0.7, 0.16),
+    };
+  },
   // Diamond Valley, Nevada: a ranch house and steel-roofed shop by the county road, a poplar windbreak, round hay
   // bales from the last cutting, cattle, the well house that feeds the pivot, and the community hall to shelter in
   // when a summer thunderstorm comes over the bare ranges; sagebrush flats beyond.

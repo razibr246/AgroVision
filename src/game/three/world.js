@@ -17,7 +17,7 @@ const segDist = (px, pz, [ax, az], [bx, bz]) => {
   return Math.hypot(px - ax - t * dx, pz - az - t * dz);
 };
 const hash = (x, z) => { const s = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return s - Math.floor(s); };
-const PATCH = { wheat: '#7fa84a', stubble: '#c9b06a', mustard: '#e3c93a', paddy: '#a9b44a', bare: '#b39466', sunflower: '#d9b43a', sesame: '#9aa45a', groundnut: '#7c9a4a' };
+const PATCH = { wheat: '#7fa84a', stubble: '#c9b06a', mustard: '#e3c93a', paddy: '#a9b44a', bare: '#b39466', sunflower: '#d9b43a', sesame: '#9aa45a', groundnut: '#7c9a4a', soybean: '#608d3c', maize: '#9b9b45', olive: '#71804f' };
 
 function terrain(L) {
   const size = 340, seg = 200;
