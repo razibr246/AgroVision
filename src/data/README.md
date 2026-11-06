@@ -16,7 +16,7 @@ dates for every file: [docs/DATA_SOURCES.md](../../docs/DATA_SOURCES.md).
 | `market/` | `market_dhaka.json` (DAM weekly prices), `price_seasons.json`, `yield_history.json` (FAOSTAT), `abroad_prices.json` (FAOSTAT neighbouring country farm-gate prices), `crop_economics.json` (farm-gate prices and costs, each with its published source) | `npm run data:prices`, `data:seasons`; `scripts/build/build_abroad_prices.py`; crop economics is collected by hand |
 | `region/` | `sedac.json` (NASA SEDAC density, low coast, cropland), `census.json` (BBS censuses) | `npm run fetch:sedac`; the census figures are copied from BBS |
 | `media/` | `nasa_images.json` (NASA Image and Video Library captions and credits) | `npm run photos:nasa` |
-| `abroad/` | `<country>.json` for the five neighbouring-country farms | `npm run fetch:neighbours` |
+| `abroad/` | `<country>.json` for the five neighbouring-country farms and the USA farm (`python3 scripts/build/build_neighbours.py usa` builds one) | `npm run fetch:neighbours` |
 | `geo/` | boundaries, unions and villages, land use, the national crop map; `radar/` light maps for every radar upazila | `npm run data:build`, `scripts/build/build_radar_geo.py` |
 
 The `.js` files here are data modules the app imports directly: `upazilas.js` (the seven upazilas and their officers),
