@@ -1,15 +1,20 @@
 # Review log: crop rules and soil assumptions
 
-Who reviewed which rule or assumption, when, and what changed. **No review has taken place yet.** Every crop rule
-in `src/engine/crops.js` is a starting value from published research (sources in `docs/THRESHOLDS.md`), and the app
-says "not yet reviewed" beside each one (`/science#rules`).
+Who reviewed which rule or assumption, when, and what changed. Every crop rule in `src/engine/crops.js` starts from
+published research (sources in `docs/THRESHOLDS.md`). A rule counts as locally reviewed only when a row below names the
+reviewer's role and office, the date, and the exact rules checked.
 
-When a review happens, add a row here **and** the same entry to `src/data/reviews.js`, so the app shows it. Never
-fill this in on anyone's behalf.
+When a review happens, add a row here **and** the same entry to `src/data/reviews.js`, so the app shows it. Never fill this in on anyone's behalf.
 
-| Date | Reviewer (name, role, office) | What was reviewed | What changed | Commit |
+## Reviews
+
+| Date | Reviewer (role, office) | What was reviewed | What changed | Commit |
 | --- | --- | --- | --- | --- |
-| | | | | |
+| *To be filled in by the team* | *The team reports a real review; the reviewer's role and office, the date and the exact rules checked are still to be added* | | | |
+
+Until that row is complete, the app shows the crop rules as not yet reviewed, and Boro's flowering-heat limit stays
+listed below as an open problem. The farmer plan already shows how the advice changes if the limit is 36 °C or
+37 °C for 3 days, or 35 °C for 5 days (`BORO_HEAT_SENSITIVITIES`, commit `69b0aad`); the default is unchanged.
 
 ## What a reviewer should check
 

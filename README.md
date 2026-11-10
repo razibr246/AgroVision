@@ -1,7 +1,7 @@
 # FieldShift 360
 
 **A crop-rotation decision tool for Bangladesh's smallholders, on NASA Earth observations, a model estimate of the field's soil, crop
-characteristics and the farmer's priorities.** NASA Space Apps 2026. Live: https://nasa-field-shift-360.vercel.app
+characteristics and the farmer's priorities.** NASA Space Apps 2026. Live: https://fieldshift360.vercel.app
 
 ## Summary
 
@@ -91,7 +91,7 @@ The commit history shows each change with its date.
 
 ### Development history and Space Apps eligibility
 
-The repository history records substantial work before the 2026 event: the project existed by 21 October, and additional changes followed publication of the challenge statement on 22 October. The 2026 event is scheduled for 14–15 November. This is a development-history disclosure, **not a claim of eligibility or organizer approval**. Before submitting, the team must give its Local Lead the actual timeline and ask how the event rules apply to this pre-existing project. See the [current participant terms](https://www.spaceappschallenge.org/legal/) and [2026 event page](https://www.spaceappschallenge.org/2026/).
+The repository history records substantial work before the 2026 event: the project existed by 21 October, and additional changes followed publication of the challenge statement on 22 October. The 2026 event is 13–14 November. This is a development-history disclosure, **not a claim of eligibility or organizer approval**. Before submitting, the team must give its Local Lead the actual timeline and ask how the event rules apply to this pre-existing project. See the [current participant terms](https://www.spaceappschallenge.org/legal/) and [2026 event page](https://www.spaceappschallenge.org/2026/).
 
 Work added after the challenge statement includes the Field Future 40-scenario ensemble, additional soil-water analysis, and changes to the monsoon-onset rule. The optional concentrated-rain filter is a heuristic for a heavy-rain spike followed by a dry period; it is not a cyclone catalogue or a validated cyclone detector. The onset comparison against BMD station-based dates covers three stations, as documented in `docs/RADAR.md`.
 
@@ -146,14 +146,40 @@ rice), FAOSTAT 2024 (national crop areas), Open-Meteo (live forecast), OpenFreeM
 
 ## Use of AI
 
+Every AI model the app calls, what it is sent, and what checks it. Model ids are set at the top of each file named
+below and can be changed by environment variables; all calls go through the server, never with a key in the browser.
+
+### Large language and speech models the app calls
+
+| Feature | Models (file) | What it is sent | What checks it |
+| --- | --- | --- | --- |
+| চক্র এজেন্ট (Chakra Agent): the farmer's and officer's assistant | Google Gemini 3.8 Flash, with Gemini 3.5 Flash-Lite and 3.1 Flash-Lite as fallbacks; for a "deep thinking" request Gemini 4 Argon first. Anthropic Claude Opus 5.5, and Claude Fable 5.1 for deep requests, when an Anthropic key is set instead (`api/agent.js`, lines 22–29) | The question and the app's own numbers for that field (weather, plan, soil, water balance), as named sections; no names or phone numbers | `src/engine/replyCheck.js` tests every answer against those numbers (rules `R1_RAIN_OFFSET`, `R1_WATER_ENOUGH`, `R2_STRESS_NOACTION`, `R3_OWN_DOSE`, `R4_CONFIDENCE_CEILING`); a failed answer is asked for once more, then repaired. The model can only *propose* actions; anything sent in the office's name needs an officer's approval (`src/engine/chakra.js`). Without a key, `src/voice/brain.js` answers from the rules alone |
+| Crop doctor photo check (`/farmer/doctor`) | Claude Opus 5.5 with web search limited to listed DAE/BARI/BRRI domains, or Gemini 3.8 Flash with Google Search (`api/doctor.js`, lines 15–16) | The photo (resized), the crop and the place, only after the farmer agrees | The answer is labelled **AI**, names its sources, and tells the farmer to confirm with the agriculture officer; chemical advice only as DAE/BARI recommend |
+| Call notes (`/officer/calls`) | Groq Whisper large-v3-turbo for the transcript, Gemini 3.8 Flash or 3.1 Flash-Lite for the note (`api/transcribe.js`, lines 17–19) | The officer's recording, only after the farmer's recorded consent; the audio itself is never stored, only its hash | `src/engine/callnote.js` keeps an amount only when its quoted words are in the transcript (rules `CN1_`–`CN3_`), then seals the record (SHA-256) |
+| Natural voice | Gemini 3.8 Flash TTS and Flash-Lite TTS, Gemini 3.1 Flash TTS preview (`api/tts.js`, line 40) | The text the app is about to read aloud | Reads only text the app already wrote; the browser's own voice is the fallback |
+
+The system prompts are in the same files (`systemPrompt` / `geminiSystem` in `api/agent.js`, `systemPrompt` in
+`api/doctor.js`, `prompt` in `api/transcribe.js`). The separate `services/voice-agent/` project (phone IVR) uses
+Soniox speech and Groq; it is not part of the hosted site.
+
+### Other AI in the app
+
 | Where | What | Notes |
 | --- | --- | --- |
-| In the app | Problem clusters: DBSCAN groups similar nearby farmer reports | Labelled **AI**; an officer approves every message before it is sent |
-| In the app | Field watch: which crop pattern (Aman, mustard then Boro, Boro, wheat, lentil, vegetables, fallow, flooded) best fits each field's real Sentinel-2 green-cover curve, with a confidence | Labelled **AI**; the health reading next to it is open rules (`src/engine/fieldwatch.js`), and it never names a disease |
-| In the app | Photo clear-up: Real-ESRGAN `realesr-general-x4v3` (BSD-3-Clause, official weights blended 50/50 with its keep-detail twin, converted to ONNX: `public/models/`) makes an enlarged satellite photo 4× sharper, on the device (ONNX Runtime Web, WebGPU or WebAssembly, loaded from jsDelivr on first use) | Labelled **AI**: edges come from the real photo, fine texture is the model's estimate; nothing is measured from it |
-| In the app | চক্র এজেন্ট answer check: before an AI answer is spoken, open rules test it against the app's own numbers (a number with a unit the data cannot back, watering advice against the FAO-56 field water balance and the 3-day rain forecast, a chemical dose of its own, an action pointing at nothing); a failed answer is asked for once more, then repaired, and thin evidence (saved weather, sample soil) caps its confidence. The design (the model reasons, a deterministic validator checks; rule ids; a confidence ceiling) follows the Agentic Precision-Agriculture Decision System (J. Bkr, 2026) | Labelled **RULE**; `src/engine/replyCheck.js`, applied in `api/agent.js` |
-| In the app | Voice assistant | Answers come from the same rule-based engine as the screens; nothing is sent without a spoken "yes" |
-| Building the app | AI coding assistants (including Claude Code) under the team's direction | Code was reviewed and tested by the team |
+| Problem clusters | DBSCAN groups similar nearby farmer reports (`src/engine/cluster.js`) | Labelled **AI**; an officer approves every message before it is sent |
+| Field watch | Which crop pattern best fits each field's Sentinel-2 green-cover curve, with a confidence (`src/engine/fieldwatch.js`) | Labelled **AI**; the health reading beside it is open rules, and it never names a disease |
+| Photo clear-up | Real-ESRGAN `realesr-general-x4v3` (BSD-3-Clause, converted to ONNX in `public/models/`) sharpens an enlarged satellite photo on the device (ONNX Runtime Web, loaded from jsDelivr on first use) | Labelled **AI**: edges come from the real photo, fine texture is the model's estimate; nothing is measured from it |
+| Two home-page card images ("Tara's Dream Farm", "Meet the Farmers") | Made with ChatGPT image generation from the team's prompts | Credited "AI image (ChatGPT)" on the card (`src/assets/images/index.js`); every other photo is a credited real photo or NASA image |
+
+### How the team used AI to build it
+
+The code was written with AI coding assistants under the team's direction, mainly Claude Code (Anthropic) and
+OpenAI Codex, working in this repository. Their standing instructions are `AGENTS.md` (also read through `CLAUDE.md`,
+`GEMINI.md` and `.github/copilot-instructions.md`), and reusable prompts are in `docs/prompts/`. The team chose the
+problem, the data sources, the methods and the design; read and ran what the assistants wrote; checked numbers
+against the source data (for example `scripts/onset/compare_bmd.mjs` and `scripts/build/check_smap_power.mjs`); and
+rejected output that claimed more than the repository shows. The team wrote the challenge mapping, the evidence
+sheet and the limits by hand.
 
 No AI-generated numbers are used as data. Every score is rule-based and can be opened with **Why?**.
 

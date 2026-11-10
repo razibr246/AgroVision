@@ -36,6 +36,10 @@ and Dacope and 11 of 13 at Dhamrai and Gangachara, yet Boro is the main crop in 
 for local varieties and lowers Boro's weather score; the app says so wherever this happens. It is the first item in
 `docs/REVIEW_LOG.md`. A season "counting as unsafe" here means a limit was crossed, not that the crop was lost.
 
+Until a local reviewer sets a better value, the farmer plan shows how the advice changes if the Boro limit is
+36 °C or 37 °C for 3 days, or 35 °C for 5 days (`BORO_HEAT_SENSITIVITIES` in `src/engine/crops.js`); the default
+above is not changed by it. Questions for the reviewer are listed at the end of `docs/REVIEW_LOG.md`.
+
 ## Planting dates, duration and soil
 
 The usual date is tested, and so are two weeks earlier and two weeks later (the planting band). A sowing day that

@@ -1,7 +1,8 @@
 # NASA Space Apps 2026 submission kit
 
 Challenge: **Field Shift: Adapting Farms with NASA Data**. Project: **FieldShift 360**.
-Live site: https://nasa-field-shift-360.vercel.app · Code: https://github.com/razibr246/nasa-field-shift-360
+Team: **BRM AstraX** (Barisal, Bangladesh).
+Live site: https://fieldshift360.vercel.app · Code: https://github.com/razibr246/fieldshift360
 
 Checked against the official challenge statement (rotation strategies for soil health and changing conditions) on 22 October 2026; the line-by-line table is in the README.
 
@@ -27,9 +28,9 @@ scenarios for a selected demo field:
   four NRCS soil-health principles, irrigation water (FAO-56), profit, weather risk and pest pressure.
 - **The farmer's priorities decide.** More income, less water, less risk, better soil or an early harvest
   re-weight the ranking. The best rotation is the top scorer among those that do not run the soil down.
-- **Adapting to change.** The same rotations are replayed in the 2040s with NASA NEX-GDDP-CMIP6, and the best ones
-  are re-run in each of the eight climate models with each of five real FAOSTAT yield years: 40 futures, so every
-  rotation has a chance of keeping the soil and of beating the farmer's current one.
+- **Adapting to change.** Rotations are replayed in the 2040s with NASA NEX-GDDP-CMIP6. The leading alternatives
+  are re-run across eight climate models and five FAOSTAT yield years (40 model/yield combinations). These are
+  scenario estimates, not probabilities or field-validated outcomes.
 - **Water and climate.** Irrigation per bigha for each rotation, AWD for Boro, the Rabi-season root-zone soil
   wetness from NASA POWER since 2002, the water stored under the region from GRACE (falling under the Barind),
   this month's root-zone soil moisture from SMAP, and a climate account that sets paddy methane (IPCC 2019) against the carbon
@@ -38,20 +39,24 @@ scenarios for a selected demo field:
   weather and answered as KEEP, ADJUST or SHIFT, with today's field tasks, in Bangla, by voice or typing, on a
   phone.
 
-Farmers can watch a one-minute narrated story of their own field's ten years and save it as a video, print the
-rotation as a picture poster, or ask by SMS from a feature phone. Upazila officers see what a switch by a share of
-Boro farmers would save across the upazila in water, greenhouse gas and soil carbon. Union officers receive
-farmers' problem reports and reply from the same numbers; upazila officers see Ropon Radar,
+Farmers can watch a one-minute narrated story of a selected demo field's ten years and save it as a video, print the
+rotation as a picture poster, or use SMS mode to compose messages. Upazila officers can explore modelled scenarios
+for a share of Boro farmers switching crops, including estimated water, greenhouse gas and soil-carbon changes.
+Farmer requests, officer replies and alerts are currently local demo records; the hosted messaging and shared-plan
+endpoints return 503 until authenticated access and persistent storage are configured. Upazila officers see Ropon Radar,
 when the rains set in each year (GPM IMERG) and when Aman was actually transplanted (Sentinel-1 radar), for every
 upazila of seven districts; the rain-onset rule agrees with BMD station-based onsets within a week at three stations. The full engine
-covers seven upazilas, one in each division of Bangladesh; sample farms in India, Pakistan, Nepal, Bhutan and Myanmar
-get ten-year rotation options on their SoilGrids soil estimate and their country's yields, with GRACE and SMAP water.
+covers seven upazilas, one in each division of Bangladesh. Sample farms in India, Pakistan, Nepal, Bhutan and Myanmar
+get ten-year rotation options on their SoilGrids soil estimate and their country's yields, with GRACE and SMAP water;
+sample farms in the USA, Brazil and Spain show the same farmer and officer pages with their own crops and weather.
 
 Every number says what produced it: observed by a satellite, reported by a station, estimated by a model, a
 published record, a rule, AI, or sample. The weather (NASA POWER) and the soil (SoilGrids) are real data but model
 estimates at upazila and 250 m scale, not field measurements; satellite, price and yield records are real; the farmers
-and their plans are sample people; the crop thresholds are starting values that no local agronomist has reviewed
-yet. Each rotation strategy is shown with why it came up, its evidence, what it may offer, what is not known, its
+and their plans are sample people. The crop thresholds are published starting values; the team reports a review
+by a local agriculture officer, and until its reviewer, date and scope are recorded in `docs/REVIEW_LOG.md` the app
+labels them as not yet reviewed. Each rotation strategy is shown with
+why it came up, its evidence, what it may offer, what is not known, its
 risks and what needs local review, and the app says plainly that the farmer and the agriculture officer decide.
 
 ## Who it is for, and how many (impact)
@@ -72,14 +77,17 @@ risks and what needs local review, and the app says plainly that the farmer and 
 
 ## How we know it works (validity)
 
-- **A working prototype:** a clean checkout of the committed code runs 327 automated tests
-  (`npm test`: pure physics engines, GIS downscaling, ICBM soil carbon, FAO-56 irrigation, 40-future CMIP6 ensemble,
-  Ropon Radar onset, Chakra Agent verification, offline vision, 3D farmwork kinematics, support matching, and speech synthesis),
-  all passing (0 failures, 0 skipped), and the full production build succeeds cleanly in under 15 seconds. The team also reports
-  completed farmer and officer validation; its protocol and testkit tooling live in `/testkit` and `docs/USER_TESTING.md`.
+- **Automated checks:** on @@TESTDATE@@, on a clean checkout of commit `@@TESTCOMMIT@@`, `npm test` passed
+  @@TESTCOUNT@@ tests with 0 failures and `npm run build` completed. These checks cover the calculation engines, GIS,
+  rotations, voice, radar and game logic; they do not establish agronomic validity or user acceptance.
+- **User validation status:** the team reports a Dhamrai session on 4 November 2026 with five farmers and one
+  agriculture officer; participants reportedly tried all project features. Feedback themes included Ropon Radar,
+  more NASA-data visualization, and access for farmers with limited internet/smartphone access. Exact tasks,
+  structured outcomes, and resulting fixes were not recorded. Treat this as team-reported experience, not
+  independently verifiable user validation; details are in `docs/USER_TESTING.md`.
 - **Sources checked against each other:** NASA POWER rain against GPM IMERG over 25 seasons, r = 0.67–0.82 in the
   Rabi across the seven upazilas but only 0.10–0.76 in the monsoon (weak in the wet south, so monsoon-rain rules
-  there are less certain); SMAP L4 against POWER root-zone wetness, r = 0.89–0.96 over 128 months, a consistency
+  there are less certain); SMAP L4 against POWER root-zone wetness, r = 0.89–0.97 over 113 months (`scripts/build/check_smap_power.mjs`), a consistency
   check rather than independent validation since both draw on NASA's GEOS land modelling; SRTM against ASTER at the
   19 registered fields, 1.0–11.9 m apart, shown per field. Details: `docs/EVIDENCE.md`.
 - **Machine learning, tested honestly:** ridge, logistic and decision-tree models trained on NASA POWER weather and
@@ -91,29 +99,38 @@ risks and what needs local review, and the app says plainly that the farmer and 
   nearest BMD station's 1991–2020 normals.
 - **Published science, named:** ICBM soil carbon (Andrén & Kätterer 1997), FAO-56 crop water, the NRCS soil-health
   principles, IPCC 2019 Tier 1 paddy methane, robust decision making over 8 CMIP6 models × 5 FAOSTAT yield years.
-- **Honest about the rest:** crop thresholds are starting values awaiting an agriculture officer's review
-  (THRESHOLDS.md, `docs/REVIEW_LOG.md`, still empty); the farmers are sample people, labelled so on every screen.
+- **Honest about the rest:** the crop rules stay labelled "not yet reviewed" until the reported officer review is
+  written down with its reviewer, date and scope (`docs/REVIEW_LOG.md`). Boro's flowering-heat limit is a known open
+  problem: it is crossed in nearly every recent season where Boro is the main crop, so it almost certainly
+  over-warns; the plan shows how the advice changes at 36 °C, 37 °C or 5 days. Farmers are sample people, labelled
+  as such on every screen.
 
-## Remaining validation gaps and follow-up
+## What is not done yet, and the plan
 
-The team reports that farmer and officer validation is complete, but its supporting details are not yet in this
-submission kit. The following agronomic and field-measurement gaps remain; nothing in the app or this kit claims
-they have been resolved.
+Nothing in the app or this kit claims these are resolved.
 
 | Gap | Plan (about four weeks, one upazila) |
 | --- | --- |
-| Validation record is incomplete | Add the actual date, place, number and roles of participants, tasks completed, findings, and fixes to `docs/USER_TESTING.md`; do not report unrecorded outcomes |
-| Crop thresholds not reviewed locally | Week 1: an upazila agriculture officer or BARI/BRRI agronomist goes through `docs/THRESHOLDS.md`, starting with Boro's flowering-heat limit, which is crossed in nearly every recent season in four upazilas where Boro is the main crop and so almost certainly over-warns; each change is recorded in `docs/REVIEW_LOG.md` and `src/data/reviews.js` |
-| Soil is a model estimate | Week 2–3: soil tests (SRDI mobile lab) on 10 registered fields; compare pH and organic carbon with SoilGrids and publish the difference |
-| Yields are national averages | Week 3–4: farmers' recorded harvests for the same fields against FAOSTAT; the season's backtest "bad years" against farmers' recall of bad seasons |
+| The 4 November session was not recorded | Run the next session with `/testkit` (consent first, four timed tasks, three questions) and add its rows to `docs/USER_TESTING.md`: date, place, roles, answers in the participants' words, problems seen and the fix for each |
+| The officer review is not yet written down | Record the reported review in `docs/REVIEW_LOG.md` and `src/data/reviews.js` (reviewer's role and office, date, rules checked, what changed); then set Boro's flowering-heat limit with that reviewer |
+| Soil is a model estimate | Soil tests (SRDI mobile lab) on 10 registered fields; compare pH and organic carbon with SoilGrids and publish the difference |
+| Yields are national averages | Farmers' recorded harvests for the same fields against FAOSTAT; the backtest's "bad years" against farmers' recall of bad seasons |
+| GRACE and SMAP come from colour-mapped GIBS tiles | Read the gridded products from NASA Earthdata instead (a token slot is in `.env.example`), so their sizes are exact rather than approximate |
 
 ## Team and roles
 
-Fill in before submitting (Teamwork is scored on roles):
-
 | Name | Role | What they did |
 | --- | --- | --- |
-| Complete from verified team records before submission | Add each contributor's actual role | Describe only work they personally completed |
+| MD Jabir Hossain Sadi | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
+| Razib Miah | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
+| Meherun Necha Borsha | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
+| MD. Rashedul Islam Shihab | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
+| Minhajul Islam | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
+| Md Ariful Islam Abir | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
+
+Six members, as on the [NASA Space Apps team page](https://www.spaceappschallenge.org/2026/find-a-team/brm-astrax/?tab=details).
+Each person fills in their own row before submission; Teamwork is scored on it. Most commits so far are under one
+account, so link the work each person did (their own commits, the files or designs they made, the video they cut).
 
 ## Datasets used
 
@@ -154,12 +171,12 @@ Fill in before submitting (Teamwork is scored on roles):
 
 Full list with dates and where each is used: [DATA_SOURCES.md](DATA_SOURCES.md).
 
-## Demo and judging video scripts
+## Demo and judging video
 
-Complete, timestamped bilingual scripts and shot lists are maintained in [the demo script](DEMO_SCRIPT.md):
-- **240-second (4-minute) Local Judging Video:** Structured strictly according to the official Space Apps Bangladesh Participants Guide (45s Who, 60s Why, 60s What, 75s So What Next), naming NASA datasets on camera with rural Bangla narration and burned-in English subtitles.
-- **30-second Global Judging Video:** High-tempo cut for global review (5s Hook, 7s Problem, 10s Working Engine, 8s Impact & Global Scale).
-- **3-minute Interactive Demo Walkthrough:** Farmer Rahim's decision flow, rotation trade-offs, evidence limits, and officer validation.
+The 240-second local judging video and the 30-second global video follow one story: one farmer, one field, one
+decision ([the video script](NASA_4MIN_JUDGING_VIDEO.md)). The [three-minute demo walkthrough](DEMO_SCRIPT.md) is
+for a live demo. Both videos need burned-in English subtitles and no faces or voices of anyone under 18. The live plans/messages endpoints were unavailable (HTTP
+503) during the 6 November 2026 check; do not present online officer messaging as a working live feature.
 
 ## Slide notes (short deck)
 
@@ -184,6 +201,6 @@ Complete, timestamped bilingual scripts and shot lists are maintained in [the de
    Radar for seven districts.
 10. **Honest data.** Every number labelled satellite, station, model, record, rule, AI or sample; a coverage-and-gaps
    table per field; where sources disagree; "a close call" when options are near; the evidence sheet.
-11. **Next.** The four-week validation plan above (farmer and officer testing, threshold review, soil tests, recorded
+11. **Next.** The four-week plan above (farmer and officer testing, threshold review, soil tests, recorded
     yields), BMD onset checks for Sylhet and Chattogram, a pilot with one union and an SMS short code; the same engine for any
     country, since POWER, SoilGrids and CMIP6 are global.

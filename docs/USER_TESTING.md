@@ -1,12 +1,17 @@
 # Testing with farmers and officers
 
-A protocol and record for testing the main flow with Bangladeshi farmers and agriculture officers. The team has
-reported that testing took place, but this repository contains no session date, place, participant counts,
-participant responses, findings or resulting fixes. Treat field validation as unverified until those records are
-added; do not infer results from the protocol below.
+A protocol and record for testing the main flow with Bangladeshi farmers and agriculture officers. The team reports
+a Dhamrai session on 4 November 2026 with five farmers and one agriculture officer; participants reportedly tried
+all project features. Feedback themes included Ropon Radar, more NASA-data visualization, and a more farmer-centered
+experience for people with limited internet or smartphone access. The exact tasks, participant responses, specific
+findings, and resulting fixes were not recorded. Treat this as team-reported experience, not independently
+verifiable field validation; do not infer results from the protocol below.
 
-**Run it with the kit in the app: `/testkit`.** It reads the consent, times the four tasks, records the three
-questions and the problems seen (never a name), and exports a CSV and ready-made rows for the results table below.
+**Run it with the kit in the app: `/testkit`.** The kit requires an explicit yes before collecting session data;
+declining exits without saving. It times the four tasks, records the three questions and problems, and exports a CSV
+and ready-made rows for the results table below. Do not enter names, phone numbers, or identifying details in any
+free-text field. Results stay on the device until exported. Older saved sessions without a recorded consent flag are
+excluded from counts and exports.
 
 ## Who
 
@@ -22,7 +27,15 @@ Start on the farmer home page. The four-step path on it is the whole task:
 1. Choose your field (on the map).
 2. Say what matters this season.
 3. Compare the options.
-4. Send it to your officer.
+4. Try to share it with your officer. If the hosted service is unavailable, mark the task **blocked by app/service**
+and record the observed error; do not score this as a participant failure.
+
+The test kit reports participant difficulty separately from product-blocked tasks. Report both; do not omit a blocked
+task from the study summary.
+
+The hosted plans/messages endpoints were returning HTTP 503 on 6 November 2026. Until availability is rechecked,
+the online officer-sharing task is expected to be blocked; test only a local demo if it is clearly identified as
+local and actually works.
 
 Then ask, without showing the screen, the three questions. Record the answer in their words:
 
@@ -45,11 +58,15 @@ Repeat the three questions once by **voice** (`/farmer/voice`, "বিকল্�
 
 ## Officers (20 minutes)
 
-Open a farmer's sent comparison in the officer view and answer it; then review the crop rules at `/science#rules`
-(record anything they would change in `docs/REVIEW_LOG.md`).
+Open a farmer's sent comparison in the officer view and answer it only in a verified working test environment; then
+review the crop rules at `/science#rules` (record anything they would change in `docs/REVIEW_LOG.md`). If officer
+sharing is unavailable, record that product blocker separately from the officer's usability result.
 
 ## Results
 
 | Date | Place | Who (role, no names) | Phone | Q1 recommended | Q2 why | Q3 check | Problems seen | Fixed in |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Team reports validation complete; session date not recorded | Not recorded | Farmers and agriculture officers; counts not recorded | Not recorded | Results not recorded | Results not recorded | Results not recorded | Findings not recorded | Add actual findings and fixes from the team record |
+| 2026-11-04 | Dhamrai | 5 farmers, 1 agriculture officer (team-reported) | Not recorded | Not recorded | Not recorded | Not recorded | Not recorded (team recalls requests for Ropon Radar, more NASA-data views, and access for farmers without smartphones or steady internet) | — |
+
+The next session goes in a new row from the `/testkit` export: a real date, place, roles, the answers in the
+participants' own words, the problems seen and the commit that fixed each one. Never fill a row from memory.
