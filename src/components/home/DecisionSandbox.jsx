@@ -11,6 +11,9 @@ import { decide, PRIORITIES } from '../../engine/decision';
 import { RABI_CROPS } from '../../engine/crops';
 import { buildDemo } from '../../data/demo';
 import { makeUnion } from '../../engine/world';
+import { recommendRotation } from '../../engine/rotation';
+import { PLAN_SEASON } from '../../engine/climate';
+import amanNormals from '../../data/radar/aman_normals.json';
 import { num, fmtDate, fmtBangla, banglaDate, daysBetween, bnDigits } from '../../engine/dates';
 import { THEN, NOW } from '../../engine/climate';
 
@@ -69,6 +72,17 @@ export default function DecisionSandbox() {
     });
   }, [placeId, priorityId, cropId, place.unionId, farmer, econ, today, d]);
 
+  // The calendar under the answer follows the same settings: the crop above, what comes after it, then T. Aman on the
+  // place's usual transplanting day (Sentinel-1 radar), exactly as the farmer pages work it out.
+  const simPlan = useMemo(() => {
+    const clim = climates[placeId] ?? climates.godagari;
+    if (!clim || simDecision === d) return null;
+    const soil = soilData.unions[place.unionId] ?? soilData.unions.Deopara;
+    const doy = amanNormals.transplantNormal[placeId];
+    const rotation = recommendRotation({ clim, soil, plot: { ...farmer, last_crop: cropId }, chosen: simDecision.rec, priorities: [priorityId], amanT: doy ? Date.UTC(PLAN_SEASON, 0, doy) : null });
+    return { chosen: simDecision.rec, rotation };
+  }, [simDecision, d, placeId, place.unionId, farmer, cropId, priorityId]);
+
   const activeDec = tab === 'field' ? d : simDecision;
   const st = LABEL_STYLE[activeDec.label] ?? LABEL_STYLE.KEEP;
 
@@ -99,7 +113,7 @@ export default function DecisionSandbox() {
             }`}
           >
             <Sparkles size={15} className={tab === 'sim' ? 'text-amber-300' : ''} />
-            <span>{T('সরাসরি শিফট সিমুলেটর (ল্যাব)', 'Live Shift Sandbox (Lab)')}</span>
+            <span>{T('নিজে বদলে দেখুন', 'Try your own settings')}</span>
           </button>
 
           <button
@@ -114,14 +128,14 @@ export default function DecisionSandbox() {
             }`}
           >
             <Sprout size={15} />
-            <span>{T('রহিমের মাঠের সুপারিশ', "Rahim's Field Working")}</span>
+            <span>{T('নমুনা কৃষক রহিমের মাঠ', 'Sample farmer Rahim’s field')}</span>
           </button>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11.5px] font-bold text-emerald-800 ring-1 ring-emerald-200">
             <span className="telemetry-pulse" />
-            <span>{T('০ সেকেন্ড ক্লায়েন্ট গণনা', '0s Browser Compute')}</span>
+            <span>{T('আপনার ব্রাউজারেই হিসাব', 'Worked out in your browser')}</span>
           </span>
           <Tags list={[climateTag(), 'RULE']} />
         </div>
@@ -133,10 +147,10 @@ export default function DecisionSandbox() {
           <div className="flex flex-wrap items-center justify-between gap-2 text-[12px] font-semibold text-muted">
             <span className="flex items-center gap-1.5 uppercase tracking-wider">
               <SlidersHorizontal size={13} className="text-primary-600" />
-              {T('প্যারামিটার পরিবর্তন করে দেখুন:', 'Tweak Live Parameters:')}
+              {T('তিনটি জিনিস বদলে দেখুন', 'Change any of the three')}
             </span>
             <span className="text-primary-700">
-              {T('ক্লিক করলেই ফলাফল পরিবর্তিত হবে', 'Click any chip to see instant shift')}
+              {T('চাপ দিলেই নিচের সুপারিশ বদলায়', 'The advice below updates as you click')}
             </span>
           </div>
 
@@ -193,7 +207,7 @@ export default function DecisionSandbox() {
           {/* Base Crop Selector */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="w-20 text-[12px] font-semibold text-muted">
-              {T('আগের ফসল:', 'Prev Crop:')}
+              {T('আগের ফসল:', 'Last crop:')}
             </span>
             <div className="flex flex-wrap gap-1.5">
               {SIM_CROPS.map((cr) => (
@@ -217,7 +231,7 @@ export default function DecisionSandbox() {
 
       {/* Main Dynamic Decision Viewport */}
       <div className="mt-5 flex flex-wrap items-center justify-between gap-5">
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 grow basis-[18rem] items-center gap-4">
           <div className="flex flex-col items-center">
             <div className="rounded-2xl p-1 shadow-2xs">
               <ScoreRing value={activeDec.rec.score} size={62} />
@@ -227,9 +241,9 @@ export default function DecisionSandbox() {
             </span>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold ${st.bg} ${st.text}`}>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold text-white ${st.bg}`}>
                 {L(st)}
               </span>
               <p className="font-display text-[22px] font-bold leading-tight sm:text-[26px]">
@@ -306,7 +320,7 @@ export default function DecisionSandbox() {
 
       {/* Season Timeline Ribbon (in both tabs) */}
       <div className="mt-5">
-        <SeasonRibbon />
+        <SeasonRibbon plan={tab === 'sim' ? simPlan : null} />
       </div>
     </div>
   );

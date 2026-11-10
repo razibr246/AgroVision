@@ -35,8 +35,11 @@ const RITUS = MONTHS.reduce((out, mo) => {
 }, []);
 const pct = (t) => Math.max(0, Math.min(100, ((t - START) / (END - START)) * 100));
 
-export default function SeasonRibbon({ dark = false, compact = false, showToday = true }) {
-  const { s, T, L, chosen, rotation: r, today } = useStore();
+// `plan` ({ chosen, rotation }) draws another plan than the signed-in farmer's: the home page's try-it box passes its own.
+export default function SeasonRibbon({ dark = false, compact = false, showToday = true, plan = null }) {
+  const store = useStore();
+  const { s, T, L, today } = store;
+  const chosen = plan?.chosen ?? store.chosen, r = plan?.rotation ?? store.rotation;
   const [animatedDates, setAnimatedDates] = useState({});
   const lang = s.lang;
   const syncRabiDate = useCallback((date) => setAnimatedDates((dates) => ({ ...dates, rabi: date })), []);
@@ -89,7 +92,7 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
           <div className={`${head} border-b ${grid}`} />
           <div className="space-y-2.5 pt-3">
             {rows.map((row) => (
-              <div key={row.key} className={`flex ${activityExpanded(row.key) ? 'h-[380px] items-start pt-2' : 'h-10 flex-col justify-center'} leading-tight`}>
+              <div key={row.key} className={`flex flex-col ${activityExpanded(row.key) ? 'h-[380px] justify-start pt-2' : 'h-10 justify-center'} leading-tight`}>
                 <span className={`inline-flex items-center gap-1.5 text-[13px] font-semibold ${ink}`}><i className="h-2 w-2 shrink-0 rounded-full" style={{ background: row.dot }} />{row.label}</span>
                 {!compact && <span className={`text-[11.5px] ${quiet}`}>{row.sub}</span>}
               </div>

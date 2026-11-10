@@ -8,7 +8,6 @@ import Photo from '../../components/Photo';
 import { onScroll } from '../../components/Motion';
 import SeasonRibbon from '../../components/charts/SeasonRibbon';
 import LiveWeather from '../../components/charts/LiveWeather';
-import LiveSatellitePassTracker from '../../components/home/LiveSatellitePassTracker';
 import DecisionSandbox from '../../components/home/DecisionSandbox';
 import AgroAtmosphereCanvas from '../../components/home/AgroAtmosphereCanvas';
 import RiverWater, { hasWater } from '../../components/home/RiverWater';
@@ -32,6 +31,7 @@ import { PROJECT_NAME, PROJECT_TAGLINE, PROJECT_EVENT, PROJECT_TEAM } from '../.
 import { GAMES } from '../../data/games';
 import ChakraLogo from '../../components/chakra/ChakraLogo';
 import { DATASETS } from '../../engine/provenance';
+import { ABROAD_ORDER } from '../../data/abroad';
 import { SYMPTOMS, UNIONS } from '../../data/demo';
 
 export default function Home() {
@@ -115,21 +115,11 @@ export default function Home() {
             <HeroGalleryPill gallery={gallery} />
           </div>
 
-          <LiveWeather className="mt-12 lg:mt-16" />
-          <LiveSatellitePassTracker />
-          <DecisionSandbox />
         </div>
       </section>
 
-      <LazyMount height={640}><Suspense fallback={<section className="py-14"><div className="page-shell min-h-[600px]" /></section>}><RotationTeaser /></Suspense></LazyMount>
-
-      {/* Who it is for: census numbers and NASA SEDAC's measures of each upazila. */}
-      <LazyMount id="impact" height={760}><Suspense fallback={<section className="py-16"><div className="page-shell min-h-[700px]" /></section>}><ImpactReach /></Suspense></LazyMount>
-      <Suspense fallback={<section className="py-16 sm:py-20"><div className="page-shell min-h-[760px]" /></section>}><CountryCrops /></Suspense>
-
-      {/* Climate risk: the drought/flood split photo beside 25 seasons of NASA data for Godagari or Dhamrai. */}
-      <div id="climate-shift" className="scroll-mt-20"><LazyMount height={720}><ClimateShift /></LazyMount></div>
-      <NeighbourPhotos />
+      {/* At a glance: the challenge, what the app does about it, who uses it, and how every number is labelled. */}
+      <AtAGlance />
 
       {/* How it works: a real sequence, so it is numbered. */}
       <section id="how" className="scroll-mt-20 py-16 sm:py-20">
@@ -147,31 +137,6 @@ export default function Home() {
               </li>
             ))}
           </ol>
-        </div>
-      </section>
-
-      {/* Game teaser: learn the tools by living one season of problems. */}
-      <section className="py-8 sm:py-12">
-        <div className="page-shell">
-          <div data-reveal className="glass flat spotlight-card relative overflow-hidden rounded-[30px] p-7 sm:p-10">
-            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(237,192,103,.45),transparent_70%)]" />
-            <div className="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(67,134,58,.28),transparent_70%)]" />
-            <div className="relative grid items-center gap-8 lg:grid-cols-[1.2fr_1fr]">
-              <div>
-                <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Swords size={15} />{T('খেলে শিখুন', 'Learn by playing')}</p>
-                <h2 className="mt-4 text-[32px] font-semibold tracking-[-0.025em] sm:text-[42px]">{T(`${GAMES.play.name.bn}: এক মৌসুমের গল্প`, `${GAMES.play.name.en}: one season's story`)}</h2>
-                <p className="mt-3 max-w-xl text-[17px] leading-8 text-ink/70">{T('খরা, কুয়াশা, পোকা, দাম পড়া — রহিম ভাইয়ের মাঠে ছয় মাসে ছয়টা বিপদ। আগের অভ্যাসে চলবেন, নাকি FieldShift-এর হাতিয়ার দিয়ে লড়বেন? খেলতে খেলতেই শিখে যান কোন সমস্যায় কোন পাতা।', 'Drought, fog, pests, a price crash — six problems in six months on Rahim\'s field. Follow the old habit, or fight back with FieldShift\'s tools? Learn which page solves which problem, just by playing.')}</p>
-                <div className="mt-6 flex flex-wrap gap-3"><Link to="/farm" className="btn-gloss inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold text-white transition-transform hover:scale-105 active:scale-95"><Sprout size={18} />{T(`৩D খামারের খেলা — ${GAMES.farm.name.bn}`, `3D farm game — ${GAMES.farm.name.en}`)}</Link><Link to="/play" className="glass-pill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold transition-transform hover:scale-105 active:scale-95"><Swords size={18} />{L(GAMES.play.name)}</Link></div>
-              </div>
-              <div className="flex flex-wrap justify-center gap-2.5 lg:justify-end">
-                {[[CloudSun, T('খরা', 'Drought'), 'from-amber-300 to-orange-500'], [Layers, T('কুয়াশা', 'Fog'), 'from-slate-300 to-slate-500'], [ScanLine, T('পাতায় দাগ', 'Leaf spots'), 'from-violet-400 to-violet-700'], [TrendingDown, T('দাম পড়া', 'Price crash'), 'from-paddy-300 to-clay-500'], [Droplets, T('সেচ', 'Irrigation'), 'from-sky-300 to-sky-700'], [LifeBuoy, T('পোকা', 'Pests'), 'from-rose-400 to-red-600']].map(([Icon, l, g], k) => (
-                  <span key={l} className="lift glass-pill drift group inline-flex items-center gap-2 rounded-full py-2 pl-2 pr-4 text-[15px] font-semibold transition-all hover:scale-105 active:scale-95" style={{ animationDelay: `${k * -0.9}s` }}>
-                    <span className={`grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br ${g} text-white shadow-sm transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110`}><Icon size={16} /></span>{l}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -232,9 +197,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Bangladesh in NASA's own photographs (NASA Image and Video Library). */}
-      <LazyMount id="nasa-eyes" height={620}><Suspense fallback={<section className="py-16"><div className="page-shell min-h-[560px]" /></section>}><NasaEyes /></Suspense></LazyMount>
+      {/* Try it yourself: today's weather where the visitor is, and the decision engine running in the browser. */}
+      <section id="try" className="scroll-mt-20 py-16 sm:py-20">
+        <div className="page-shell">
+          <div data-reveal className="max-w-3xl">
+            <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><SlidersHorizontal size={15} />{T('নিজে চালিয়ে দেখুন', 'Try it yourself')}</p>
+            <h2 className="mt-4 text-[32px] font-bold sm:text-[40px]">{T('আজকের আবহাওয়া আর সিদ্ধান্ত, এখনই', 'Today’s weather and the decision, live')}</h2>
+            <p className="mt-3 text-[16.5px] leading-8 text-muted">{T('প্রথমে আপনার জায়গার আজকের আবহাওয়া। তার নিচে এলাকা, চাওয়া আর আগের ফসল বদলে দেখুন সুপারিশ কীভাবে বদলায়; হিসাবটা আপনার ব্রাউজারেই চলে।', 'First, today’s weather where you are. Under it, change the place, the goal or the last crop and watch the advice change; the working runs in your browser.')}</p>
+          </div>
+          <LiveWeather className="mt-8" />
+          <DecisionSandbox />
+        </div>
+      </section>
 
+      <LazyMount height={640}><Suspense fallback={<section className="py-14"><div className="page-shell min-h-[600px]" /></section>}><RotationTeaser /></Suspense></LazyMount>
+
+      {/* Climate risk: the drought/flood split photo beside 25 seasons of NASA data for Godagari or Dhamrai. */}
+      <div id="climate-shift" className="scroll-mt-20"><LazyMount height={720}><ClimateShift /></LazyMount></div>
       {/* Data sources over the satellite patchwork. */}
       <section id="data" className="relative isolate scroll-mt-20 overflow-hidden py-16 text-white sm:py-24">
         <div className="absolute inset-0 -z-10"><Photo name="satellite" fill sizes="100vw" decorative /><div className="absolute inset-0 bg-primary-950/85" /></div>
@@ -276,6 +255,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Bangladesh in NASA's own photographs (NASA Image and Video Library). */}
+      <LazyMount id="nasa-eyes" height={620}><Suspense fallback={<section className="py-16"><div className="page-shell min-h-[560px]" /></section>}><NasaEyes /></Suspense></LazyMount>
+
       {/* People: the farmer photo with the officer support story, the live sample requests and what the officer sees. */}
       <OfficerSection />
 
@@ -293,6 +275,37 @@ export default function Home() {
             <h2 className="mt-4 text-[28px] font-bold">{T('এবার ফসল রোপণ সময়মতো হচ্ছে কি?', 'Is planting on time this year?')}</h2>
             <p className="mt-2 text-[16px] leading-8 text-muted">{T('রবির হিসাব নাসা পাওয়ার থেকে। বর্ষার আমনে মেঘের নিচেও সেন্টিনেল-১ রাডার দেখে কোন জমিতে কবে চারা রোপণ হলো, আর নাসা আইমার্জের বৃষ্টির সঙ্গে মিলিয়ে দেখায় এবার কোন উপজেলা দেরিতে। রাজশাহী আর ঢাকা জেলার প্রতিটি গ্রামীণ উপজেলার আসল উপগ্রহ তথ্য, ২০১৭ থেকে চলতি মৌসুম পর্যন্ত।', 'Rabi planning uses NASA POWER. For monsoon Aman, Sentinel-1 radar sees through cloud when each field is transplanted, and NASA IMERG rain shows the season behind it, so you can see which upazila is late this year. Real satellite data for every rural upazila of Rajshahi and Dhaka districts, 2017 to the current season.')}</p>
             <div className="mt-5 flex flex-wrap gap-3"><Button to="/officer/radar"><RadarIcon size={17} />{T('রোপণ রাডার দেখুন', 'Open Ropan Radar')}</Button></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Who it is for: census numbers and NASA SEDAC's measures of each upazila. */}
+      <LazyMount id="impact" height={760}><Suspense fallback={<section className="py-16"><div className="page-shell min-h-[700px]" /></section>}><ImpactReach /></Suspense></LazyMount>
+      <Suspense fallback={<section className="py-16 sm:py-20"><div className="page-shell min-h-[760px]" /></section>}><CountryCrops /></Suspense>
+
+      <NeighbourPhotos />
+
+      {/* Game teaser: learn the tools by living one season of problems. */}
+      <section className="py-8 sm:py-12">
+        <div className="page-shell">
+          <div data-reveal className="glass flat spotlight-card relative overflow-hidden rounded-[30px] p-7 sm:p-10">
+            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(237,192,103,.45),transparent_70%)]" />
+            <div className="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(67,134,58,.28),transparent_70%)]" />
+            <div className="relative grid items-center gap-8 lg:grid-cols-[1.2fr_1fr]">
+              <div>
+                <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Swords size={15} />{T('খেলে শিখুন', 'Learn by playing')}</p>
+                <h2 className="mt-4 text-[32px] font-semibold tracking-[-0.025em] sm:text-[42px]">{T(`${GAMES.play.name.bn}: এক মৌসুমের গল্প`, `${GAMES.play.name.en}: one season's story`)}</h2>
+                <p className="mt-3 max-w-xl text-[17px] leading-8 text-ink/70">{T('খরা, কুয়াশা, পোকা, দাম পড়া — রহিম ভাইয়ের মাঠে ছয় মাসে ছয়টা বিপদ। আগের অভ্যাসে চলবেন, নাকি FieldShift-এর হাতিয়ার দিয়ে লড়বেন? খেলতে খেলতেই শিখে যান কোন সমস্যায় কোন পাতা।', 'Drought, fog, pests, a price crash — six problems in six months on Rahim\'s field. Follow the old habit, or fight back with FieldShift\'s tools? Learn which page solves which problem, just by playing.')}</p>
+                <div className="mt-6 flex flex-wrap gap-3"><Link to="/farm" className="btn-gloss inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold text-white transition-transform hover:scale-105 active:scale-95"><Sprout size={18} />{T(`৩D খামারের খেলা — ${GAMES.farm.name.bn}`, `3D farm game — ${GAMES.farm.name.en}`)}</Link><Link to="/play" className="glass-pill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold transition-transform hover:scale-105 active:scale-95"><Swords size={18} />{L(GAMES.play.name)}</Link></div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2.5 lg:justify-end">
+                {[[CloudSun, T('খরা', 'Drought'), 'from-amber-300 to-orange-500'], [Layers, T('কুয়াশা', 'Fog'), 'from-slate-300 to-slate-500'], [ScanLine, T('পাতায় দাগ', 'Leaf spots'), 'from-violet-400 to-violet-700'], [TrendingDown, T('দাম পড়া', 'Price crash'), 'from-paddy-300 to-clay-500'], [Droplets, T('সেচ', 'Irrigation'), 'from-sky-300 to-sky-700'], [LifeBuoy, T('পোকা', 'Pests'), 'from-rose-400 to-red-600']].map(([Icon, l, g], k) => (
+                  <span key={l} className="lift glass-pill drift group inline-flex items-center gap-2 rounded-full py-2 pl-2 pr-4 text-[15px] font-semibold transition-all hover:scale-105 active:scale-95" style={{ animationDelay: `${k * -0.9}s` }}>
+                    <span className={`grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br ${g} text-white shadow-sm transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110`}><Icon size={16} /></span>{l}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -318,12 +331,56 @@ export default function Home() {
           <Link to="/officer/radar" className="hover:text-white transition-colors duration-150"><RadarIcon size={14} className="mr-1.5 inline text-primary-300" />{T('রোপণ রাডার', 'Ropan Radar')}</Link>
           <Link to="/science" className="hover:text-white transition-colors duration-150"><Satellite size={14} className="mr-1.5 inline text-primary-300" />{T('বিজ্ঞান ও ভূ-রসায়ন', 'Science & Geochem')}</Link>
           <Link to="/farm" className="hover:text-white transition-colors duration-150"><Swords size={14} className="mr-1.5 inline text-primary-300" />{T('মাঠের মানুষ ৩ডি গেম', '3D Farm Game')}</Link>
-          <Link to="/stories" className="hover:text-white transition-colors duration-150"><MapPinned size={14} className="mr-1.5 inline text-primary-300" />{T('মাঠের গল্প ও ধাপ', 'Stories & Levels')}</Link>
-          <Link to="/kids" className="hover:text-white transition-colors duration-150"><Sparkles size={14} className="mr-1.5 inline text-primary-300" />{T('স্বপ্নের মাঠ', 'Kids Dream Field')}</Link>
-          <Link to="/abroad/india" className="hover:text-white transition-colors duration-150"><CloudSun size={14} className="mr-1.5 inline text-primary-300" />{T('আন্তর্জাতিক বিস্তার (৮ দেশ)', 'Abroad (8 Nations)')}</Link>
+          <Link to="/stories" className="hover:text-white transition-colors duration-150"><MapPinned size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.stories.name)}</Link>
+          <Link to="/kids" className="hover:text-white transition-colors duration-150"><Sparkles size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.kids.name)}</Link>
+          <Link to="/abroad/india" className="hover:text-white transition-colors duration-150"><CloudSun size={14} className="mr-1.5 inline text-primary-300" />{T(`আরও ${num(ABROAD_ORDER.length, 'bn')} দেশের মাঠ`, `Fields in ${ABROAD_ORDER.length} more countries`)}</Link>
         </div>
       </footer>
     </>
+  );
+}
+
+// What a first-time visitor (or a judge) needs before anything else: the problem, what the app does about it, who it
+// is for, which NASA data it reads, and how every number on the site says what produced it.
+function AtAGlance() {
+  const { T, L } = useStore();
+  const cards = [
+    [CloudSun, 'from-amber-100 to-amber-50 text-amber-700', T('সমস্যা', 'The problem'), T('কৃষক রবির ফসল আর লাগানোর দিন বাছেন অভ্যাসে, কিন্তু আবহাওয়া আর আগের মতো নেই: ২৫ বছরের নাসার তথ্যে শীত, গরম আর বৃষ্টি তিনটিই সরে গেছে। একটি ভুল বাছাইয়ে পুরো মৌসুম নষ্ট হয়।', 'Farmers pick the Rabi crop and its sowing day by habit, but the weather has moved: in 25 years of NASA data the cold, the heat and the rain have all shifted. One wrong choice costs a whole season.')],
+    [Sprout, 'from-primary-100 to-primary-50 text-primary-700', T('আমাদের উত্তর', 'What FieldShift does'), T('একটি জমির জন্য পাঁচটি রবি ফসল, প্রতিটি তিন তারিখে, ২৫ মৌসুমের নাসার আবহাওয়ায় চালিয়ে দেখে; সঙ্গে মাটি, সেচ, দাম আর কৃষকের চাওয়া। তারপর বলে: একই ফসল, সময় বদল, না অন্য ফসল, আর কেন। পরের দশ বছরের ফসলচক্রও হিসাব করে।', 'For one field it replays five Rabi crops at three sowing dates through 25 seasons of NASA weather, adds the soil, water, prices and the farmer’s priorities, and says keep, change the date or shift, with the reason. Then it works out the next ten years of rotation.')],
+    [ShieldCheck, 'from-sky-100 to-sky-50 text-sky-700', T('কারা ব্যবহার করেন', 'Who it is for'), T(`কৃষক (বাংলায়, কথা বলে, বা বাটন ফোনে এসএমএসে) আর উপজেলা কৃষি অফিসার, যিনি তাঁদের প্রশ্নের উত্তর দেন। একই হাতিয়ার আরও ${num(ABROAD_ORDER.length, 'bn')}টি দেশের মাঠের জন্য, তাদের নিজের ফসল আর সমস্যায়।`, `Farmers (in Bangla, by voice, or by SMS on a basic phone) and the upazila agriculture officer who answers them. The same tools cover fields in ${ABROAD_ORDER.length} more countries, with their own crops and problems.`)],
+  ];
+  const nasa = ['POWER', 'GPM IMERG', 'MODIS', 'SMAP', 'GRACE', 'NEX-GDDP-CMIP6', 'SRTM', 'SEDAC', 'HLS · GIBS', 'FIRMS'];
+  return (
+    <section id="glance" className="scroll-mt-20 py-16 sm:py-20">
+      <div className="page-shell">
+        <div data-reveal className="max-w-3xl">
+          <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Sparkles size={15} />{L(PROJECT_EVENT)}</p>
+          <h2 className="mt-4 text-[32px] font-bold sm:text-[40px]">{T(`এক নজরে ${PROJECT_NAME}`, `${PROJECT_NAME} at a glance`)}</h2>
+          <p className="mt-3 text-[16.5px] leading-8 text-muted">{T('একটি জমির জন্য একটি প্রশ্নের উত্তর: এবার কী লাগাব, কবে, আর তার পরে কী।', 'One question, answered for one field: what to plant this season, when, and what comes after it.')}</p>
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {cards.map(([Icon, tone, h, body], i) => (
+            <div key={i} data-reveal style={{ '--d': `${i * 90}ms` }} className="lift glass flat rounded-[24px] p-6">
+              <span className={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${tone}`}><Icon size={23} /></span>
+              <h3 className="mt-4 text-[21px] font-bold">{h}</h3>
+              <p className="mt-2 text-[15.5px] leading-7 text-muted">{body}</p>
+            </div>
+          ))}
+        </div>
+        <div data-reveal className="mt-4 grid gap-4 lg:grid-cols-[1.25fr_1fr]">
+          <div className="glass flat rounded-[24px] p-6">
+            <p className="flex items-center gap-2 text-[15px] font-semibold"><Satellite size={18} className="text-sky-700" />{T('যে নাসার তথ্য পড়া হয়', 'The NASA data it reads')}</p>
+            <div className="mt-3 flex flex-wrap gap-2">{nasa.map((n) => <a key={n} href="#data" onClick={(e) => { e.preventDefault(); document.getElementById('data')?.scrollIntoView({ behavior: 'smooth' }); }} className="rounded-full bg-sky-50 px-3 py-1.5 text-[13.5px] font-semibold text-sky-800 ring-1 ring-sky-200 transition hover:bg-sky-100">{n}</a>)}</div>
+            <p className="mt-3 text-[13.5px] leading-6 text-muted">{T('সঙ্গে সেন্টিনেল-১ ও ২, SoilGrids, আবহাওয়া অধিদপ্তর, বিবিএস আর FAOSTAT।', 'Plus Sentinel-1 and 2, SoilGrids, the Bangladesh Meteorological Department, BBS and FAOSTAT.')} <Link to="/science#coverage" className="font-semibold text-primary-700 underline-offset-4 hover:underline">{T('পুরো তালিকা', 'Full register')} →</Link></p>
+          </div>
+          <div className="glass flat rounded-[24px] p-6">
+            <p className="flex items-center gap-2 text-[15px] font-semibold"><ShieldCheck size={18} className="text-primary-700" />{T('প্রতিটি সংখ্যার পাশে তার উৎস', 'Every number says where it came from')}</p>
+            <div className="mt-3"><Tags list={['SAT', 'STATION', 'MODEL', 'RECORD', 'RULE', 'AI', 'DEMO']} /></div>
+            <p className="mt-3 text-[13.5px] leading-6 text-muted">{T('উপগ্রহ, স্টেশন, মডেল, প্রকাশিত রেকর্ড, নিয়ম, AI, না নমুনা: সাইটের ফলাফলের পাশে এর একটি লেখা থাকে। কৃষক আর তাঁদের অনুরোধ নমুনা; আবহাওয়া, মাটি, দাম আর ফলন আসল।', 'Satellite, station, model, published record, rule, AI or sample: results on the site carry one of these. The farmers and their requests are samples; the weather, soil, prices and yields are real.')}</p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
