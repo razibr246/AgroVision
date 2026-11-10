@@ -25,7 +25,6 @@ import OrbitConstellation from '../../components/science/OrbitConstellation';
 import EarthdataSTAC from '../../components/science/EarthdataSTAC';
 import ChallengeDossier from '../../components/science/ChallengeDossier';
 import DataFusionHarmonizer from '../../components/science/DataFusionHarmonizer';
-import GlobalAwardMatrix from '../../components/science/GlobalAwardMatrix';
 import SoilGeochemistryExplorer from '../../components/science/SoilGeochemistryExplorer';
 
 const t = (bn, en) => ({ bn, en });
@@ -249,7 +248,6 @@ export default function Science() {
 
       <ChallengeDossier />
 
-      <GlobalAwardMatrix />
 
       <section id="rules" className="mt-12 scroll-mt-28">
         <h2 className="flex items-center gap-2 text-[24px] font-bold"><ClipboardCheck size={20} className="text-primary-700" />{T('ফসলের নিয়ম আর তাদের যাচাই', 'The crop rules and who has checked them')}</h2>
