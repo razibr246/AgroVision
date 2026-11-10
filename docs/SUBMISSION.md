@@ -77,8 +77,8 @@ risks and what needs local review, and the app says plainly that the farmer and 
 
 ## How we know it works (validity)
 
-- **Automated checks:** on @@TESTDATE@@, on a clean checkout of commit `@@TESTCOMMIT@@`, `npm test` passed
-  @@TESTCOUNT@@ tests with 0 failures and `npm run build` completed. These checks cover the calculation engines, GIS,
+- **Automated checks:** on 11 November 2026, on a clean checkout of commit `710979d`, `npm test` passed
+  368 tests with 0 failures and `npm run build` completed. These checks cover the calculation engines, GIS,
   rotations, voice, radar and game logic; they do not establish agronomic validity or user acceptance.
 - **User validation status:** the team reports a Dhamrai session on 4 November 2026 with five farmers and one
   agriculture officer; participants reportedly tried all project features. Feedback themes included Ropon Radar,
