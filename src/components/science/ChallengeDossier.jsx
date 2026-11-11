@@ -15,9 +15,9 @@ const CRITERIA = [
     nasaDemandBn: 'নাসার দীর্ঘমেয়াদি পরিবেশগত ডেটাসেট ব্যবহার করে স্থানীয় ফসলি পরিস্থিতি পর্যবেক্ষণ করা।',
     nasaDemandEn: 'Use NASA’s long-term environmental datasets to understand local growing conditions.',
     solutionBn: 'নাসা POWER (২৫ বছরের দৈনিক আবহাওয়া), GPM IMERG (বৃষ্টির শুরু ও পরিমাণ), SMAP (শিকড়ের আর্দ্রতা), এবং GRACE (ভূগর্ভস্থ পানির পতন) সরাসরি ব্রাউজারে ইনজেস্ট ও প্রসেস হয়।',
-    solutionEn: 'Ingests NASA POWER (25yr daily heat/rain), GPM IMERG (daily rain/onset), SMAP (root wetness), and GRACE (aquifer trend) client-side in sub-second time.',
+    solutionEn: 'Ingests NASA POWER (25yr daily heat/rain), GPM IMERG (daily rain/onset), SMAP (root wetness), and GRACE (aquifer trend) client-side in the browser.',
     codeRef: 'src/engine/soilfuture.js · src/engine/climate.js',
-    verification: '361 Tests Passing · 0 Failures',
+    verification: 'Read from committed NASA data; covered by the engine tests',
   },
   {
     id: 'c2',
@@ -29,7 +29,7 @@ const CRITERIA = [
     solutionBn: 'ISRIC SoilGrids 2.0 (২৫০ মিটার কাদা, বালি ও জৈব কার্বন) পেডোট্রান্সফার ফাংশন + কৃষকের নিজস্ব এসআরডিআই (SRDI) মোবাইল ল্যাব পরীক্ষার তথ্য সংযোজন।',
     solutionEn: 'Harmonizes ISRIC SoilGrids 2.0 250m clay/sand/SOC pedotransfer functions with the farmer’s own SRDI mobile lab soil test overlay.',
     codeRef: 'src/engine/soiltest.js · src/engine/soil.js',
-    verification: 'SRDI Chemistry Bounds Validated',
+    verification: 'Lab entries range-checked (soiltest.test.js)',
   },
   {
     id: 'c3',
@@ -38,10 +38,10 @@ const CRITERIA = [
     titleEn: 'Crop Characteristics & Phenological Windows',
     nasaDemandBn: 'ফসলের পানির চাহিদা, রোগবালাই ঝুঁকি এবং স্থানীয় রোপণ মৌসুমের সঙ্গে মানানসই করা।',
     nasaDemandEn: 'Account for crop water needs, disease risks, and local market/growing seasons.',
-    solutionBn: 'বারি (BARI), ব্রি (BRRI) ও বিজেআরআই (BJRI) সুপারিশকৃত জাত ও সময়সূচি; সেন্টিনেল-১ রাডারে মাপা আমন রোপণের মধ্যমা এবং ডিএএম (DAM) পাইকারি বাজার দর।',
-    solutionEn: 'Calibrated to BARI/BRRI agronomic guidelines; Sentinel-1 radar-measured Aman planting median; DAM wholesale market glut indicators.',
+    solutionBn: 'প্রকাশিত গবেষণা থেকে নেওয়া ফসলের সীমা ও সময় (স্থানীয় যাচাই এখনো লেখা হয়নি); সেন্টিনেল-১ রাডারে মাপা আমন রোপণের মধ্যমা এবং ডিএএম (DAM) পাইকারি বাজার দর।',
+    solutionEn: 'Crop limits and calendars from published research (local review not yet recorded); Sentinel-1 radar-measured Aman planting median; DAM wholesale market glut indicators.',
     codeRef: 'src/engine/crops.js · src/engine/rotation.js',
-    verification: 'Phenological Gates Verified',
+    verification: 'Published starting values, open for local review',
   },
   {
     id: 'c4',
@@ -53,7 +53,7 @@ const CRITERIA = [
     solutionBn: 'দশ বছরের কয়েক শত সম্ভাব্য ফসলচক্রের মধ্যে আইসিবিএম (ICBM) কার্বন ও এফএও-৫৬ সেচ চালিয়ে কৃষকের পছন্দে প্যারেটো-অনুকূল সেরা ৩টি পথ (বর্তমান, সমন্বয়, পরিবর্তন) নির্ধারণ।',
     solutionEn: 'Runs hundreds of feasible 10-year cycles through ICBM soil carbon and FAO-56 irrigation, ranking top Pareto-optimal strategies (KEEP, ADJUST, SHIFT).',
     codeRef: 'src/engine/decision.js · src/components/future/ParetoFrontier.jsx',
-    verification: 'Closed-Loop Conservation Proven',
+    verification: 'Model estimates (ICBM, FAO-56), shown with their limits',
   },
   {
     id: 'c5',
@@ -65,7 +65,7 @@ const CRITERIA = [
     solutionBn: 'নাসা NEX-GDDP-CMIP6 এর ৮টি বৈশ্বিক জলবায়ু মডেল × ৫টি ফলন বছর মিলিয়ে ৪০টি সম্ভাব্য ভবিষ্যতের ওপর স্ট্রেস টেস্ট + ডিজিটাল টুইন ক্যাওস ইনজেক্টর।',
     solutionEn: 'Replays rotations across 40 futures (8 NEX-GDDP-CMIP6 climate models × 5 FAOSTAT yield years) with interactive extreme shock injection.',
     codeRef: 'src/engine/soilfuture.js · src/components/future/StressChaosTest.jsx',
-    verification: '40-Future CMIP6 Matrix Passed',
+    verification: 'Robust when better in ≥ 80% of 40 futures',
   },
   {
     id: 'c6',
@@ -77,7 +77,7 @@ const CRITERIA = [
     solutionBn: 'গ্রামীণ বাংলায় প্রাকৃতিক ভয়েস সহকারী (Google Gemini/Web Audio), বাটন ফোনের জন্য এসএমএস মোড, ইউনিয়ন কর্মকর্তার অডিট ট্রেইল এবং পাঁচ প্রতিবেশী দেশ, যুক্তরাষ্ট্র, ব্রাজিল ও স্পেনে সম্প্রসারণ।',
     solutionEn: 'Rural Bangla speech synthesis (`api/tts.js`), button phone SMS mode, SAAO officer hash-chained audit triage, and expansion to five neighbours, the USA, Brazil and Spain.',
     codeRef: 'src/voice/brain.js · src/engine/chakra.js · src/engine/abroad.js',
-    verification: 'Zero-Latency Offline Execution',
+    verification: 'Rule answers work offline; voice and AI need the network',
   },
 ];
 
@@ -99,7 +99,7 @@ export default function ChallengeDossier() {
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-primary-100 px-3 py-1 text-[12.5px] font-bold text-primary-900">
-            {T('৩৬১টি টেস্টে প্রমাণিত', '361/361 Tests Verified')}
+            {T('প্রতিটি দাবির পাশে কোড', 'Each claim points to its code')}
           </span>
           <Tags list={['SAT', 'MODEL', 'RULE']} />
         </div>
