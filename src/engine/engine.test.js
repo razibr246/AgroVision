@@ -44,9 +44,9 @@ test('decision returns a label and ranked options', () => {
 test('Boro heat sensitivities leave the default rule intact and only relax the exploratory copy', () => {
   const rule = RABI_CROPS.boro.rules.find((r) => r.id === 'boro_heat');
   const relaxed = withBoroHeat(RABI_CROPS.boro, BORO_HEAT_SENSITIVITIES.find((x) => x.id === '37c'));
-  assert.deepEqual([rule.thr, rule.min], [35, 3]);
+  assert.deepEqual([rule.thr, rule.min], [36, 3]);
   assert.deepEqual([relaxed.rules.find((r) => r.id === 'boro_heat').thr, relaxed.rules.find((r) => r.id === 'boro_heat').min], [37, 3]);
-  assert.deepEqual([RABI_CROPS.boro.rules[0].thr, RABI_CROPS.boro.rules[0].min], [35, 3]);
+  assert.deepEqual([RABI_CROPS.boro.rules[0].thr, RABI_CROPS.boro.rules[0].min], [36, 3]);
 });
 
 test('priorities change the ranking weights', () => {
@@ -190,7 +190,7 @@ test('field future Boro heat scenarios reduce or hold the Boro weather-risk shar
   const warmerLimit = fieldContext({ clim, change: null, soil: ffSoil, plot: { irrigation: 'dtw' }, amanT: null, econ: ffEcon,
     boroHeat: BORO_HEAT_SENSITIVITIES.find((x) => x.id === '37c') });
   assert.ok(warmerLimit.rabi.boro.risk.now <= base.rabi.boro.risk.now);
-  assert.equal(RABI_CROPS.boro.rules[0].thr, 35);
+  assert.equal(RABI_CROPS.boro.rules[0].thr, 36); // set on the Dhamrai officer's review, docs/REVIEW_LOG.md
   const ff = fieldFuture({ ctx: base, lastCrop: 'boro', plan: null, priorities: [] });
   const same = rankBoroSensitivity(ff, base, [], []);
   const alternate = rankBoroSensitivity(ff, warmerLimit, [], []);

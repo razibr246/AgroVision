@@ -11,10 +11,12 @@ When a review happens, add a row here **and** the same entry to `src/data/review
 | Date | Reviewer (role, office) | What was reviewed | What changed | Commit |
 | --- | --- | --- | --- | --- |
 | 2026-11-04 | Omar Faruk, agriculture officer, Dhamrai Upazila Agriculture Office | The app as a whole (farmer and officer pages), during the Dhamrai session with five farmers (`docs/USER_TESTING.md`) | No change. He said everything is okay and rated it 100 out of 100. Which crop rules he went through one by one was not recorded | — |
+| 2026-11-12 | Md. Omar Faruk, Upazila Agriculture Officer, Dhamrai, Dhaka (by phone) | Boro flowering heat (35 °C, 3 days); wheat grain-fill heat (32 °C, 5 days); lentil Stemphylium (4 rainy days at flowering); the constraint rules for a power tiller and for labour | **Boro:** "36 °C is better to consider" → the limit is now 36 °C, 3 days. **Wheat, lentil:** correct, no change. **Power tiller:** not wheat, "mustard is the bigger issue here": a late mustard pushes the Boro after it into the April–May heat → no tiller now flags mustard first and wheat second, removing neither. **Labour:** correct ("that is common here"), no change. Agreed to be named | this commit |
 
-As reported by the team. Because the rules were not gone through one by one on record, Boro's flowering-heat limit
-stays listed below as an open problem. The farmer plan already shows how the advice changes if the limit is 36 °C or
-37 °C for 3 days, or 35 °C for 5 days (`BORO_HEAT_SENSITIVITIES`, commit `69b0aad`); the default is unchanged.
+The 12 November review went through the rules one by one, by phone, as the team reports it (answers in his words,
+translated). Boro's flowering-heat limit moved from 35 °C to 36 °C on it; this still crosses in 11 of 13 recent
+seasons at Godagari and 9 of 13 at Dacope (`node scripts/build/check_events.mjs` and `docs/EVIDENCE.md`), so the
+question is not closed. The plan still shows the effect of 35 °C, 37 °C or 5 days (`BORO_HEAT_SENSITIVITIES`).
 
 ## What a reviewer should check
 

@@ -71,8 +71,9 @@ name needs an officer's approval in every mode (`src/engine/chakra.js`).
 | SMAP L4 against POWER root-zone wetness | r = 0.89–0.97 over 113 months (`npm run data:smap-check`). A **consistency check**, not independent validation: both come from NASA's GEOS land modelling |
 | Machine learning on NASA data, seasons held out | AUC about 0.5: the weather record alone does not forecast a crop's year, except a little where Rabi crops follow the rain (`/science#ml`). Reported as a negative result |
 | Usability with farmers and officers | **Team-reported**: Dhamrai, 4 November 2026. Five farmers used the website and app (highly positive), the agriculture officer rated it 100/100, three game players and two children gave the games 5 stars. Tasks and answers were not written down; the next session will be recorded with `/testkit` (consent script included) |
-| Crop thresholds by a local officer or agronomist | **Team-reported**: Omar Faruk, Dhamrai agriculture officer, 4 November 2026, said everything is okay. Which rules he checked one by one was not recorded (`docs/REVIEW_LOG.md`) |
-| Boro flowering-heat limit | **Open problem.** 3+ days ≥ 35 °C is crossed in 12–13 of 13 recent seasons at Godagari and Dacope, so it almost certainly over-warns. The plan shows the effect of 36 °C, 37 °C or 5 days; the default is unchanged |
+| Crop thresholds by a local officer or agronomist | **Team-reported, rule by rule**: Md. Omar Faruk, Dhamrai UAO, 12 November 2026: Boro 35 → 36 °C, wheat and lentil confirmed, the power-tiller rule changed (`docs/REVIEW_LOG.md`) |
+| Real disasters, hindcast | 5 documented Boro disasters × nearest upazilas: signal above the usual in 14 of 17, top 3 of 25 seasons in 3 of 17 (`npm run data:events`, `/science#events`) |
+| Boro flowering-heat limit | **Improved, still open.** Now 36 °C on the UAO's review; it crosses in 11 of 13 recent seasons at Godagari (13 at 35 °C) |
 
 ## 6. What needs the network
 

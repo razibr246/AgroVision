@@ -38,6 +38,7 @@ comes from is in [docs/DATA_SOURCES.md](../docs/DATA_SOURCES.md).
 | `data:onset` | `onset/onset.mjs` | Rain onset per year for the seven upazilas, `src/data/radar/onset_<upazila>.json` |
 | `data:onset-bmd` | `onset/compare_bmd.mjs` | The onset rule against BMD station onsets, `src/data/radar/onset_validation.json` |
 | `data:smap-check` | `build/check_smap_power.mjs` | SMAP L4 against POWER root-zone wetness, per upazila (prints r; writes nothing) |
+| `data:events` | `build/check_events.mjs` | Documented Boro disasters against the app's NASA signals at the nearest upazila, `src/data/climate/event_check.json` |
 | `photos:abroad` | `photos/abroad_photos.py` | Neighbouring-country photos, `src/assets/images/abroad/` |
 | `photos:nasa` | `photos/nasa_images.py` | NASA Image and Video Library photos, `src/assets/images/nasa/`, `src/data/media/nasa_images.json` |
 | `photos:cards` | `photos/game_cards.py` | The two real game-card pictures on the play hub: a CC BY-SA farmer photo from Wikimedia Commons and NASA Terra MODIS true colour of Bangladesh (GIBS), `src/assets/images/{season-showdown,seven-fields}-*.webp` |

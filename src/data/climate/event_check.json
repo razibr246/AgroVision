@@ -1,0 +1,2214 @@
+{
+ "provenance": {
+  "status": "REAL",
+  "what": "Documented crop disasters against the app’s NASA signals at the nearest upazila (scripts/build/check_events.mjs). top-3 = the event season ranks in the top 3 of the record; above usual = it is above the median of the other seasons.",
+  "data": "NASA POWER daily (station-corrected) and NASA GPM IMERG daily via POWER",
+  "generated": "2026-11-12"
+ },
+ "results": [
+  {
+   "id": "heat2024",
+   "place": "godagari",
+   "year": 2024,
+   "what": {
+    "bn": "এপ্রিল ২০২৪-এর টানা তাপপ্রবাহ, রাজশাহীতে বোরোর ক্ষতি",
+    "en": "The April 2024 heatwave: Boro hit in Rajshahi"
+   },
+   "source": {
+    "label": "Down To Earth, 26 Apr 2024: 30 days of heatwave from 1 April, longest since 1948; BAMIS bulletin of 24 Apr 2024 on severe heat over Rajshahi",
+    "url": "https://www.downtoearth.org.in/climate-change/unusual-heat-scorches-bangladesh-as-april-s-consecutive-heatwave-breaks-76-year-record-96034"
+   },
+   "signal": {
+    "bn": "বোরোর ফুল আসার সময় ৩৬° সেলসিয়াস বা বেশি গরমের দিন (অ্যাপের নিয়ম)",
+    "en": "Days at 36 °C or more while Boro flowers (the app’s rule)"
+   },
+   "note": null,
+   "value": 16,
+   "median": 11,
+   "rank": 6,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     9
+    ],
+    [
+     2002,
+     6
+    ],
+    [
+     2003,
+     13
+    ],
+    [
+     2004,
+     13
+    ],
+    [
+     2005,
+     9
+    ],
+    [
+     2006,
+     10
+    ],
+    [
+     2007,
+     11
+    ],
+    [
+     2008,
+     7
+    ],
+    [
+     2009,
+     11
+    ],
+    [
+     2010,
+     21
+    ],
+    [
+     2011,
+     3
+    ],
+    [
+     2012,
+     5
+    ],
+    [
+     2013,
+     17
+    ],
+    [
+     2014,
+     17
+    ],
+    [
+     2015,
+     2
+    ],
+    [
+     2016,
+     15
+    ],
+    [
+     2017,
+     15
+    ],
+    [
+     2018,
+     1
+    ],
+    [
+     2019,
+     4
+    ],
+    [
+     2020,
+     7
+    ],
+    [
+     2021,
+     18
+    ],
+    [
+     2022,
+     17
+    ],
+    [
+     2023,
+     11
+    ],
+    [
+     2024,
+     16
+    ],
+    [
+     2025,
+     6
+    ]
+   ]
+  },
+  {
+   "id": "heat2024",
+   "place": "dhamrai",
+   "year": 2024,
+   "what": {
+    "bn": "এপ্রিল ২০২৪-এর টানা তাপপ্রবাহ, রাজশাহীতে বোরোর ক্ষতি",
+    "en": "The April 2024 heatwave: Boro hit in Rajshahi"
+   },
+   "source": {
+    "label": "Down To Earth, 26 Apr 2024: 30 days of heatwave from 1 April, longest since 1948; BAMIS bulletin of 24 Apr 2024 on severe heat over Rajshahi",
+    "url": "https://www.downtoearth.org.in/climate-change/unusual-heat-scorches-bangladesh-as-april-s-consecutive-heatwave-breaks-76-year-record-96034"
+   },
+   "signal": {
+    "bn": "বোরোর ফুল আসার সময় ৩৬° সেলসিয়াস বা বেশি গরমের দিন (অ্যাপের নিয়ম)",
+    "en": "Days at 36 °C or more while Boro flowers (the app’s rule)"
+   },
+   "note": null,
+   "value": 5,
+   "median": 4,
+   "rank": 11,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     7
+    ],
+    [
+     2002,
+     4
+    ],
+    [
+     2003,
+     4
+    ],
+    [
+     2004,
+     11
+    ],
+    [
+     2005,
+     0
+    ],
+    [
+     2006,
+     2
+    ],
+    [
+     2007,
+     9
+    ],
+    [
+     2008,
+     3
+    ],
+    [
+     2009,
+     4
+    ],
+    [
+     2010,
+     17
+    ],
+    [
+     2011,
+     1
+    ],
+    [
+     2012,
+     3
+    ],
+    [
+     2013,
+     14
+    ],
+    [
+     2014,
+     16
+    ],
+    [
+     2015,
+     0
+    ],
+    [
+     2016,
+     10
+    ],
+    [
+     2017,
+     0
+    ],
+    [
+     2018,
+     0
+    ],
+    [
+     2019,
+     0
+    ],
+    [
+     2020,
+     0
+    ],
+    [
+     2021,
+     8
+    ],
+    [
+     2022,
+     11
+    ],
+    [
+     2023,
+     7
+    ],
+    [
+     2024,
+     5
+    ],
+    [
+     2025,
+     2
+    ]
+   ]
+  },
+  {
+   "id": "heat2024",
+   "place": "sitakunda",
+   "year": 2024,
+   "what": {
+    "bn": "এপ্রিল ২০২৪-এর টানা তাপপ্রবাহ, রাজশাহীতে বোরোর ক্ষতি",
+    "en": "The April 2024 heatwave: Boro hit in Rajshahi"
+   },
+   "source": {
+    "label": "Down To Earth, 26 Apr 2024: 30 days of heatwave from 1 April, longest since 1948; BAMIS bulletin of 24 Apr 2024 on severe heat over Rajshahi",
+    "url": "https://www.downtoearth.org.in/climate-change/unusual-heat-scorches-bangladesh-as-april-s-consecutive-heatwave-breaks-76-year-record-96034"
+   },
+   "signal": {
+    "bn": "বোরোর ফুল আসার সময় ৩৬° সেলসিয়াস বা বেশি গরমের দিন (অ্যাপের নিয়ম)",
+    "en": "Days at 36 °C or more while Boro flowers (the app’s rule)"
+   },
+   "note": null,
+   "value": 2,
+   "median": 0,
+   "rank": 3,
+   "of": 25,
+   "hit": true,
+   "above": true,
+   "series": [
+    [
+     2001,
+     2
+    ],
+    [
+     2002,
+     0
+    ],
+    [
+     2003,
+     0
+    ],
+    [
+     2004,
+     0
+    ],
+    [
+     2005,
+     0
+    ],
+    [
+     2006,
+     0
+    ],
+    [
+     2007,
+     0
+    ],
+    [
+     2008,
+     0
+    ],
+    [
+     2009,
+     1
+    ],
+    [
+     2010,
+     1
+    ],
+    [
+     2011,
+     0
+    ],
+    [
+     2012,
+     0
+    ],
+    [
+     2013,
+     0
+    ],
+    [
+     2014,
+     4
+    ],
+    [
+     2015,
+     0
+    ],
+    [
+     2016,
+     0
+    ],
+    [
+     2017,
+     0
+    ],
+    [
+     2018,
+     0
+    ],
+    [
+     2019,
+     0
+    ],
+    [
+     2020,
+     0
+    ],
+    [
+     2021,
+     0
+    ],
+    [
+     2022,
+     1
+    ],
+    [
+     2023,
+     1
+    ],
+    [
+     2024,
+     2
+    ],
+    [
+     2025,
+     0
+    ]
+   ]
+  },
+  {
+   "id": "heat2024",
+   "place": "dacope",
+   "year": 2024,
+   "what": {
+    "bn": "এপ্রিল ২০২৪-এর টানা তাপপ্রবাহ, রাজশাহীতে বোরোর ক্ষতি",
+    "en": "The April 2024 heatwave: Boro hit in Rajshahi"
+   },
+   "source": {
+    "label": "Down To Earth, 26 Apr 2024: 30 days of heatwave from 1 April, longest since 1948; BAMIS bulletin of 24 Apr 2024 on severe heat over Rajshahi",
+    "url": "https://www.downtoearth.org.in/climate-change/unusual-heat-scorches-bangladesh-as-april-s-consecutive-heatwave-breaks-76-year-record-96034"
+   },
+   "signal": {
+    "bn": "বোরোর ফুল আসার সময় ৩৬° সেলসিয়াস বা বেশি গরমের দিন (অ্যাপের নিয়ম)",
+    "en": "Days at 36 °C or more while Boro flowers (the app’s rule)"
+   },
+   "note": null,
+   "value": 20,
+   "median": 7,
+   "rank": 2,
+   "of": 25,
+   "hit": true,
+   "above": true,
+   "series": [
+    [
+     2001,
+     7
+    ],
+    [
+     2002,
+     2
+    ],
+    [
+     2003,
+     4
+    ],
+    [
+     2004,
+     7
+    ],
+    [
+     2005,
+     1
+    ],
+    [
+     2006,
+     8
+    ],
+    [
+     2007,
+     8
+    ],
+    [
+     2008,
+     2
+    ],
+    [
+     2009,
+     10
+    ],
+    [
+     2010,
+     18
+    ],
+    [
+     2011,
+     5
+    ],
+    [
+     2012,
+     2
+    ],
+    [
+     2013,
+     17
+    ],
+    [
+     2014,
+     21
+    ],
+    [
+     2015,
+     0
+    ],
+    [
+     2016,
+     14
+    ],
+    [
+     2017,
+     0
+    ],
+    [
+     2018,
+     0
+    ],
+    [
+     2019,
+     1
+    ],
+    [
+     2020,
+     6
+    ],
+    [
+     2021,
+     14
+    ],
+    [
+     2022,
+     14
+    ],
+    [
+     2023,
+     9
+    ],
+    [
+     2024,
+     20
+    ],
+    [
+     2025,
+     3
+    ]
+   ]
+  },
+  {
+   "id": "heat2024",
+   "place": "bakerganj",
+   "year": 2024,
+   "what": {
+    "bn": "এপ্রিল ২০২৪-এর টানা তাপপ্রবাহ, রাজশাহীতে বোরোর ক্ষতি",
+    "en": "The April 2024 heatwave: Boro hit in Rajshahi"
+   },
+   "source": {
+    "label": "Down To Earth, 26 Apr 2024: 30 days of heatwave from 1 April, longest since 1948; BAMIS bulletin of 24 Apr 2024 on severe heat over Rajshahi",
+    "url": "https://www.downtoearth.org.in/climate-change/unusual-heat-scorches-bangladesh-as-april-s-consecutive-heatwave-breaks-76-year-record-96034"
+   },
+   "signal": {
+    "bn": "বোরোর ফুল আসার সময় ৩৬° সেলসিয়াস বা বেশি গরমের দিন (অ্যাপের নিয়ম)",
+    "en": "Days at 36 °C or more while Boro flowers (the app’s rule)"
+   },
+   "note": null,
+   "value": 7,
+   "median": 2,
+   "rank": 5,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     7
+    ],
+    [
+     2002,
+     0
+    ],
+    [
+     2003,
+     1
+    ],
+    [
+     2004,
+     0
+    ],
+    [
+     2005,
+     2
+    ],
+    [
+     2006,
+     1
+    ],
+    [
+     2007,
+     0
+    ],
+    [
+     2008,
+     2
+    ],
+    [
+     2009,
+     3
+    ],
+    [
+     2010,
+     5
+    ],
+    [
+     2011,
+     2
+    ],
+    [
+     2012,
+     1
+    ],
+    [
+     2013,
+     14
+    ],
+    [
+     2014,
+     12
+    ],
+    [
+     2015,
+     0
+    ],
+    [
+     2016,
+     3
+    ],
+    [
+     2017,
+     0
+    ],
+    [
+     2018,
+     0
+    ],
+    [
+     2019,
+     0
+    ],
+    [
+     2020,
+     0
+    ],
+    [
+     2021,
+     7
+    ],
+    [
+     2022,
+     1
+    ],
+    [
+     2023,
+     2
+    ],
+    [
+     2024,
+     7
+    ],
+    [
+     2025,
+     2
+    ]
+   ]
+  },
+  {
+   "id": "heat2024",
+   "place": "gangachara",
+   "year": 2024,
+   "what": {
+    "bn": "এপ্রিল ২০২৪-এর টানা তাপপ্রবাহ, রাজশাহীতে বোরোর ক্ষতি",
+    "en": "The April 2024 heatwave: Boro hit in Rajshahi"
+   },
+   "source": {
+    "label": "Down To Earth, 26 Apr 2024: 30 days of heatwave from 1 April, longest since 1948; BAMIS bulletin of 24 Apr 2024 on severe heat over Rajshahi",
+    "url": "https://www.downtoearth.org.in/climate-change/unusual-heat-scorches-bangladesh-as-april-s-consecutive-heatwave-breaks-76-year-record-96034"
+   },
+   "signal": {
+    "bn": "বোরোর ফুল আসার সময় ৩৬° সেলসিয়াস বা বেশি গরমের দিন (অ্যাপের নিয়ম)",
+    "en": "Days at 36 °C or more while Boro flowers (the app’s rule)"
+   },
+   "note": null,
+   "value": 0,
+   "median": 0,
+   "rank": 24,
+   "of": 25,
+   "hit": false,
+   "above": false,
+   "series": [
+    [
+     2001,
+     1
+    ],
+    [
+     2002,
+     0
+    ],
+    [
+     2003,
+     0
+    ],
+    [
+     2004,
+     1
+    ],
+    [
+     2005,
+     0
+    ],
+    [
+     2006,
+     1
+    ],
+    [
+     2007,
+     1
+    ],
+    [
+     2008,
+     1
+    ],
+    [
+     2009,
+     0
+    ],
+    [
+     2010,
+     9
+    ],
+    [
+     2011,
+     0
+    ],
+    [
+     2012,
+     0
+    ],
+    [
+     2013,
+     2
+    ],
+    [
+     2014,
+     2
+    ],
+    [
+     2015,
+     0
+    ],
+    [
+     2016,
+     5
+    ],
+    [
+     2017,
+     0
+    ],
+    [
+     2018,
+     0
+    ],
+    [
+     2019,
+     0
+    ],
+    [
+     2020,
+     0
+    ],
+    [
+     2021,
+     0
+    ],
+    [
+     2022,
+     0
+    ],
+    [
+     2023,
+     3
+    ],
+    [
+     2024,
+     0
+    ],
+    [
+     2025,
+     0
+    ]
+   ]
+  },
+  {
+   "id": "heat2024",
+   "place": "gowainghat",
+   "year": 2024,
+   "what": {
+    "bn": "এপ্রিল ২০২৪-এর টানা তাপপ্রবাহ, রাজশাহীতে বোরোর ক্ষতি",
+    "en": "The April 2024 heatwave: Boro hit in Rajshahi"
+   },
+   "source": {
+    "label": "Down To Earth, 26 Apr 2024: 30 days of heatwave from 1 April, longest since 1948; BAMIS bulletin of 24 Apr 2024 on severe heat over Rajshahi",
+    "url": "https://www.downtoearth.org.in/climate-change/unusual-heat-scorches-bangladesh-as-april-s-consecutive-heatwave-breaks-76-year-record-96034"
+   },
+   "signal": {
+    "bn": "বোরোর ফুল আসার সময় ৩৬° সেলসিয়াস বা বেশি গরমের দিন (অ্যাপের নিয়ম)",
+    "en": "Days at 36 °C or more while Boro flowers (the app’s rule)"
+   },
+   "note": null,
+   "value": 0,
+   "median": 0,
+   "rank": 24,
+   "of": 25,
+   "hit": false,
+   "above": false,
+   "series": [
+    [
+     2001,
+     3
+    ],
+    [
+     2002,
+     0
+    ],
+    [
+     2003,
+     0
+    ],
+    [
+     2004,
+     0
+    ],
+    [
+     2005,
+     0
+    ],
+    [
+     2006,
+     0
+    ],
+    [
+     2007,
+     2
+    ],
+    [
+     2008,
+     0
+    ],
+    [
+     2009,
+     1
+    ],
+    [
+     2010,
+     0
+    ],
+    [
+     2011,
+     0
+    ],
+    [
+     2012,
+     5
+    ],
+    [
+     2013,
+     6
+    ],
+    [
+     2014,
+     5
+    ],
+    [
+     2015,
+     0
+    ],
+    [
+     2016,
+     0
+    ],
+    [
+     2017,
+     0
+    ],
+    [
+     2018,
+     0
+    ],
+    [
+     2019,
+     0
+    ],
+    [
+     2020,
+     0
+    ],
+    [
+     2021,
+     0
+    ],
+    [
+     2022,
+     0
+    ],
+    [
+     2023,
+     0
+    ],
+    [
+     2024,
+     0
+    ],
+    [
+     2025,
+     0
+    ]
+   ]
+  },
+  {
+   "id": "heat2021",
+   "place": "godagari",
+   "year": 2021,
+   "what": {
+    "bn": "৪ এপ্রিল ২০২১-এর গরম বাতাস: ২৭–৩৬ জেলায় ৫০–৭০ হাজার হেক্টর বোরোতে চিটা",
+    "en": "The hot wind of 4 April 2021: Boro sterility on 50,000–70,000 ha in 27–36 districts"
+   },
+   "source": {
+    "label": "Financial Express, Apr 2021: heat stress hits 30 districts (DAE figures)",
+    "url": "https://old.thefinancialexpress.com.bd/national/heat-stress-hits-countrys-30-districts-1618291521"
+   },
+   "signal": {
+    "bn": "১–১০ এপ্রিলের সবচেয়ে গরম দিন",
+    "en": "The hottest day of 1–10 April"
+   },
+   "note": {
+    "bn": "একদিনের গরম বাতাস; অ্যাপের ৩ দিনের নিয়ম এমন ঘটনা ধরে না",
+    "en": "A one-day hot wind; the app’s three-day rule is not built to catch it"
+   },
+   "value": 37.9,
+   "median": 37.1,
+   "rank": 8,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     40.2
+    ],
+    [
+     2002,
+     36.8
+    ],
+    [
+     2003,
+     37.6
+    ],
+    [
+     2004,
+     37.1
+    ],
+    [
+     2005,
+     36.8
+    ],
+    [
+     2006,
+     36.4
+    ],
+    [
+     2007,
+     39.6
+    ],
+    [
+     2008,
+     36
+    ],
+    [
+     2009,
+     36.7
+    ],
+    [
+     2010,
+     40.2
+    ],
+    [
+     2011,
+     36
+    ],
+    [
+     2012,
+     35.8
+    ],
+    [
+     2013,
+     40.3
+    ],
+    [
+     2014,
+     37.8
+    ],
+    [
+     2015,
+     36.7
+    ],
+    [
+     2016,
+     40.9
+    ],
+    [
+     2017,
+     39
+    ],
+    [
+     2018,
+     34
+    ],
+    [
+     2019,
+     35.8
+    ],
+    [
+     2020,
+     36.9
+    ],
+    [
+     2021,
+     37.9
+    ],
+    [
+     2022,
+     37.3
+    ],
+    [
+     2023,
+     36.2
+    ],
+    [
+     2024,
+     38.3
+    ],
+    [
+     2025,
+     37.9
+    ]
+   ]
+  },
+  {
+   "id": "heat2021",
+   "place": "dhamrai",
+   "year": 2021,
+   "what": {
+    "bn": "৪ এপ্রিল ২০২১-এর গরম বাতাস: ২৭–৩৬ জেলায় ৫০–৭০ হাজার হেক্টর বোরোতে চিটা",
+    "en": "The hot wind of 4 April 2021: Boro sterility on 50,000–70,000 ha in 27–36 districts"
+   },
+   "source": {
+    "label": "Financial Express, Apr 2021: heat stress hits 30 districts (DAE figures)",
+    "url": "https://old.thefinancialexpress.com.bd/national/heat-stress-hits-countrys-30-districts-1618291521"
+   },
+   "signal": {
+    "bn": "১–১০ এপ্রিলের সবচেয়ে গরম দিন",
+    "en": "The hottest day of 1–10 April"
+   },
+   "note": {
+    "bn": "একদিনের গরম বাতাস; অ্যাপের ৩ দিনের নিয়ম এমন ঘটনা ধরে না",
+    "en": "A one-day hot wind; the app’s three-day rule is not built to catch it"
+   },
+   "value": 36.8,
+   "median": 36.1,
+   "rank": 8,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     38.4
+    ],
+    [
+     2002,
+     36
+    ],
+    [
+     2003,
+     35.6
+    ],
+    [
+     2004,
+     36.1
+    ],
+    [
+     2005,
+     34.8
+    ],
+    [
+     2006,
+     36.3
+    ],
+    [
+     2007,
+     38.2
+    ],
+    [
+     2008,
+     33.5
+    ],
+    [
+     2009,
+     36.2
+    ],
+    [
+     2010,
+     40.1
+    ],
+    [
+     2011,
+     35.1
+    ],
+    [
+     2012,
+     36.9
+    ],
+    [
+     2013,
+     38.7
+    ],
+    [
+     2014,
+     37.2
+    ],
+    [
+     2015,
+     35
+    ],
+    [
+     2016,
+     38
+    ],
+    [
+     2017,
+     34.4
+    ],
+    [
+     2018,
+     32.6
+    ],
+    [
+     2019,
+     33
+    ],
+    [
+     2020,
+     35.6
+    ],
+    [
+     2021,
+     36.8
+    ],
+    [
+     2022,
+     36.6
+    ],
+    [
+     2023,
+     33.8
+    ],
+    [
+     2024,
+     36
+    ],
+    [
+     2025,
+     36.4
+    ]
+   ]
+  },
+  {
+   "id": "heat2021",
+   "place": "sitakunda",
+   "year": 2021,
+   "what": {
+    "bn": "৪ এপ্রিল ২০২১-এর গরম বাতাস: ২৭–৩৬ জেলায় ৫০–৭০ হাজার হেক্টর বোরোতে চিটা",
+    "en": "The hot wind of 4 April 2021: Boro sterility on 50,000–70,000 ha in 27–36 districts"
+   },
+   "source": {
+    "label": "Financial Express, Apr 2021: heat stress hits 30 districts (DAE figures)",
+    "url": "https://old.thefinancialexpress.com.bd/national/heat-stress-hits-countrys-30-districts-1618291521"
+   },
+   "signal": {
+    "bn": "১–১০ এপ্রিলের সবচেয়ে গরম দিন",
+    "en": "The hottest day of 1–10 April"
+   },
+   "note": {
+    "bn": "একদিনের গরম বাতাস; অ্যাপের ৩ দিনের নিয়ম এমন ঘটনা ধরে না",
+    "en": "A one-day hot wind; the app’s three-day rule is not built to catch it"
+   },
+   "value": 35.4,
+   "median": 34.3,
+   "rank": 9,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     37.5
+    ],
+    [
+     2002,
+     34.5
+    ],
+    [
+     2003,
+     35.4
+    ],
+    [
+     2004,
+     32.8
+    ],
+    [
+     2005,
+     35.9
+    ],
+    [
+     2006,
+     34.2
+    ],
+    [
+     2007,
+     32.4
+    ],
+    [
+     2008,
+     34.3
+    ],
+    [
+     2009,
+     35.3
+    ],
+    [
+     2010,
+     37
+    ],
+    [
+     2011,
+     33.6
+    ],
+    [
+     2012,
+     35.6
+    ],
+    [
+     2013,
+     35.6
+    ],
+    [
+     2014,
+     34.1
+    ],
+    [
+     2015,
+     31.8
+    ],
+    [
+     2016,
+     32.4
+    ],
+    [
+     2017,
+     30.4
+    ],
+    [
+     2018,
+     31.7
+    ],
+    [
+     2019,
+     30.4
+    ],
+    [
+     2020,
+     33.7
+    ],
+    [
+     2021,
+     35.4
+    ],
+    [
+     2022,
+     36
+    ],
+    [
+     2023,
+     33.7
+    ],
+    [
+     2024,
+     35.5
+    ],
+    [
+     2025,
+     34.9
+    ]
+   ]
+  },
+  {
+   "id": "heat2021",
+   "place": "dacope",
+   "year": 2021,
+   "what": {
+    "bn": "৪ এপ্রিল ২০২১-এর গরম বাতাস: ২৭–৩৬ জেলায় ৫০–৭০ হাজার হেক্টর বোরোতে চিটা",
+    "en": "The hot wind of 4 April 2021: Boro sterility on 50,000–70,000 ha in 27–36 districts"
+   },
+   "source": {
+    "label": "Financial Express, Apr 2021: heat stress hits 30 districts (DAE figures)",
+    "url": "https://old.thefinancialexpress.com.bd/national/heat-stress-hits-countrys-30-districts-1618291521"
+   },
+   "signal": {
+    "bn": "১–১০ এপ্রিলের সবচেয়ে গরম দিন",
+    "en": "The hottest day of 1–10 April"
+   },
+   "note": {
+    "bn": "একদিনের গরম বাতাস; অ্যাপের ৩ দিনের নিয়ম এমন ঘটনা ধরে না",
+    "en": "A one-day hot wind; the app’s three-day rule is not built to catch it"
+   },
+   "value": 39,
+   "median": 36.3,
+   "rank": 4,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     38.5
+    ],
+    [
+     2002,
+     35.8
+    ],
+    [
+     2003,
+     36.1
+    ],
+    [
+     2004,
+     36.3
+    ],
+    [
+     2005,
+     35.2
+    ],
+    [
+     2006,
+     35
+    ],
+    [
+     2007,
+     38.4
+    ],
+    [
+     2008,
+     34.3
+    ],
+    [
+     2009,
+     36.6
+    ],
+    [
+     2010,
+     40.1
+    ],
+    [
+     2011,
+     35.5
+    ],
+    [
+     2012,
+     36.4
+    ],
+    [
+     2013,
+     38.6
+    ],
+    [
+     2014,
+     38.2
+    ],
+    [
+     2015,
+     35.8
+    ],
+    [
+     2016,
+     39.8
+    ],
+    [
+     2017,
+     35.8
+    ],
+    [
+     2018,
+     34.5
+    ],
+    [
+     2019,
+     33.9
+    ],
+    [
+     2020,
+     36.1
+    ],
+    [
+     2021,
+     39
+    ],
+    [
+     2022,
+     37.4
+    ],
+    [
+     2023,
+     34.9
+    ],
+    [
+     2024,
+     39.6
+    ],
+    [
+     2025,
+     36.5
+    ]
+   ]
+  },
+  {
+   "id": "heat2021",
+   "place": "bakerganj",
+   "year": 2021,
+   "what": {
+    "bn": "৪ এপ্রিল ২০২১-এর গরম বাতাস: ২৭–৩৬ জেলায় ৫০–৭০ হাজার হেক্টর বোরোতে চিটা",
+    "en": "The hot wind of 4 April 2021: Boro sterility on 50,000–70,000 ha in 27–36 districts"
+   },
+   "source": {
+    "label": "Financial Express, Apr 2021: heat stress hits 30 districts (DAE figures)",
+    "url": "https://old.thefinancialexpress.com.bd/national/heat-stress-hits-countrys-30-districts-1618291521"
+   },
+   "signal": {
+    "bn": "১–১০ এপ্রিলের সবচেয়ে গরম দিন",
+    "en": "The hottest day of 1–10 April"
+   },
+   "note": {
+    "bn": "একদিনের গরম বাতাস; অ্যাপের ৩ দিনের নিয়ম এমন ঘটনা ধরে না",
+    "en": "A one-day hot wind; the app’s three-day rule is not built to catch it"
+   },
+   "value": 36.5,
+   "median": 35.7,
+   "rank": 8,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     39.2
+    ],
+    [
+     2002,
+     35.7
+    ],
+    [
+     2003,
+     36.1
+    ],
+    [
+     2004,
+     34.7
+    ],
+    [
+     2005,
+     35.7
+    ],
+    [
+     2006,
+     34.5
+    ],
+    [
+     2007,
+     35.5
+    ],
+    [
+     2008,
+     34.1
+    ],
+    [
+     2009,
+     35.9
+    ],
+    [
+     2010,
+     37.6
+    ],
+    [
+     2011,
+     35.3
+    ],
+    [
+     2012,
+     36.5
+    ],
+    [
+     2013,
+     38.7
+    ],
+    [
+     2014,
+     36.5
+    ],
+    [
+     2015,
+     34
+    ],
+    [
+     2016,
+     37.3
+    ],
+    [
+     2017,
+     31.8
+    ],
+    [
+     2018,
+     33.7
+    ],
+    [
+     2019,
+     31.1
+    ],
+    [
+     2020,
+     34.7
+    ],
+    [
+     2021,
+     36.5
+    ],
+    [
+     2022,
+     36.1
+    ],
+    [
+     2023,
+     34.5
+    ],
+    [
+     2024,
+     36.1
+    ],
+    [
+     2025,
+     37.4
+    ]
+   ]
+  },
+  {
+   "id": "heat2021",
+   "place": "gangachara",
+   "year": 2021,
+   "what": {
+    "bn": "৪ এপ্রিল ২০২১-এর গরম বাতাস: ২৭–৩৬ জেলায় ৫০–৭০ হাজার হেক্টর বোরোতে চিটা",
+    "en": "The hot wind of 4 April 2021: Boro sterility on 50,000–70,000 ha in 27–36 districts"
+   },
+   "source": {
+    "label": "Financial Express, Apr 2021: heat stress hits 30 districts (DAE figures)",
+    "url": "https://old.thefinancialexpress.com.bd/national/heat-stress-hits-countrys-30-districts-1618291521"
+   },
+   "signal": {
+    "bn": "১–১০ এপ্রিলের সবচেয়ে গরম দিন",
+    "en": "The hottest day of 1–10 April"
+   },
+   "note": {
+    "bn": "একদিনের গরম বাতাস; অ্যাপের ৩ দিনের নিয়ম এমন ঘটনা ধরে না",
+    "en": "A one-day hot wind; the app’s three-day rule is not built to catch it"
+   },
+   "value": 34.7,
+   "median": 33.7,
+   "rank": 9,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     36.7
+    ],
+    [
+     2002,
+     33.5
+    ],
+    [
+     2003,
+     34.4
+    ],
+    [
+     2004,
+     31.7
+    ],
+    [
+     2005,
+     33.6
+    ],
+    [
+     2006,
+     32.9
+    ],
+    [
+     2007,
+     36.2
+    ],
+    [
+     2008,
+     32.4
+    ],
+    [
+     2009,
+     33.6
+    ],
+    [
+     2010,
+     37.6
+    ],
+    [
+     2011,
+     32.9
+    ],
+    [
+     2012,
+     35.1
+    ],
+    [
+     2013,
+     35.8
+    ],
+    [
+     2014,
+     35.4
+    ],
+    [
+     2015,
+     34.3
+    ],
+    [
+     2016,
+     37.6
+    ],
+    [
+     2017,
+     34.1
+    ],
+    [
+     2018,
+     32.5
+    ],
+    [
+     2019,
+     29.9
+    ],
+    [
+     2020,
+     33.4
+    ],
+    [
+     2021,
+     34.7
+    ],
+    [
+     2022,
+     30.4
+    ],
+    [
+     2023,
+     32.8
+    ],
+    [
+     2024,
+     33.7
+    ],
+    [
+     2025,
+     34.9
+    ]
+   ]
+  },
+  {
+   "id": "heat2021",
+   "place": "gowainghat",
+   "year": 2021,
+   "what": {
+    "bn": "৪ এপ্রিল ২০২১-এর গরম বাতাস: ২৭–৩৬ জেলায় ৫০–৭০ হাজার হেক্টর বোরোতে চিটা",
+    "en": "The hot wind of 4 April 2021: Boro sterility on 50,000–70,000 ha in 27–36 districts"
+   },
+   "source": {
+    "label": "Financial Express, Apr 2021: heat stress hits 30 districts (DAE figures)",
+    "url": "https://old.thefinancialexpress.com.bd/national/heat-stress-hits-countrys-30-districts-1618291521"
+   },
+   "signal": {
+    "bn": "১–১০ এপ্রিলের সবচেয়ে গরম দিন",
+    "en": "The hottest day of 1–10 April"
+   },
+   "note": {
+    "bn": "একদিনের গরম বাতাস; অ্যাপের ৩ দিনের নিয়ম এমন ঘটনা ধরে না",
+    "en": "A one-day hot wind; the app’s three-day rule is not built to catch it"
+   },
+   "value": 33.1,
+   "median": 33.6,
+   "rank": 15,
+   "of": 25,
+   "hit": false,
+   "above": false,
+   "series": [
+    [
+     2001,
+     37.5
+    ],
+    [
+     2002,
+     33.6
+    ],
+    [
+     2003,
+     33.2
+    ],
+    [
+     2004,
+     31.8
+    ],
+    [
+     2005,
+     33.1
+    ],
+    [
+     2006,
+     34.6
+    ],
+    [
+     2007,
+     37
+    ],
+    [
+     2008,
+     32.9
+    ],
+    [
+     2009,
+     34.2
+    ],
+    [
+     2010,
+     35.1
+    ],
+    [
+     2011,
+     34
+    ],
+    [
+     2012,
+     37.8
+    ],
+    [
+     2013,
+     37.1
+    ],
+    [
+     2014,
+     35.4
+    ],
+    [
+     2015,
+     31.6
+    ],
+    [
+     2016,
+     32.1
+    ],
+    [
+     2017,
+     31.2
+    ],
+    [
+     2018,
+     32.4
+    ],
+    [
+     2019,
+     29.9
+    ],
+    [
+     2020,
+     34
+    ],
+    [
+     2021,
+     33.1
+    ],
+    [
+     2022,
+     31.8
+    ],
+    [
+     2023,
+     32.5
+    ],
+    [
+     2024,
+     34.6
+    ],
+    [
+     2025,
+     33.6
+    ]
+   ]
+  },
+  {
+   "id": "flood2017",
+   "place": "gowainghat",
+   "year": 2017,
+   "what": {
+    "bn": "এপ্রিল ২০১৭-এর আগাম পাহাড়ি ঢল: সিলেট বিভাগে ১ লাখ ১৪ হাজার হেক্টর বোরো ডুবেছে",
+    "en": "The early flash flood of April 2017: 114,000 ha of Boro under water in Sylhet division"
+   },
+   "source": {
+    "label": "Dhaka Tribune, 23 Apr 2017 (DAE): 114,000 ha of Boro damaged in Sylhet division; OCHA: flooding from 28 March",
+    "url": "https://www.dhakatribune.com/bangladesh/nation/19126/114-000-hectare-boro-crops-damaged-in-4-sylhet"
+   },
+   "signal": {
+    "bn": "২৫ মার্চ–২০ এপ্রিলের মোট বৃষ্টি (নাসা IMERG)",
+    "en": "Rain from 25 March to 20 April (NASA IMERG)"
+   },
+   "note": {
+    "bn": "ঢলের পানির বড় অংশ আসে উজানের মেঘালয়ের বৃষ্টি থেকে, যা উপজেলার নিজের বৃষ্টিতে ধরা পড়ে না",
+    "en": "Much of the flood water comes from rain upstream in Meghalaya, which the upazila’s own rain does not see"
+   },
+   "value": 739.1,
+   "median": 199.8,
+   "rank": 3,
+   "of": 25,
+   "hit": true,
+   "above": true,
+   "series": [
+    [
+     2001,
+     96.9
+    ],
+    [
+     2002,
+     388.6
+    ],
+    [
+     2003,
+     239.6
+    ],
+    [
+     2004,
+     800.8
+    ],
+    [
+     2005,
+     154.2
+    ],
+    [
+     2006,
+     337
+    ],
+    [
+     2007,
+     303.8
+    ],
+    [
+     2008,
+     233
+    ],
+    [
+     2009,
+     199.8
+    ],
+    [
+     2010,
+     907.6
+    ],
+    [
+     2011,
+     143.2
+    ],
+    [
+     2012,
+     454.7
+    ],
+    [
+     2013,
+     109.9
+    ],
+    [
+     2014,
+     53.1
+    ],
+    [
+     2015,
+     282.6
+    ],
+    [
+     2016,
+     662
+    ],
+    [
+     2017,
+     739.1
+    ],
+    [
+     2018,
+     154.6
+    ],
+    [
+     2019,
+     153
+    ],
+    [
+     2020,
+     168.1
+    ],
+    [
+     2021,
+     134.1
+    ],
+    [
+     2022,
+     478.5
+    ],
+    [
+     2023,
+     89.3
+    ],
+    [
+     2024,
+     183.9
+    ],
+    [
+     2025,
+     100.8
+    ]
+   ]
+  },
+  {
+   "id": "flood2022",
+   "place": "gowainghat",
+   "year": 2022,
+   "what": {
+    "bn": "এপ্রিল ২০২২-এর আগাম ঢল: সাত হাওর জেলায় বোরো ডুবেছে, সুনামগঞ্জে সবচেয়ে বেশি",
+    "en": "The early flash flood of April 2022: Boro under water in seven haor districts, most in Sunamganj"
+   },
+   "source": {
+    "label": "Business Post, 11 Apr 2022 (DAE): 6,827 ha of Boro submerged in 7 districts; later reports over 30,000 ha in the Sylhet region",
+    "url": "https://businesspostbd.com/back/2022-04-11/6827-hectares-of-boro-land-submerge-in-7-districts-2022-04-11"
+   },
+   "signal": {
+    "bn": "২৫ মার্চ–২০ এপ্রিলের মোট বৃষ্টি (নাসা IMERG)",
+    "en": "Rain from 25 March to 20 April (NASA IMERG)"
+   },
+   "note": {
+    "bn": "ঢলের পানির বড় অংশ আসে উজানের মেঘালয়ের বৃষ্টি থেকে",
+    "en": "Much of the flood water comes from rain upstream in Meghalaya"
+   },
+   "value": 478.5,
+   "median": 199.8,
+   "rank": 5,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     96.9
+    ],
+    [
+     2002,
+     388.6
+    ],
+    [
+     2003,
+     239.6
+    ],
+    [
+     2004,
+     800.8
+    ],
+    [
+     2005,
+     154.2
+    ],
+    [
+     2006,
+     337
+    ],
+    [
+     2007,
+     303.8
+    ],
+    [
+     2008,
+     233
+    ],
+    [
+     2009,
+     199.8
+    ],
+    [
+     2010,
+     907.6
+    ],
+    [
+     2011,
+     143.2
+    ],
+    [
+     2012,
+     454.7
+    ],
+    [
+     2013,
+     109.9
+    ],
+    [
+     2014,
+     53.1
+    ],
+    [
+     2015,
+     282.6
+    ],
+    [
+     2016,
+     662
+    ],
+    [
+     2017,
+     739.1
+    ],
+    [
+     2018,
+     154.6
+    ],
+    [
+     2019,
+     153
+    ],
+    [
+     2020,
+     168.1
+    ],
+    [
+     2021,
+     134.1
+    ],
+    [
+     2022,
+     478.5
+    ],
+    [
+     2023,
+     89.3
+    ],
+    [
+     2024,
+     183.9
+    ],
+    [
+     2025,
+     100.8
+    ]
+   ]
+  },
+  {
+   "id": "cold2018",
+   "place": "gangachara",
+   "year": 2018,
+   "what": {
+    "bn": "জানুয়ারি ২০১৮-এর শৈত্যপ্রবাহ: রংপুর অঞ্চলে প্রায় ৩০ হাজার হেক্টরে বোরোর বীজতলা নষ্ট",
+    "en": "The cold wave of January 2018: Boro seedbeds damaged on about 30,000 ha in the Rangpur region"
+   },
+   "source": {
+    "label": "Financial Express, 24 Jan 2018 (DAE): seedbeds on about 29,710 ha in five Rangpur-region districts damaged by cold and fog",
+    "url": "https://today.thefinancialexpress.com.bd/print/dense-fog-damages-boro-seedbeds-across-rangpur-region-1516720760"
+   },
+   "signal": {
+    "bn": "১৫ ডিসেম্বর–৩১ জানুয়ারির ১০° সেলসিয়াস বা কম ঠান্ডা রাত (অ্যাপের ঠান্ডা রাতের মাপ)",
+    "en": "Nights at 10 °C or below, 15 December – 31 January (the app’s cold-night measure)"
+   },
+   "note": {
+    "bn": "ঘন কুয়াশাও বীজতলা নষ্ট করে, যা তাপমাত্রায় ধরা পড়ে না",
+    "en": "Dense fog also harmed the seedbeds, which temperature does not capture"
+   },
+   "value": 16,
+   "median": 10,
+   "rank": 7,
+   "of": 25,
+   "hit": false,
+   "above": true,
+   "series": [
+    [
+     2001,
+     21
+    ],
+    [
+     2002,
+     6
+    ],
+    [
+     2003,
+     24
+    ],
+    [
+     2004,
+     12
+    ],
+    [
+     2005,
+     10
+    ],
+    [
+     2006,
+     9
+    ],
+    [
+     2007,
+     20
+    ],
+    [
+     2008,
+     10
+    ],
+    [
+     2009,
+     0
+    ],
+    [
+     2010,
+     11
+    ],
+    [
+     2011,
+     16
+    ],
+    [
+     2012,
+     16
+    ],
+    [
+     2013,
+     38
+    ],
+    [
+     2014,
+     11
+    ],
+    [
+     2015,
+     11
+    ],
+    [
+     2016,
+     7
+    ],
+    [
+     2017,
+     5
+    ],
+    [
+     2018,
+     16
+    ],
+    [
+     2019,
+     3
+    ],
+    [
+     2020,
+     16
+    ],
+    [
+     2021,
+     5
+    ],
+    [
+     2022,
+     5
+    ],
+    [
+     2023,
+     5
+    ],
+    [
+     2024,
+     6
+    ],
+    [
+     2025,
+     0
+    ]
+   ]
+  }
+ ],
+ "summary": [
+  {
+   "id": "heat2024",
+   "places": 7,
+   "hits": 2,
+   "above": 5
+  },
+  {
+   "id": "heat2021",
+   "places": 7,
+   "hits": 0,
+   "above": 6
+  },
+  {
+   "id": "flood2017",
+   "places": 1,
+   "hits": 1,
+   "above": 1
+  },
+  {
+   "id": "flood2022",
+   "places": 1,
+   "hits": 0,
+   "above": 1
+  },
+  {
+   "id": "cold2018",
+   "places": 1,
+   "hits": 0,
+   "above": 1
+  }
+ ]
+}

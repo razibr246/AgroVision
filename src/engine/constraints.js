@@ -47,10 +47,12 @@ export const defaultConstraints = () => Object.fromEntries(Object.entries(CONSTR
 
 // Each rule: when the constraint has this value, the crop is removed ('out') or flagged ('flag'), and why.
 export const RULES = [
-  { key: 'machine', value: 'none', crop: 'wheat', act: 'out',
-    why: { bn: 'গম বুনতে আমন কাটার পরপরই চাষ করা ঝুরঝুরে জমি লাগে, আর মাড়াই যন্ত্র; হাতে করলে বোনা দেরি হয়, ফুলের সময় গরম পড়ে।', en: 'Wheat needs a ploughed seedbed soon after the Aman harvest, and threshing; by hand, sowing runs late into the spring heat.' } },
+  // Reviewed by the Dhamrai upazila agriculture officer (12 Nov 2026): without a tiller, mustard is the bigger issue
+  // than wheat, because a late mustard pushes the Boro after it into the April–May heat.
   { key: 'machine', value: 'none', crop: 'mustard', act: 'flag',
-    why: { bn: 'সরিষা আমন কাটার পর ভেজা জমিতে ছিটিয়ে বোনা যায়, তবে চাষ ছাড়া গজানো অসমান হতে পারে; এলাকায় যাচাই করুন।', en: 'Mustard can be broadcast into the moist field after Aman, but without tillage it may come up unevenly; check locally.' } },
+    why: { bn: 'আমন কাটার পরপরই চাষ করে ২৫ নভেম্বরের মধ্যে সরিষা বুনতে হয়; যন্ত্র না পেলে বোনা দেরি হয়, তখন পরের বোরো লাগাতেও দেরি হয় আর ফুল আসার সময় এপ্রিল–মের গরম পড়ে।', en: 'Mustard has to go in by about 25 November, ploughed straight after the Aman harvest; without a tiller it goes in late, the Boro after it goes in late, and Boro then flowers in the April–May heat.' } },
+  { key: 'machine', value: 'none', crop: 'wheat', act: 'flag',
+    why: { bn: 'গমেও আমন কাটার পরপরই চাষ করা জমি আর মাড়াই যন্ত্র লাগে; দেরিতে বুনলে দানা ভরার সময় গরম পড়ে।', en: 'Wheat also needs a ploughed seedbed soon after the Aman harvest, and threshing; sown late, its grain fills in the heat.' } },
   { key: 'machine', value: 'none', crop: 'boro', act: 'flag',
     why: { bn: 'বোরোর কাদা-চাষ গরু বা হাতে করা যায়, তবে অনেক শ্রম লাগে।', en: 'Boro puddling can be done with oxen or by hand, but it is heavy work.' } },
   { key: 'labour', value: 'short', crop: 'tomato', act: 'out',

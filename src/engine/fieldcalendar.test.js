@@ -58,7 +58,8 @@ test('constraints: each rule removes or flags its crop, with a reason in both la
     assert.ok(r.why.bn && r.why.en);
   }
   const fx = constraintEffects({ labour: 'short', market: 'no', retting: 'no', machine: 'none' });
-  assert.ok(fx.out.includes('tomato') && fx.out.includes('jute') && fx.out.includes('wheat'));
+  assert.ok(fx.out.includes('tomato') && fx.out.includes('jute'));
+  assert.ok(fx.flags.includes('wheat'), 'wheat is flagged, not removed, after the officer review');
   assert.ok(fx.flags.includes('mustard') && fx.flags.includes('boro'));
   for (const id of fx.out) assert.ok(!fx.flags.includes(id), 'a removed crop is not also flagged');
   assert.equal(fx.why.tomato.length, 2, 'tomato is ruled out twice: labour and market');
@@ -82,4 +83,16 @@ test('harmonize: every dataset in the register says how it reaches the field and
   }
   for (const id of Object.keys(HARMONIZE)) assert.ok(DATASETS.some((d) => d.id === id), `${id} is in the register`);
   assert.ok(UNITS.place.en && UNITS.time.en && WHY_NO_FINE_GRID.en && WHY_NO_FINE_GRID.bn);
+});
+
+test('event check: every documented disaster has a source, a real place and its rank in the record', () => {
+  const check = JSON.parse(readFileSync(new URL('../data/climate/event_check.json', import.meta.url)));
+  assert.ok(check.results.length >= 5);
+  for (const r of check.results) {
+    assert.match(r.source.url, /^https:\/\//);
+    assert.ok(r.what.bn && r.what.en && r.signal.en);
+    assert.ok(r.rank >= 1 && r.rank <= r.of, `${r.id} ${r.place} rank`);
+    assert.equal(r.hit, r.rank <= 3);
+    assert.equal(r.above, r.value > r.median);
+  }
 });

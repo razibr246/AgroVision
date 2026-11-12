@@ -29,6 +29,7 @@
     "data:onset": "node scripts/onset/onset.mjs godagari dhamrai sitakunda dacope bakerganj gangachara gowainghat",
     "data:onset-bmd": "node scripts/onset/compare_bmd.mjs",
     "data:smap-check": "node scripts/build/check_smap_power.mjs",
+    "data:events": "node scripts/build/check_events.mjs",
     "data:prices": "python3 scripts/build/build_market_prices.py",
     "data:seasons": "python3 scripts/build/build_price_seasons.py",
     "data:soil": "python3 scripts/build/build_soil.py",

@@ -118,13 +118,24 @@ The best rotation needs labour for tomato and jute; with "labour: short" entered
   nearest BMD station's 1991–2020 normals.
 - **Published science, named:** ICBM soil carbon (Andrén & Kätterer 1997), FAO-56 crop water, the NRCS soil-health
   principles, IPCC 2019 Tier 1 paddy methane, robust decision making over 8 CMIP6 models × 5 FAOSTAT yield years.
-- **Tried in the field (team-reported):** in Dhamrai on 4 November 2026 five farmers used the website and the app
+- **Recorded field session (team-reported):** in Dhamrai on 12 November 2026 three farmers and a Kulla-block SAAO
+  used the app; each farmer's answers to "what is recommended, why, and would you follow it" are written down in
+  their own words, with the problems they raised: a power tiller is hard to get in mid-November, jute needs labour,
+  older farmers need voice guidance and threat icons, the network is weak in low-lying unions
+  (`docs/USER_TESTING.md`). The same day the Dhamrai UAO reviewed the crop rules one by one: Boro's flowering-heat
+  limit moved from 35 °C to 36 °C, wheat and lentil were confirmed, and the power-tiller rule changed
+  (`docs/REVIEW_LOG.md`).
+- **Checked against real disasters:** five documented Boro disasters (heat in April 2024 and April 2021, flash
+  floods in April 2017 and 2022, the January 2018 cold wave), each with its source, checked at the nearest upazila
+  over 25 seasons. The disaster year's NASA signal was above the usual in 14 of 17 checks, but in the top 3 of 25
+  seasons in only 3; one-day hot winds and upstream floods need sharper rules (`npm run data:events`).
+- **Tried in the field earlier (team-reported):** in Dhamrai on 4 November 2026 five farmers used the website and the app
   and gave highly positive reviews; the Dhamrai agriculture officer, Omar Faruk, said everything is okay (100 out of
   100); three people played the 3D farm game and two children the children's game, each giving 5 stars. The tasks
   and answers were not written down (`docs/USER_TESTING.md`), so this shows the reception, not task results.
-- **Honest about the rest:** the officer's review covered the app as a whole, not each rule on record. Boro's flowering-heat limit is a known open
-  problem: it is crossed in nearly every recent season where Boro is the main crop, so it almost certainly
-  over-warns; the plan shows how the advice changes at 36 °C, 37 °C or 5 days. Farmers are sample people, labelled
+- **Honest about the rest:** even at 36 °C, Boro's flowering-heat limit crosses in 11 of 13 recent seasons at
+  Godagari, so it still warns more often than the crop fails; the plan shows the effect of 35 °C, 37 °C or 5 days.
+  The session's task timings were not recorded. Farmers are sample people, labelled
   as such on every screen.
 
 ## What is not done yet, and the plan
@@ -133,8 +144,9 @@ Nothing in the app or this kit claims these are resolved.
 
 | Gap | Plan (about four weeks, one upazila) |
 | --- | --- |
-| The 4 November session's tasks and answers were not written down | Run the next session with `/testkit` (consent first, four timed tasks, three questions) and add its rows to `docs/USER_TESTING.md`: date, place, roles, answers in the participants' words, problems seen and the fix for each |
-| The officer's review was of the app as a whole | Go through `docs/THRESHOLDS.md` rule by rule with the Dhamrai officer or a BARI/BRRI agronomist, starting with Boro's flowering-heat limit, and record each in `docs/REVIEW_LOG.md` |
+| Task timings were not recorded in the 12 November session | Run the next session with `/testkit` (consent first, four timed tasks, three questions) and add its rows to `docs/USER_TESTING.md`: date, place, roles, answers in the participants' words, problems seen and the fix for each |
+| Only Boro, wheat, lentil and the constraint rules were reviewed | Review the remaining crops' limits (tomato, mustard, the Kharif-1 crops) with the Dhamrai UAO or a BARI/BRRI agronomist; replace Boro's three-day heat count with a rule that catches one-day hot winds (the 2021 event) |
+| Farmers asked for voice guidance, threat icons and machine options | Voice guidance on the plan, a sun/cloud icon for each weather threat, and power-tiller hire timing in the constraints |
 | Soil is a model estimate | Soil tests (SRDI mobile lab) on 10 registered fields; compare pH and organic carbon with SoilGrids and publish the difference |
 | Yields are national averages | Farmers' recorded harvests for the same fields against FAOSTAT; the backtest's "bad years" against farmers' recall of bad seasons |
 | GRACE and SMAP come from colour-mapped GIBS tiles | Read the gridded products from NASA Earthdata instead (a token slot is in `.env.example`), so their sizes are exact rather than approximate |

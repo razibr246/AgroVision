@@ -17,7 +17,7 @@ Days are counted from planting or transplanting.
 
 | Crop | Rule | Window (days after planting) | Basis | Reviewed by |
 | --- | --- | --- | --- | --- |
-| Boro rice | 3 or more days with Tmax ≥ 35 °C during flowering cause empty grains | 75–95 | Consistent with IRRI: spikelet sterility above 35 °C at anthesis (Yoshida 1981, *Fundamentals of Rice Crop Science*) | |
+| Boro rice | 3 or more days with Tmax ≥ 36 °C during flowering cause empty grains (was 35 °C; set on the Dhamrai UAO's review, 12 Nov 2026) | 75–95 | Consistent with IRRI: spikelet sterility above 35 °C at anthesis (Yoshida 1981, *Fundamentals of Rice Crop Science*) | |
 | Tomato | One day with ≥ 50 mm rain can rot the seedlings | 0–15 | Assumption | |
 | Tomato | 5 or more days with Tmax ≥ 32 °C while fruit sets make flowers drop | 40–95 | Consistent with Sato, Peet & Thomas (2000), *Plant Cell Environ.* 23: fruit set fails under chronic mild heat (around 32 °C days) | |
 | Wheat | 5 or more days with Tmax ≥ 32 °C while grain fills shrivel the grain | 85–115 | Consistent with Farooq et al. (2011), *Crit. Rev. Plant Sci.* 30, on terminal heat stress in wheat | |
@@ -31,14 +31,14 @@ Days are counted from planting or transplanting.
 | Jute (rotation) | Less than 50 mm rain in total means it must be irrigated | 0–30 | Assumption | |
 | Aus rice (rotation) | 3 or more days with Tmax ≥ 35 °C at flowering cause empty grains | 70–90 | As Boro (Yoshida 1981) | |
 
-**Known problem (29 October 2026).** The Boro rule above is crossed in 12–13 of 13 seasons 2013–2025 at Godagari
-and Dacope and 11 of 13 at Dhamrai and Gangachara, yet Boro is the main crop in all four. It almost certainly over-warns
-for local varieties and lowers Boro's weather score; the app says so wherever this happens. It is the first item in
-`docs/REVIEW_LOG.md`. A season "counting as unsafe" here means a limit was crossed, not that the crop was lost.
+**Boro's flowering-heat limit (reviewed 12 November 2026).** At the old 35 °C the rule crossed in 13 of 13 seasons
+2013–2025 at Godagari, 11 at Dacope and 10 at Dhamrai (station-corrected), yet Boro is the main crop there. The
+Dhamrai Upazila Agriculture Officer advised 36 °C (`docs/REVIEW_LOG.md`); it now crosses in 11, 9 and 7. It still
+warns more often than the crop fails, and the hindcast of real disasters (`docs/EVIDENCE.md`) shows a three-day
+count does not single out the bad heat years well; this stays open. A season "counting as unsafe" here means a limit was crossed, not that the crop was lost.
 
-Until a local reviewer sets a better value, the farmer plan shows how the advice changes if the Boro limit is
-36 °C or 37 °C for 3 days, or 35 °C for 5 days (`BORO_HEAT_SENSITIVITIES` in `src/engine/crops.js`); the default
-above is not changed by it. Questions for the reviewer are listed at the end of `docs/REVIEW_LOG.md`.
+The farmer plan also shows how the advice changes at 35 °C or 37 °C for 3 days, or 35 °C for 5 days
+(`BORO_HEAT_SENSITIVITIES` in `src/engine/crops.js`). Questions for the reviewer are listed at the end of `docs/REVIEW_LOG.md`.
 
 ## Planting dates, duration and soil
 
@@ -128,12 +128,12 @@ experience), and your name and post in "Reviewed by". Corrections go into the fi
 The farmer says what they have to work with (`/farmer/plan`, "What you have to work with"; `src/engine/constraints.js`).
 A crop that cannot work without a missing resource leaves the plan and Field Future; one that only gets harder is
 flagged. Water access is not here: it is the field's irrigation source, which the plan already reads. None of these
-has been checked locally; each is a general rule.
+has been checked locally, except the power-tiller and labour rules, reviewed by the Dhamrai UAO on 12 November 2026.
 
 | Constraint | Crop | Effect | Why (assumption) |
 | --- | --- | --- | --- |
-| No power tiller, none to hire | Wheat | Left out | Needs a ploughed seedbed soon after the Aman harvest, and threshing; by hand, sowing runs late into the spring heat |
-| No power tiller, none to hire | Mustard | Flagged | Can be broadcast into the moist field after Aman, but may come up unevenly without tillage |
+| No power tiller, none to hire | Mustard | Flagged first | Must go in by about 25 November; late mustard pushes the Boro after it into the April–May heat (Dhamrai UAO, 12 Nov 2026) |
+| No power tiller, none to hire | Wheat | Flagged | Needs a ploughed seedbed soon after the Aman harvest, and threshing (was "left out"; changed on the same review) |
 | No power tiller, none to hire | Boro | Flagged | Puddling by oxen or by hand is possible but heavy work |
 | Labour short | Tomato | Left out | Staking, regular watering and many pickings |
 | Labour short | Jute | Left out | Many hands to cut, ret and strip the fibre |

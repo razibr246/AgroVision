@@ -48,7 +48,12 @@ export default function FieldReview() {
             </div>
           ))}
         </div>
-        <p className="mt-4 text-[13.5px] leading-6 text-muted">{T('দলের দেওয়া হিসাব। সেদিনের কাজগুলো আর প্রত্যেকের উত্তর লিখে রাখা হয়নি; পরের সেশনটি অ্যাপের টেস্ট-কিট দিয়ে লেখা হবে।', 'As reported by the team. The tasks and each person’s answers that day were not written down; the next session will be recorded with the app’s test kit.')}</p>
+        <p className="mt-4 text-[13.5px] leading-6 text-muted">{T('দলের দেওয়া হিসাব; ৪ নভেম্বরের প্রত্যেকের উত্তর লিখে রাখা হয়নি।', 'As reported by the team; each person’s answers on 4 November were not written down.')}</p>
+        <div data-reveal className="glass flat mt-4 rounded-[22px] p-5">
+          <p className="text-[15.5px] font-semibold">{T('১২ নভেম্বর, ধামরাই: উত্তর লিখে রাখা সেশন', '12 November, Dhamrai: a session with the answers written down')}</p>
+          <p className="mt-1.5 text-[14.5px] leading-7 text-muted">{T('তিনজন কৃষক আর কুল্লা ব্লকের উপসহকারী কৃষি কর্মকর্তা অ্যাপ চালিয়েছেন; প্রত্যেকে নিজের ভাষায় বলেছেন অ্যাপ কী বলছে আর কেন। একই দিন উপজেলা কৃষি অফিসার ফসলের নিয়মগুলো এক এক করে দেখে বোরোর গরমের সীমা ৩৫° থেকে ৩৬° সেলসিয়াস করতে বলেছেন, আর অ্যাপে তা-ই করা হয়েছে।', 'Three farmers and the Kulla block’s Sub-Assistant Agriculture Officer used the app; each said in their own words what it advised and why. The same day the Upazila Agriculture Officer went through the crop rules one by one and advised moving Boro’s heat limit from 35 °C to 36 °C, which the app now uses.')}</p>
+          <p className="mt-2 text-[14px] italic leading-6 text-ink/75">{T('“আমন কাটার পর সরিষা ২৫শে নভেম্বরের পরে গেলে বোরোও দেরি হবে, এপ্রিল-মের গরমে পড়বে।” — সোমভাগের এক কৃষক', '“If mustard goes in after 25 November, the Boro is late too and meets the April–May heat.” — a farmer in Sombhag')}</p>
+        </div>
 
         <div data-reveal className="glass flat mt-10 rounded-[26px] p-6 sm:p-8">
           <p className="flex items-center gap-2 text-[15px] font-semibold text-primary-800"><Users size={17} />{T('দল BRM AstraX, বরিশাল', 'Team BRM AstraX, Barishal')}</p>

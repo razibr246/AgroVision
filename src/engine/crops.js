@@ -14,9 +14,11 @@ export const MAUND_KG = 37.32;
 
 export const WATER_CLASS = { High: 3, Medium: 2, 'Low-Medium': 1.5, Low: 1 };
 
-// Exploratory alternatives for the known Boro flowering-heat warning. These do not change the default crop rule.
+// Other limits for Boro's flowering heat, to see how much the advice depends on it. The default (crop rule below) is
+// 36 °C for 3 days, set on the Dhamrai upazila agriculture officer's review (docs/REVIEW_LOG.md, 12 November 2026);
+// 35 °C is the general IRRI figure it replaced, which crossed in nearly every recent season where Boro is grown.
 export const BORO_HEAT_SENSITIVITIES = [
-  { id: '36c', threshold: 36, minDays: 3, bn: '৩৬° সেলসিয়াস, ৩ দিন', en: '36 °C, 3 days' },
+  { id: '35c', threshold: 35, minDays: 3, bn: '৩৫° সেলসিয়াস, ৩ দিন (আগের সাধারণ সীমা)', en: '35 °C, 3 days (the earlier general limit)' },
   { id: '37c', threshold: 37, minDays: 3, bn: '৩৭° সেলসিয়াস, ৩ দিন', en: '37 °C, 3 days' },
   { id: '5days', threshold: 35, minDays: 5, bn: '৩৫° সেলসিয়াস, ৫ দিন', en: '35 °C, 5 days' },
 ];
@@ -37,9 +39,10 @@ export const RABI_CROPS = {
     gddBase: 10, harvestWeeks: [0.6, 0.4],
     yieldTHa: [5.29, 5.29], // FAOSTAT 2024, Bangladesh national average
     rules: [
-      { id: 'boro_heat', type: 'count', v: 'tmax', thr: 35, from: 75, to: 95, min: 3,
-        bn: 'ফুল আসার সময় (রোপণের ৭৫–৯৫ দিনে) তিন দিন বা তার বেশি ৩৫° সেলসিয়াসের ওপরে গরম পড়লে ধানে চিটা হয়',
-        en: 'Three or more days at 35 °C or above during flowering (days 75–95) cause empty grains' },
+      // 36 °C on the Dhamrai upazila agriculture officer's review (12 Nov 2026); was 35 °C (IRRI general figure)
+      { id: 'boro_heat', type: 'count', v: 'tmax', thr: 36, from: 75, to: 95, min: 3,
+        bn: 'ফুল আসার সময় (রোপণের ৭৫–৯৫ দিনে) তিন দিন বা তার বেশি ৩৬° সেলসিয়াসের ওপরে গরম পড়লে ধানে চিটা হয়',
+        en: 'Three or more days at 36 °C or above during flowering (days 75–95) cause empty grains' },
     ],
   },
   tomato: {
