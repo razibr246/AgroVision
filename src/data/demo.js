@@ -3,6 +3,7 @@
 import { ymd, addDays, monthOf } from '../engine/dates.js';
 import { UPAZILAS } from './upazilas.js';
 import { PROBLEM_NAMES } from './crop_problems.js';
+import { regionalRabiRequests, regionalAmanRequests } from './demo_requests.js';
 
 function rng(seed) {
   let a = seed >>> 0;
@@ -315,6 +316,7 @@ export function buildDemo({ today = DEMO_TODAY } = {}) {
   });
 
   requests.push(...dhamraiRequests(farmers, plans, today));
+  requests.push(...regionalRabiRequests(farmers, requests, UNIONS, today));
   return { unions: UNIONS, farmers, plans, requests };
 }
 
@@ -427,6 +429,7 @@ function amanRequests(farmers, today) {
     ['Amta', 0, { crop: 'aman', symptom: 'rodent', priority: 'Medium', text: { bn: 'ইঁদুর আমনের শিষ কেটে নিচ্ছে, প্রতিদিন ক্ষতি বাড়ছে', en: 'Rats are taking the Aman heads, and the damage grows every day' } }],
   ];
   dmisc.forEach(([union, n, x], i) => out.push(req(first(union, n), `R${560 + i}`, { type: 'question', ai: null, created: addDays(today, -(i % 4)), ...x })));
+  out.push(...regionalAmanRequests(farmers, out, UNIONS, today));
   return out;
 }
 

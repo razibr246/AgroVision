@@ -47,9 +47,9 @@ export function SeasonChart({ detail, row, year, height = 320 }) {
             formatter={(v, n) => (n === 'rain' ? [`${num(v, lang, { dp: 1 })} ${T('মিমি', 'mm')}`, T('বৃষ্টি (আইমার্জ)', 'Rain (IMERG)')]
               : n === 'band' ? [`${num(v[0], lang, { dp: 1 })} – ${num(v[1], lang, { dp: 1 })} dB`, T('মাঝের অর্ধেক জমি', 'Middle half of fields')]
                 : [`${num(v, lang, { dp: 1 })} dB`, T('রাডার সংকেত (মধ্যমা)', 'Radar signal (median)')])} />
-          <Bar yAxisId="rain" dataKey="rain" fill={TEAL} fillOpacity={0.45} radius={[2, 2, 0, 0]} animationDuration={900} />
-          <Area yAxisId="vh" dataKey="band" stroke="none" fill={GREEN} fillOpacity={0.14} connectNulls animationDuration={1200} />
-          <Line yAxisId="vh" dataKey="med" stroke={GREEN} strokeWidth={2.6} dot={{ r: 2.6, fill: GREEN, strokeWidth: 0 }} activeDot={{ r: 5 }} connectNulls animationDuration={1600} />
+          <Bar yAxisId="rain" dataKey="rain" fill={TEAL} fillOpacity={0.45} radius={[2, 2, 0, 0]} animationDuration={400} />
+          <Area yAxisId="vh" dataKey="band" stroke="none" fill={GREEN} fillOpacity={0.14} connectNulls animationDuration={500} />
+          <Line yAxisId="vh" dataKey="med" stroke={GREEN} strokeWidth={2.6} dot={{ r: 2.6, fill: GREEN, strokeWidth: 0 }} activeDot={{ r: 5 }} connectNulls animationDuration={600} />
           {row.transplantNormal !== null && <ReferenceLine yAxisId="vh" x={row.transplantNormal} stroke={MUTED} strokeDasharray="5 4" label={{ value: T('স্বাভাবিক', 'Usual'), position: 'insideTopLeft', fontSize: 11, fill: MUTED, dy: -18 }} />}
           {sum.transplantDoy !== null && sum.reliable && <ReferenceLine yAxisId="vh" x={sum.transplantDoy} stroke={GOLD} strokeWidth={2.4} label={{ value: T(`রোপণ ${day(sum.transplantDoy)}`, `Transplanting ${day(sum.transplantDoy)}`), position: 'insideTopRight', fontSize: 11.5, fontWeight: 700, fill: '#87580e', dy: -18 }} />}
         </ComposedChart>
@@ -163,8 +163,8 @@ export function RadarTimelapse({ detail, row, year }) {
           <filter id="aman-duo"><feColorMatrix type="matrix" values="0.86 0 0 0 0.05  0.84 0 0 0 0.12  0.78 0 0 0 0.08  0 0 0 1 0" /></filter>
         </svg>
         {frames.map((fr, k) => (
-          <img key={fr.file} src={frameUrl(fr.file)} alt={k === i ? T(`সেন্টিনেল-১ রাডার ছবি, ${fmtDate(Date.parse(fr.date), 'bn')}`, `Sentinel-1 radar image, ${fmtDate(Date.parse(fr.date), 'en')}`) : ''}
-            className="absolute inset-0 h-full w-full transition-opacity duration-500" style={{ opacity: k === i ? 1 : 0, filter: 'url(#aman-duo) contrast(1.25) brightness(1.05)' }} />
+          <img key={fr.file} src={frameUrl(fr.file)} loading="lazy" decoding="async" alt={k === i ? T(`সেন্টিনেল-১ রাডার ছবি, ${fmtDate(Date.parse(fr.date), 'bn')}`, `Sentinel-1 radar image, ${fmtDate(Date.parse(fr.date), 'en')}`) : ''}
+            className="crisp-img absolute inset-0 h-full w-full transition-opacity duration-500" style={{ opacity: k === i ? 1 : 0, filter: 'url(#aman-duo) contrast(1.25) brightness(1.05)' }} />
         ))}
         <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full">
           <path d={`M0,0H${W}V${H}H0Z M${ring.replaceAll(' ', 'L')}Z`} fill="#0d2614" fillOpacity="0.62" fillRule="evenodd" pointerEvents="none" />
@@ -288,10 +288,10 @@ export function RainTrend({ row, height = 230 }) {
           <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12.5, border: '1px solid #dfe7dc' }} labelFormatter={(y) => num(y, lang).replace(/,/g, '')}
             formatter={(v, n, p) => [`${num(v, lang)} ${T('মিমি', 'mm')}${n !== 'trend' && p.payload.provisional ? T(' (অস্থায়ী)', ' (provisional)') : ''}`, n === 'trend' ? T('ধারা (সেনের ঢাল)', 'Trend (Sen’s slope)') : T('জুন–জুলাইয়ের বৃষ্টি', 'June–July rain')]} />
           {row.rainNormal !== null && <ReferenceLine y={row.rainNormal} stroke={MUTED} strokeDasharray="5 4" label={{ value: T('স্বাভাবিক', 'Normal'), position: 'insideTopLeft', fontSize: 11, fill: MUTED }} />}
-          <Bar dataKey="v" radius={[4, 4, 0, 0]} animationDuration={1100}>
+          <Bar dataKey="v" radius={[4, 4, 0, 0]} animationDuration={450}>
             {data.map((d) => <Cell key={d.y} fill={d.provisional ? '#b9c2bc' : d.v >= row.rainNormal ? TEAL : '#c98a4b'} fillOpacity={0.85} />)}
           </Bar>
-          <Line dataKey="trend" stroke={INK} strokeWidth={2} dot={false} strokeDasharray={row.rainTrend.significant ? undefined : '6 5'} animationDuration={1400} />
+          <Line dataKey="trend" stroke={INK} strokeWidth={2} dot={false} strokeDasharray={row.rainTrend.significant ? undefined : '6 5'} animationDuration={550} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -366,9 +366,9 @@ export function ProgressChart({ detail, year, normalTo, height = 250 }) {
           <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12.5, border: '1px solid #dfe7dc' }} labelFormatter={day}
             formatter={(v, n) => (n === 'band' ? [`${num(v[0], lang, { dp: 0 })}–${num(v[1], lang, { dp: 0 })}%`, T('আগের বছরগুলোর মাঝের অর্ধেক', 'Middle half of past years')]
               : [`${num(v, lang, { dp: 0 })}%`, n === 'now' ? T(`${num(year, 'bn').replace(/,/g, '')} সাল`, String(year)) : T('আগের বছরগুলোর মধ্যমা', 'Past years’ median')])} />
-          <Area dataKey="band" stroke="none" fill={GREEN} fillOpacity={0.12} animationDuration={900} />
-          <Line dataKey="mid" stroke={MUTED} strokeDasharray="5 4" strokeWidth={1.6} dot={false} animationDuration={1100} />
-          <Line dataKey="now" stroke={GOLD} strokeWidth={3} dot={false} type="stepAfter" animationDuration={1500} />
+          <Area dataKey="band" stroke="none" fill={GREEN} fillOpacity={0.12} animationDuration={400} />
+          <Line dataKey="mid" stroke={MUTED} strokeDasharray="5 4" strokeWidth={1.6} dot={false} animationDuration={450} />
+          <Line dataKey="now" stroke={GOLD} strokeWidth={3} dot={false} type="stepAfter" animationDuration={550} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -403,9 +403,9 @@ export function RainBuild({ detail, year, height = 250 }) {
           <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12.5, border: '1px solid #dfe7dc' }} labelFormatter={day}
             formatter={(v, n) => (n === 'band' ? [`${num(v[0], lang)}–${num(v[1], lang)} ${T('মিমি', 'mm')}`, T('২০০১–২০২৫-এর মাঝের অর্ধেক', 'Middle half, 2001–2025')]
               : [`${num(v, lang)} ${T('মিমি', 'mm')}`, n === 'now' ? T(provisional ? 'এ বছর (অস্থায়ী)' : 'এ বছর', provisional ? 'This year (provisional)' : 'This year') : T('স্বাভাবিক (মধ্যমা)', 'Normal (median)')])} />
-          <Area dataKey="band" stroke="none" fill={TEAL} fillOpacity={0.13} animationDuration={900} />
-          <Line dataKey="mid" stroke={MUTED} strokeDasharray="5 4" strokeWidth={1.6} dot={false} animationDuration={1100} />
-          <Line dataKey="now" stroke={TEAL} strokeWidth={3} strokeDasharray={provisional ? '7 4' : undefined} dot={false} connectNulls={false} animationDuration={1500} />
+          <Area dataKey="band" stroke="none" fill={TEAL} fillOpacity={0.13} animationDuration={400} />
+          <Line dataKey="mid" stroke={MUTED} strokeDasharray="5 4" strokeWidth={1.6} dot={false} animationDuration={450} />
+          <Line dataKey="now" stroke={TEAL} strokeWidth={3} strokeDasharray={provisional ? '7 4' : undefined} dot={false} connectNulls={false} animationDuration={550} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -437,7 +437,7 @@ export function FieldCurve({ detail, year, j, unionName }) {
             <YAxis domain={[Math.floor(Math.min(...vals) - 1), Math.ceil(Math.max(...vals) + 1)]} tick={tick} tickLine={false} axisLine={false} width={42} />
             <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12.5, border: '1px solid #dfe7dc' }} labelFormatter={(d) => day(d)} formatter={(v) => [`${num(v, lang, { dp: 1 })} dB`, T('রাডার সংকেত', 'Radar signal')]} />
             {t !== null && <ReferenceLine x={t} stroke={GOLD} strokeWidth={2.2} />}
-            <Line dataKey="vh" stroke={GREEN} strokeWidth={2.2} dot={{ r: 2.4, fill: GREEN, strokeWidth: 0 }} animationDuration={1000} />
+            <Line dataKey="vh" stroke={GREEN} strokeWidth={2.2} dot={{ r: 2.4, fill: GREEN, strokeWidth: 0 }} animationDuration={450} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

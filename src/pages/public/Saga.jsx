@@ -7,11 +7,13 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, CloudLightning, Coins, Droplets, Gamepad2, Heart, Layers, Mic, MicOff, RotateCcw, Sun, Sprout, Telescope, Thermometer, Users, FastForward, CloudRain } from 'lucide-react';
 import Photo from '../../components/Photo';
 import { Tags } from '../../components/ui';
+import { LangToggle } from '../../components/chrome.jsx';
 import { useStore, loadClimate } from '../../store';
 import { num } from '../../engine/dates';
 import { REGIONS } from '../../game/regions';
 import { createPreview } from '../../game/three/stage';
-import { speak, stopSpeaking, ttsSupported } from '../../voice/speech';
+import { speakNatural, stopSpeaking, ttsSupported } from '../../voice/speech';
+import { sagaSpeaker } from '../../engine/voices';
 import { GameStage } from './FarmGame';
 import { CAST, CHAPTERS, START, METERS, NOTEBOOK, ENDINGS, SAGA_KEY, applyFx, seasonOf, seasonFx, quickSeason, ending, letter, future } from '../../game/saga';
 import { GAMES } from '../../data/games';
@@ -64,6 +66,7 @@ export default function Saga() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Meters m={st.meters} />
         <div className="flex items-center gap-2">
+          <LangToggle glass />
           {ttsSupported() && <button type="button" onClick={() => setVoice(!voice)} aria-pressed={voice} className="glass-pill inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-[13.5px] font-semibold">{voice ? <Mic size={15} /> : <MicOff size={15} />}{voice ? T('কণ্ঠ চালু', 'Voice on') : T('কণ্ঠ বন্ধ', 'Voice off')}</button>}
           {(st.k > 0 || st.i >= 0) && <button type="button" onClick={restart} className="glass-pill inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-[13.5px] font-semibold"><RotateCcw size={15} />{T('নতুন করে শুরু', 'Start over')}</button>}
         </div>
@@ -135,7 +138,7 @@ function Scene({ scene, voice, onDone }) {
   const [n, setN] = useState(0);
   const [who, text] = (() => { const l = scene.lines[n]; return [l[0], s.lang === 'bn' ? l[1] : l[2]]; })();
   const person = who !== 'narrator';
-  useEffect(() => { if (voice) speak(text, s.lang, { rate: 0.95 }); return () => stopSpeaking(); }, [text, voice, s.lang]);
+  useEffect(() => { if (voice) speakNatural(text, s.lang, { rate: 0.95, speaker: sagaSpeaker(who) }); return () => stopSpeaking(); }, [text, who, voice, s.lang]);
   const go = useCallback(() => { if (n + 1 < scene.lines.length) setN(n + 1); else onDone(); }, [n, scene.lines.length, onDone]);
   useEffect(() => {
     const k = (e) => {

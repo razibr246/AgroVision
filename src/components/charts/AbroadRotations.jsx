@@ -15,7 +15,16 @@ export default function AbroadRotations({ id, normals }) {
   const { s, T, L } = useStore();
   const lang = s.lang;
   const [deltas, setDeltas] = useState(null);
+  const [year, setYear] = useState(0);
+  const [playing, setPlaying] = useState(false);
   useEffect(() => { import('../../data/climate/cmip6_deltas.json').then((m) => setDeltas(m.default)); }, []);
+  useEffect(() => {
+    if (!playing) return undefined;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { setPlaying(false); return undefined; }
+    const timer = window.setInterval(() => setYear((y) => Math.min(10, y + 1)), 850);
+    return () => window.clearInterval(timer);
+  }, [playing]);
+  useEffect(() => { if (year >= 10) setPlaying(false); }, [year]);
   const c = soilYields.countries[id];
   const res = useMemo(() => (c ? abroadRotations({ country: id, soil: c.soil, yields: c.yields, normals, change: deltas ? climateChange(deltas, `abroad_${id}`, 'ssp245') : null }) : null), [c, id, normals, deltas]);
   // A farm outside the model's crops (the Nevada alfalfa pivot: a perennial, not a kharif–rabi double crop) says so
@@ -28,8 +37,29 @@ export default function AbroadRotations({ id, normals }) {
   const best = res.options.reduce((a, o) => (soilOf(o) > soilOf(a) ? o : a), res.options[0]);
   const habit = res.options.find((o) => o.habit);
   const crops = [...new Set(res.options.flatMap((o) => o.crops))].filter((k) => k !== 'fallow');
+  const selected = best;
+  const displayedOm = res.om0 + ((selected.om - res.om0) * year / 10);
   return (
     <div>
+      <section className="mb-5 overflow-hidden rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-950 via-primary-900 to-[#396c48] p-4 text-white sm:p-5" aria-label={T('দশ বছরের জমির ভবিষ্যৎ অ্যানিমেশন', 'Ten-year field future animation')}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><p className="text-xs font-semibold uppercase tracking-[.14em] text-paddy-200">{T('জমির ভবিষ্যৎ · মডেলের দুই প্রান্ত', 'Field future · model endpoints')}</p><h3 className="mt-1 text-lg font-bold">{T('দশ বছরে জমির পরিবর্তন', 'How the field changes over ten years')}</h3></div>
+          <button type="button" onClick={() => { if (year >= 10) setYear(0); setPlaying((v) => !v); }} className="rounded-full bg-white px-3.5 py-2 text-sm font-bold text-primary-950">{playing ? T('থামান', 'Pause') : year >= 10 ? T('আবার চালান', 'Replay') : T('পরিবর্তন দেখুন', 'Play timeline')}</button>
+        </div>
+        <div className="relative mt-4 h-28 overflow-hidden rounded-xl border border-white/20 bg-sky-200/90" aria-hidden="true">
+          <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-b from-[#986e42] to-[#553d2c]" />
+          <div className="absolute inset-x-0 bottom-[40%] h-[3px] bg-amber-200/75" />
+          {Array.from({ length: 15 }, (_, i) => {
+            const height = 17 + ((i * 17 + 23) % 27) * (0.45 + year / 18);
+            return <span key={i} className="absolute bottom-[40%] w-[3px] origin-bottom rounded-full bg-emerald-800 transition-all duration-700" style={{ left: `${5 + i * 6.4}%`, height: `${height}px`, transform: `rotate(${i % 2 ? 12 : -12}deg)` }}><i className="absolute -left-1 top-1 h-2 w-3 -rotate-25 rounded-full bg-emerald-500" /><i className="absolute -right-1 top-2 h-2 w-3 rotate-25 rounded-full bg-lime-300" /></span>;
+          })}
+          <span className="absolute right-4 top-3 rounded-full bg-white/85 px-2.5 py-1 text-xs font-bold text-primary-950">{T(`বছর ${num(year, lang)}`, `Year ${year}`)}</span>
+        </div>
+        <input aria-label={T('দশ বছরের টাইমলাইন', 'Ten-year timeline')} type="range" min="0" max="10" value={year} onChange={(e) => { setPlaying(false); setYear(Number(e.target.value)); }} className="mt-3 w-full accent-lime-300" />
+        <div className="flex justify-between text-xs text-white/70"><span>{T('আজ', 'Today')}</span><span>{T('১০ বছর', '10 years')}</span></div>
+        <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2 rounded-xl bg-white/10 px-3 py-2"><span className="text-sm text-white/75">{T('সেরা মডেল করা ফসলচক্রে জৈব পদার্থের দৃশ্যায়িত ধারা', 'Illustrative organic-matter path for the best modelled rotation')}</span><b className="text-lg tabular-nums">{num(displayedOm, lang, { dp: 2 })}%</b></div>
+        <p className="mt-2 text-[11.5px] leading-5 text-white/60">{T('দৃশ্যটি আজ ও দশ বছরের মডেল ফলের মাঝের সরল অ্যানিমেশন, বছরওয়ারি পূর্বাভাস নয়।', 'The animation interpolates between the modelled present and ten-year result; it is not an annual forecast.')}</p>
+      </section>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-[13.5px]">
           <thead>

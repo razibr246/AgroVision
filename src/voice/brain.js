@@ -12,6 +12,7 @@
 import { fold, foldAll, bestHit, hasAny, tokens, makeT, joinList, num, speakable } from './bn.js';
 import { CROP_WORDS, YES, NO, INTENTS, SYMPTOM_WORDS, URGENT_WORDS, EMERGENCY_WORDS, ORDINALS } from './lexicon.js';
 import { fmtDate } from '../engine/dates.js';
+import { queryChakraLLM } from '../engine/chakraLLM.js';
 
 const FARMER_INTENTS = ['stop', 'repeat', 'langEn', 'langBn', 'help', 'compare', 'plan', 'when', 'why', 'water', 'weather', 'harvest', 'price', 'next', 'soil', 'problem', 'officer', 'myreq', 'nasa', 'greet'];
 const OFFICER_INTENTS = ['stop', 'repeat', 'langEn', 'langBn', 'help', 'briefing', 'requests', 'open_req', 'more_photo', 'resolve', 'alerts', 'send_advice', 'escalate', 'supply', 'slots', 'farmers', 'upazila_advice', 'upazila', 'ack', 'radar', 'nasa', 'greet'];
@@ -19,8 +20,10 @@ const OFFICER_INTENTS = ['stop', 'repeat', 'langEn', 'langBn', 'help', 'briefing
 export const KRISHI_CALL_CENTRE = '১৬১২৩'; // Agriculture Information Service helpline; verify before a public launch
 export const EMERGENCY_NUMBER = '৯৯৯';
 
-export function createSession({ role = 'farmer', lang = 'bn' } = {}) {
-  return { role, lang, state: null, focusRequest: null, lastSay: '', spoken: {}, turns: 0 };
+export function createSession(opts = {}) {
+  const { role = 'farmer', lang } = opts ?? {};
+  const hasLang = lang === 'bn' || lang === 'en';
+  return { role, lang: hasLang ? lang : 'en', autoLang: !hasLang, state: null, focusRequest: null, lastSay: '', spoken: {}, turns: 0 };
 }
 
 const clip = (s, n) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
@@ -89,17 +92,24 @@ export function greeting(snap, session) {
 
 export function respond(rawText, snap, session) {
   session.turns += 1;
-  const lang = session.lang;
   const text = fold(rawText);
+  const early = classify(text, session.role);
+  if (session.autoLang && early !== 'langEn' && early !== 'langBn') {
+    if (/[\u0980-\u09ff]/.test(String(rawText ?? ''))) {
+      session.lang = 'bn';
+    } else if (/[a-z]/i.test(String(rawText ?? '')) && session.turns === 1) {
+      session.lang = 'en';
+    }
+  }
+  const lang = session.lang;
   if (!text) return out(session, makeT(lang)('দুঃখিত, শুনতে পাইনি। আবার বলবেন?', 'Sorry, I did not catch that. Could you say it again?'));
 
   // 1. Danger to life is never routed through crop logic.
   if (hasAny(text, EMERGENCY_WORDS)) return emergency(session);
 
   // 2. Words that work everywhere.
-  const early = classify(text, session.role);
-  if (early === 'langEn') { session.lang = 'en'; return out(session, 'Sure, I will speak English now.', { effects: [{ type: 'setLang', lang: 'en' }], chips: isOfficer(session) ? officerChips(session) : farmerChips(session) }); }
-  if (early === 'langBn') { session.lang = 'bn'; return out(session, 'ঠিক আছে, এখন থেকে বাংলায় বলব।', { effects: [{ type: 'setLang', lang: 'bn' }], chips: isOfficer(session) ? officerChips(session) : farmerChips(session) }); }
+  if (early === 'langEn') { session.lang = 'en'; session.autoLang = false; return out(session, 'Sure, I will speak English now.', { effects: [{ type: 'setLang', lang: 'en' }], chips: isOfficer(session) ? officerChips(session) : farmerChips(session) }); }
+  if (early === 'langBn') { session.lang = 'bn'; session.autoLang = false; return out(session, 'ঠিক আছে, এখন থেকে বাংলায় বলব।', { effects: [{ type: 'setLang', lang: 'bn' }], chips: isOfficer(session) ? officerChips(session) : farmerChips(session) }); }
   if (early === 'repeat' && session.lastSay) return out(session, session.lastSay, { keepLast: true });
   if (early === 'stop') { session.state = null; return out(session, makeT(lang)('ঠিক আছে। দরকার হলে আবার ডাকবেন। আল্লাহ হাফেজ।', 'Okay. Call me whenever you need me. Goodbye.'), { effects: [{ type: 'stop' }] }); }
 
@@ -129,8 +139,8 @@ function emergency(session) {
 
 const farmerChips = (s) => makeT(s.lang)(['কী লাগাব?', 'বিকল্পগুলোর তুলনা', 'আজ সেচ লাগবে?', 'ফসল কবে উঠবে?', 'পরের ফসল কী?', 'সমস্যা জানাতে চাই', 'অফিসারের সঙ্গে কথা'], ['What to plant?', 'Compare the options', 'Water today?', 'Harvest date?', 'Next crop?', 'Report a problem', 'Talk to my officer']);
 const officerChips = (s) => (s.role === 'uao'
-  ? makeT(s.lang)(['আজকের অবস্থা', 'ইউনিয়ন র‍্যাংকিং', 'মাঠকর্মীরা কী জানিয়েছে?', 'কবে কত ফসল উঠবে?', 'রোপণ রাডার', 'পুরো উপজেলায় পরামর্শ'], ['Today’s briefing', 'Union ranking', 'What was sent up?', 'Harvest timing', 'Ropan Radar', 'Advise the whole upazila'])
-  : makeT(s.lang)(['আজকের অবস্থা', 'জরুরি অনুরোধ', 'এলাকার সতর্কতা', 'কবে কত ফসল উঠবে?', 'লাগানোর পালা', 'রোপণ রাডার'], ['Today’s briefing', 'Urgent requests', 'Area alerts', 'Harvest timing', 'Planting slots', 'Ropan Radar']));
+  ? makeT(s.lang)(['আজকের অবস্থা', 'ইউনিয়ন র‍্যাংকিং', 'মাঠকর্মীরা কী জানিয়েছে?', 'কবে কত ফসল উঠবে?', 'রোপণ রাডার', 'পুরো উপজেলায় পরামর্শ'], ['Today’s briefing', 'Union ranking', 'What was sent up?', 'Harvest timing', 'Ropon Radar', 'Advise the whole upazila'])
+  : makeT(s.lang)(['আজকের অবস্থা', 'জরুরি অনুরোধ', 'এলাকার সতর্কতা', 'কবে কত ফসল উঠবে?', 'লাগানোর পালা', 'রোপণ রাডার'], ['Today’s briefing', 'Urgent requests', 'Area alerts', 'Harvest timing', 'Planting slots', 'Ropon Radar']));
 
 // A one-time note about where the numbers come from; honest about placeholder data.
 function provenance(snap, session, key) {
@@ -207,11 +217,15 @@ function farmerTurn(text, raw, snap, session, intent) {
       return out(session, T(`${L(p.crop, lang)} ওঠার পর ${L(rt.sowDate, lang)} নাগাদ ${L(rt.best.crop, lang)} বোনা ভালো। ${L(first(rt.best.why), lang)}।${alt.length ? ` বিকল্প: ${joinList(alt, lang)}।` : ''} ${L(rt.caution, lang)}`, `After ${L(p.crop, lang)}, sow ${L(rt.best.crop, lang)} around ${L(rt.sowDate, lang)}. ${L(first(rt.best.why), lang)}.${alt.length ? ` Alternatives: ${joinList(alt, lang)}.` : ''} ${L(rt.caution, lang)}`), { chips: T(['কেন?', 'আজ সেচ লাগবে?'], ['Why?', 'Water today?']) });
     }
     case 'soil': {
+      const llm = queryChakraLLM(raw || text, { role: 'farmer', lang, farmer: snap.farmer, chosen: snap.plan });
+      if (llm && (llm.intent === 'fertilizer_dose' || llm.intent === 'soil_chemistry')) {
+        return out(session, llm.reply, { nav: llm.nav, tags: llm.tags });
+      }
       const s = snap.soil;
       return out(session, T(`আন্তর্জাতিক মাটির মানচিত্রের আনুমানিক হিসাবে (মাটি পরীক্ষা নয়) আপনার জমির মাটির পিএইচ ${num(s.ph, lang, 1)}, জৈব পদার্থ ${num(s.om, lang, 1)} শতাংশ। ${s.notes.slice(0, 2).map((x) => L(x, lang)).join('। ')}।${s.sample ? ' এটা নমুনা মাটির তথ্য, এসআরডিআই-এর আসল তথ্য বসলে বদলাতে পারে।' : ''} সারের নির্দিষ্ট মাত্রা উপজেলা কৃষি অফিস থেকে জেনে নিন।`, `By a global soil map’s estimate (not a soil test), your field’s soil pH is ${num(s.ph, lang, 1)} with ${num(s.om, lang, 1)} percent organic matter. ${s.notes.slice(0, 2).map((x) => L(x, lang)).join('. ')}.${s.sample ? ' This is sample soil data until real SRDI values are loaded.' : ''} Ask the upazila agriculture office for exact fertiliser amounts.`));
     }
     case 'officer': {
-      return out(session, T(`আপনার কৃষি কর্মকর্তা ${L(f.upazila, lang)} উপজেলা কৃষি অফিসার ${L(f.uao, lang)}। আমাকে সমস্যাটা বললে আমি সরাসরি তাঁর কাছে পাঠিয়ে দিতে পারি। জরুরি হলে কৃষি কল সেন্টারে ${KRISHI_CALL_CENTRE} নম্বরে ফোন করুন।`, `Your agriculture officer is ${L(f.uao, lang)}, the ${L(f.upazila, lang)} upazila agriculture officer. Tell me the problem and I will send it straight to them. For urgent help call the Krishi Call Centre on ${KRISHI_CALL_CENTRE}.`), { chips: T(['সমস্যা জানাতে চাই', 'আমার অনুরোধের অবস্থা'], ['Report a problem', 'My requests']) });
+      return out(session, T(`আপনার কৃষি কর্মকর্তা ${L(f.upazila, lang)} উপজেলা কৃষি অফিসার ${L(f.uao, lang)}। আমাকে সমস্যাটা বললে আমি সরাসরি তাঁর কাছে পাঠিয়ে দিতে পারি। জরুরি হলে কৃষি কল সেন্টারে ${KRISHI_CALL_CENTRE} নম্বরে ফোন করুন।`, `Your agriculture officer is ${L(f.uao, lang)}, the ${L(f.upazila, lang)} upazila agriculture officer. Tell me the problem and I will send it straight to them. For urgent help call the Krishi Call Centre on 16123.`), { chips: T(['সমস্যা জানাতে চাই', 'আমার অনুরোধের অবস্থা'], ['Report a problem', 'My requests']) });
     }
     case 'myreq': {
       const reqs = snap.requests.slice(0, 3);
@@ -220,7 +234,7 @@ function farmerTurn(text, raw, snap, session, intent) {
       const st = (r) => ({ open: T('উত্তরের অপেক্ষায়', 'waiting'), need_info: T('আরও ছবি চেয়েছেন', 'asked for more photos'), answered: T('উত্তর এসেছে', 'answered'), resolved: T('মিটে গেছে', 'resolved') }[r.status]);
       const rl = reqs.map((r) => `${L(r.symptom, lang)}, ${st(r)}`);
       const al = adv.length ? T(` সর্বশেষ বার্তা: ${clip(L(adv[0].text, lang), 220)}`, ` Latest message: ${clip(L(adv[0].text, lang), 220)}`) : '';
-      return out(session, T(`আপনার ${num(snap.requests.length, lang)}টি অনুরোধ আছে। ${rl.join('; ')}।${al}`, `You have ${snap.requests.length} request(s). ${rl.join('; ')}.${al}`), { rows: rl });
+      return out(session, T(`আপনার ${num(snap.requests.length, lang)}টি অনুরোধ আছে। ${rl.join('; ')}।${al}`, `You have ${num(snap.requests.length, lang)} request(s). ${rl.join('; ')}.${al}`), { rows: rl });
     }
     case 'nasa': {
       const real = snap.prov.climate === 'REAL';
@@ -229,7 +243,20 @@ function farmerTurn(text, raw, snap, session, intent) {
         : T('আবহাওয়ার পদ্ধতি নাসা পাওয়ারের গত ২৫ বছরের তথ্যের জন্য তৈরি, কিন্তু এখন তার জায়গায় নমুনা তথ্য বসানো আছে। আসল তথ্য বসালে সব সংখ্যা নিজে থেকে বদলে যাবে। মাটি, দাম আর খরচও নমুনা।', 'The method is built for 25 years of NASA POWER data, but sample data is loaded right now. Every number will change by itself once the real data is loaded. Soil, prices and costs are samples too.'));
     }
     case 'problem': return startProblem(text, raw, snap, session, symptom, crop);
-    default: return fallback(session, farmerChips(session));
+    default: {
+      const llm = queryChakraLLM(raw || text, {
+        role: 'farmer',
+        lang,
+        farmer: snap.farmer,
+        chosen: snap.plan,
+        water: snap.today?.water,
+        weather: snap.today?.weather,
+      });
+      if (llm && llm.reply) {
+        return out(session, llm.reply, { nav: llm.nav, tags: llm.tags });
+      }
+      return fallback(session, farmerChips(session));
+    }
   }
 }
 
@@ -262,11 +289,11 @@ function compareSay(snap, session) {
   if (!c || !c.cols.length) return T('এখনো তুলনা করার মতো হিসাব নেই। আগে মৌসুমের পরিকল্পনা দেখুন।', 'There is nothing to compare yet. Open the season plan first.');
   const role = (r) => ({ now: T('এখন যা করেন', 'what you grow now'), rec: T('পরামর্শ', 'recommended'), alt: T('বিকল্প', 'alternative') }[r]);
   const line = (x) => T(`${L(x.crop, lang)} (${role(x.role)}): নম্বর ${num(x.score, lang)}, ${num(x.n, lang)}টির মধ্যে ${num(x.safe, lang)} মৌসুম ঠিকঠাক${x.waterMm != null ? `, পানি ${num(x.waterMm, lang)} মিলিমিটার` : ''}${x.profit != null ? `, বিঘায় লাভ ${num(x.profit, lang)} টাকা` : ''}`,
-    `${L(x.crop, lang)} (${role(x.role)}): score ${x.score}, ${x.safe} of ${x.n} seasons fine${x.waterMm != null ? `, ${x.waterMm} mm of water` : ''}${x.profit != null ? `, profit ${x.profit} taka a bigha` : ''}`);
+    `${L(x.crop, lang)} (${role(x.role)}): score ${num(x.score, lang)}, ${num(x.safe, lang)} of ${num(x.n, lang)} seasons fine${x.waterMm != null ? `, ${num(x.waterMm, lang)} mm of water` : ''}${x.profit != null ? `, profit ${num(x.profit, lang)} taka a bigha` : ''}`);
   const sure = c.close
-    ? T(`প্রথম দুটির ব্যবধান মাত্র ${num(c.gap, lang)} নম্বর, তাই কার্যত সমান: নিজের অভিজ্ঞতা আর বাজার দেখে বাছুন।`, `The first two are only ${c.gap} points apart, so practically a tie: choose by your own experience and the market.`)
-    : T(`প্রথমটি ${num(c.gap, lang)} নম্বর এগিয়ে। তবু হিসাবটা উপজেলার আবহাওয়া, মাটির আনুমানিক মানচিত্র আর দেশের গড় ফলনে, নিশ্চয়তা নয়।`, `The first leads by ${c.gap} points. Still, it rests on the upazila’s weather, an estimated soil map and national yields: not a certainty.`);
-  const human = T(` মানুষের সঙ্গে কথা বলতে "অফিসার" বলুন, বা কৃষি কল সেন্টারে ${KRISHI_CALL_CENTRE} নম্বরে ফোন করুন।`, ` To talk to a person, say "officer", or call the Krishi Call Centre on ${KRISHI_CALL_CENTRE}.`);
+    ? T(`প্রথম দুটির ব্যবধান মাত্র ${num(c.gap, lang)} নম্বর, তাই কার্যত সমান: নিজের অভিজ্ঞতা আর বাজার দেখে বাছুন।`, `The first two are only ${num(c.gap, lang)} points apart, so practically a tie: choose by your own experience and the market.`)
+    : T(`প্রথমটি ${num(c.gap, lang)} নম্বর এগিয়ে। তবু হিসাবটা উপজেলার আবহাওয়া, মাটির আনুমানিক মানচিত্র আর দেশের গড় ফলনে, নিশ্চয়তা নয়।`, `The first leads by ${num(c.gap, lang)} points. Still, it rests on the upazila’s weather, an estimated soil map and national yields: not a certainty.`);
+  const human = T(` মানুষের সঙ্গে কথা বলতে "অফিসার" বলুন, বা কৃষি কল সেন্টারে ${KRISHI_CALL_CENTRE} নম্বরে ফোন করুন।`, ` To talk to a person, say "officer", or call the Krishi Call Centre on 16123.`);
   return `${T('পাশাপাশি: ', 'Side by side: ')}${c.cols.map(line).join(T('। ', '. '))}${T('। ', '. ')}${sure}${human}`;
 }
 
@@ -393,7 +420,7 @@ function continueState(text, raw, snap, session, intent) {
     if (yn === 'yes' && h) {
       session.state = null;
       const adv = { id: `ADV-${h.id}`, cluster: h.id, text: L(h.draft, lang), to: h.recipients, at: snap.todayMs };
-      return out(session, T(`${num(h.recipients.length, lang)} জন কৃষকের কাছে পরামর্শ পাঠিয়ে দিয়েছি। চাইলে উপজেলা অফিসারকেও জানাতে পারি।`, `Advice sent to ${h.recipients.length} farmers. I can also tell the upazila officer.`), { effects: [{ type: 'addAdvisory', adv }, { type: 'updateRequest', ids: h.memberIds, patch: { status: 'answered' } }], chips: T(['উপজেলা অফিসারকে জানান', 'আজকের অবস্থা'], ['Tell the upazila officer', 'Briefing']) });
+      return out(session, T(`${num(h.recipients.length, lang)} জন কৃষকের কাছে পরামর্শ পাঠিয়ে দিয়েছি। চাইলে উপজেলা অফিসারকেও জানাতে পারি।`, `Advice sent to ${num(h.recipients.length, lang)} farmers. I can also tell the upazila officer.`), { effects: [{ type: 'addAdvisory', adv }, { type: 'updateRequest', ids: h.memberIds, patch: { status: 'answered' } }], chips: T(['উপজেলা অফিসারকে জানান', 'আজকের অবস্থা'], ['Tell the upazila officer', 'Briefing']) });
     }
     if (yn === 'no') { session.state = null; return out(session, T('ঠিক আছে, পাঠাইনি।', 'Okay, not sent.')); }
     return null;
@@ -411,7 +438,7 @@ function continueState(text, raw, snap, session, intent) {
       session.state = null;
       const u = snap.upazila;
       const adv = { id: `UPZ-${u.id}`, upazila: u.id, text: L(u.advice.draft, lang), to: u.allFarmerIds, at: snap.todayMs };
-      return out(session, T(`পুরো উপজেলার ${num(u.allFarmerIds.length, lang)} জন কৃষকের কাছে পরামর্শ পাঠিয়ে দিয়েছি।`, `Advice sent to all ${u.allFarmerIds.length} farmers in the upazila.`), { effects: [{ type: 'addAdvisory', adv }, ...snap.area.escalations.map((e) => ({ type: 'escalate', esc: { ...e, ack: true } }))] });
+      return out(session, T(`পুরো উপজেলার ${num(u.allFarmerIds.length, lang)} জন কৃষকের কাছে পরামর্শ পাঠিয়ে দিয়েছি।`, `Advice sent to all ${num(u.allFarmerIds.length, lang)} farmers in the upazila.`), { effects: [{ type: 'addAdvisory', adv }, ...snap.area.escalations.map((e) => ({ type: 'escalate', esc: { ...e, ack: true } }))] });
     }
     if (yn === 'no') { session.state = null; return out(session, T('ঠিক আছে, পাঠাইনি।', 'Okay, not sent.')); }
     return null;
@@ -446,12 +473,12 @@ function officerTurn(text, raw, snap, session, intent) {
     case 'briefing': {
       const c = a.counts;
       const bits = [];
-      bits.push(T(`${snap.officer.union.full.bnIn} ${num(a.farmers, lang)} জন কৃষক। খোলা অনুরোধ ${num(c.open, lang)}টি, তার মধ্যে জরুরি ${num(c.urgent, lang)}টি।`, `${snap.officer.union.full.en} has ${a.farmers} farmers. ${c.open} open requests, ${c.urgent} urgent.`));
-      if (a.hotspots.length) bits.push(T(`একই সমস্যা কাছাকাছি কয়েক জমিতে দেখা যাচ্ছে: ${a.hotspots.map((h) => `${L(h.crop, lang)} ${L(h.symptom, lang)}, ${num(h.size, lang)}টি খবর, ${L(h.villages, lang)}`).join('; ')}।`, `The same problem is showing in several nearby fields: ${a.hotspots.map((h) => `${L(h.crop, lang)} ${L(h.symptom, lang)}, ${h.size} reports, ${L(h.villages, lang)}`).join('; ')}.`));
+      bits.push(T(`${snap.officer.union.full.bnIn} ${num(a.farmers, lang)} জন কৃষক। খোলা অনুরোধ ${num(c.open, lang)}টি, তার মধ্যে জরুরি ${num(c.urgent, lang)}টি।`, `${snap.officer.union.full.en} has ${num(a.farmers, lang)} farmers. ${num(c.open, lang)} open requests, ${num(c.urgent, lang)} urgent.`));
+      if (a.hotspots.length) bits.push(T(`একই সমস্যা কাছাকাছি কয়েক জমিতে দেখা যাচ্ছে: ${a.hotspots.map((h) => `${L(h.crop, lang)} ${L(h.symptom, lang)}, ${num(h.size, lang)}টি খবর, ${L(h.villages, lang)}`).join('; ')}।`, `The same problem is showing in several nearby fields: ${a.hotspots.map((h) => `${L(h.crop, lang)} ${L(h.symptom, lang)}, ${num(h.size, lang)} reports, ${L(h.villages, lang)}`).join('; ')}.`));
       const g = a.glut.find((x) => x.level !== 'Low');
       if (g) bits.push(T(`${L(g.crop, lang)}য় দাম পড়ার ঝুঁকি ${riskWord(g.level, lang)}, সবচেয়ে ব্যস্ত সপ্তাহে স্বাভাবিকের ${num(g.peak, lang, 1)} গুণ ফসল উঠবে।`, `${L(g.crop, lang)} price-drop risk is ${riskWord(g.level, lang)}; the busiest week brings ${num(g.peak, lang, 1)} times the normal amount.`));
-      if (a.dry.length) bits.push(T(`${num(a.dry.length, lang)}টি জমি খুব শুকনো বলে জানিয়েছে।`, `${a.dry.length} field(s) reported badly dry.`));
-      if (uao) { const n = a.escalations.filter((e) => !e.ack).length; if (n) bits.push(T(`মাঠকর্মীদের পাঠানো ${num(n, lang)}টি বিষয় আপনি এখনো দেখেননি।`, `${n} item(s) sent up by field officers are still unseen.`)); }
+      if (a.dry.length) bits.push(T(`${num(a.dry.length, lang)}টি জমি খুব শুকনো বলে জানিয়েছে।`, `${num(a.dry.length, lang)} field(s) reported badly dry.`));
+      if (uao) { const n = a.escalations.filter((e) => !e.ack).length; if (n) bits.push(T(`মাঠকর্মীদের পাঠানো ${num(n, lang)}টি বিষয় আপনি এখনো দেখেননি।`, `${num(n, lang)} item(s) sent up by field officers are still unseen.`)); }
       if (!a.hotspots.length && !c.open) bits.push(T('এখন জরুরি কিছু নেই।', 'Nothing urgent right now.'));
       bits.push(provenance(snap, session, 'briefing').trim());
       return out(session, bits.filter(Boolean).join(' '), { chips: uao ? officerChips(session) : T(['জরুরি অনুরোধ', 'এলাকার সতর্কতা', 'কবে কত ফসল উঠবে?'], ['Urgent requests', 'Area alerts', 'Harvest timing']), rows: bits });
@@ -462,7 +489,7 @@ function officerTurn(text, raw, snap, session, intent) {
       if (!list.length) return out(session, T('এখন কোনো খোলা অনুরোধ নেই।', 'No open requests right now.'));
       const lines = list.map((r, i) => T(`${['প্রথম', 'দ্বিতীয়', 'তৃতীয়'][i]}: ${L(r.farmer, lang)}, ${L(r.village, lang)}, ${L(r.crop, lang)}, ${L(r.symptom, lang)}, ${r.priority === 'High' ? 'জরুরি' : r.priority === 'Medium' ? 'মাঝারি' : 'সাধারণ'}`, `${['First', 'Second', 'Third'][i]}: ${L(r.farmer, lang)}, ${L(r.village, lang)}, ${L(r.crop, lang)}, ${L(r.symptom, lang)}, ${r.priority.toLowerCase()}`));
       session.focusRequest = list[0].id;
-      return out(session, T(`খোলা অনুরোধ ${num(a.counts.open, lang)}টি। জরুরিগুলো আগে। ${lines.join('। ')}। কোনটা শুনতে চান?`, `${a.counts.open} open requests, urgent first. ${lines.join('. ')}. Which one shall I read?`), { rows: lines, chips: T(['প্রথমটা পড়ুন', 'দ্বিতীয়টা', 'এলাকার সতর্কতা'], ['Read the first', 'The second', 'Area alerts']) });
+      return out(session, T(`খোলা অনুরোধ ${num(a.counts.open, lang)}টি। জরুরিগুলো আগে। ${lines.join('। ')}। কোনটা শুনতে চান?`, `${num(a.counts.open, lang)} open requests, urgent first. ${lines.join('. ')}. Which one shall I read?`), { rows: lines, chips: T(['প্রথমটা পড়ুন', 'দ্বিতীয়টা', 'এলাকার সতর্কতা'], ['Read the first', 'The second', 'Area alerts']) });
     }
 
     case 'open_req': {
@@ -478,7 +505,7 @@ function officerTurn(text, raw, snap, session, intent) {
       session.focusRequest = r.id;
       const ai = !r.aiGuess ? '' : r.aiGuess.sample
         ? T(` এটা নমুনা অনুরোধ; এতে ছবির একটা নমুনা অনুমান আছে (${L(r.aiGuess, lang)}), আসল এআই-এর ফল নয়।`, ` This is a sample request; it carries a sample photo guess (${L(r.aiGuess, lang)}), not a real AI result.`)
-        : T(` ছবি দেখে এআই বলছে: ${L(r.aiGuess, lang)}, নিশ্চয়তা ${num(r.aiGuess.pct, lang)} শতাংশ। এটা শুধু ইঙ্গিত, আপনার সিদ্ধান্তই চূড়ান্ত।`, ` The photo model suggests: ${L(r.aiGuess, lang)}, ${r.aiGuess.pct} percent sure. It is only a hint; your call is final.`);
+        : T(` ছবি দেখে এআই বলছে: ${L(r.aiGuess, lang)}, নিশ্চয়তা ${num(r.aiGuess.pct, lang)} শতাংশ। এটা শুধু ইঙ্গিত, আপনার সিদ্ধান্তই চূড়ান্ত।`, ` The photo model suggests: ${L(r.aiGuess, lang)}, ${num(r.aiGuess.pct, lang)} percent sure. It is only a hint; your call is final.`);
       const draft = L(r.draft, lang);
       session.state = { kind: 'confirm_reply', id: r.id, text: draft };
       return out(session, T(`${L(r.farmer, lang)}, ${L(r.village, lang)}, ${L(r.crop, lang)}। ${L(r.symptom, lang)}। কৃষক বলছেন: ${clip(L(r.text, lang), 180)}।${ai} আমার খসড়া উত্তর: ${clip(draft, 230)} এটা পাঠাব? নিজের কথায় উত্তর দিতে চাইলে সেটাই বলুন।`, `${L(r.farmer, lang)}, ${L(r.village, lang)}, ${L(r.crop, lang)}. ${L(r.symptom, lang)}. The farmer says: ${clip(L(r.text, lang), 180)}.${ai} My draft reply: ${clip(draft, 230)} Shall I send it? Or just say your own reply.`), { chips: T(['হ্যাঁ, পাঠান', 'আরও ছবি চান', 'উপজেলা অফিসারকে জানান'], ['Yes, send', 'Ask for more photos', 'Tell the upazila officer']) });
@@ -501,9 +528,9 @@ function officerTurn(text, raw, snap, session, intent) {
 
     case 'alerts': {
       const bits = [];
-      a.hotspots.forEach((h) => bits.push(T(`${L(h.crop, lang)} ${L(h.symptom, lang)}: ${num(h.size, lang)}টি জমি, ${L(h.villages, lang)}, সাত দিন আর দেড় কিলোমিটারের মধ্যে${h.sent ? ', পরামর্শ পাঠানো হয়েছে' : ''}`, `${L(h.crop, lang)} ${L(h.symptom, lang)}: ${h.size} fields in ${L(h.villages, lang)} within 7 days and 1.5 km${h.sent ? ', advice already sent' : ''}`)));
+      a.hotspots.forEach((h) => bits.push(T(`${L(h.crop, lang)} ${L(h.symptom, lang)}: ${num(h.size, lang)}টি জমি, ${L(h.villages, lang)}, সাত দিন আর দেড় কিলোমিটারের মধ্যে${h.sent ? ', পরামর্শ পাঠানো হয়েছে' : ''}`, `${L(h.crop, lang)} ${L(h.symptom, lang)}: ${num(h.size, lang)} fields in ${L(h.villages, lang)} within 7 days and 1.5 km${h.sent ? ', advice already sent' : ''}`)));
       a.glut.filter((g) => g.level !== 'Low').forEach((g) => bits.push(T(`${L(g.crop, lang)}য় দাম পড়ার ঝুঁকি ${riskWord(g.level, lang)}`, `${L(g.crop, lang)} price-drop risk ${riskWord(g.level, lang)}`)));
-      if (a.dry.length) bits.push(T(`${num(a.dry.length, lang)}টি শুকনো জমির খবর`, `${a.dry.length} dry-field report(s)`));
+      if (a.dry.length) bits.push(T(`${num(a.dry.length, lang)}টি শুকনো জমির খবর`, `${num(a.dry.length, lang)} dry-field report(s)`));
       if (!bits.length) return out(session, T('এখন কোনো সতর্কতা নেই।', 'No alerts right now.'));
       const top = a.hotspots.find((h) => !h.sent);
       const ask = top ? T(' সবাইকে পরামর্শ পাঠাতে বলুন "সবাইকে পরামর্শ পাঠান"।', ' Say "advise everyone" to send advice.') : '';
@@ -515,7 +542,7 @@ function officerTurn(text, raw, snap, session, intent) {
       if (!h) return out(session, T('এখন পরামর্শ পাঠানোর মতো কোনো এলাকার সতর্কতা নেই।', 'There is no area alert to advise on right now.'));
       if (h.sent) return out(session, T('এই সতর্কতায় পরামর্শ আগেই পাঠানো হয়েছে।', 'Advice for this alert has already gone out.'));
       session.state = { kind: 'confirm_cluster', id: h.id };
-      return out(session, T(`${L(h.villages, lang)}-এর ${L(h.crop, lang)}র জন্য আমার খসড়া পরামর্শ: ${clip(L(h.draft, lang), 260)} এটা ${num(h.recipients.length, lang)} জন কৃষককে পাঠাব?`, `Draft advice for ${L(h.crop, lang)} in ${L(h.villages, lang)}: ${clip(L(h.draft, lang), 260)} Send this to ${h.recipients.length} farmers?`), { chips: T(['হ্যাঁ, পাঠান', 'না'], ['Yes, send', 'No']) });
+      return out(session, T(`${L(h.villages, lang)}-এর ${L(h.crop, lang)}র জন্য আমার খসড়া পরামর্শ: ${clip(L(h.draft, lang), 260)} এটা ${num(h.recipients.length, lang)} জন কৃষককে পাঠাব?`, `Draft advice for ${L(h.crop, lang)} in ${L(h.villages, lang)}: ${clip(L(h.draft, lang), 260)} Send this to ${num(h.recipients.length, lang)} farmers?`), { chips: T(['হ্যাঁ, পাঠান', 'না'], ['Yes, send', 'No']) });
     }
 
     case 'escalate': {
@@ -523,7 +550,7 @@ function officerTurn(text, raw, snap, session, intent) {
       const h = a.hotspots.find((x) => !x.escalated);
       if (h && (!r || hasAny(text, AREA_WORDS) || !session.focusRequest)) {
         session.state = { kind: 'confirm_escalate', esc: h.escalation };
-        return out(session, T(`${L(h.crop, lang)} ${L(h.symptom, lang)}, ${num(h.size, lang)}টি খবর — এটা উপজেলা কৃষি অফিসারকে জানাব?`, `Tell the upazila officer about ${L(h.crop, lang)} ${L(h.symptom, lang)}, ${h.size} reports?`), { chips: T(['হ্যাঁ', 'না'], ['Yes', 'No']) });
+        return out(session, T(`${L(h.crop, lang)} ${L(h.symptom, lang)}, ${num(h.size, lang)}টি খবর — এটা উপজেলা কৃষি অফিসারকে জানাব?`, `Tell the upazila officer about ${L(h.crop, lang)} ${L(h.symptom, lang)}, ${num(h.size, lang)} reports?`), { chips: T(['হ্যাঁ', 'না'], ['Yes', 'No']) });
       }
       if (r) { session.state = { kind: 'confirm_escalate', esc: r.escalation }; return out(session, T(`${L(r.farmer, lang)}-এর অনুরোধটা উপজেলা কৃষি অফিসারকে জানাব?`, `Send ${L(r.farmer, lang)}'s request up to the upazila officer?`), { chips: T(['হ্যাঁ', 'না'], ['Yes', 'No']) }); }
       return out(session, T('উপজেলায় জানানোর মতো কোনো সতর্কতা বা অনুরোধ খোলা নেই।', 'There is no alert or request open to send up.'));
@@ -543,12 +570,12 @@ function officerTurn(text, raw, snap, session, intent) {
 
     case 'farmers': {
       const lines = a.crops.map((c) => T(`${L(c.crop, lang)}: ${num(c.pct, lang)} শতাংশ জমি`, `${L(c.crop, lang)}: ${num(c.pct, lang)}% of land`));
-      return out(session, T(`${snap.officer.union.full.bnIn} ${num(a.farmers, lang)} জন কৃষক, মোট জমি প্রায় ${num(a.areaBigha, lang)} বিঘা। ${lines.join('; ')}।`, `${snap.officer.union.full.en}: ${a.farmers} farmers, about ${a.areaBigha} bigha. ${lines.join('; ')}.`), { rows: lines });
+      return out(session, T(`${snap.officer.union.full.bnIn} ${num(a.farmers, lang)} জন কৃষক, মোট জমি প্রায় ${num(a.areaBigha, lang)} বিঘা। ${lines.join('; ')}।`, `${snap.officer.union.full.en}: ${num(a.farmers, lang)} farmers, about ${num(a.areaBigha, lang)} bigha. ${lines.join('; ')}.`), { rows: lines });
     }
 
     case 'upazila': {
       if (!uao) return out(session, T('ইউনিয়ন র‍্যাংকিং উপজেলা কৃষি অফিসারের পাতায় আছে। আপনার ইউনিয়নের কথা বলতে "আজকের অবস্থা" বলুন।', 'The union ranking is on the upazila officer’s page. Say "today’s briefing" for your own union.'));
-      const rk = snap.upazila.ranking.map((x, i) => T(`${num(i + 1, lang)} নম্বরে ${L(x.union, lang)}: দাম পড়ার ঝুঁকি ${riskWord(x.level, lang)}, ${num(x.alerts, lang)}টি সতর্কতা, ${num(x.open, lang)}টি খোলা অনুরোধ`, `#${i + 1} ${L(x.union, lang)}: price-drop risk ${riskWord(x.level, lang)}, ${x.alerts} alerts, ${x.open} open requests`));
+      const rk = snap.upazila.ranking.map((x, i) => T(`${num(i + 1, lang)} নম্বরে ${L(x.union, lang)}: দাম পড়ার ঝুঁকি ${riskWord(x.level, lang)}, ${num(x.alerts, lang)}টি সতর্কতা, ${num(x.open, lang)}টি খোলা অনুরোধ`, `#${i + 1} ${L(x.union, lang)}: price-drop risk ${riskWord(x.level, lang)}, ${num(x.alerts, lang)} alerts, ${num(x.open, lang)} open requests`));
       return out(session, T(`ইউনিয়ন অনুযায়ী ঝুঁকির ক্রম। ${rk.join('। ')}।`, `Unions ranked by risk. ${rk.join('. ')}.`), { rows: rk, chips: T(['পুরো উপজেলায় পরামর্শ', 'মাঠকর্মীরা কী জানিয়েছে?'], ['Advise the whole upazila', 'What was sent up?']) });
     }
 
@@ -557,7 +584,7 @@ function officerTurn(text, raw, snap, session, intent) {
       const u = snap.upazila;
       if (u.advice.sent) return out(session, T('পুরো উপজেলায় পরামর্শ আগেই পাঠানো হয়েছে।', 'Upazila-wide advice has already gone out.'));
       session.state = { kind: 'confirm_upazila_advice' };
-      return out(session, T(`খসড়া পরামর্শ: ${clip(L(u.advice.draft, lang), 280)} এটা ${num(u.allFarmerIds.length, lang)} জন কৃষককে পাঠাব?`, `Draft: ${clip(L(u.advice.draft, lang), 280)} Send this to all ${u.allFarmerIds.length} farmers?`), { chips: T(['হ্যাঁ, পাঠান', 'না'], ['Yes, send', 'No']) });
+      return out(session, T(`খসড়া পরামর্শ: ${clip(L(u.advice.draft, lang), 280)} এটা ${num(u.allFarmerIds.length, lang)} জন কৃষককে পাঠাব?`, `Draft: ${clip(L(u.advice.draft, lang), 280)} Send this to all ${num(u.allFarmerIds.length, lang)} farmers?`), { chips: T(['হ্যাঁ, পাঠান', 'না'], ['Yes, send', 'No']) });
     }
 
     case 'ack': {
@@ -566,35 +593,46 @@ function officerTurn(text, raw, snap, session, intent) {
       const lines = es.map((e) => `${L(e.text, lang)}${e.ack ? T(' (দেখেছেন)', ' (seen)') : ''}`);
       const unseen = es.filter((e) => !e.ack).length;
       if (unseen && uao) session.state = { kind: 'confirm_ack' };
-      return out(session, T(`মাঠকর্মীদের পাঠানো ${num(es.length, lang)}টি বিষয়: ${lines.join('; ')}।${unseen && uao ? ' সবগুলো দেখেছেন বলে জানিয়ে দেব?' : ''}`, `${es.length} item(s) sent up: ${lines.join('; ')}.${unseen && uao ? ' Mark all as seen?' : ''}`), { rows: lines, chips: unseen && uao ? T(['হ্যাঁ', 'না'], ['Yes', 'No']) : [] });
+      return out(session, T(`মাঠকর্মীদের পাঠানো ${num(es.length, lang)}টি বিষয়: ${lines.join('; ')}।${unseen && uao ? ' সবগুলো দেখেছেন বলে জানিয়ে দেব?' : ''}`, `${num(es.length, lang)} item(s) sent up: ${lines.join('; ')}.${unseen && uao ? ' Mark all as seen?' : ''}`), { rows: lines, chips: unseen && uao ? T(['হ্যাঁ', 'না'], ['Yes', 'No']) : [] });
     }
 
     case 'radar': {
       const r = snap.radar;
-      if (!r) return out(session, T('রোপণ রাডারের তথ্য এখনো আসেনি। একটু পরে আবার বলুন।', 'The Ropan Radar data has not loaded yet. Try again in a moment.'));
+      if (!r) return out(session, T('রোপণ রাডারের তথ্য এখনো আসেনি। একটু পরে আবার বলুন।', 'The Ropon Radar data has not loaded yet. Try again in a moment.'));
       const day = (doy) => fmtDate(Date.UTC(r.year, 0, doy), lang);
       const yr = num(r.year, lang).replace(/,/g, '');
-      const shiftWords = (u) => (u.shift === null ? T('হিসাব নেই', 'no estimate') : u.shift === 0 ? T('স্বাভাবিক দিনে', 'on the usual day') : T(`স্বাভাবিকের চেয়ে ${num(Math.abs(u.shift), lang)} দিন ${u.shift < 0 ? 'আগে' : 'পরে'}`, `${Math.abs(u.shift)} days ${u.shift < 0 ? 'earlier' : 'later'} than usual`));
+      const shiftWords = (u) => (u.shift === null ? T('হিসাব নেই', 'no estimate') : u.shift === 0 ? T('স্বাভাবিক দিনে', 'on the usual day') : T(`স্বাভাবিকের চেয়ে ${num(Math.abs(u.shift), lang)} দিন ${u.shift < 0 ? 'আগে' : 'পরে'}`, `${num(Math.abs(u.shift), lang)} days ${u.shift < 0 ? 'earlier' : 'later'} than usual`));
       const late = r.units.filter((u) => u.category === 'late').map((u) => L(u.name, lang));
       const early = r.units.filter((u) => u.category === 'early').map((u) => L(u.name, lang));
       const sig = r.units.filter((u) => u.significant).map((u) => L(u.name, lang));
       const mine = r.units.find((u) => u.name.en === snap.officer?.upazila?.en);
       const own = !mine?.latest ? '' : T(
         `আপনার ${L(mine.name, lang)} উপজেলায় ${yr} সালে রাডারে রোপণ ${!mine.latest.transplantDoy ? 'এখনো ধরা পড়েনি' : !mine.latest.reliable ? 'যথেষ্ট জমিতে ধরা পড়েনি' : `${day(mine.latest.transplantDoy)} নাগাদ, ${shiftWords(mine)}`}; জুন–জুলাইয়ে বৃষ্টি ${mine.latest.rainJJ === null ? 'মাপা যায়নি' : mine.latest.rainProvisional ? `অস্থায়ী হিসাবে ${num(mine.latest.rainJJ, lang)} মিমি, চূড়ান্ত তথ্য পরে আসবে` : `${num(mine.latest.rainJJ, lang)} মিমি, স্বাভাবিক ${num(mine.rainNormal, lang)} মিমি`}। `,
-        `In your upazila, ${L(mine.name, lang)}, radar shows ${r.year} transplanting ${!mine.latest.transplantDoy ? 'not yet detected' : !mine.latest.reliable ? 'in too few fields to date' : `around ${day(mine.latest.transplantDoy)}, ${shiftWords(mine)}`}; June–July rain was ${mine.latest.rainJJ === null ? 'not measured' : mine.latest.rainProvisional ? `${mine.latest.rainJJ} mm on the provisional estimate, final data to come` : `${mine.latest.rainJJ} mm against a normal of ${mine.rainNormal} mm`}. `);
+        `In your upazila, ${L(mine.name, lang)}, radar shows ${r.year} transplanting ${!mine.latest.transplantDoy ? 'not yet detected' : !mine.latest.reliable ? 'in too few fields to date' : `around ${day(mine.latest.transplantDoy)}, ${shiftWords(mine)}`}; June–July rain was ${mine.latest.rainJJ === null ? 'not measured' : mine.latest.rainProvisional ? `${num(mine.latest.rainJJ, lang)} mm on the provisional estimate, final data to come` : `${num(mine.latest.rainJJ, lang)} mm against a normal of ${num(mine.rainNormal, lang)} mm`}. `);
       const lines = r.units.map((u) => `${L(u.name, lang)}: ${u.latest?.transplantDoy ? `${day(u.latest.transplantDoy)}, ` : ''}${shiftWords(u)}`);
       // when the rains set in (Godagari and Dhamrai), from the same IMERG rain by our stated rule
       const on = r.onset, od = (y, doy) => fmtDate(Date.UTC(y, 0, doy), lang);
       const onsetLine = !on ? '' : T(
         `বৃষ্টি টানা শুরু হয় সাধারণত ${od(2001, on.usual)} নাগাদ${on.latest ? `; ${num(on.latest.year, lang).replace(/,/g, '')} সালে ${od(on.latest.year, on.latest.doy)}` : ''}। ২৫ বছরে ${on.significant ? `জোরালো ধারা: প্রতি দশকে ${num(Math.abs(on.perDecade), lang)} দিন ${on.perDecade > 0 ? 'দেরিতে' : 'আগে'}` : 'কোনো জোরালো আগে-পরে হওয়ার ধারা নেই'}। এটা আমাদের ধরে নেওয়া নিয়মে হিসাব, যাচাই বাকি। `,
-        `The rains usually set in around ${od(2001, on.usual)}${on.latest ? `; in ${on.latest.year} on ${od(on.latest.year, on.latest.doy)}` : ''}. Over 25 years there is ${on.significant ? `a significant trend of ${Math.abs(on.perDecade)} days ${on.perDecade > 0 ? 'later' : 'earlier'} per decade` : 'no significant shift earlier or later'}. This uses our stated rule, still to be validated. `);
+        `The rains usually set in around ${od(2001, on.usual)}${on.latest ? `; in ${on.latest.year} on ${od(on.latest.year, on.latest.doy)}` : ''}. Over 25 years there is ${on.significant ? `a significant trend of ${num(Math.abs(on.perDecade), lang)} days ${on.perDecade > 0 ? 'later' : 'earlier'} per decade` : 'no significant shift earlier or later'}. This uses our stated rule, still to be validated. `);
       return out(session, T(`রোপণ রাডার, ${L(r.district, lang)} জেলা — সেন্টিনেল-১ রাডার আর নাসার আইমার্জ বৃষ্টির আসল উপগ্রহ তথ্য। ${own}${onsetLine}প্রতিটি উপজেলাকে তার নিজের ২০১৭ থেকে ২০২৫-এর স্বাভাবিক সময়ের সঙ্গে মেলানো হয়। ${late.length ? `এবার দেরিতে: ${joinList(late, lang)}।` : ''} ${early.length ? `এবার আগে: ${joinList(early, lang)}।` : ''} ${!late.length && !early.length ? 'এবার সব উপজেলায় রোপণ স্বাভাবিক সময়ে। ' : ''}${sig.length ? `জুন–জুলাইয়ের বৃষ্টিতে জোরালো ধারা আছে: ${joinList(sig, lang)}।` : 'জুন–জুলাইয়ের বৃষ্টিতে কোনো উপজেলায় জোরালো ধারা নেই।'}`,
-        `Ropan Radar, ${L(r.district, lang)} district, from real Sentinel-1 radar and NASA IMERG rain. ${own}${onsetLine}Each upazila is compared with its own 2017–2025 usual date. ${late.length ? `Later this year: ${joinList(late, lang)}. ` : ''}${early.length ? `Earlier this year: ${joinList(early, lang)}. ` : ''}${!late.length && !early.length ? 'Every upazila is planting at its usual time this year. ' : ''}${sig.length ? `June–July rain shows a strong trend in: ${joinList(sig, lang)}.` : 'No upazila shows a strong trend in June–July rain.'}`), { rows: lines, nav: '/officer/radar', chips: T(['আমন রোপণের পাতা খুলুন', 'আজকের অবস্থা'], ['Open the Aman planting page', 'Briefing']) });
+        `Ropon Radar, ${L(r.district, lang)} district, from real Sentinel-1 radar and NASA IMERG rain. ${own}${onsetLine}Each upazila is compared with its own 2017–2025 usual date. ${late.length ? `Later this year: ${joinList(late, lang)}. ` : ''}${early.length ? `Earlier this year: ${joinList(early, lang)}. ` : ''}${!late.length && !early.length ? 'Every upazila is planting at its usual time this year. ' : ''}${sig.length ? `June–July rain shows a strong trend in: ${joinList(sig, lang)}.` : 'No upazila shows a strong trend in June–July rain.'}`), { rows: lines, nav: '/officer/radar', chips: T(['আমন রোপণের পাতা খুলুন', 'আজকের অবস্থা'], ['Open the Aman planting page', 'Briefing']) });
     }
 
     case 'nasa': return out(session, T('এই অ্যাপ নাসা পাওয়ারের ২৫ বছরের আবহাওয়ার তথ্য, মাটির তথ্য আর ফসলের শর্ত মিলিয়ে হিসাব করে। বৃষ্টি ও আমন রোপণের হিসাব নাসা আইমার্জের আসল বৃষ্টি আর সেন্টিনেল-১ রাডারের আসল রোপণ-সংকেত মেলায়। কৃষকের কাছে কিছু যাওয়ার আগে আপনিই অনুমোদন দেন।', 'The app combines 25 years of NASA POWER weather, soil data and crop rules. The rain and Aman planting check matches real NASA IMERG rain with real Sentinel-1 radar planting signals. Nothing reaches a farmer until you approve it.'));
 
-    default: return fallback(session, officerChips(session));
+    default: {
+      const llm = queryChakraLLM(raw || text, {
+        role: 'officer',
+        lang,
+        farmer: snap.farmer,
+        upazila: snap.upazila,
+      });
+      if (llm && llm.reply) {
+        return out(session, llm.reply, { nav: llm.nav, tags: llm.tags });
+      }
+      return fallback(session, officerChips(session));
+    }
   }
 }
 

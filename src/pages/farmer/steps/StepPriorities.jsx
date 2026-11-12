@@ -30,7 +30,7 @@ function useFlip(keys) {
       for (const [k, top] of now) {
         const before = prev.current.get(k), el = refs.current.get(k);
         if (before == null || !el || Math.abs(before - top) < 1) continue;
-        el.animate([{ transform: `translateY(${before - top}px)` }, { transform: 'translateY(0)' }], { duration: 520, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+        el.animate([{ transform: `translate3d(0, ${before - top}px, 0)` }, { transform: 'translate3d(0, 0, 0)' }], { duration: 420, easing: 'cubic-bezier(.22, 1, .36, 1)' });
       }
     }
     prev.current = now;
@@ -118,7 +118,7 @@ export default function StepPriorities() {
 
       <ConstraintsCard className="mt-4" />
 
-      <Card className="mt-4 p-4 sm:p-5">
+      <Card className="cv-auto mt-4 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-[17px] font-bold">{T('আপনার জমিতে ফসলগুলো, পাশাপাশি', 'The crops on your land, side by side')}</h3>
           <span className="text-[12.5px] text-muted">{T('হলুদ ঘর: আপনার বাছাইয়ে যেগুলোর ওজন বেশি', 'Yellow: what your choices weigh most')}</span>
@@ -179,7 +179,7 @@ export default function StepPriorities() {
         </div>
       </Card>
 
-      <Card className="mt-4 p-4">
+      <Card className="cv-auto mt-4 p-4">
         <div className="mb-2 text-[15px] font-semibold">{T('হিসাবে কোন বিষয়ের কতটা ওজন', 'How much each factor counts')}</div>
         <div className="space-y-2">
           {Object.entries(w).filter(([, v]) => v > 0).map(([k, v]) => (

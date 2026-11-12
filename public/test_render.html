@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { margin: 0; background: #888; overflow: hidden; }
+    canvas { width: 800px; height: 800px; display: block; }
+  </style>
+</head>
+<body>
+<canvas id="cv" width="800" height="800"></canvas>
+<script type="module">
+import * as THREE from '/node_modules/three/build/three.module.js';
+import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from '/node_modules/three/examples/jsm/libs/meshopt_decoder.module.js';
+
+const canvas = document.getElementById('cv');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setSize(800, 800);
+renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#ff0000');
+
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
+camera.position.set(0, 1.58, 0.8);
+camera.lookAt(0, 1.58, 0);
+
+scene.add(new THREE.HemisphereLight('#ffffff', '#ffffff', 1.6));
+const light = new THREE.DirectionalLight('#fff', 2.0);
+light.position.set(1, 2, 2);
+scene.add(light);
+
+function renderLoop() {
+  requestAnimationFrame(renderLoop);
+  renderer.render(scene, camera);
+}
+renderLoop();
+
+const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+loader.load('/models/folk/razib.glb', (gltf) => {
+  const model = gltf.scene;
+  
+  model.traverse((o) => {
+    if (o.isMesh) {
+      // Show ONLY eyelash
+      if (!o.name.includes('eyelash')) {
+        o.visible = false;
+      }
+    }
+  });
+  
+  scene.add(model);
+  window.__READY__ = true;
+});
+</script>
+</body>
+</html>

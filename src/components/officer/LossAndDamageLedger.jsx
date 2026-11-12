@@ -56,8 +56,12 @@ export default function LossAndDamageLedger({ upazilaObj }) {
     const rawContent = generateLossDossierText({
       upazilaNameEn: currentUpz.name?.en || currentUpz.en || 'Godagari',
       districtNameEn: currentUpz.district?.en || 'Rajshahi',
+      upazilaNameBn: currentUpz.name?.bn || currentUpz.bn,
+      districtNameBn: currentUpz.district?.bn,
       assessment,
       officerNameEn: currentUpz.officer?.en || 'Upazila Agriculture Officer (UAO)',
+      officerNameBn: currentUpz.officer?.bn || 'উপজেলা কৃষি অফিসার (UAO)',
+      lang,
     });
 
     // Compute browser SHA-256
@@ -74,9 +78,13 @@ export default function LossAndDamageLedger({ upazilaObj }) {
     const finalDossier = generateLossDossierText({
       upazilaNameEn: currentUpz.name?.en || currentUpz.en || 'Godagari',
       districtNameEn: currentUpz.district?.en || 'Rajshahi',
+      upazilaNameBn: currentUpz.name?.bn || currentUpz.bn,
+      districtNameBn: currentUpz.district?.bn,
       assessment,
       officerNameEn: currentUpz.officer?.en || 'Upazila Agriculture Officer (UAO)',
+      officerNameBn: currentUpz.officer?.bn || 'উপজেলা কৃষি অফিসার (UAO)',
       dossierHash: hashHex,
+      lang,
     });
 
     const blob = new Blob([finalDossier], { type: 'text/plain' });
@@ -94,7 +102,9 @@ export default function LossAndDamageLedger({ upazilaObj }) {
   };
 
   const handleCopyCitation = () => {
-    const citation = `UNFCCC Article 8 Climate Damage Claim [${assessment.unfcccCode}] - ${currentUpz.name?.en || currentUpz.id}, Bangladesh. Verified Loss: $${assessment.totalEconomicLossUsd.toLocaleString()} USD across ${assessment.affectedAreaHa} ha. Satellite Attribution: ${assessment.sensors.join(', ')}.`;
+    const citation = lang === 'bn'
+      ? `UNFCCC অনুচ্ছেদ ৮ জলবায়ু ক্ষয়ক্ষতি দাবি [${assessment.unfcccCode}] - ${currentUpz.name?.bn || currentUpz.name?.en || currentUpz.id}, বাংলাদেশ। মোট নিরূপিত অর্থনৈতিক ক্ষতি: $${num(Math.round(assessment.totalEconomicLossUsd), 'bn')} মার্কিন ডলার (${num(assessment.affectedAreaHa, 'bn')} হেক্টর)। উপগ্রহ প্রমাণ: ${assessment.sensors.join(', ')}।`
+      : `UNFCCC Article 8 Climate Damage Claim [${assessment.unfcccCode}] - ${currentUpz.name?.en || currentUpz.id}, Bangladesh. Total Verified Loss: $${num(Math.round(assessment.totalEconomicLossUsd), 'en')} USD across ${num(assessment.affectedAreaHa, 'en')} ha. Satellite Attribution: ${assessment.sensors.join(', ')}.`;
     navigator.clipboard?.writeText?.(citation);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -164,7 +174,7 @@ export default function LossAndDamageLedger({ upazilaObj }) {
           >
             {Object.entries(CROP_BASELINES).map(([k, c]) => (
               <option key={k} value={k}>
-                {L(c.name)} (স্বাভাবিক: {c.yieldMtHa} টন/হে.)
+                {L(c.name)} ({T(`স্বাভাবিক: ${num(c.yieldMtHa, 'bn', { dp: 1 })} টন/হে.`, `normal: ${num(c.yieldMtHa, 'en', { dp: 1 })} t/ha`)})
               </option>
             ))}
           </select>
@@ -208,39 +218,43 @@ export default function LossAndDamageLedger({ upazilaObj }) {
         <div className="rounded-2xl border border-border bg-white p-3.5 shadow-2xs">
           <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-muted">
             <Scale size={15} className="text-rose-600" />
-            {T('হারানো ফলন (Lost Biomass)', 'Lost Crop Yield')}
+            {T('হারানো ফলন', 'Lost Crop Yield')}
           </div>
           <div className="font-display mt-1 text-[22px] font-bold text-rose-700 tabular">
-            {num(assessment.lostYieldMt, lang)} <span className="text-[13px] font-normal text-muted">{T('মেট্রিক টন', 'MT')}</span>
+            {num(assessment.lostYieldMt, lang, { dp: 1 })} <span className="text-[13px] font-normal text-muted">{T('মেট্রিক টন', 'MT')}</span>
           </div>
           <div className="text-[11.5px] text-muted">
-            {T('স্বাভাবিক সম্ভাবনা ছিল ', 'Potential was ')}{num(assessment.potentialYieldMt, lang)} {T('মেট্রিক টন', 'MT')}
+            {T('স্বাভাবিক সম্ভাবনা ছিল ', 'Potential was ')}{num(assessment.potentialYieldMt, lang, { dp: 1 })} {T('মেট্রিক টন', 'MT')}
           </div>
         </div>
 
         <div className="rounded-2xl border border-border bg-white p-3.5 shadow-2xs">
           <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-muted">
             <Coins size={15} className="text-amber-700" />
-            {T('তলিয়ে যাওয়া উৎপাদন খরচ (Sunk Inputs)', 'Sunk Input Cost Loss')}
+            {T('ডুবে যাওয়া উৎপাদন খরচ', 'Sunk Input Cost Loss')}
           </div>
           <div className="font-display mt-1 text-[22px] font-bold text-amber-900 tabular">
-            ৳{num(Math.round(assessment.sunkInputCostBdt / 1e5) / 10, lang)} <span className="text-[13px] font-normal text-muted">{T('লাখ টাকা', 'Lakh BDT')}</span>
+            {lang === 'bn'
+              ? <>৳{num(Math.round(assessment.sunkInputCostBdt / 1e4) / 10, 'bn', { dp: 1 })} <span className="text-[13px] font-normal text-muted">লাখ টাকা</span></>
+              : <>৳{num(assessment.sunkInputCostBdt, 'en')} <span className="text-[13px] font-normal text-muted">BDT</span></>}
           </div>
           <div className="text-[11.5px] text-muted">
-            {T('সার, বীজ, ডিজেল ও সেচ ব্যয়', 'Certified seed, fertilizer & diesel')}
+            {T('সার, বীজ, ডিজেল ও সেচ ব্যয়', 'Certified seed, fertiliser & diesel')}
           </div>
         </div>
 
         <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-3.5 shadow-2xs">
           <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-rose-900">
             <ShieldAlert size={15} className="text-rose-700" />
-            {T('মোট নিরূপিত ক্ষয়ক্ষতি (Total Verified Loss)', 'Total Economic Loss')}
+            {T('মোট নিরূপিত অর্থনৈতিক ক্ষতি', 'Total Verified Loss')}
           </div>
           <div className="font-display mt-1 text-[22px] font-bold text-rose-800 tabular">
-            ${num(Math.round(assessment.totalEconomicLossUsd).toLocaleString(), lang)} <span className="text-[13px] font-normal text-muted">USD</span>
+            ${num(Math.round(assessment.totalEconomicLossUsd), lang)} <span className="text-[13px] font-normal text-muted">USD</span>
           </div>
           <div className="text-[11.5px] font-semibold text-rose-950">
-            ≈ ৳{num(Math.round(assessment.totalEconomicLossBdt / 1e5) / 10, lang)} {T('লাখ টাকা (BDT)', 'Lakh BDT')}
+            {lang === 'bn'
+              ? `≈ ৳${num(Math.round(assessment.totalEconomicLossBdt / 1e4) / 10, 'bn', { dp: 1 })} লাখ টাকা`
+              : `≈ ৳${num(assessment.totalEconomicLossBdt, 'en')} BDT`}
           </div>
         </div>
 
@@ -250,10 +264,10 @@ export default function LossAndDamageLedger({ upazilaObj }) {
             {T('সান্তিয়াগো নেটওয়ার্ক জরুরি অনুদান', 'Immediate Recovery Grant')}
           </div>
           <div className="font-display mt-1 text-[22px] font-bold text-emerald-800 tabular">
-            ${num(Math.round(assessment.immediateReliefGrantUsd).toLocaleString(), lang)} <span className="text-[13px] font-normal text-muted">USD</span>
+            ${num(Math.round(assessment.immediateReliefGrantUsd), lang)} <span className="text-[13px] font-normal text-muted">USD</span>
           </div>
           <div className="text-[11.5px] text-emerald-950">
-            {T('৭০% ইনপুট ক্ষতিপূরণ প্রণোদনা', '70% Sunk input emergency subsidy')}
+            {T('৭০% ইনপুট ক্ষতিপূরণ প্রণোদনা', '70% sunk input emergency subsidy')}
           </div>
         </div>
       </div>
@@ -266,7 +280,7 @@ export default function LossAndDamageLedger({ upazilaObj }) {
           <span className="font-semibold text-sky-200">{assessment.sensors.join(' · ')}</span>
         </div>
         <span className="text-[11px] font-mono text-slate-400">
-          UNFCCC Standard: 100% Client-Side Cryptographic Evidence
+          {T('UNFCCC মানদণ্ড: শতভাগ ব্রাউজার-ভিত্তিক ক্রিপ্টোগ্রাফিক প্রমাণ', 'UNFCCC Standard: 100% Client-Side Cryptographic Evidence')}
         </span>
       </div>
 

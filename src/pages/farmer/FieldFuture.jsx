@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, ScatterChart, Scatter, ZAxis } from 'recharts';
-import { Clapperboard, Printer, Play, Pause, RotateCcw, Telescope, Leaf, Droplets, Coins, Bug, Thermometer, CloudRain, Recycle, CheckCircle2, Sprout, FlaskConical, Wand2, Flame, Scale, ShieldCheck, Loader2 } from 'lucide-react';
+import { Clapperboard, Printer, Play, Pause, RotateCcw, Telescope, Leaf, Droplets, Coins, Bug, Thermometer, CloudRain, Recycle, CheckCircle2, Sprout, FlaskConical, Wand2, Flame, Scale, ShieldCheck, Loader2, ChevronDown } from 'lucide-react';
 import { useStore } from '../../store';
 import { Card, PageHeader, Segmented, Note, Badge, Tags, ScoreRing, Button } from '../../components/ui';
 import { SectionNav, LazyMount } from '../../components/SectionNav';
@@ -25,8 +25,6 @@ import StressChaosTest from '../../components/future/StressChaosTest';
 import CarbonFinance from '../../components/future/CarbonFinance';
 import GeochemicalSoilProfile from '../../components/future/GeochemicalSoilProfile';
 import TopographyInundation from '../../components/future/TopographyInundation';
-import BoroSensitivity from '../../components/future/BoroSensitivity';
-import SrdiCalibrationCard from '../../components/future/SrdiCalibrationCard';
 import JudgementNote from '../../components/explain/JudgementNote';
 import { runnerUp, soilVerdict } from '../../engine/explain';
 import { fieldTerrain } from '../../engine/briefs';
@@ -35,9 +33,9 @@ import { num, bnDigits, fmtDate } from '../../engine/dates';
 import { scrollToEl } from '../../components/Motion';
 import {
   climateChange, fieldContext, fieldFuture, cropOf, omPctOf, co2PerBigha, ureaSavedKgPerBigha, WATER_M3_PER_MM_BIGHA,
-  RABI_OPTS, K1_OPTS, RESIDUE, YEARS, FIRST_YEAR, YIELDS, ICBM, CH4, climateLedger, modelTest, rankBoroSensitivity,
+  RABI_OPTS, K1_OPTS, RESIDUE, YEARS, FIRST_YEAR, YIELDS, ICBM, CH4, climateLedger, modelTest,
 } from '../../engine/soilfuture';
-import { BIGHA_HA, BORO_HEAT_SENSITIVITIES } from '../../engine/crops';
+import { BIGHA_HA } from '../../engine/crops';
 
 const GREEN = '#2f6e2f', GOLD = '#b8761b', SLATE = '#6b7a72', TEAL = '#2f8a8f', MUTED = '#5d6a63', GRID = '#eef0ec';
 const tick = { fontSize: 11, fill: MUTED };
@@ -56,6 +54,109 @@ function useRotName() {
   };
 }
 
+function FeatureCatalog({ T, L }) {
+  const [open, setOpen] = useState(false);
+  const groups = [
+    {
+      title: T('১. মাটি ও ফসলচক্র সিদ্ধান্ত', '1. Soil & Crop Decisions'),
+      items: [
+        { id: 'ff-time', name: T('মাটির টাইম মেশিন', 'Soil time machine'), tag: 'ICBM' },
+        { id: 'ff-best', name: T('সেরা ফসলচক্র', 'Best rotation'), tag: 'RANK' },
+        { id: 'ff-strategies', name: T('ফসলচক্র তুলনা', 'Rotations compared'), tag: 'MODEL' },
+        { id: 'ff-pareto', name: T('প্যারেটো ফ্রন্টিয়ার', 'Pareto trade-off'), tag: 'FRONTIER' },
+        { id: 'ff-compare', name: T('পাশাপাশি বিকল্প', 'Side by side'), tag: 'COMPARE' },
+        { id: 'ff-verdict', name: T('মাটির রায়', 'Soil verdict'), tag: 'RULE' },
+        { id: 'ff-why', name: T('কেন ও কী ঝুঁকি', 'Why and risks'), tag: '25-YR' },
+      ],
+    },
+    {
+      title: T('২. চরম আবহাওয়া ও জলবায়ু খাতা', '2. Climate Risk & Carbon Ledger'),
+      items: [
+        { id: 'ff-chaos', name: T('স্ট্রেস পরীক্ষা', 'Stress shocks'), tag: 'CHAOS' },
+        { id: 'ff-ledger', name: T('জলবায়ু খাতা', 'Climate account'), tag: 'IPCC' },
+        { id: 'ff-carbon', name: T('কার্বন অর্থায়ন', 'Carbon finance'), tag: 'ART 6.2' },
+        { id: 'ff-climate', name: T('২০৪০-এর দশক জলবায়ু', 'The 2040s climate'), tag: 'CMIP6' },
+        { id: 'ff-robust', name: T('৮ ক্লাইমেট মডেলের টেস্ট', 'Eight-model test'), tag: 'ENSEMBLE' },
+      ],
+    },
+    {
+      title: T('৩. নাসা উপগ্রহ, উচ্চতা ও ভূ-প্রকৃতি', '3. NASA Earth Observation & Hydrology'),
+      items: [
+        { id: 'ff-geochem', name: T('মৃত্তিকা রসায়ন ও জীবাশ্ম', 'Soil Chemistry & Paleosol'), tag: 'GEOCHEM' },
+        { id: 'ff-land', name: T('মহাকাশ থেকে উপগ্রহ', 'Satellite from space'), tag: 'SENTINEL' },
+        { id: 'ff-topo', name: T('উচ্চতা ও প্লাবন সিমুলেটর', 'Elevation & flood simulator'), tag: 'SRTM 30m' },
+        { id: 'ff-water', name: T('মাটির পানি ও ভূগর্ভ', 'Soil water & drainage'), tag: 'SMAP / FAO' },
+      ],
+    },
+    {
+      title: T('৪. সিমুলেশন ল্যাব ও বৈজ্ঞানিক ভিত্তি', '4. Simulation Lab & Scientific Provenance'),
+      items: [
+        { id: 'ff-build', name: T('নিজে ফসলচক্র বানান', 'Build your own'), tag: 'BUILDER' },
+        { id: 'ff-all', name: T('সব ৭০২টি ফসলচক্র', 'All 702 rotations'), tag: 'ALL 702' },
+        { id: 'ff-method', name: T('বৈজ্ঞানিক পদ্ধতি', 'How it works'), tag: 'SCIENCE' },
+      ],
+    },
+  ];
+
+  const jump = (id) => {
+    const el = document.getElementById(id);
+    if (el) scrollToEl(el, -120);
+  };
+
+  return (
+    <div className="mb-4 rounded-2xl border border-primary-200/80 bg-gradient-to-r from-primary-50/90 via-emerald-50/70 to-teal-50/60 p-3 sm:p-4 text-ink shadow-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary-700 text-white shadow-2xs">
+            <Telescope size={15} />
+          </span>
+          <div>
+            <span className="text-[14px] font-bold text-primary-950">
+              {T('পাতার ১৯টি বৈজ্ঞানিক মডেল ও ফিচার সূচি', 'Index of all 19 scientific models & features on this page')}
+            </span>
+            <span className="ml-2 rounded-full bg-primary-100 px-2 py-0.5 text-[11px] font-extrabold text-primary-800">
+              {T('১৯টি ফিচার', '19 Features')}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-primary-300 bg-white px-3 py-1 text-[12.5px] font-bold text-primary-900 shadow-2xs hover:bg-primary-50 cursor-pointer transition-all active:scale-95"
+        >
+          {open ? T('সূচি সংক্ষেপ করুন', 'Collapse index') : T('সব ১৯টি ফিচার দেখুন ও ঝাঁপ দিন', 'View all 19 features & jump')}
+          <ChevronDown size={14} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+
+      {open && (
+        <div className="mt-3.5 grid gap-3 pt-3 border-t border-primary-200/60 sm:grid-cols-2 lg:grid-cols-4 animate-fadeIn">
+          {groups.map((g, gi) => (
+            <div key={gi} className="rounded-xl border border-white/80 bg-white/80 p-2.5 shadow-2xs backdrop-blur-xs">
+              <div className="text-[12px] font-bold text-primary-900 mb-2">{g.title}</div>
+              <div className="space-y-1">
+                {g.items.map((it) => (
+                  <button
+                    key={it.id}
+                    type="button"
+                    onClick={() => jump(it.id)}
+                    className="w-full text-left flex items-center justify-between gap-1.5 rounded-lg px-2 py-1 text-[12px] font-semibold text-ink/85 hover:bg-primary-100 hover:text-primary-950 transition-all cursor-pointer"
+                  >
+                    <span className="truncate">{it.name}</span>
+                    <span className="shrink-0 rounded bg-black/[0.05] px-1 py-0.2 text-[9.5px] font-mono font-bold text-muted">
+                      {it.tag}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FieldFuture() {
   const { s, T, L, farmer, soil, clim, econ, chosen, rotation, upazila, activeParcel, excludeAll } = useStore();
   const lang = s.lang;
@@ -69,25 +170,13 @@ export default function FieldFuture() {
   const [world, setWorld] = useState('now');
   const [scen, setScen] = useState('ssp245');
   const [own, setOwn] = useState(null);
-  const [soilTestValues, setSoilTestValues] = useState(null);
   const [brief, setBrief] = useState('best'); // which strategy's full brief is open
   const change = useMemo(() => climateChange(deltas, upazila.id, scen), [upazila.id, scen]);
-  const ctx = useMemo(() => fieldContext({ clim, change, soil, plot: farmer, amanT: rotation.amanMeasured ? rotation.amanT : null, econ, soilTestValues }),
-    [clim, change, soil, farmer, rotation.amanMeasured, rotation.amanT, econ, soilTestValues]);
+  const ctx = useMemo(() => fieldContext({ clim, change, soil, plot: farmer, amanT: rotation.amanMeasured ? rotation.amanT : null, econ }),
+    [clim, change, soil, farmer, rotation.amanMeasured, rotation.amanT, econ]);
   const planRabi = chosen.crop.id, planK1 = rotation.best?.crop.id ?? 'fallow';
   const ff = useMemo(() => fieldFuture({ ctx, lastCrop, plan: { rabi: planRabi, k1: planK1 }, priorities: s.priorities, exclude: excludeAll }),
     [ctx, lastCrop, planRabi, planK1, s.priorities, excludeAll]);
-  const futureHeatSensitivity = useMemo(() => [
-    { id: 'current', label: T('বর্তমান সীমা: ৩৫° · ৩ দিন', 'Current rule: 35 °C · 3 days'), result: ff },
-    ...BORO_HEAT_SENSITIVITIES.map((variant) => {
-      const changedCtx = fieldContext({ clim, change, soil, plot: farmer, amanT: rotation.amanMeasured ? rotation.amanT : null, econ, boroHeat: variant, soilTestValues });
-      return { id: variant.id, label: L(variant), result: rankBoroSensitivity(ff, changedCtx, s.priorities, s.exclude ?? []) };
-    }),
-  ], [clim, change, soil, farmer, rotation.amanMeasured, rotation.amanT, econ, lastCrop, planRabi, planK1, s.priorities, s.exclude, ff, T, L, soilTestValues]);
-  const futureHeatRows = futureHeatSensitivity.map(({ id, label, result }, index) => ({
-    id, label, baseline: index === 0,
-    ranks: result.top.slice(0, 3).map((item) => ({ id: keyOf(item.rot), name: rotName(item.rot, { short: true }), score: item.score })),
-  }));
   const second = useMemo(() => runnerUp(ff.top, ff.best), [ff]);
   const ownRot = own ?? ff.plan?.rot ?? ff.best.rot;
   const ownE = useMemo(() => ff.evaluateOwn(ownRot), [ff, ownRot]);
@@ -121,24 +210,26 @@ export default function FieldFuture() {
       <SectionNav label={T('পাতার অংশ', 'Page sections')} sections={[
         { id: 'ff-time', label: T('মাটির টাইম মেশিন', 'Soil time machine') },
         { id: 'ff-best', label: T('সেরা ফসলচক্র', 'Best rotation') },
-        { id: 'ff-strategies', label: T('ফসলচক্র পাশাপাশি', 'Rotations compared') },
-        { id: 'ff-pareto', label: T('প্যারেটো বিশ্লেষণ', 'Pareto trade-off') },
-        { id: 'ff-compare', label: T('পাশাপাশি', 'Side by side') },
+        { id: 'ff-strategies', label: T('ফসলচক্র তুলনা', 'Rotations compared') },
+        { id: 'ff-pareto', label: T('প্যারেটো ফ্রন্টিয়ার', 'Pareto trade-off') },
+        { id: 'ff-compare', label: T('পাশাপাশি বিকল্প', 'Side by side') },
         { id: 'ff-verdict', label: T('মাটির রায়', 'Soil verdict') },
         { id: 'ff-why', label: T('কেন ও কী ঝুঁকি', 'Why and risks') },
         { id: 'ff-chaos', label: T('স্ট্রেস পরীক্ষা', 'Stress shocks') },
         { id: 'ff-ledger', label: T('জলবায়ু খাতা', 'Climate account') },
         { id: 'ff-carbon', label: T('কার্বন অর্থায়ন', 'Carbon finance') },
-        { id: 'ff-geochem', label: T('মৃত্তিকা রসায়ন ও জীবাশ্ম স্তর', 'Soil Chemistry & Paleosol') },
-        { id: 'ff-land', label: T('মহাকাশ থেকে', 'From space') },
-        { id: 'ff-topo', label: T('উচ্চতা ও প্লাবন', 'Elevation & floods') },
-        { id: 'ff-water', label: T('মাটির পানি', 'Soil water') },
-        { id: 'ff-build', label: T('নিজে বানান', 'Build your own') },
-        { id: 'ff-all', label: T('সব ফসলচক্র', 'Every rotation') },
-        { id: 'ff-climate', label: T('২০৪০-এর দশক', 'The 2040s') },
-        { id: 'ff-robust', label: T('৮ মডেলের পরীক্ষা', 'Eight-model test') },
-        { id: 'ff-method', label: T('কীভাবে হিসাব', 'How it works') },
+        { id: 'ff-geochem', label: T('মৃত্তিকা রসায়ন ও জীবাশ্ম', 'Soil Chemistry & Paleosol') },
+        { id: 'ff-land', label: T('মহাকাশ থেকে উপগ্রহ', 'Satellite from space') },
+        { id: 'ff-topo', label: T('উচ্চতা ও প্লাবন সিমুলেটর', 'Elevation & flood simulator') },
+        { id: 'ff-water', label: T('মাটির পানি ও ভূগর্ভ', 'Soil water & drainage') },
+        { id: 'ff-build', label: T('নিজে ফসলচক্র বানান', 'Build your own') },
+        { id: 'ff-all', label: T('সব ৭০২টি ফসলচক্র', 'All 702 rotations') },
+        { id: 'ff-climate', label: T('২০৪০-এর দশক জলবায়ু', 'The 2040s climate') },
+        { id: 'ff-robust', label: T('৮ ক্লাইমেট মডেলের টেস্ট', 'Eight-model test') },
+        { id: 'ff-method', label: T('বৈজ্ঞানিক পদ্ধতি', 'How it works') },
       ]} />
+
+      <FeatureCatalog T={T} L={L} />
 
       <div className="my-4 flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-white/95 p-2 shadow-[var(--shadow-card)] backdrop-blur">
         <Segmented value={w} onChange={setWorld} options={[
@@ -150,18 +241,7 @@ export default function FieldFuture() {
       </div>
 
       <JudgementNote className="mb-4" />
-      <BoroSensitivity rows={futureHeatRows} />
       {seen && <SatHabit seen={seen} farmer={farmer} habitFrom={useSat ? 'sat' : 'registry'} setHabitFrom={setHabitFrom} canUse={seen.usable} />}
-      <SrdiCalibrationCard
-        baseSoil={soil}
-        calibratedSoil={ctx.soil}
-        soilTestValues={soilTestValues}
-        onApplyValues={setSoilTestValues}
-        onReset={() => setSoilTestValues(null)}
-        lang={lang}
-        T={T}
-        L={L}
-      />
       <TimeMachine cols={cols} rowsOf={rowsOf} sumOf={sumOf} ctx={ctx} w={w} />
       <BestCard ff={ff} sumOf={sumOf} rotName={rotName} onEdit={editFrom} w={w} />
       <div className="mt-3 flex flex-wrap gap-2.5">
@@ -339,7 +419,7 @@ function BestCard({ ff, sumOf, rotName, onEdit, w }) {
     b.risk < h.risk - 0.05 && { icon: Thermometer, text: T(`আবহাওয়ায় ফসল নষ্টের ঝুঁকি ${num(h.risk * 100, 'bn')}% থেকে ${num(b.risk * 100, 'bn')}%`, `Weather risk down from ${num(h.risk * 100, 'en')}% to ${num(b.risk * 100, 'en')}% of seasons`) },
   ].filter(Boolean);
   return (
-    <Card id="ff-best" className="mt-5 scroll-mt-40 overflow-hidden">
+    <Card id="ff-best" className="cv-auto future-card mt-5 scroll-mt-40 overflow-hidden">
       <div className="grid gap-0 md:grid-cols-[1.15fr_1fr]">
         <div className="p-5">
           <div className="flex items-center gap-2"><Badge tone="dark"><CheckCircle2 size={13} />{T('আপনার জমির জন্য সেরা', 'Best for your field')}</Badge>
@@ -457,7 +537,7 @@ function Compare({ ff, ownE, second, sumOf, ctx, rotName }) {
   ];
   const unpriced = [...new Set(list.flatMap((c) => sumOf(c.e).unpriced))];
   return (
-    <Card id="ff-compare" className="mt-5 scroll-mt-40 p-4 sm:p-5">
+    <Card id="ff-compare" className="cv-auto future-card mt-5 scroll-mt-40 p-4 sm:p-5">
       <h2 className="text-[20px] font-bold">{T('পাশাপাশি, দশ বছরের গড়ে', 'Side by side, ten-year averages')}</h2>
       <p className="mt-0.5 text-[13.5px] leading-6 text-muted">{T('এখনকার চাষ, সেরা আর পরের বিকল্প: একই জমি, একই দশ বছরের আবহাওয়া, একই দাম। গাঢ় সবুজ: সেই সারিতে সবচেয়ে ভালো।', 'Farming as now, the best and the next alternative: the same field, the same ten years of weather, the same prices. Bold green: the best in that row.')}</p>
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-ink/75">{list.filter((c) => c.e.parts).map((c) => <span key={c.id}><b style={{ color: c.tone }}>{c.name}</b>: {T('মোট নম্বর', 'score')} {num(c.e.score, lang, { dp: 0 })} ({Object.entries(ff.weights).filter(([, x]) => x > 0).map(([k, x]) => `${PART[k] ? L(PART[k]) : k} ${num(x * c.e.parts[k], lang, { dp: 0 })}`).join(' + ')})</span>)}</div>
@@ -510,7 +590,7 @@ function Ledger({ ff, ownE, ctx, w, rotName }) {
   const cut = habit && best && habit.l.net > 0 ? (1 - best.l.net / habit.l.net) * 100 : null;
   const t2 = (x) => num(bg(x), lang, { dp: 2 });
   return (
-    <Card id="ff-ledger" className="mt-5 scroll-mt-40 p-4 sm:p-5">
+    <Card id="ff-ledger" className="cv-auto future-card mt-5 scroll-mt-40 p-4 sm:p-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="max-w-3xl">
           <h2 className="flex items-center gap-2 text-[20px] font-bold"><Scale size={20} className="text-primary-700" />{T('জমির জলবায়ু খাতা', 'The field’s climate account')}</h2>
@@ -639,7 +719,7 @@ function Robust({ ff, ownE, base, scen, rotName, onEdit }) {
   const top = res?.robust;
   const of = (x, n) => T(`${num(x, 'bn')}/${num(n, 'bn')}`, `${x}/${n}`);
   return (
-    <Card id="ff-robust" className="mt-5 scroll-mt-40 p-4 sm:p-5">
+    <Card id="ff-robust" className="cv-auto future-card mt-5 scroll-mt-40 p-4 sm:p-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="max-w-3xl">
           <h2 className="flex items-center gap-2 text-[20px] font-bold"><ShieldCheck size={20} className="text-primary-700" />{T('৮টি জলবায়ু মডেলে আলাদা পরীক্ষা', 'Tested under each of the eight climate models')}</h2>
@@ -721,7 +801,7 @@ function RobustSays({ bestRow, ff, sumOf }) {
         <ul className="mt-1 list-disc space-y-0.5 pl-5 text-[13.5px] leading-6 text-ink/85">
           <li>{T('লাভের ক্রম: আজকের দাম আর দেশের গড় ফলন ধরে; দাম বদলালে বদলায়।', 'The profit order: at today’s prices and national yields; it moves with prices.')}</li>
           <li>{T('কত কার্বন (মাপ): শুরুর মাটি SoilGrids-এর আনুমানিক হিসাব।', 'How much carbon (the size): the starting soil is SoilGrids’ estimate.')}</li>
-          <li>{T('সীমা পেরোনো মৌসুম: ফসলের তাপ-বৃষ্টির সীমা, যা কৃষিবিদের যাচাই বাকি।', 'Seasons over a limit: the crops’ heat and rain limits, still to be reviewed by agronomists.')}</li>
+          <li>{T('সীমা পেরোনো মৌসুম: ফসলের তাপ-বৃষ্টির সীমা; স্থানীয় পর্যালোচনার পরিধি নথিভুক্ত নেই।', 'Seasons over a limit: the crops’ heat and rain limits; the scope of any local review is not documented.')}</li>
         </ul>
       </div>
     </div>

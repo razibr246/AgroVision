@@ -4,6 +4,7 @@
 // square, clear share at least 90%, hazy passes dropped. Used to add passes newer than the saved copy, and to read
 // a field the farmer has just marked or moved. Every function here only fetches; nothing is sent about the farmer.
 import { plotSquare } from './world.js';
+import { measuredBoundaryOf, cleanGeometry, measure } from './landgeom.js';
 
 const STAC = 'https://planetarycomputer.microsoft.com/api/stac/v1/search';
 const DATA = 'https://planetarycomputer.microsoft.com/api/data/v1/item';
@@ -44,15 +45,19 @@ export async function searchPasses(lat, lon, from, to, signal) {
   return out;
 }
 
-const ringOf = (field) => {
+// The area read from each pass: the field's real boundary when it has one; otherwise a window of the field's
+// recorded size around its pin (a sampling window for the satellite, never shown as the field's shape).
+const areaOf = (field) => {
+  const b = measuredBoundaryOf(field);
+  if (b) return cleanGeometry(b);
   const sq = plotSquare(field.lat, field.lon, field.area_dec).map(([la, lo]) => [lo, la]);
-  return [...sq, sq[0]];
+  return { type: 'Polygon', coordinates: [[...sq, sq[0]]] };
 };
 
 // One pass over the field -> an observation, or null when it is cloudy or hazy there.
 export async function passReading(item, field, signal) {
   const q = new URLSearchParams({ collection: 'sentinel-2-l2a', item: item.id, expression: exprFor(item.baseline), asset_as_band: 'true' });
-  const j = await post(`${DATA}/statistics?${q}`, { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [ringOf(field)] } }, signal);
+  const j = await post(`${DATA}/statistics?${q}`, { type: 'Feature', properties: {}, geometry: areaOf(field) }, signal);
   const st = Object.fromEntries(Object.values(j.properties.statistics).map((v, i) => [KEYS[i], v]));
   if (st.clear.count < 4 || st.clear.mean < 0.9) return null;
   if (st.blue.mean >= 0.1 && st.blue.mean >= 1.1 * st.red.mean) return null; // haze the scene classification missed
@@ -79,10 +84,14 @@ export async function readPasses(field, { from = WATCH_START, to, signal, onProg
 }
 
 // The square the field pictures cover (same as picture_box() in the build script): at least 480 m across.
+// A field with a real boundary is framed on that boundary (centred on it, wide enough for all of it).
 export function pictureBox(field) {
-  const side = Math.max(480, 6 * Math.sqrt(field.area_dec * 40.4686));
-  const dLat = side / 2 / 111320, dLon = side / 2 / (111320 * Math.cos((field.lat * Math.PI) / 180));
-  return [[field.lat - dLat, field.lon - dLon], [field.lat + dLat, field.lon + dLon]];
+  const m = measuredBoundaryOf(field) && measure(measuredBoundaryOf(field));
+  const lat = m ? (m.bbox[0][0] + m.bbox[1][0]) / 2 : field.lat, lon = m ? (m.bbox[0][1] + m.bbox[1][1]) / 2 : field.lon;
+  const extent = m ? Math.max((m.bbox[1][0] - m.bbox[0][0]) * 111320, (m.bbox[1][1] - m.bbox[0][1]) * 111320 * Math.cos((lat * Math.PI) / 180)) : 0;
+  const side = Math.max(480, 6 * Math.sqrt((m ? m.area.decimal : field.area_dec) * 40.4686), 2.5 * extent);
+  const dLat = side / 2 / 111320, dLon = side / 2 / (111320 * Math.cos((lat * Math.PI) / 180));
+  return [[lat - dLat, lon - dLon], [lat + dLat, lon + dLon]];
 }
 
 // Live picture addresses for one pass (true colour and green cover), drawn by the data API.

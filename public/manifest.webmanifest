@@ -1,8 +1,8 @@
 {
   "name": "FieldShift 360",
   "short_name": "FieldShift",
-  "description": "Season planning for smallholders in Godagari, Bangladesh, from 25 years of NASA data.",
-  "lang": "bn",
+  "description": "Crop-rotation and climate-smart farming decision tool across all seven divisions of Bangladesh and international benchmarks, powered by 25 years of NASA Earth observation data.",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

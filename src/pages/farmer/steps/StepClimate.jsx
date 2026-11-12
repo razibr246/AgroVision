@@ -6,7 +6,7 @@ import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, C
 import { TrendingUp, TrendingDown, Minus, Thermometer, Snowflake, CloudRain, CalendarClock, Sprout, ExternalLink, ShieldCheck, ChevronDown } from 'lucide-react';
 import { useStore } from '../../../store';
 import { StepHeader, Card, Tags, climateTag } from '../../../components/ui';
-import Photo from '../../../components/Photo';
+import ClimateScene from '../../../components/charts/ClimateScene';
 import { agroClimate, rabiWarming, extremes, INDICATORS, GROUPS, SOURCES, doyDate } from '../../../engine/agroclimate.js';
 import { rainCrossCheck } from '../../../engine/climate.js';
 import { cropName } from '../../../engine/crops.js';
@@ -94,7 +94,7 @@ export default function StepClimate() {
         sub={T(`নাসার ২৬ রবি মৌসুমের প্রতিদিনের তথ্য, ${corr ? `${L(corr.station)}-এর মাপের সঙ্গে মিলিয়ে ঠিক করা।` : ''} কোনটা সত্যিই বদলাচ্ছে আর কোনটা শুধু বছরে বছরে ওঠানামা, আলাদা করে দেখানো হয়েছে।`,
           `Daily NASA data for 26 Rabi seasons${corr ? `, corrected against ${L(corr.station)}` : ''}. What is really changing is told apart from ordinary year-to-year swings.`)}
         tags={[climateTag(), 'RULE']} />
-      <div className="relative mb-4 overflow-hidden rounded-2xl"><div className="relative aspect-[16/4]"><Photo name="droughtFlood" fill sizes="720px" /></div></div>
+      <div className="relative mb-4 overflow-hidden rounded-2xl"><ClimateScene className="aspect-[16/5]" /></div>
 
       <Card className="p-4 sm:p-5">
         <h3 className="text-[17px] font-bold">{T(`${upazila.name.bnOf} আবহাওয়া, এক নজরে`, `${upazila.name.en}’s weather at a glance`)}</h3>
@@ -123,7 +123,7 @@ export default function StepClimate() {
                 const Arrow = !a.trend || vd === 'flat' ? Minus : a.trend.perDecade > 0 ? TrendingUp : TrendingDown;
                 return (
                   <button key={id} type="button" onClick={() => setSel(id)} aria-pressed={on}
-                    className={`rounded-xl border p-3 text-left transition ${on ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-200' : 'border-border bg-white hover:border-primary-300'}`}>
+                    className={`lift rounded-xl border p-3 text-left transition-all duration-200 active:scale-[0.98] cursor-pointer ${on ? 'border-primary-600 bg-primary-50/90 ring-2 ring-primary-200/80 shadow-xs' : 'border-border bg-white hover:border-primary-300 hover:shadow-2xs'}`}>
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-[13.5px] leading-snug text-ink/80">{L(INDICATORS[id])}</span>
                       {forMe(id) && <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 ring-1 ring-amber-200">{T('আপনার ফসল', 'Your crop')}</span>}
@@ -145,7 +145,7 @@ export default function StepClimate() {
         );
       })}
 
-      <Card className="mt-5 p-4 sm:p-5">
+      <Card className="cv-auto mt-5 p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
             <h3 className="text-[18px] font-bold leading-tight">{L(x.def)}</h3>
@@ -167,7 +167,7 @@ export default function StepClimate() {
                   labelFormatter={(l, p) => (p?.[0] ? T(`${season(p[0].payload.y, 'bn')} মৌসুম`, `Season ${season(p[0].payload.y, 'en')}`) : l)}
                   formatter={(val, k) => [k === 'trend' ? `${fmtVal(val)}` : `${fmtVal(val)} ${x.def.date ? '' : L(x.def.unit)}`, k === 'trend' ? T('প্রবণতা', 'Trend') : T('এই মৌসুম', 'This season')]} />
                 {x.then != null && <ReferenceLine y={x.then} stroke="#8a9a8f" strokeDasharray="4 3" ifOverflow="extendDomain" />}
-                <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={18}>
+                <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={18} animationDuration={450}>
                   {data.map((d) => <Cell key={d.y} fill={d.recent ? '#43863a' : '#c4d1c0'} />)}
                 </Bar>
                 {x.trend && <Line dataKey="trend" type="linear" stroke={v.bar} strokeWidth={2} dot={false} activeDot={false} isAnimationActive={false} />}
@@ -250,7 +250,7 @@ function BiasStrip({ bias, lang, T }) {
       <div className="mb-1 text-[12.5px] text-muted">{T('নাসা − আবহাওয়া কেন্দ্র, দিনের সর্বোচ্চ তাপমাত্রা (°সে)', 'NASA − station, daily maximum temperature (°C)')}</div>
       <div className="grid grid-cols-12 gap-1">
         {bias.map((b, m) => (
-          <div key={m} className="flex flex-col items-center" title={`${(lang === 'bn' ? MONTHS_BN : MONTHS_EN)[m]}: ${b > 0 ? '+' : ''}${b.toFixed(1)}°`}>
+          <div key={m} className="flex flex-col items-center" title={`${(lang === 'bn' ? MONTHS_BN : MONTHS_EN)[m]}: ${b > 0 ? '+' : ''}${num(b, lang, { dp: 1 })}°`}>
             <div className="relative h-16 w-full">
               <div className="absolute inset-x-0 top-1/2 border-t border-border" />
               <div className="absolute inset-x-[18%] rounded-sm" style={{ background: b > 0 ? '#c8463d' : '#237479', height: `${(Math.abs(b) / max) * 50}%`, ...(b > 0 ? { bottom: '50%' } : { top: '50%' }) }} />

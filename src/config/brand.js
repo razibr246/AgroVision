@@ -18,9 +18,9 @@ export const PROJECT_TAGLINE = {
 };
 
 export const PROJECT_DESCRIPTION =
-  `${PROJECT_NAME} helps smallholder farmers in Godagari (Rajshahi) and Dhamrai (Dhaka) decide whether to keep, adjust or shift their crop, using 25 seasons of NASA climate history, local soil, crop needs and the farmer's own priorities.`;
+  `${PROJECT_NAME} helps smallholder farmers and agriculture officers across all seven divisions of Bangladesh and international benchmarks decide whether to keep, adjust or shift crops, using 25 seasons of NASA climate data, local soil, crop needs and the farmer’s own priorities.`;
 
-export const PROJECT_REGION = { bn: 'গোদাগাড়ী (রাজশাহী) ও ধামরাই (ঢাকা)', en: 'Godagari (Rajshahi) and Dhamrai (Dhaka)' };
+export const PROJECT_REGION = { bn: 'বাংলাদেশের ৭ বিভাগ ও আন্তর্জাতিক মানদণ্ড', en: 'Bangladesh (7 divisions) and international benchmarks' };
 export const PROJECT_EVENT = { bn: 'নাসা স্পেস অ্যাপস ২০২৬ · ফিল্ড শিফট চ্যালেঞ্জ', en: 'NASA Space Apps 2026 · Field Shift challenge' };
 
 // Storage key prefix derived from the name, so a rename does not mix old saved demo state.

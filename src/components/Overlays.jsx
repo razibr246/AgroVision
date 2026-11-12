@@ -7,16 +7,18 @@ const txt = (L, x) => (x == null ? '' : typeof x === 'string' || typeof x === 'n
 
 function Sheet({ onClose, children, wide, label }) {
   const ref = useRef();
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
-    const k = (e) => e.key === 'Escape' && onClose();
+    const k = (e) => e.key === 'Escape' && closeRef.current?.();
     window.addEventListener('keydown', k);
     const prev = document.activeElement;
     ref.current?.focus();
     return () => { window.removeEventListener('keydown', k); prev?.focus?.(); };
-  }, [onClose]);
+  }, []);
   return (
-    <div className="sheet-fade fixed inset-0 z-[2000] flex items-end justify-center bg-primary-950/45 backdrop-blur-[3px] sm:items-center sm:p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label={label}>
-      <div ref={ref} tabIndex={-1} className={`sheet-up max-h-[88vh] w-full overflow-auto scroll-thin rounded-t-[28px] border border-white/60 bg-white p-5 shadow-[0_24px_60px_-15px_rgba(13,38,20,0.4)] outline-none will-change-transform sm:rounded-[28px] sm:p-6 ${wide ? 'sm:max-w-2xl' : 'sm:max-w-xl'}`} onClick={(e) => e.stopPropagation()}>
+    <div className="sheet-fade fixed inset-0 z-[2000] flex items-end justify-center bg-primary-950/45 backdrop-blur-[3px] overscroll-contain sm:items-center sm:p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label={label}>
+      <div ref={ref} tabIndex={-1} className={`sheet-up max-h-[88vh] w-full overflow-auto overscroll-contain scroll-thin rounded-t-[28px] border border-white/60 bg-white p-5 shadow-[0_24px_60px_-15px_rgba(13,38,20,0.4)] outline-none sm:rounded-[28px] sm:p-6 ${wide ? 'sm:max-w-2xl' : 'sm:max-w-xl'}`} onClick={(e) => e.stopPropagation()}>
         <div className="mx-auto -mt-1.5 mb-3.5 h-1.5 w-12 rounded-full bg-black/15 sm:hidden" aria-hidden="true" />
         {children}
       </div>
@@ -37,7 +39,7 @@ export function WhyDrawer() {
           <h3 className="mt-0.5 text-[22px] font-bold">{txt(L, p.title)}</h3>
           {p.tags && <div className="mt-2"><Tags list={p.tags} /></div>}
         </div>
-        <button type="button" onClick={close} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-black/5 hover:bg-black/10" aria-label={T('বন্ধ করুন', 'Close')}><X size={18} /></button>
+        <button type="button" onClick={close} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-black/5 transition-transform duration-200 ease-[var(--ease-spring)] hover:scale-105 hover:bg-black/10 active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100" aria-label={T('বন্ধ করুন', 'Close')}><X size={18} /></button>
       </div>
       <div className="mt-4 space-y-5">
         {(p.blocks || []).map((b, i) => (
@@ -75,7 +77,7 @@ export function DataInfo() {
     <Sheet onClose={close} wide label={T('তথ্যের অবস্থা', 'Data status')}>
       <div className="flex items-start justify-between">
         <h3 className="text-[22px] font-bold">{T('কোন তথ্য আসল, কোনটা নমুনা', 'Which data is real and which is sample')}</h3>
-        <button type="button" onClick={close} className="grid h-10 w-10 place-items-center rounded-full bg-black/5" aria-label={T('বন্ধ করুন', 'Close')}><X size={18} /></button>
+        <button type="button" onClick={close} className="grid h-10 w-10 place-items-center rounded-full bg-black/5 transition-transform duration-200 ease-[var(--ease-spring)] hover:scale-105 hover:bg-black/10 active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100" aria-label={T('বন্ধ করুন', 'Close')}><X size={18} /></button>
       </div>
       <h4 className="mt-4 font-bold">{T('আবহাওয়ার ইতিহাস', 'Weather history')} — <span className={cp.status === 'REAL' ? 'text-sky-700' : 'text-red-700'}>{cp.status === 'REAL' ? T('নাসার আসল তথ্য', 'real NASA data') : T('অস্থায়ী তথ্য', 'placeholder')}</span></h4>
       <table className="mt-1 w-full text-[13px]"><tbody className="divide-y divide-border">
@@ -101,9 +103,9 @@ npm run build`}</pre>
 export function Toast() {
   const { s, L } = useStore();
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-[2100] flex justify-center px-4 lg:bottom-8" role="status" aria-live="polite">
+    <div className="fs-toast pointer-events-none fixed inset-x-0 bottom-24 z-[2100] flex justify-center px-4 lg:bottom-8" role="status" aria-live="polite">
       {s.toast && (
-        <div key={s.toast.at} className="sheet-up relative flex items-center gap-2.5 overflow-hidden rounded-full border border-white/25 bg-[#13261b]/95 px-5 py-3 text-[14.5px] font-semibold text-white shadow-[0_20px_48px_-12px_rgba(13,38,20,0.6),inset_0_1px_0_rgba(255,255,255,0.3)] backdrop-blur-md">
+        <div key={s.toast.at} className="toast-pop relative flex items-center gap-2.5 overflow-hidden rounded-full border border-white/25 bg-[#13261b]/95 px-5 py-3 text-[14.5px] font-semibold text-white shadow-[0_20px_48px_-12px_rgba(13,38,20,0.6),inset_0_1px_0_rgba(255,255,255,0.3)] backdrop-blur-md">
           <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary-500/25 text-primary-300 shadow-[0_0_12px_rgba(67,134,58,0.4)]">
             <CheckCircle2 size={16} />
           </span>

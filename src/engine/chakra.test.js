@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classifyProblem, problemTask, farmerTasks, officerTasks, gateFor, authorize, appendAudit, verifyAudit, sanitize, autoCountToday } from './chakra.js';
+import { classifyProblem, problemTask, farmerTasks, officerTasks, gateFor, authorize, appendAudit, verifyAudit, sanitize, autoCountToday, nextAutoVerdict, dismissAllVerdicts, minimizeVerdictWindow, restoreVerdictWindow, verdictQueueNav } from './chakra.js';
 
 const DAY = 86400000;
 const today = Date.UTC(2026, 9, 30);
@@ -84,7 +84,11 @@ test('officer hotspot actions include only reports and farmers in the officer’
   const [task] = officerTasks({ unions: ['Deopara'], today, requests: [], hotspots: [hotspot] });
   assert.equal(task.kind, 'area');
   assert.deepEqual(task.effects[0].adv.to, ['RAHIM', 'KARIM']);
+  assert.equal(task.effects[0].adv.text, 'Reports came in');
   assert.deepEqual(task.effects[1].ids, ['R1', 'R2']);
+
+  const [bnTask] = officerTasks({ unions: ['Deopara'], today, requests: [], hotspots: [hotspot], lang: 'bn' });
+  assert.equal(bnTask.effects[0].adv.text, 'খবর এসেছে');
 });
 
 test('the audit log is hash-chained: editing or removing an entry is detected', () => {
@@ -99,4 +103,56 @@ test('the audit log is hash-chained: editing or removing an entry is detected', 
 test('sanitize strips control and bidi characters and caps the length', () => {
   assert.equal(sanitize('a\u0000b‮c  d'), 'abc d');
   assert.equal(sanitize('x'.repeat(900)).length, 600);
+});
+
+test('verdict window helpers close all auto-popups on red dismiss and support minimize/restore', () => {
+  const queue = [{ id: 'v1' }, { id: 'v2' }, { id: 'v3' }];
+  assert.equal(nextAutoVerdict(queue, { mode: 'agent' })?.id, 'v1');
+  assert.equal(nextAutoVerdict(queue, { mode: 'manual' }), null);
+  assert.equal(nextAutoVerdict(queue, { mode: 'agent', panelOpen: true }), null);
+
+  // Red button snoozes the entire remaining queue at once instead of popping up v2..v18.
+  const closed = dismissAllVerdicts(new Set(), 'v1');
+  assert.equal(closed.snoozedAll, true);
+  assert.equal(closed.minimized, false);
+  assert.equal(closed.verdict, null);
+  assert.equal(closed.later.has('v1'), true);
+  assert.equal(nextAutoVerdict(queue, { mode: 'agent', ...closed }), null);
+
+  // Yellow minimizes without clearing handled state; restore brings back the queue/selected verdict.
+  assert.deepEqual(minimizeVerdictWindow(), { minimized: true });
+  assert.equal(nextAutoVerdict(queue, { mode: 'agent', minimized: true }), null);
+  const restored = restoreVerdictWindow(queue[1]);
+  assert.deepEqual(restored, { minimized: false, snoozedAll: false, verdict: queue[1] });
+  assert.equal(nextAutoVerdict(queue, { mode: 'agent', later: closed.later, ...restored })?.id, 'v2');
+});
+
+test('verdictQueueNav reports current index, left/right remaining counts and adjacent items', () => {
+  assert.deepEqual(verdictQueueNav([], 'v1'), {
+    total: 0, index: -1, position: 0, left: 0, right: 0, prev: null, next: null,
+  });
+  const q = [{ id: 'v1' }, { id: 'v2' }, { id: 'v3' }, { id: 'v4' }];
+  const start = verdictQueueNav(q, 'v1');
+  assert.equal(start.position, 1);
+  assert.equal(start.left, 0);
+  assert.equal(start.right, 3);
+  assert.equal(start.prev, null);
+  assert.equal(start.next?.id, 'v2');
+
+  const mid = verdictQueueNav(q, 'v3');
+  assert.equal(mid.position, 3);
+  assert.equal(mid.left, 2);
+  assert.equal(mid.right, 1);
+  assert.equal(mid.prev?.id, 'v2');
+  assert.equal(mid.next?.id, 'v4');
+
+  const end = verdictQueueNav(q, 'v4');
+  assert.equal(end.position, 4);
+  assert.equal(end.left, 3);
+  assert.equal(end.right, 0);
+  assert.equal(end.prev?.id, 'v3');
+  assert.equal(end.next, null);
+
+  // Unknown id falls back cleanly to the first waiting draft.
+  assert.equal(verdictQueueNav(q, 'missing').position, 1);
 });

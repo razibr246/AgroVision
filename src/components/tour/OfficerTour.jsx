@@ -6,10 +6,11 @@
 //   first-visit invitation.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Compass, ListOrdered, X, Lightbulb, MousePointerClick } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Compass, ListOrdered, X, Lightbulb, MousePointerClick, GripHorizontal } from 'lucide-react';
 import { useStore, demo } from '../../store';
 import { STORAGE_PREFIX } from '../../config/brand';
 import { TourModePicker, TourPlayback, QUICK_TOUR_STEP_SECONDS, TOUR_STEP_SECONDS } from './TourPlayback';
+import { useDraggable } from './useDraggable';
 
 const KEY = `${STORAGE_PREFIX}.officerTour`;
 const SEEN = `${STORAGE_PREFIX}.officerTourSeen`;
@@ -27,7 +28,7 @@ const CHAPTERS = [
   { bn: 'কৃষকের অনুরোধ', en: 'Farmer requests' },
   { bn: 'কৃষক ও জমি', en: 'Farmers and fields' },
   { bn: 'এলাকার মানচিত্র', en: 'Area map' },
-  { bn: 'রোপণ রাডার', en: 'Ropan Radar' },
+  { bn: 'রোপণ রাডার', en: 'Ropon Radar' },
   { bn: 'লাগানোর সময় ও দাম', en: 'Planting and prices' },
   { bn: 'কবে কত ফসল উঠবে', en: 'Harvest timing' },
   { bn: 'উপজেলার সার্বিক চিত্র', en: 'Upazila overview' },
@@ -45,26 +46,26 @@ const STEPS = [
     say: t('এটা {upz} উপজেলা কৃষি অফিসের ডিজিটাল কাজের ঘর। কৃষকের অনুরোধ, এলাকার সতর্কতা, কে কী লাগাচ্ছেন, উপগ্রহে মাঠের অবস্থা আর বাজারদর — সব এক জায়গায়।', 'This is the digital desk of the {upz} upazila agriculture office. Farmers’ requests, area alerts, who is planting what, the fields from satellites and market prices — all in one place.'),
     help: t('খাতা, ফোনের তালিকা আর আলাদা আলাদা সরকারি প্রতিবেদন ঘাঁটার সময় বাঁচে; কোন কাজটা আগে করবেন, পাতাগুলোই সাজিয়ে দেয়।', 'It saves the time spent on registers, call lists and separate government reports, and puts the most urgent work first.'),
     act: t('গাইডে সব পাতা ঘুরে দেখুন। "অধ্যায়" থেকে যেকোনো অংশে লাফ দিতে পারেন।', 'Explore every page in the guide. Jump to any part from “Chapters” at any time.') },
-  { ch: 0, path: '/officer', text: t('কোন ইউনিয়ন বা পৌরসভা দেখবেন', 'Union or municipality to look at'), up: 'div.rounded-2xl', alt: 'button[aria-label="মেনু খুলুন"], button[aria-label="Open menu"]',
+  { ch: 0, path: '/officer', sel: '[data-tour="officer-union"]', text: t('কোন ইউনিয়ন বা পৌরসভা দেখবেন', 'Union or municipality to look at'), up: 'div.rounded-2xl', alt: '[data-tour="officer-menu-toggle"], button[aria-label="মেনু খুলুন"], button[aria-label="Open menu"]',
     title: t('আপনার পরিচয় আর ইউনিয়ন বাছাই', 'Who you are, and which union'),
     say: t('বাঁ পাশে আপনার নাম, উপজেলা, জেলা আর বিভাগ। নিচের তালিকা থেকে যে ইউনিয়ন বা পৌরসভা দেখবেন সেটা বাছুন — এখন দেখছেন {union}।', 'On the left: your name, upazila, district and division. Pick the union or municipality to look at from the list below — now {union}.'),
     help: t('সকালে যে ইউনিয়নে মাঠ পরিদর্শনে যাবেন, সেটা বেছে নিলে সতর্কতা, অনুরোধ আর মানচিত্র সব সেই ইউনিয়নের হয়ে যায়।', 'Choose the union you are visiting today and the alerts, requests and map all switch to it.'),
     act: t('তালিকাটা খুলে আরেকটা ইউনিয়ন বেছে দেখুন (ফোনে এটা ☰ মেনুর ভেতরে)।', 'Open the list and try another union (on a phone it is inside the ☰ menu).') },
-  { ch: 0, path: '/officer', sel: 'nav[aria-label="কর্মকর্তার পাতা"], nav[aria-label="Officer pages"]', alt: 'button[aria-label="মেনু খুলুন"], button[aria-label="Open menu"]',
+  { ch: 0, path: '/officer', sel: '[data-tour="officer-nav"], nav[aria-label="কর্মকর্তার পাতা"], nav[aria-label="Officer pages"]', alt: '[data-tour="officer-menu-toggle"], button[aria-label="মেনু খুলুন"], button[aria-label="Open menu"]',
     title: t('মেনু সাজানো আপনার দিনের ক্রমে', 'The menu follows your day'),
     say: t('আজকের কাজ (চিত্র, সতর্কতা, অনুরোধ) → আমার এলাকা (কৃষক, মানচিত্র) → মৌসুমের পরিকল্পনা (রাডার, লাগানোর সময়, ফসল তোলা) → পুরো উপজেলা → সহায়তা। লাল বা কমলা সংখ্যা মানে খোলা কাজ।', 'Today’s work (overview, alerts, requests) → my area (farmers, map) → season planning (radar, planting, harvest) → whole upazila → help. A red or amber number means work waiting.'),
     help: t('সংখ্যাগুলো দেখেই বোঝা যায় আজ কোথায় হাত দিতে হবে; কিছু খুঁজতে হয় না।', 'The badges tell you where today’s work is without searching.'),
     act: t('ফোনে মেনু খোলে ওপরের বাঁয়ের ☰ বোতামে।', 'On a phone, the ☰ button at the top left opens the menu.') },
-  { ch: 0, path: '/officer', sel: 'input[placeholder*="খুঁজুন"], input[placeholder*="Search"]', alt: 'button[aria-label="খুঁজুন"], button[aria-label="Search"]',
+  { ch: 0, path: '/officer', sel: '[data-tour="officer-search"], input[placeholder*="খুঁজুন"], input[placeholder*="Search"]', alt: '[data-tour="officer-search-toggle"], button[aria-label="খুঁজুন"], button[aria-label="Search"]',
     title: t('কৃষক বা গ্রাম খুঁজুন', 'Find a farmer or a village'),
     say: t('যেকোনো কৃষক বা গ্রামের নাম লিখলেই তাঁর জমি আর অনুরোধ খুলে যায়। কিবোর্ডে "/" চাপলে সরাসরি এখানে আসে।', 'Type any farmer’s or village’s name to open their fields and requests. Press “/” on the keyboard to jump here.'),
     help: t('কেউ ফোন করলে নাম বলামাত্র তাঁর পুরো তথ্য সামনে চলে আসে।', 'When a farmer phones, their whole record is up as soon as they say their name.'),
     act: t('একটা গ্রামের নাম লিখে দেখুন (ফোনে আগে ওপরের খোঁজার বোতাম চাপুন)।', 'Try typing a village name (on a phone, tap the search button at the top first).') },
-  { ch: 0, path: '/officer', sel: 'button[aria-label*="খোলা অনুরোধ"], button[aria-label*="open requests"]',
+  { ch: 0, path: '/officer', sel: '[data-tour="officer-requests"], button[aria-label*="খোলা অনুরোধ"], button[aria-label*="open requests"]',
     title: t('ঘণ্টা আর ভাষা', 'The bell and the language'),
     say: t('ঘণ্টার গায়ের সংখ্যা মানে উত্তরের অপেক্ষায় থাকা অনুরোধ, চাপ দিলে তালিকা খোলে। পাশের বোতামে বাংলা আর ইংরেজি বদলানো যায়; বাঁয়ে "ফিরে যান" আগের পাতায় নেয়।', 'The number on the bell is requests waiting for a reply; tap it for the list. The next button switches Bangla and English, and “Back” on the left returns to the previous page.'),
     help: t('যেকোনো পাতা থেকে এক চাপে অপেক্ষমাণ কৃষকদের কাছে পৌঁছানো যায়।', 'From any page, waiting farmers are one tap away.') },
-  { ch: 0, path: '/officer', text: t('কৃষকের পাতায় যান', 'Go to the farmer view'), up: 'div', alt: 'button[aria-label="মেনু খুলুন"], button[aria-label="Open menu"]',
+  { ch: 0, path: '/officer', sel: '[data-tour="officer-farmer-switch"]', text: t('কৃষকের পাতায় যান', 'Go to the farmer view'), up: 'div', alt: '[data-tour="officer-menu-toggle"], button[aria-label="মেনু খুলুন"], button[aria-label="Open menu"]',
     title: t('কৃষকের চোখে দেখা, তথ্যের অবস্থা', 'See it as a farmer; data status'),
     say: t('"কৃষকের পাতায় যান" চাপলে কৃষক যা দেখেন সেটাই দেখবেন। নিচের চিপগুলো বলে আবহাওয়া আর মাটির তথ্য আসল (নাসা, SoilGrids) কি না; "নমুনা আবার শুরু করুন" সব নমুনা কাজ প্রথম অবস্থায় ফেরায়।', '“Go to the farmer view” shows exactly what farmers see. The chips below say whether the weather and soil data are real (NASA, SoilGrids); “Restart the sample” resets all sample work.'),
     help: t('কৃষককে ফোনে কিছু বোঝানোর আগে নিজে সেই পাতাটা দেখে নিতে পারেন।', 'Before explaining something to a farmer on the phone, you can look at their screen yourself.'),
@@ -157,9 +158,9 @@ const STEPS = [
     help: t('ফসলি জমি কতটা বাড়িঘরে চলে যাচ্ছে, তার আসল হিসাব সভায় বা প্রতিবেদনে দেখাতে পারেন।', 'Real numbers on how much farmland is being built over, for meetings and reports.'),
     act: t('এখনই বোতামটা চাপুন — গাইড খোলা থাকতেও মানচিত্র কাজ করে।', 'Press it now — the map works while the guide is open.') },
 
-  // ---- 6. Ropan Radar
+  // ---- 6. Ropon Radar
   { ch: 6, path: '/officer/radar', sel: '.section-nav',
-    title: t('রোপণ রাডার: মেঘের নিচেও মাঠ দেখা', 'Ropan Radar: seeing the fields under cloud'),
+    title: t('রোপণ রাডার: মেঘের নিচেও মাঠ দেখা', 'Ropon Radar: seeing the fields under cloud'),
     say: t('সেন্টিনেল-১ রাডার মেঘ ভেদ করে দেখে কোন জমিতে কবে পানি দিয়ে আমন চারা রোপণ হলো। ওপরের সারিতে পাতার সব অংশ; যেকোনোটায় চাপ দিলে সেখানে যায়, আর স্ক্রল করলে সারিটা সঙ্গে থাকে।', 'Sentinel-1 radar sees through cloud when each field was flooded and Aman was transplanted. The strip at the top lists every part of the page; tap one to go there, and it stays with you as you scroll.'),
     help: t('বর্ষায় মাঠে না গিয়েও জানা যায় রোপণ কতটা এগোল, কোন এলাকা পিছিয়ে।', 'In the monsoon you know how far planting has got, and which areas lag, without going out.') },
   { ch: 6, path: '/officer/radar', sel: '#rd-onset',
@@ -252,7 +253,7 @@ const STEPS = [
 
   // ---- 11. Your working day
   { ch: 11, path: '/officer', title: t('আপনার কাজের দিনে কীভাবে লাগে', 'How it fits your working day'),
-    say: t('সকালে: আজকের চিত্র → সতর্কতা → জরুরি অনুরোধের উত্তর। মাঠে যাওয়ার আগে: মানচিত্রে রুট আর কৃষকের খাতা। সপ্তাহে: লাগানোর পালা আর দাম। মৌসুমে: রোপণ রাডার আর ফসল তোলার সময়। মাসে বা সভায়: উপজেলার সার্বিক চিত্র আর ফসলচক্রের প্রভাব।', 'Mornings: overview → alerts → answer urgent requests. Before a field visit: the route on the map and the farmer’s record. Weekly: planting slots and prices. Each season: Ropan Radar and harvest timing. Monthly or for meetings: the upazila overview and rotation impact.'),
+    say: t('সকালে: আজকের চিত্র → সতর্কতা → জরুরি অনুরোধের উত্তর। মাঠে যাওয়ার আগে: মানচিত্রে রুট আর কৃষকের খাতা। সপ্তাহে: লাগানোর পালা আর দাম। মৌসুমে: রোপণ রাডার আর ফসল তোলার সময়। মাসে বা সভায়: উপজেলার সার্বিক চিত্র আর ফসলচক্রের প্রভাব।', 'Mornings: overview → alerts → answer urgent requests. Before a field visit: the route on the map and the farmer’s record. Weekly: planting slots and prices. Each season: Ropon Radar and harvest timing. Monthly or for meetings: the upazila overview and rotation impact.'),
     help: t('সংখ্যার পাশে "আসল তথ্য", "নিয়মে হিসাব", "AI" বা "নমুনা তথ্য" লেখা থাকে — কোনটা উপগ্রহ বা সরকারি তথ্য আর কোনটা উদাহরণ, সবসময় বোঝা যায়।', 'Every number carries “Real data”, “Rule-based”, “AI” or “Sample data”, so you always know what comes from satellites or official sources and what is an example.'),
     act: t('গাইড আবার দেখতে চাইলে ওপরের "গাইড" বোতাম চাপুন।', 'To see the guide again, press “Guide” at the top.') },
 ];
@@ -266,7 +267,10 @@ const fill = (s, c) => s.replace(/\{(\w+)\}/g, (_, k) => c[k] ?? '');
 // starts with the label in either language, widened to the nearest `up` container.
 function findTarget(step) {
   const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 2 && r.height > 2 && getComputedStyle(el).visibility !== 'hidden'; };
-  if (step.sel) return [...document.querySelectorAll(step.sel)].find(visible) ?? null;
+  if (step.sel) {
+    const hit = [...document.querySelectorAll(step.sel)].find(visible);
+    if (hit || !step.text) return hit ?? null;
+  }
   if (!step.text) return null;
   const want = [step.text.bn, step.text.en];
   const scope = document.querySelector('.officer-shell') ?? document.body;
@@ -296,6 +300,7 @@ export default function OfficerTour() {
   useEffect(() => { if (autoMode) saveMode({ auto: true, quick: quickMode, elapsed }); }, [autoMode, quickMode, elapsed]);
   const target = useRef(null);
   const card = useRef(null);
+  const { hasMoved, isDragging, resetPos, dragProps, style: dragStyle } = useDraggable({ nodeRef: card });
   const [place, setPlace] = useState('right');
 
   const unionName = demo.unions.find((u) => u.id === s.officerUnion)?.full;
@@ -370,7 +375,7 @@ export default function OfficerTour() {
     // up to four times, until it sits still below the header.
     const aim = (el, n) => {
       if (stop) return;
-      const fixed = !!el.closest('header, aside, nav[aria-label="কর্মকর্তার পাতা"], nav[aria-label="Officer pages"]') && !el.closest('main');
+      const fixed = !!el.closest('header, aside, [data-tour="officer-nav"], nav[aria-label="কর্মকর্তার পাতা"], nav[aria-label="Officer pages"]') && !el.closest('main');
       // in the sidebar or header: the page does not move, but a sidebar that scrolls on its own brings the part into view
       if (fixed) { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
       const r = el.getBoundingClientRect();
@@ -451,7 +456,31 @@ export default function OfficerTour() {
           style={{ top: rect.top - pad, left: rect.left - pad, width: rect.width + pad * 2, height: rect.height + pad * 2 }} />
       ) : <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[65] bg-[rgba(13,38,20,.28)] transition-opacity duration-300" />}
       <aside ref={card} role="dialog" aria-label={T('অফিসার অংশের গাইড', 'Officer guide')} aria-live="polite"
-        className={`fixed inset-x-3 bottom-3 z-[70] mx-auto max-w-[560px] rounded-[22px] border border-white/70 bg-white/97 p-4 shadow-[0_24px_56px_-16px_rgba(13,38,20,.6)] backdrop-blur lg:mx-0 lg:w-[440px] ${place === 'left' ? 'lg:left-6 lg:right-auto' : 'lg:left-auto lg:right-6'} ${place === 'top' ? 'lg:bottom-auto lg:top-[calc(var(--app-header,64px)+12px)]' : ''}`}>
+        {...dragProps}
+        style={dragStyle}
+        onDoubleClick={resetPos}
+        className={`fixed inset-x-3 bottom-3 z-[70] mx-auto max-w-[560px] rounded-[22px] border border-white/70 bg-white/97 p-4 backdrop-blur lg:mx-0 lg:w-[440px] transition-shadow select-none ${place === 'left' ? 'lg:left-6 lg:right-auto' : 'lg:left-auto lg:right-6'} ${place === 'top' ? 'lg:bottom-auto lg:top-[calc(var(--app-header,64px)+12px)]' : ''} ${
+          isDragging
+            ? 'cursor-grabbing shadow-[0_28px_64px_-10px_rgba(13,38,20,.75)] ring-2 ring-primary-500/40 scale-[1.01]'
+            : 'cursor-grab shadow-[0_24px_56px_-16px_rgba(13,38,20,.6)] hover:shadow-[0_26px_60px_-14px_rgba(13,38,20,.7)]'
+        }`}>
+        {/* Draggable Drag-Bar Affordance */}
+        <div className="flex items-center justify-between pb-1.5 -mt-1 select-none">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-ink/40">
+            <GripHorizontal size={14} className="text-primary-700/60" />
+            <span className="hidden sm:inline">{T('মাউস দিয়ে টেনে যে কোনো স্থানে সরান', 'Drag anywhere to move')}</span>
+          </div>
+          {hasMoved && (
+            <button
+              type="button"
+              onClick={resetPos}
+              className="text-[11px] font-semibold text-primary-700 hover:text-primary-900 transition underline underline-offset-2 cursor-pointer"
+              title={T('মূল অবস্থানে ফিরিয়ে আনুন', 'Reset position to default')}
+            >
+              {T('মাঝখানে আনুন', 'Reset position')}
+            </button>
+          )}
+        </div>
         <div key={k} className="swap-in">
           <div className="flex items-start gap-3">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 text-white"><Compass size={18} /></span>

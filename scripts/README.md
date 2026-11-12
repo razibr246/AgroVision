@@ -25,11 +25,14 @@ comes from is in [docs/DATA_SOURCES.md](../docs/DATA_SOURCES.md).
 | `fetch:stories` | `fetch/stories.mjs` | Climate for the story upazilas, `src/data/climate/stories_climate.json` |
 | `fetch:wetness` | `fetch/soil-wetness.mjs` | NASA POWER root-zone soil wetness, `src/data/water/soil_wetness.json` |
 | `fetch:water` | `fetch/gibs-water.mjs` | GRACE and SMAP through NASA GIBS, `src/data/water/water_sat.json` |
+| `fetch:trend-fields` | `fetch/trend-fields.mjs` | GRACE, SMAP and MODIS NDVI for every pixel of South Asia, year by year, computed like the Trends map points (engine/trends.js) and drawn in its colours: `public/trends/` (pass `grace`, `smap` or `green` to build one) |
+| `fetch:earth` | `fetch/earth-globe.mjs` | NASA Blue Marble, VIIRS Black Marble and one day of VIIRS true-colour clouds through NASA GIBS, for the Science page globe: `public/textures/earth/` (pass a date to pick the cloud day) |
 | `fetch:sedac` | `fetch/sedac.mjs` | NASA SEDAC density, low coast, cropland per upazila, `src/data/region/sedac.json` |
 | `fetch:giovanni` | `fetch/giovanni.mjs` | NASA Giovanni IMERG monthly rain check, `src/data/climate/giovanni.json` (needs `EARTHDATA_TOKEN` in `.env.local`) |
 | `fetch:neighbours` | `build/build_neighbours.py` | The five neighbouring-country farms, `src/data/abroad/` |
 | `data:build` | `build/build_godagari_*.py`, `build/build_bangladesh_crops.py` | Boundaries, places, land use, national crop map, `src/data/geo/` |
 | `data:soil` | `build/build_soil.py` | ISRIC SoilGrids per union and field, `src/data/soil/` |
+| `data:field-shapes` | `build/sample_field_shapes.mjs` | Sample outlines for the demo fields: a real field's edge in the Esri photo near each pin (found by `src/engine/fielddetect.js`, or hand-traced in `build/sample_field_traces.json`), `src/data/fields/sample_shapes.json`. `--debug <dir>` writes each photo with the outline and a pixel grid |
 | `data:srdi` | `build/build_srdi_frs.mjs` | SRDI fertilizer doses per union, `src/data/soil/srdi_frs.json` |
 | `data:fields` | `build/build_field_watch.py` | Sentinel-2 field watch, `src/data/fields/field_watch.json` |
 | `data:prices` | `build/build_market_prices.py` | DAM weekly prices, `src/data/market/market_dhaka.json` |

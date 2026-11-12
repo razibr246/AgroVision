@@ -10,7 +10,7 @@ import { num, bnDigits } from '../../engine/dates';
 const COMPOSITES = [
   {
     id: 'rgb',
-    name: { bn: 'প্রাকৃতিক রঙ (True Color RGB)', en: 'True Color (Natural RGB)' },
+    name: { bn: 'প্রাকৃতিক রঙ (RGB)', en: 'True Colour (Natural RGB)' },
     bands: 'B4 (লাল), B3 (সবুজ), B2 (নীল)',
     bandsEn: 'B4 (Red), B3 (Green), B2 (Blue)',
     desc: {
@@ -23,7 +23,7 @@ const COMPOSITES = [
   },
   {
     id: 'cir',
-    name: { bn: 'ইনফ্রারেড সবুজের সতেজতা (Color Infrared)', en: 'Color Infrared (CIR - Chlorophyll)' },
+    name: { bn: 'ইনফ্রারেড সবুজের সতেজতা', en: 'Colour Infrared (CIR - Chlorophyll)' },
     bands: 'B8 (নিয়ার ইনফ্রারেড), B4 (লাল), B3 (সবুজ)',
     bandsEn: 'B8 (NIR), B4 (Red), B3 (Green)',
     desc: {
@@ -32,11 +32,11 @@ const COMPOSITES = [
     },
     filterStyle: 'sepia(0.3) saturate(2.4) hue-rotate(-50deg)',
     badge: 'সবুজের তেজ',
-    badgeEn: 'Vigor',
+    badgeEn: 'Vigour',
   },
   {
     id: 'agri',
-    name: { bn: 'কৃষি ও মাটির আর্দ্রতা (SWIR Composite)', en: 'Agriculture (SWIR Moisture)' },
+    name: { bn: 'কৃষি ও মাটির আর্দ্রতা (SWIR)', en: 'Agriculture (SWIR Moisture)' },
     bands: 'B11 (শর্ট-ওয়েভ ইনফ্রারেড), B8 (NIR), B2 (নীল)',
     bandsEn: 'B11 (SWIR-1), B8 (NIR), B2 (Blue)',
     desc: {
@@ -49,7 +49,7 @@ const COMPOSITES = [
   },
   {
     id: 'ndwi',
-    name: { bn: 'জলাবদ্ধতা ও সেচ সূচক (NDWI Water)', en: 'Water Index (NDWI Ponding)' },
+    name: { bn: 'জলাবদ্ধতা ও সেচ সূচক (NDWI)', en: 'Water Index (NDWI Ponding)' },
     bands: '(B3 সবুজ − B8 NIR) / (B3 + B8)',
     bandsEn: '(B3 Green − B8 NIR) / (B3 + B8)',
     desc: {
@@ -101,7 +101,7 @@ export default function MultiSpectralInspector({ parcel }) {
           <p className="mt-1 text-[13px] leading-5 text-muted">
             {T(
               'ইউরোপীয় স্পেস এজেন্সির সেন্টিনেল-২ এবং নাসার ল্যান্ডস্যাটের ১৩টি স্পেকট্রাল ব্যান্ডের আলো: অদৃশ্য ইনফ্রারেড ও শর্ট-ওয়েভ তরঙ্গদৈর্ঘ্য ব্যবহার করে ফসলের ক্লোরোফিল ঘনত্ব, মাটির রস এবং জলাবদ্ধতার প্রকৃত চিত্র উদ্ঘাটন করুন।',
-              'Copernicus Sentinel-2 & Landsat 13-band surface reflectance: utilizes invisible near-infrared and short-wave infrared spectra to diagnose chlorophyll vigor, internal canopy hydration, and field standing water.'
+              'Copernicus Sentinel-2 & Landsat 13-band surface reflectance: utilises invisible near-infrared and short-wave infrared spectra to diagnose chlorophyll vigour, internal canopy hydration, and field standing water.'
             )}
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function MultiSpectralInspector({ parcel }) {
                 <span className="text-[12.5px] font-bold text-ink">{L(comp.name)}</span>
                 {isSelected && <CheckCircle2 size={14} className="text-violet-700" />}
               </div>
-              <span className="mt-1 text-[11px] text-muted line-clamp-1">{comp.bands}</span>
+              <span className="mt-1 text-[11px] text-muted line-clamp-1">{lang === 'bn' ? comp.bands : comp.bandsEn}</span>
             </button>
           );
         })}
@@ -138,7 +138,7 @@ export default function MultiSpectralInspector({ parcel }) {
         <div className="flex items-start gap-2">
           <Info size={16} className="mt-0.5 shrink-0 text-violet-700" />
           <div className="text-[12.5px] leading-5 text-ink/85">
-            <span className="font-semibold text-violet-950">{L(activeComp.name)} ({activeComp.bands}):</span>{' '}
+            <span className="font-semibold text-violet-950">{L(activeComp.name)} ({lang === 'bn' ? activeComp.bands : activeComp.bandsEn}):</span>{' '}
             {L(activeComp.desc)}
           </div>
         </div>
@@ -149,7 +149,7 @@ export default function MultiSpectralInspector({ parcel }) {
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2.5">
           <div className="flex items-center gap-1.5 text-[13px] font-bold text-ink">
             <Activity size={15} className="text-violet-700" />
-            {T('জমির বর্ণালী প্রতিফলন বক্ররেখা (Spectral Signature Curve)', 'Parcel Spectral Reflectance Signature')}
+            {T('জমির বর্ণালী প্রতিফলন বক্ররেখা', 'Parcel Spectral Reflectance Signature')}
           </div>
           <div className="flex items-center gap-3 text-[11.5px]">
             <span className="flex items-center gap-1 text-emerald-700 font-semibold">
@@ -169,7 +169,7 @@ export default function MultiSpectralInspector({ parcel }) {
 
         {/* SVG Spectral Graph */}
         <div className="mt-3 overflow-x-auto">
-          <svg viewBox="0 0 540 160" className="w-full min-w-[500px]" role="img" aria-label="Spectral Signature Curve">
+          <svg viewBox="0 0 540 160" className="w-full min-w-[500px]" role="img" aria-label={T('জমির বর্ণালী প্রতিফলন বক্ররেখা', 'Spectral Signature Curve')}>
             <defs>
               <linearGradient id="cropGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#16a34a" stopOpacity="0.25" />
@@ -183,10 +183,10 @@ export default function MultiSpectralInspector({ parcel }) {
             ))}
 
             {/* Y Axis Labels (Reflectance 0% to 60%) */}
-            <text x="32" y="24" textAnchor="end" fontSize="9" fill="#94a3b8">60%</text>
-            <text x="32" y="64" textAnchor="end" fontSize="9" fill="#94a3b8">40%</text>
-            <text x="32" y="104" textAnchor="end" fontSize="9" fill="#94a3b8">20%</text>
-            <text x="32" y="144" textAnchor="end" fontSize="9" fill="#94a3b8">0%</text>
+            <text x="32" y="24" textAnchor="end" fontSize="9" fill="#94a3b8">{num(60, lang)}%</text>
+            <text x="32" y="64" textAnchor="end" fontSize="9" fill="#94a3b8">{num(40, lang)}%</text>
+            <text x="32" y="104" textAnchor="end" fontSize="9" fill="#94a3b8">{num(20, lang)}%</text>
+            <text x="32" y="144" textAnchor="end" fontSize="9" fill="#94a3b8">{num(0, lang)}%</text>
 
             {/* Spectral Points & Curve for Crop (Green) */}
             <path
@@ -237,7 +237,7 @@ export default function MultiSpectralInspector({ parcel }) {
                     {b.band}
                   </text>
                   <text x={x} y="160" textAnchor="middle" fontSize="7" fill="#94a3b8">
-                    {b.nm}
+                    {num(b.nm, lang)}
                   </text>
                 </g>
               );
@@ -247,8 +247,8 @@ export default function MultiSpectralInspector({ parcel }) {
 
         <div className="mt-2 text-[11px] text-muted text-center">
           {T(
-            'তরঙ্গদৈর্ঘ্য (ন্যানোমিটার): দৃশ্যমান নীল (৪90nm) ও লাল (৬৬৫nm) শোষণ করে উদ্ভিদ ক্লোরোফিল তৈরি করে, আর নিয়ার-ইনফ্রারেড (B8: ৮৪২nm) জোরালোভাবে প্রতিফলিত করে।',
-            'Wavelength (nm): Healthy plants absorb Blue (490nm) & Red (665nm) for photosynthesis while intensely scattering Near-Infrared (B8: 842nm).'
+            'তরঙ্গদৈর্ঘ্য (ন্যানোমিটার): দৃশ্যমান নীল (৪৯০ ন্যানোমিটার) ও লাল (৬৬৫ ন্যানোমিটার) শোষণ করে উদ্ভিদ ক্লোরোফিল তৈরি করে, আর নিয়ার-ইনফ্রারেড (B8: ৮৪২ ন্যানোমিটার) জোরালোভাবে প্রতিফলিত করে।',
+            'Wavelength (nm): Healthy plants absorb Blue (490 nm) & Red (665 nm) for photosynthesis while intensely scattering Near-Infrared (B8: 842 nm).'
           )}
         </div>
       </div>

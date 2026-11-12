@@ -50,11 +50,11 @@
   --color-canvas: #f5f7f2;
   --color-soft: #eaf1e5;
 
-  /* Apple's system type first: SF Pro for Latin and Kohinoor Bangla on Mac, iPhone and iPad (they cover every
-     character, so nothing else downloads there). Everyone else gets self-hosted variable fonts: Inter for Latin and
-     Noto Sans Bengali for Bangla, which has the fullest conjunct coverage and every weight from 100 to 900. */
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Kohinoor Bangla", "Inter Variable", "Noto Sans Bengali Variable", "Segoe UI", system-ui, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Kohinoor Bangla", "Inter Variable", "Noto Sans Bengali Variable", "Segoe UI", system-ui, sans-serif;
+  /* Inter Variable leads in English/default; Kohinoor Bangla + Noto Sans Bengali Variable are scoped to :lang(bn)
+     below so English Latin glyphs render in Inter, never Kohinoor Bangla, while stray Bangla labels (e.g. switcher)
+     still fall back cleanly to Noto Sans Bengali Variable. */
+  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Noto Sans Bengali Variable", system-ui, sans-serif;
+  --font-display: "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "Noto Sans Bengali Variable", system-ui, sans-serif;
 
   --shadow-card: 0 2px 10px -2px rgba(19, 38, 27, .05), 0 10px 26px -12px rgba(19, 38, 27, .12);
   --shadow-lift: 0 20px 48px -16px rgba(13, 38, 20, .32), 0 8px 18px -6px rgba(13, 38, 20, .14);
@@ -78,9 +78,22 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
+  html {
+    scroll-behavior: auto;
+    scroll-padding-top: var(--app-header, 76px);
+    scroll-padding-bottom: 2rem;
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* Smooth only when code asks for it (html.smooth-scroll); otherwise jumps, page changes and the keyboard move
+       at once. ":focus-within" made every jump slow after any click. */
+    html.smooth-scroll {
+      scroll-behavior: smooth;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
+    html { scroll-behavior: auto !important; }
   }
   html, body, #root { min-height: 100%; }
   body {
@@ -99,12 +112,17 @@
     /* Smoother colour transitions on interactive elements sitewide */
     transition: color .2s var(--ease-smooth);
   }
-  /* Bangla reads better a little looser: taller line spacing for the vowel signs above and below the line. */
+  /* Scope Bengali typefaces to :lang(bn) so English Latin glyphs stay on Inter Variable.
+     Bangla reads better a little looser: taller line spacing for the vowel signs above and below the line. */
+  :lang(bn), html[lang="bn"] {
+    --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Kohinoor Bangla", "Noto Sans Bengali Variable", "Segoe UI", system-ui, sans-serif;
+    --font-display: "Inter Variable", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Kohinoor Bangla", "Noto Sans Bengali Variable", "Segoe UI", system-ui, sans-serif;
+  }
   :lang(bn) body { line-height: 1.7; }
   /* A still, soft colour field behind every page (like a macOS wallpaper) so the glass has something to refract.
      It does not move: a moving backdrop would make every glass surface re-blur on each frame. */
   body::before {
-    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; transform: translateZ(0); will-change: transform;
     background:
       radial-gradient(54vmax 40vmax at 6% 10%, rgba(141, 190, 120, .36), transparent 64%),
       radial-gradient(46vmax 34vmax at 94% 6%, rgba(237, 192, 103, .28), transparent 64%),
@@ -184,55 +202,111 @@ html { zoom: var(--ui-zoom); }
 .g3 > .g3-unzoom { zoom: calc(1 / var(--g3-text, 1)); }
 .surface-card {
   position: relative;
-  border: 1px solid rgba(255, 255, 255, .78);
+  border: 1px solid rgba(255, 255, 255, .84);
   /* Cards sit on the still, smooth colour field with a translucent frosted gradient */
-  background: linear-gradient(180deg, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, .72) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .94) 0%, rgba(255, 255, 255, .80) 100%);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, .98),
-    inset 0 0 0 .5px rgba(255, 255, 255, .6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 .5px rgba(255, 255, 255, .7),
     0 2px 8px -2px rgba(19, 38, 27, .04),
-    0 12px 30px -16px rgba(13, 38, 20, .22);
-  transition: border-color .24s var(--ease-smooth), box-shadow .3s var(--ease-smooth), transform .3s var(--ease-spring);
-  /* GPU-composited layer */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+    0 12px 28px -14px rgba(13, 38, 20, .18);
+  transition: border-color .22s var(--ease-smooth), box-shadow .25s var(--ease-smooth), transform .25s var(--ease-spring);
+  contain: paint layout style;
 }
 @media (hover: hover) {
   .surface-card.lift:hover {
-    transform: translate3d(0, -3.5px, 0);
-    border-color: rgba(141, 190, 120, .85);
+    transform: translate3d(0, -3px, 0);
+    border-color: rgba(141, 190, 120, .9);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 1),
-      0 22px 46px -20px rgba(13, 38, 20, .32),
-      0 0 0 1px rgba(67, 134, 58, .16);
+      0 20px 42px -18px rgba(13, 38, 20, .28),
+      0 0 0 1px rgba(67, 134, 58, .18);
   }
 }
 .surface-card.lift:focus-within {
-  transform: translate3d(0, -3.5px, 0);
-  border-color: rgba(141, 190, 120, .85);
+  transform: translate3d(0, -3px, 0);
+  border-color: rgba(141, 190, 120, .9);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 1),
-    0 22px 46px -20px rgba(13, 38, 20, .32),
-    0 0 0 1px rgba(67, 134, 58, .16);
+    0 20px 42px -18px rgba(13, 38, 20, .28),
+    0 0 0 1px rgba(67, 134, 58, .18);
 }
 .surface-card.lift:active {
   transform: translate3d(0, -1px, 0) scale(.992);
-  transition-duration: .12s;
+  transition-duration: .1s;
 }
 
 /* Performance & Rendering Acceleration:
    content-visibility skips off-screen layout reflows until scrolled into view;
    gpu-layer forces composite thread isolation for ultra-smooth 60/120fps motion. */
-.cv-auto {
+.cv-auto,
+.story-grid > *,
+.support-card,
+.farm-card-row,
+.farmer-card,
+.officer-card,
+.officer-table-row,
+.hazard-card,
+.future-card,
+.crop-card {
   content-visibility: auto;
-  contain-intrinsic-size: 0 340px;
+  contain-intrinsic-size: 0 280px;
 }
 .gpu-layer {
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   will-change: transform, opacity;
+}
+
+/* Razor-sharp image and canvas rendering across Retina & high-DPI displays */
+img, svg, canvas {
+  text-rendering: optimizeLegibility;
+}
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+}
+img.crisp,
+canvas.crisp,
+canvas.radar-layer,
+.field-map-canvas,
+.ndvi-preview,
+.avatar-crisp {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Touch responsiveness & inertial scroll smoothness */
+.hide-scrollbar,
+.overflow-y-auto,
+.overflow-x-auto,
+[role="dialog"],
+.sheet-up,
+.drawer-in {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
+}
+.overflow-x-auto {
+  touch-action: pan-x pan-y pinch-zoom;
+}
+
+/* Paint-throttling during active scroll for 60/120fps locked compositor execution */
+body.is-scrolling * {
+  pointer-events: none !important;
+}
+body.is-scrolling .scroll-nav-control,
+body.is-scrolling .scroll-progress,
+body.is-scrolling header,
+body.is-scrolling [data-tour="nav"] {
+  pointer-events: auto !important;
+}
+
+/* On mobile screens, elevate scroll navigator above farmer bottom bar */
+@media (max-width: 1023px) {
+  .farmer-experience .scroll-nav-control {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 5.25rem) !important;
+  }
 }
 
 /* High-Performance Next-Gen UI/UX & Motion Polish */
@@ -358,7 +432,7 @@ html { zoom: var(--ui-zoom); }
   transform: scale(1.08) rotate(4deg);
 }
 @media (prefers-reduced-motion: reduce) {
-  .stat-card-arrow { transition: none; }
+  .stat-card, .stat-card-arrow { transition: none !important; transform: none !important; }
   .status-note { animation: none; }
   .empty-state-icon { transition: none; }
 }
@@ -376,7 +450,17 @@ main .bg-canvas { background-color: rgba(236, 242, 232, .6); }
 .hide-scrollbar { scrollbar-width: none; }
 .scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scroll-thin::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, .15); border-radius: 3px; }
-.leaflet-container { font-family: inherit; background: #e3ebe0; z-index: 0; }
+.leaflet-container {
+  font-family: inherit;
+  background: #e3ebe0;
+  z-index: 0;
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.leaflet-tile-container {
+  will-change: transform;
+}
 .leaflet-control-attribution { font-size: 10px; }
 .chip { display: inline-flex; align-items: center; gap: .25rem; border-radius: 9999px; padding: .125rem .5rem; font-size: 11.5px; font-weight: 600; line-height: 1.5; white-space: nowrap; }
 
@@ -498,7 +582,7 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
     0 18px 44px -20px rgba(13, 38, 20, .38),
     0 2px 6px -2px rgba(13, 38, 20, .12);
   transform: translate3d(0, 0, 0);
-  transition: background-color .4s var(--ease-smooth), box-shadow .4s var(--ease-smooth), transform .4s var(--ease-smooth);
+  transition: background .4s var(--ease-smooth), backdrop-filter .4s var(--ease-smooth), box-shadow .4s var(--ease-smooth), transform .4s var(--ease-smooth);
 }
 .lg-bar::before, .lg-bar::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; }
 /* the reflection band: a bright edge on the left, a second faint streak further along, like light on curved glass */
@@ -514,8 +598,21 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
   transition: opacity .5s var(--ease-smooth);
 }
 /* the frosted state once the page scrolls, so menu text stays readable over dark sections */
-.lg-bar.is-solid { background-color: rgba(236, 245, 229, .78); transform: translate3d(0, -6px, 0); }
-.lg-bar.is-solid::before { opacity: .55; }
+.lg-bar.is-solid {
+  /* Keep the page visible through the capsule as it docks on scroll; the stronger blur keeps labels legible. */
+  background: linear-gradient(180deg, rgba(243, 250, 238, .48) 0%, rgba(232, 243, 225, .34) 58%, rgba(248, 239, 211, .3) 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%) brightness(1.08) contrast(1.06);
+  backdrop-filter: blur(18px) saturate(190%) brightness(1.08) contrast(1.06);
+  border-color: rgba(255, 255, 255, .76);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, .96),
+    inset 0 -1px 0 rgba(255, 255, 255, .5),
+    inset 0 0 0 .5px rgba(255, 255, 255, .42),
+    0 18px 42px -20px rgba(13, 38, 20, .42),
+    0 2px 8px -2px rgba(13, 38, 20, .16);
+  transform: translate3d(0, -6px, 0);
+}
+.lg-bar.is-solid::before { opacity: .68; }
 .lg-bar nav button, .lg-bar nav a { text-shadow: 0 1px 0 rgba(255, 255, 255, .55); }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .lg-bar { background: rgba(239, 246, 230, .96); } }
 @media (prefers-reduced-motion: reduce) { .lg-bar, .lg-bar::after { transition: none; } }
@@ -562,12 +659,12 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
     transform: translateX(120%);
   }
   .btn-gloss:hover {
-    transform: translateY(-1.5px);
+    transform: translate3d(0, -1.5px, 0);
     filter: brightness(1.06);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 12px 28px -8px rgba(36, 90, 40, .7);
   }
   .btn-gloss:active {
-    transform: scale(.96);
+    transform: translate3d(0, 0, 0) scale(.96);
     transition-duration: .1s;
   }
   .btn-gloss-teal {
@@ -588,11 +685,11 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
   }
   .btn-gloss-teal:hover::after { transform: translateX(120%); }
   .btn-gloss-teal:hover {
-    transform: translateY(-1.5px);
+    transform: translate3d(0, -1.5px, 0);
     filter: brightness(1.06);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 12px 28px -8px rgba(35, 116, 121, .7);
   }
-  .btn-gloss-teal:active { transform: scale(.96); transition-duration: .1s; }
+  .btn-gloss-teal:active { transform: translate3d(0, 0, 0) scale(.96); transition-duration: .1s; }
 
   .btn-gloss-gold {
     position: relative;
@@ -612,14 +709,17 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
   }
   .btn-gloss-gold:hover::after { transform: translateX(120%); }
   .btn-gloss-gold:hover {
-    transform: translateY(-1.5px);
+    transform: translate3d(0, -1.5px, 0);
     filter: brightness(1.06);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 12px 28px -8px rgba(208, 143, 38, .7);
   }
-  .btn-gloss-gold:active { transform: scale(.96); transition-duration: .1s; }
+  .btn-gloss-gold:active { transform: translate3d(0, 0, 0) scale(.96); transition-duration: .1s; }
 }
 /* The header's sliding active pill: same gloss as the main buttons, gliding on the spring curve. */
 .nav-pill {
+  will-change: transform, width, height;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   background: linear-gradient(180deg, #357d35 0%, #2c692d 55%, #245a26 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), inset 0 -1px 0 rgba(0, 0, 0, .18), 0 8px 20px -6px rgba(36, 90, 40, .65);
   transition-duration: .38s, .38s, .38s, .22s;
@@ -631,6 +731,16 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
 .fs-enhance .leaflet-tile-pane { filter: var(--fs-sharp) contrast(1.06) saturate(1.12); }
 .swap-in { animation: swap-in .32s var(--ease-spring) both; }
 @keyframes swap-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.palette-pop {
+  animation: palette-pop .18s cubic-bezier(.16, 1, .3, 1) both;
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+@keyframes palette-pop {
+  from { opacity: 0; transform: translate3d(0, -10px, 0) scale(.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
 .tab-line { animation: tab-line .4s var(--ease-spring) both; }
 @keyframes tab-line { from { transform: scaleX(.2); opacity: 0; } to { transform: none; opacity: 1; } }
 .nav-active-dot { animation: nav-active-dot .32s var(--ease-bounce) both; }
@@ -651,12 +761,12 @@ a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
   :root { --ease-spring: linear(0, .009, .035 2.1%, .141 4.4%, .723 12.9%, .938 16.7%, 1.017 19.4%, 1.067, 1.099 24.3%, 1.108 26%, 1.104, 1.090 30.6%, 1.033 37.4%, 1.008 41.4%, .993 46.3%, .991 52.2%, 1 64.4%, 1.001 77%, 1); }
 }
 /* Reading progress, under the floating header, with a subtle glowing pulse head. */
-.scroll-progress { position: fixed; inset: 0 0 auto 0; height: 3.5px; z-index: 60; pointer-events: none; transform-origin: 0 50%; transform: scaleX(0);
+.scroll-progress { position: fixed; inset: 0 0 auto 0; height: 3.5px; z-index: 60; pointer-events: none; transform-origin: 0 50%; transform: translate3d(0, 0, 0) scaleX(0); will-change: transform;
   background: linear-gradient(90deg, #43863a, #2f8a8f 55%, #edc067 95%, #fff 100%);
   box-shadow: 0 0 14px rgba(67, 134, 58, .55), 0 0 4px rgba(237, 192, 103, .6); }
 @supports (animation-timeline: scroll()) {
   .scroll-progress { animation: progress-grow linear both; animation-timeline: scroll(root block); }
-  @keyframes progress-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes progress-grow { from { transform: translate3d(0, 0, 0) scaleX(0); } to { transform: translate3d(0, 0, 0) scaleX(1); } }
 }
 /* Photos fade in when they finish loading instead of popping, with a subtle scale-up for a premium feel. */
 img.fade-img { opacity: 0; transform: scale(1.02); transition: opacity .7s var(--ease-smooth), transform .8s var(--ease-smooth); will-change: opacity, transform; }
@@ -720,6 +830,101 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
   animation: scan-laser 2.2s cubic-bezier(.4, 0, .2, 1) infinite;
   pointer-events: none;
   z-index: 10;
+}
+
+/* Animated Shining Farmer Mode Switch */
+@keyframes mode-shine-sweep {
+  0% { transform: translateX(-140%) skewX(-22deg); opacity: 0; }
+  12% { opacity: 0.95; }
+  45% { transform: translateX(280%) skewX(-22deg); opacity: 0.95; }
+  46%, 100% { transform: translateX(280%) skewX(-22deg); opacity: 0; }
+}
+
+.mode-shine-beam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 2;
+}
+
+.mode-shine-beam::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  bottom: -60%;
+  left: -70%;
+  width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 25%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.2) 75%,
+    transparent 100%
+  );
+  transform: skewX(-22deg);
+  animation: mode-shine-sweep 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes mode-pulse-glow-simple {
+  0%, 100% {
+    box-shadow: 0 1px 2.5px rgba(0, 0, 0, 0.14), 0 0 10px 1px rgba(16, 185, 129, 0.35), inset 0 0.75px 0.5px rgba(255, 255, 255, 0.45);
+  }
+  50% {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18), 0 0 16px 3px rgba(52, 211, 153, 0.55), inset 0 0.75px 0.75px rgba(255, 255, 255, 0.65);
+  }
+}
+
+@keyframes mode-pulse-glow-advanced {
+  0%, 100% {
+    box-shadow: 0 1px 2.5px rgba(0, 0, 0, 0.2), 0 0 10px 1px rgba(34, 197, 94, 0.25), inset 0 0.75px 0.5px rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26), 0 0 15px 3px rgba(34, 197, 94, 0.45), inset 0 0.75px 0.75px rgba(255, 255, 255, 0.55);
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
+  }
+  25% {
+    transform: scale(1.22) rotate(10deg);
+    filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 12px rgba(110, 231, 183, 0.85));
+  }
+  50% {
+    transform: scale(0.94) rotate(-6deg);
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+  }
+  75% {
+    transform: scale(1.16) rotate(5deg);
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+  }
+}
+
+.mode-thumb-simple {
+  animation: mode-pulse-glow-simple 2.8s ease-in-out infinite;
+}
+
+.mode-thumb-advanced {
+  animation: mode-pulse-glow-advanced 2.8s ease-in-out infinite;
+}
+
+.mode-sparkle-anim {
+  animation: sparkle-twinkle 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-shine-beam::after,
+  .mode-thumb-simple,
+  .mode-thumb-advanced,
+  .mode-sparkle-anim {
+    animation: none;
+  }
 }
 
 /* Interactive cursor spotlight on cards */
@@ -804,50 +1009,127 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
 .reveal-ready [data-reveal] {
   transition: opacity .34s var(--ease-smooth), transform .38s var(--ease-spring);
   transition-delay: var(--d, 0ms);
-  backface-visibility: hidden;
-  will-change: opacity, transform;
 }
-/* Page entry: a short, quiet settle makes route changes feel connected without delaying content. */
-.page-enter > * > *:not([data-reveal]) { animation: page-in .26s var(--ease-smooth) both; will-change: opacity, transform; }
-.page-enter > * > *:nth-child(1) { animation-delay: 0ms; }
-.page-enter > * > *:nth-child(2) { animation-delay: 18ms; }
-.page-enter > * > *:nth-child(3) { animation-delay: 36ms; }
-.page-enter > * > *:nth-child(4) { animation-delay: 54ms; }
-.page-enter > * > *:nth-child(5) { animation-delay: 72ms; }
-.page-enter > * > *:nth-child(n+6) { animation-delay: 85ms; }
+/* Page entry: hardware-accelerated opacity + translate3d route cross-fade that settles to transform: none
+   so sticky SectionNav bars and fixed fullscreen overlays never inherit a stale containing block. */
+.page-enter {
+  overflow-x: clip;
+}
+.page-enter.is-entering {
+  animation: page-outlet-in .2s cubic-bezier(.16, 1, .3, 1) both;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+.page-enter.is-entering:has(> .fixed) {
+  animation: none;
+  transform: none;
+  will-change: auto;
+  backface-visibility: visible;
+}
+.page-enter.is-settled {
+  animation: none;
+  transform: none;
+  will-change: auto;
+}
+.page-enter.is-entering:not(:has(> .fixed)) > * > *:not([data-reveal]):not(.fixed):not(.sticky) { animation: page-in .18s cubic-bezier(.16, 1, .3, 1) both; }
+.page-enter.is-entering > * > *:nth-child(1) { animation-delay: 0ms; }
+.page-enter.is-entering > * > *:nth-child(2) { animation-delay: 12ms; }
+.page-enter.is-entering > * > *:nth-child(3) { animation-delay: 24ms; }
+.page-enter.is-entering > * > *:nth-child(4) { animation-delay: 36ms; }
+.page-enter.is-entering > * > *:nth-child(5) { animation-delay: 48ms; }
+.page-enter.is-entering > * > *:nth-child(n+6) { animation-delay: 60ms; }
+.page-enter.is-settled > * > * { animation: none; }
 
 /* Grid child cascade animation */
 .stagger-grid > * {
-  animation: page-in .3s var(--ease-smooth) both;
+  animation: page-in .2s cubic-bezier(.16, 1, .3, 1) both;
 }
 .stagger-grid > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-grid > *:nth-child(2) { animation-delay: 24ms; }
-.stagger-grid > *:nth-child(3) { animation-delay: 48ms; }
-.stagger-grid > *:nth-child(4) { animation-delay: 72ms; }
-.stagger-grid > *:nth-child(5) { animation-delay: 96ms; }
-.stagger-grid > *:nth-child(6) { animation-delay: 120ms; }
-.stagger-grid > *:nth-child(7) { animation-delay: 144ms; }
-.stagger-grid > *:nth-child(n+8) { animation-delay: 168ms; }
+.stagger-grid > *:nth-child(2) { animation-delay: 16ms; }
+.stagger-grid > *:nth-child(3) { animation-delay: 32ms; }
+.stagger-grid > *:nth-child(4) { animation-delay: 48ms; }
+.stagger-grid > *:nth-child(5) { animation-delay: 64ms; }
+.stagger-grid > *:nth-child(6) { animation-delay: 80ms; }
+.stagger-grid > *:nth-child(7) { animation-delay: 96ms; }
+.stagger-grid > *:nth-child(n+8) { animation-delay: 110ms; }
+
+@keyframes page-outlet-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
 
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 8px, 0) scale(.995);
+    transform: translate3d(0, 6px, 0);
   }
   to {
     opacity: 1;
     transform: none;
   }
 }
-/* Bottom sheets and drawers slide in with spring easing for a tactile feel. */
-@keyframes sheet-up { from { transform: translateY(105%); } to { transform: none; } }
-@keyframes sheet-fade { from { opacity: 0; backdrop-filter: blur(0); } to { opacity: 1; backdrop-filter: blur(3px); } }
-@keyframes drawer-in { from { transform: translateX(-105%); } to { transform: none; } }
-.sheet-up { animation: sheet-up .5s var(--ease-spring) both; }
-.sheet-fade { animation: sheet-fade .32s ease-out both; }
+.page-loading-shell {
+  animation: page-loading-fade .2s .06s ease-out both;
+}
+@keyframes page-loading-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* Bottom sheets, drawers, menus and toasts use pure GPU opacity/transform transitions (no animated backdrop-filter). */
+@keyframes sheet-up {
+  from { opacity: 0; transform: translate3d(0, 28px, 0) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes drawer-in {
+  from { transform: translate3d(-105%, 0, 0); }
+  to { transform: none; }
+}
+@keyframes toast-pop {
+  from { opacity: 0; transform: translate3d(0, 16px, 0) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fs-fade-in {
+  from { opacity: 0; transform: translate3d(0, -4px, 0) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+.sheet-up { animation: sheet-up .38s var(--ease-spring) both; }
+.sheet-fade { animation: sheet-fade .24s ease-out both; }
 .drawer-in { animation: drawer-in .42s var(--ease-spring) both; }
+.toast-pop { animation: toast-pop .36s var(--ease-spring) both; }
 .menu-pop { transform-origin: top right; animation: menu-pop .22s var(--ease-smooth) both; }
-@keyframes menu-pop { from { opacity: 0; transform: translateY(-5px) scale(.98); } to { opacity: 1; transform: none; } }
+.animate-fadeIn { animation: fs-fade-in .18s var(--ease-smooth) both; }
+@keyframes menu-pop { from { opacity: 0; transform: translate3d(0, -5px, 0) scale(.98); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter.is-entering,
+  .page-enter.is-entering > * > *,
+  .stagger-grid > *,
+  .page-loading-shell,
+  .sheet-up,
+  .sheet-fade,
+  .drawer-in,
+  .toast-pop,
+  .menu-pop,
+  .animate-fadeIn {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    will-change: auto !important;
+  }
+  .scroll-smooth {
+    scroll-behavior: auto !important;
+  }
+}
 /* Cards that open something lift a little under the pointer with ambient illumination. */
 .lift {
   transition: transform .28s var(--ease-smooth), box-shadow .3s var(--ease-smooth), border-color .22s var(--ease-smooth);
@@ -997,14 +1279,14 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
 .hint-bounce { color: #edc067; text-shadow: 0 2px 0 #87580e, 0 4px 12px rgba(0, 0, 0, .35); animation: hint-bounce .8s ease-in-out infinite; }
 @keyframes hint-bounce { 0%, 100% { margin-top: 0; } 50% { margin-top: -8px; } }
 
-/* One orchestrated entrance on the landing hero only — each element rises, deblurs and springs in. */
-@keyframes rise { from { opacity: 0; transform: translateY(26px) scale(.98); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
-.hero-rise > * { animation: rise 1s var(--ease-spring) both; }
-.hero-rise > *:nth-child(1) { animation-delay: .1s; }
-.hero-rise > *:nth-child(2) { animation-delay: .2s; }
-.hero-rise > *:nth-child(3) { animation-delay: .3s; }
-.hero-rise > *:nth-child(4) { animation-delay: .4s; }
-.hero-rise > *:nth-child(5) { animation-delay: .5s; }
+/* One orchestrated entrance on the landing hero only — pure GPU translate3d for zero-stutter 120fps landing */
+@keyframes rise { from { opacity: 0; transform: translate3d(0, 18px, 0) scale(.985); } to { opacity: 1; transform: none; } }
+.hero-rise > * { animation: rise .65s var(--ease-spring) both; will-change: transform, opacity; }
+.hero-rise > *:nth-child(1) { animation-delay: .04s; }
+.hero-rise > *:nth-child(2) { animation-delay: .09s; }
+.hero-rise > *:nth-child(3) { animation-delay: .14s; }
+.hero-rise > *:nth-child(4) { animation-delay: .19s; }
+.hero-rise > *:nth-child(5) { animation-delay: .24s; }
 @media (prefers-reduced-motion: reduce) {
   .reveal-ready [data-reveal]:not(.is-in) { opacity: 1; transform: none; filter: none; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
@@ -1041,6 +1323,7 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
 .section-nav-glass {
   position: relative;
   isolation: isolate;
+  max-width: fit-content;
   background: linear-gradient(180deg, rgba(255, 255, 255, .8), rgba(255, 255, 255, .62));
   border: 1px solid rgba(255, 255, 255, .75);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
@@ -1055,8 +1338,17 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
   box-shadow: inset 0 -1px 0 rgba(19, 38, 27, .05), 0 0 0 1px rgba(19, 38, 27, .07), 0 4px 12px -8px rgba(13, 38, 20, .25);
 }
 .section-nav-thumb {
+  left: 0;
+  transform-origin: 0 50%;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   background: linear-gradient(180deg, #357d35 0%, #2c692d 55%, #245a26 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -1px 0 rgba(0, 0, 0, .15), 0 4px 12px -4px rgba(36, 90, 40, .55);
+  transition: transform .35s var(--ease-spring), opacity .2s var(--ease-smooth);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-nav-thumb { transition: none !important; }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .section-nav-glass { background: rgba(255, 255, 255, .95); }
@@ -1072,7 +1364,12 @@ img.fade-img.is-loaded { opacity: 1; transform: none; }
 }
 @keyframes union-in { from { opacity: .35; transform: translate3d(0, 6px, 0); filter: blur(1px); } to { opacity: 1; transform: none; filter: none; } }
 .union-fade { animation: union-in .4s var(--ease-smooth) both; }
-.nav-thumb { transition: transform .34s var(--ease-spring), height .34s var(--ease-spring), opacity .2s; }
+.nav-thumb {
+  will-change: transform, height;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: transform .34s var(--ease-spring), height .34s var(--ease-spring), opacity .2s;
+}
 @media (prefers-reduced-motion: reduce) { .skeleton, .union-fade { animation: none; } .nav-thumb { transition: none; } }
 
 /* People who ask their device for less motion get still status dots and pulses; loading spinners keep turning,
@@ -1486,6 +1783,8 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
 .tour-spot {
   box-shadow: 0 0 0 9999px rgba(13, 38, 20, .42), 0 0 0 2px rgba(237, 192, 103, .95), 0 0 26px 6px rgba(141, 190, 88, .55);
   transition: top .45s cubic-bezier(.22, 1, .36, 1), left .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1), height .45s cubic-bezier(.22, 1, .36, 1);
+  will-change: top, left, width, height;
+  transform: translate3d(0, 0, 0);
   animation: tour-spot-glow 2.6s ease-in-out infinite;
 }
 @keyframes tour-spot-glow {
@@ -1508,6 +1807,9 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
   -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid rgba(255, 255, 255, .75);
 }
+.farmer-experience {
+  isolation: isolate;
+}
 .farmer-experience main {
   min-height: calc(100svh - 132px);
 }
@@ -1520,34 +1822,38 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
   transition: transform .32s var(--ease-spring), box-shadow .32s var(--ease-smooth), border-color .25s var(--ease-smooth);
 }
 
-/* Farmer Atmosphere: living agro-climatic ambient canvas */
+/* Farmer Atmosphere: agro-climatic + diurnal ambient canvas with GPU-composited particles (keeps foreground Liquid Glass crisp with 0 re-blur cost) */
 .farmer-atmosphere {
   background-color: #f6f8f4;
   contain: strict;
+  transform: translateZ(0);
+  transition: background-color 1.1s var(--ease-smooth);
 }
+.farmer-atmosphere[data-diurnal="dawn"] { background-color: #faf7f0; }
+.farmer-atmosphere[data-diurnal="dusk"] { background-color: #f9f4ed; }
+.farmer-atmosphere[data-diurnal="night"] { background-color: #eff4f2; }
+
 .farmer-aura-orb {
   position: absolute;
   border-radius: 9999px;
   pointer-events: none;
   filter: blur(72px);
-  will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
+  transition: opacity .9s var(--ease-smooth), background .9s var(--ease-smooth), transform 1.2s var(--ease-smooth);
 }
 .farmer-aura-emerald {
   top: -10vmax;
   left: -8vmax;
   width: 58vmax;
   height: 48vmax;
-  background: radial-gradient(circle, rgba(67, 134, 58, .26) 0%, rgba(67, 134, 58, .09) 50%, transparent 72%);
-  animation: farmer-drift-primary 24s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(67, 134, 58, .25) 0%, rgba(67, 134, 58, .08) 50%, transparent 72%);
 }
 .farmer-aura-gold {
   top: -6vmax;
   right: -10vmax;
   width: 54vmax;
   height: 46vmax;
-  background: radial-gradient(circle, rgba(218, 155, 46, .22) 0%, rgba(218, 155, 46, .07) 52%, transparent 70%);
-  animation: farmer-drift-secondary 28s ease-in-out -6s infinite alternate-reverse;
+  background: radial-gradient(circle, rgba(218, 155, 46, .22) 0%, rgba(218, 155, 46, .06) 52%, transparent 70%);
 }
 .farmer-aura-river {
   top: 34%;
@@ -1555,7 +1861,6 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
   width: 52vmax;
   height: 48vmax;
   background: radial-gradient(circle, rgba(47, 138, 143, .18) 0%, rgba(47, 138, 143, .05) 55%, transparent 74%);
-  animation: farmer-drift-secondary 30s ease-in-out -12s infinite alternate;
 }
 .farmer-aura-silt {
   top: 50%;
@@ -1563,7 +1868,6 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
   width: 50vmax;
   height: 44vmax;
   background: radial-gradient(circle, rgba(168, 85, 42, .14) 0%, rgba(168, 85, 42, .03) 50%, transparent 70%);
-  animation: farmer-drift-primary 26s ease-in-out -4s infinite alternate-reverse;
 }
 .farmer-aura-canopy {
   bottom: -14vmax;
@@ -1571,19 +1875,87 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
   width: 62vmax;
   height: 42vmax;
   background: radial-gradient(circle, rgba(52, 119, 55, .18) 0%, rgba(52, 119, 55, .04) 60%, transparent 75%);
-  animation: farmer-drift-primary 32s ease-in-out -15s infinite alternate;
+}
+.farmer-atmosphere[data-diurnal="dawn"] .farmer-aura-gold {
+  background: radial-gradient(circle, rgba(238, 168, 68, .28) 0%, rgba(238, 168, 68, .08) 54%, transparent 72%);
+}
+.farmer-atmosphere[data-diurnal="dusk"] .farmer-aura-silt {
+  background: radial-gradient(circle, rgba(196, 102, 54, .22) 0%, rgba(196, 102, 54, .06) 54%, transparent 74%);
+}
+.farmer-atmosphere[data-diurnal="night"] .farmer-aura-river {
+  background: radial-gradient(circle, rgba(36, 112, 138, .25) 0%, rgba(36, 112, 138, .07) 56%, transparent 74%);
+}
+.farmer-atmosphere[data-diurnal="night"] .farmer-aura-gold { opacity: .48; }
+.farmer-atmosphere[data-climate="rain"] .farmer-aura-river {
+  background: radial-gradient(circle, rgba(35, 132, 158, .30) 0%, rgba(35, 132, 158, .10) 55%, transparent 74%);
+}
+.farmer-atmosphere[data-climate="rain"] .farmer-aura-gold { opacity: .42; }
+.farmer-atmosphere[data-climate="heat"] .farmer-aura-gold {
+  background: radial-gradient(circle, rgba(226, 142, 34, .30) 0%, rgba(226, 142, 34, .10) 52%, transparent 72%);
+}
+.farmer-atmosphere[data-climate="heat"] .farmer-aura-silt {
+  background: radial-gradient(circle, rgba(188, 92, 42, .22) 0%, rgba(188, 92, 42, .06) 52%, transparent 72%);
 }
 
-@keyframes farmer-drift-primary {
-  0% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(2vmax, 1.8vmax, 0) scale(1.04); }
-  100% { transform: translate3d(-1.5vmax, 2.5vmax, 0) scale(.97); }
+/* Drifting agro-climatic particles (calm pollen/dew, rain droplets, heat shimmer) */
+.farmer-particle {
+  position: absolute;
+  left: var(--px, 50%);
+  top: var(--py, 50%);
+  width: var(--ps, 4px);
+  height: var(--ps, 4px);
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(67, 134, 58, .42) 0%, rgba(218, 155, 46, .28) 65%, transparent 100%);
+  will-change: transform, opacity;
+  animation: farmer-pollen-drift var(--pt, 16s) var(--pd, 0s) ease-in-out infinite;
 }
+.farmer-atmosphere[data-climate="rain"] .farmer-particle {
+  width: 1.5px;
+  height: calc(var(--ps, 4px) * 3.8);
+  border-radius: 9999px;
+  background: linear-gradient(180deg, transparent 0%, rgba(35, 132, 158, .34) 75%, rgba(35, 132, 158, .55) 100%);
+  animation-name: farmer-rain-fall;
+  animation-duration: calc(var(--pt, 16s) * .22);
+  animation-timing-function: linear;
+}
+.farmer-atmosphere[data-climate="heat"] .farmer-particle {
+  width: calc(var(--ps, 4px) * 2.2);
+  height: calc(var(--ps, 4px) * 2.2);
+  background: radial-gradient(circle, rgba(226, 142, 34, .28) 0%, rgba(218, 155, 46, .08) 70%, transparent 100%);
+  animation-name: farmer-heat-shimmer;
+}
+.farmer-mist-wisp {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(42px);
+  background: radial-gradient(ellipse, rgba(47, 138, 143, .14) 0%, transparent 70%);
+  will-change: transform, opacity;
+  animation: farmer-mist-glide 24s ease-in-out infinite alternate;
+}
+.farmer-mist-wisp-a { top: 18%; left: -10%; width: 48vw; height: 14vmax; }
+.farmer-mist-wisp-b { bottom: 20%; right: -10%; width: 52vw; height: 16vmax; animation-delay: -10s; }
 
-@keyframes farmer-drift-secondary {
-  0% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(-1.8vmax, 2vmax, 0) scale(1.03); }
-  100% { transform: translate3d(1.5vmax, -1.8vmax, 0) scale(.96); }
+@keyframes farmer-pollen-drift {
+  0% { opacity: 0; transform: translate3d(-10px, 14px, 0) scale(.85); }
+  22% { opacity: .68; }
+  78% { opacity: .62; }
+  100% { opacity: 0; transform: translate3d(16px, -36px, 0) scale(1.08); }
+}
+@keyframes farmer-rain-fall {
+  0% { opacity: 0; transform: translate3d(8px, -48px, 0) rotate(11deg); }
+  20% { opacity: .72; }
+  85% { opacity: .64; }
+  100% { opacity: 0; transform: translate3d(-16px, 110px, 0) rotate(11deg); }
+}
+@keyframes farmer-heat-shimmer {
+  0% { opacity: 0; transform: translate3d(-6px, 24px, 0) scale(.9, 1.15); }
+  30% { opacity: .52; }
+  75% { opacity: .45; }
+  100% { opacity: 0; transform: translate3d(10px, -42px, 0) scale(1.15, .92); }
+}
+@keyframes farmer-mist-glide {
+  0% { opacity: .45; transform: translate3d(-3vw, 0, 0) scaleX(1); }
+  100% { opacity: .8; transform: translate3d(5vw, -10px, 0) scaleX(1.08); }
 }
 
 .farmer-atmosphere-vignette {
@@ -1592,7 +1964,10 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .farmer-aura-orb { animation: none !important; }
+  .farmer-atmosphere,
+  .farmer-aura-orb { transition: none !important; transform: none !important; }
+  .farmer-particle,
+  .farmer-mist-wisp { animation: none !important; transform: none !important; opacity: .28; will-change: auto !important; }
 }
 
 /* Field Folk selection: make choosing a farmer feel like entering their world. */
@@ -1689,9 +2064,7 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
   box-shadow: 0 8px 30px -24px rgba(13, 38, 20, .5);
 }
 .officer-workspace {
-  background:
-    radial-gradient(ellipse at 92% 0%, rgba(237, 192, 103, .08), transparent 28rem),
-    transparent;
+  background: transparent;
 }
 .officer-main {
   min-height: calc(100svh - 64px);
@@ -1960,4 +2333,815 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
 @media (prefers-reduced-motion: reduce) {
   .farmer-experience main .page-header,
   .farmer-plan-heading { animation: none; }
+}
+
+/* =========================================================================
+   NASA Space Apps 2026 Showcase - Ultra-Glassmorphism & Fluid Animations
+   ========================================================================= */
+.hero-nasa-glass {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(242, 250, 244, 0.52) 50%, rgba(255, 255, 255, 0.65) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(20px) saturate(190%) contrast(1.02);
+  backdrop-filter: blur(20px) saturate(190%) contrast(1.02);
+  box-shadow:
+    inset 0 1.2px 1.5px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -1px 1px 0 rgba(19, 45, 29, 0.05),
+    0 12px 36px -12px rgba(19, 45, 29, 0.16),
+    0 2px 8px -2px rgba(19, 45, 29, 0.08);
+  border-radius: 22px;
+  overflow: hidden;
+  transition: transform 0.28s var(--ease-spring), box-shadow 0.28s var(--ease-smooth);
+  animation: hero-glass-glow 4s ease-in-out infinite alternate;
+}
+
+.hero-nasa-glass:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 1px 0 rgba(19, 45, 29, 0.08),
+    0 16px 42px -12px rgba(19, 45, 29, 0.22),
+    0 0 24px 2px rgba(52, 211, 153, 0.3);
+}
+
+/* Diagonal sweeping light reflection beam */
+.hero-nasa-glass::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  bottom: -60%;
+  left: -80%;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.58) 50%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+  transform: skewX(-24deg);
+  pointer-events: none;
+  animation: hero-glass-sheen 3.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  z-index: 2;
+}
+
+@keyframes hero-glass-sheen {
+  0% {
+    left: -90%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    left: 170%;
+    opacity: 0.85;
+  }
+  51%, 100% {
+    left: 170%;
+    opacity: 0;
+  }
+}
+
+@keyframes hero-glass-glow {
+  0% {
+    box-shadow:
+      inset 0 1.2px 1.5px 0 rgba(255, 255, 255, 0.98),
+      inset 0 -1px 1px 0 rgba(19, 45, 29, 0.05),
+      0 10px 30px -10px rgba(19, 45, 29, 0.14),
+      0 0 0 0 rgba(52, 211, 153, 0);
+  }
+  100% {
+    box-shadow:
+      inset 0 1.2px 1.5px 0 rgba(255, 255, 255, 0.98),
+      inset 0 -1px 1px 0 rgba(19, 45, 29, 0.05),
+      0 14px 38px -10px rgba(19, 45, 29, 0.18),
+      0 0 20px 2px rgba(52, 211, 153, 0.26);
+  }
+}
+
+/* Pulsing golden trophy animation */
+.trophy-shimmer {
+  display: inline-block;
+  animation: trophy-twinkle 2.8s ease-in-out infinite;
+}
+
+@keyframes trophy-twinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.6));
+  }
+  30% {
+    transform: scale(1.18) rotate(-6deg);
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.95)) drop-shadow(0 0 14px rgba(245, 158, 11, 0.7));
+  }
+  60% {
+    transform: scale(1.05) rotate(4deg);
+    filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.8));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-nasa-glass,
+  .hero-nasa-glass::after,
+  .trophy-shimmer {
+    animation: none !important;
+  }
+}
+
+/* =========================================================================
+   NASA Earth Observation Telemetry Trend Map Animations & Beacons
+   ========================================================================= */
+.nasa-beacon-wrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.nasa-beacon-halo {
+  position: absolute;
+  inset: 6px;
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+  animation: nasa-beacon-ping 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.nasa-beacon-pulse-warn {
+  box-shadow: 0 0 14px 3px rgba(166, 97, 26, 0.75);
+  animation-duration: 1.6s;
+}
+
+.nasa-beacon-pulse-surplus {
+  box-shadow: 0 0 14px 3px rgba(1, 133, 113, 0.75);
+  animation-duration: 1.8s;
+}
+
+.nasa-beacon-pulse-fast {
+  animation-duration: 1.1s;
+}
+
+.nasa-beacon-target {
+  position: absolute;
+  inset: 2px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.95);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: nasa-reticle-spin 9s linear infinite;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
+}
+
+.nasa-beacon-core {
+  width: 15px;
+  height: 15px;
+  border-radius: 9999px;
+  border: 2.5px solid #ffffff;
+  /* a dark outer ring keeps the point readable over the satellite field drawn in the same colours */
+  box-shadow: 0 0 0 1.5px rgba(13, 38, 20, 0.85), 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  z-index: 2;
+}
+
+.nasa-beacon-wrap:hover .nasa-beacon-core,
+.nasa-beacon-wrap.is-selected .nasa-beacon-core {
+  transform: scale(1.4);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.6), 0 0 8px currentColor;
+}
+
+.nasa-beacon-badge {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  white-space: nowrap;
+  background: rgba(13, 28, 19, 0.92);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2.5px 8px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 30;
+  backdrop-filter: blur(6px);
+}
+
+.nasa-beacon-wrap:hover .nasa-beacon-badge,
+.nasa-beacon-wrap.is-selected .nasa-beacon-badge {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+@keyframes nasa-beacon-ping {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+@keyframes nasa-reticle-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.timeline-pulse-active {
+  animation: timeline-pulse-ring 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes timeline-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(36, 90, 40, 0.65);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(36, 90, 40, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(36, 90, 40, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nasa-beacon-halo,
+  .nasa-beacon-target,
+  .timeline-pulse-active {
+    animation: none !important;
+  }
+}
+
+/* ── macOS Tahoe Liquid Glass Traffic Lights, Capsules, Floating Dock & Portal Mode ── */
+.macos-traffic-hit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 4px;
+  border-radius: 9999px;
+  cursor: pointer;
+  outline: none;
+}
+.macos-traffic-hit:focus-visible .macos-traffic-dot {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(16, 185, 129, .75);
+}
+.macos-traffic-dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 9999px;
+  transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), filter .18s ease;
+}
+.macos-traffic-red {
+  background: radial-gradient(circle at 35% 30%, #ff827c 0%, #ff5f57 60%, #e0443e 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 0 0 .5px rgba(120, 12, 8, .35), 0 1px 3px rgba(0, 0, 0, .28);
+  color: #4d0000;
+}
+.macos-traffic-yellow {
+  background: radial-gradient(circle at 35% 30%, #ffd368 0%, #febc2e 60%, #dfa017 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 0 0 .5px rgba(130, 82, 0, .35), 0 1px 3px rgba(0, 0, 0, .25);
+  color: #5c3a00;
+}
+.macos-traffic-green {
+  background: radial-gradient(circle at 35% 30%, #5ae26e 0%, #28c840 60%, #1aab29 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 0 0 .5px rgba(10, 100, 20, .35), 0 1px 3px rgba(0, 0, 0, .25);
+  color: #004d0d;
+}
+.macos-traffic-hit:hover .macos-traffic-dot {
+  transform: scale(1.1);
+}
+.macos-traffic-hit:active .macos-traffic-dot {
+  transform: scale(.94);
+}
+.macos-traffic-glyph {
+  width: 9px;
+  height: 9px;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.macos-traffic-group:hover .macos-traffic-glyph,
+.macos-traffic-group:focus-within .macos-traffic-glyph {
+  opacity: .92;
+}
+@media (hover: none) {
+  .macos-traffic-glyph {
+    opacity: .68;
+  }
+}
+
+/* Recessed Liquid Glass Navigation Capsule (< | >) */
+.macos-nav-capsule {
+  border-radius: 9999px;
+  padding: 2px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .72), rgba(235, 244, 232, .5));
+  border: 1px solid rgba(255, 255, 255, .82);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), 0 4px 12px -6px rgba(13, 38, 20, .26);
+}
+.macos-nav-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  color: #183824;
+  transition: background-color .18s ease, transform .18s ease;
+  cursor: pointer;
+}
+.macos-nav-btn:hover {
+  background: rgba(255, 255, 255, .72);
+}
+.macos-nav-btn:active {
+  transform: scale(.9);
+}
+.macos-nav-sep {
+  width: 1px;
+  height: 15px;
+  background: rgba(24, 56, 36, .16);
+}
+
+/* Floating macOS Tahoe Liquid Glass Dock */
+.macos-dock {
+  border-radius: 26px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, .56) 0%,
+    rgba(235, 246, 232, .36) 54%,
+    rgba(255, 255, 255, .44) 100%
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(210%) brightness(1.06);
+  backdrop-filter: blur(22px) saturate(210%) brightness(1.06);
+  border: 1px solid rgba(255, 255, 255, .76);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, .92),
+    inset 0 -1px 0 rgba(255, 255, 255, .36),
+    inset 0 0 0 .5px rgba(255, 255, 255, .45),
+    0 22px 48px -14px rgba(10, 28, 16, .42),
+    0 4px 12px -4px rgba(10, 28, 16, .18);
+}
+.macos-dock-item {
+  cursor: pointer;
+  outline: none;
+}
+.macos-dock-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: #143320;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(235, 246, 232, .74));
+  border: 1px solid rgba(255, 255, 255, .86);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 6px 14px -6px rgba(13, 38, 20, .34);
+  transition: transform .24s cubic-bezier(.34, 1.56, .64, 1), background .2s ease, box-shadow .24s ease;
+}
+.macos-dock-tile.is-active {
+  background: linear-gradient(180deg, #1d5734 0%, #113520 100%);
+  color: #fff;
+  border-color: rgba(255, 255, 255, .42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .45),
+    0 10px 22px -8px rgba(17, 53, 32, .65);
+}
+.macos-dock-tile-slate {
+  background: linear-gradient(180deg, rgba(245, 247, 250, .92), rgba(220, 227, 236, .82));
+  color: #1e293b;
+}
+.macos-dock-tile-chakra {
+  background: radial-gradient(circle at 30% 25%, #1d4931 0%, #0b1b12 100%);
+  border-color: rgba(143, 227, 224, .35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 8px 20px -6px rgba(15, 65, 50, .55);
+}
+.macos-dock-tile-verdict {
+  background: linear-gradient(180deg, #fef3c7 0%, #f59e0b 100%);
+  color: #451a03;
+  border-color: rgba(255, 255, 255, .8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 8px 20px -6px rgba(217, 119, 6, .55);
+}
+.macos-dock-tile-ghost {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .64), rgba(235, 240, 236, .48));
+  color: #365040;
+}
+.macos-dock-item:hover .macos-dock-tile,
+.macos-dock-item:focus-visible .macos-dock-tile {
+  transform: translateY(-6px) scale(1.16);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 14px 24px -8px rgba(10, 30, 16, .42);
+}
+.macos-dock-item:active .macos-dock-tile {
+  transform: translateY(-2px) scale(.98);
+}
+.macos-dock-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35), 0 0 0 1.5px rgba(255, 255, 255, .9);
+}
+.macos-dock-dot {
+  margin-top: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #143822;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .85), 0 1px 4px rgba(0, 0, 0, .35);
+  transition: opacity .2s ease, transform .2s ease;
+}
+.macos-dock-sep {
+  align-self: center;
+  width: 1px;
+  height: 28px;
+  margin: 0 3px 4px;
+  background: rgba(16, 40, 24, .18);
+}
+.macos-dock-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(12, 24, 17, .88);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, .18);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .32);
+  transition: opacity .16s ease, transform .16s ease;
+}
+.macos-dock-item:hover .macos-dock-tooltip,
+.macos-dock-item:focus-visible .macos-dock-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Optional macOS Liquid Glass Portal mode chrome */
+[data-macos-portal="true"] .officer-sidebar {
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(114, 198, 138, .24), transparent 46%),
+    linear-gradient(180deg, rgba(19, 48, 31, .92) 0%, rgba(11, 29, 19, .95) 100%);
+  -webkit-backdrop-filter: blur(26px) saturate(185%);
+  backdrop-filter: blur(26px) saturate(185%);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, .18), inset 0 1px 0 rgba(255, 255, 255, .14);
+}
+[data-macos-portal="true"] .officer-header,
+[data-macos-portal="true"] .farmer-header {
+  background: linear-gradient(180deg, rgba(248, 252, 246, .78), rgba(238, 246, 234, .64));
+  -webkit-backdrop-filter: blur(18px) saturate(195%);
+  backdrop-filter: blur(18px) saturate(195%);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .96), inset 0 -1px 0 rgba(255, 255, 255, .6), 0 10px 30px -22px rgba(13, 38, 20, .36);
+}
+[data-macos-portal="true"] .surface-card {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .96), 0 14px 34px -22px rgba(13, 38, 20, .28);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .macos-dock { background: rgba(244, 249, 241, .96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .macos-traffic-dot,
+  .macos-traffic-glyph,
+  .macos-dock-tile,
+  .macos-dock-dot,
+  .macos-dock-tooltip {
+    transition: none !important;
+  }
+  .macos-dock-item:hover .macos-dock-tile,
+  .macos-dock-item:focus-visible .macos-dock-tile {
+    transform: none !important;
+  }
+}
+/* Lift floating Toast & Tour prompt above the floating macOS Dock so nothing overlaps */
+@media (min-width: 768px) {
+  :root[data-macos-dock="officer"] .fs-toast,
+  :root[data-macos-dock="abroad"] .fs-toast,
+  :root[data-macos-dock="officer"] .tour-mode-picker,
+  :root[data-macos-dock="abroad"] .tour-mode-picker {
+    bottom: 5.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  :root[data-macos-dock="farmer"] .fs-toast,
+  :root[data-macos-dock="farmer"] .tour-mode-picker {
+    bottom: 5.75rem;
+  }
+}
+
+/* Unified Public Atmosphere & Portal Ambient Backdrops (/, /stories, /science, /games, /kids) */
+.public-atmosphere {
+  background-color: #f7faf6;
+  color: #1c4722;
+  contain: strict;
+  transform: translateZ(0);
+  transition: background-color .8s var(--ease-smooth), color .8s var(--ease-smooth);
+}
+.public-atmosphere[data-portal="science"] {
+  background-color: #f4f8f9;
+  color: #154b58;
+}
+.public-atmosphere[data-portal="stories"] {
+  background-color: #f9f7f2;
+  color: #355427;
+}
+.public-atmosphere[data-portal="games"] {
+  background-color: #f5f9f2;
+  color: #245a28;
+}
+.public-atmosphere[data-portal="kids"] {
+  background-color: #f6fbf7;
+  color: #2c6d42;
+}
+
+.public-mesh-orb {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(74px);
+  will-change: transform, opacity;
+  animation: public-mesh-drift 26s ease-in-out infinite alternate;
+  transition: background .9s var(--ease-smooth), opacity .9s var(--ease-smooth);
+}
+.public-mesh-a {
+  top: -12vmax;
+  left: -8vmax;
+  width: 56vmax;
+  height: 44vmax;
+  background: radial-gradient(circle, rgba(67, 134, 58, .20) 0%, rgba(67, 134, 58, .05) 55%, transparent 74%);
+}
+.public-mesh-b {
+  top: -8vmax;
+  right: -10vmax;
+  width: 50vmax;
+  height: 42vmax;
+  background: radial-gradient(circle, rgba(237, 192, 103, .22) 0%, rgba(237, 192, 103, .05) 54%, transparent 74%);
+  animation-duration: 30s;
+  animation-delay: -7s;
+}
+.public-mesh-c {
+  bottom: -14vmax;
+  left: 16%;
+  width: 54vmax;
+  height: 40vmax;
+  background: radial-gradient(circle, rgba(47, 138, 143, .14) 0%, rgba(47, 138, 143, .04) 56%, transparent 74%);
+  animation-duration: 28s;
+  animation-delay: -14s;
+}
+.public-mesh-d {
+  top: 42%;
+  right: 8%;
+  width: 40vmax;
+  height: 36vmax;
+  background: radial-gradient(circle, rgba(141, 190, 120, .15) 0%, transparent 72%);
+  animation-duration: 22s;
+  animation-delay: -4s;
+}
+
+.public-atmosphere[data-portal="science"] .public-mesh-a {
+  background: radial-gradient(circle, rgba(56, 189, 248, .18) 0%, rgba(56, 189, 248, .05) 55%, transparent 74%);
+}
+.public-atmosphere[data-portal="science"] .public-mesh-b {
+  background: radial-gradient(circle, rgba(47, 138, 143, .18) 0%, rgba(47, 138, 143, .05) 55%, transparent 74%);
+}
+.public-atmosphere[data-portal="science"] .public-mesh-c {
+  background: radial-gradient(circle, rgba(67, 134, 58, .14) 0%, transparent 72%);
+}
+.public-atmosphere[data-portal="stories"] .public-mesh-a {
+  background: radial-gradient(circle, rgba(188, 108, 48, .15) 0%, transparent 72%);
+}
+.public-atmosphere[data-portal="stories"] .public-mesh-b {
+  background: radial-gradient(circle, rgba(67, 134, 58, .18) 0%, transparent 72%);
+}
+.public-atmosphere[data-portal="games"] .public-mesh-a {
+  background: radial-gradient(circle, rgba(67, 134, 58, .24) 0%, transparent 72%);
+}
+.public-atmosphere[data-portal="games"] .public-mesh-b {
+  background: radial-gradient(circle, rgba(237, 192, 103, .26) 0%, transparent 72%);
+}
+.public-atmosphere[data-portal="kids"] .public-mesh-a {
+  background: radial-gradient(circle, rgba(56, 189, 248, .22) 0%, transparent 72%);
+}
+.public-atmosphere[data-portal="kids"] .public-mesh-b {
+  background: radial-gradient(circle, rgba(250, 204, 21, .22) 0%, transparent 72%);
+}
+
+.public-mote {
+  position: absolute;
+  left: var(--mx, 50%);
+  top: var(--my, 50%);
+  width: var(--ms, 4px);
+  height: var(--ms, 4px);
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(67, 134, 58, .44) 0%, rgba(237, 192, 103, .24) 70%, transparent 100%);
+  will-change: transform, opacity;
+  animation: public-mote-float var(--mt, 18s) var(--md, 0s) ease-in-out infinite alternate;
+}
+.public-atmosphere[data-portal="science"] .public-mote {
+  background: radial-gradient(circle, rgba(56, 189, 248, .50) 0%, rgba(47, 138, 143, .24) 70%, transparent 100%);
+}
+.public-atmosphere-vignette {
+  background: radial-gradient(ellipse at 50% 24%, transparent 48%, rgba(246, 249, 245, .42) 82%, rgba(246, 249, 245, .82) 100%);
+}
+
+@keyframes public-mesh-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: .88; }
+  100% { transform: translate3d(2.5vmax, -1.8vmax, 0) scale(1.06); opacity: 1; }
+}
+@keyframes public-mote-float {
+  0% { opacity: .2; transform: translate3d(-8px, 12px, 0) scale(.85); }
+  50% { opacity: .68; transform: translate3d(6px, -10px, 0) scale(1.08); }
+  100% { opacity: .28; transform: translate3d(14px, -24px, 0) scale(.92); }
+}
+
+/* Officer Atmosphere: Command-center telemetry backdrop */
+.officer-atmosphere {
+  background-color: #f4f7f5;
+  contain: strict;
+  transform: translateZ(0);
+}
+.officer-aura-orb {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(74px);
+  transform: translate3d(0, 0, 0);
+  transition: opacity .8s var(--ease-smooth), background .8s var(--ease-smooth);
+}
+.officer-aura-forest {
+  top: -12vmax;
+  left: -8vmax;
+  width: 52vmax;
+  height: 44vmax;
+  background: radial-gradient(circle, rgba(28, 71, 34, .18) 0%, rgba(67, 134, 58, .06) 54%, transparent 74%);
+}
+.officer-aura-teal {
+  top: -8vmax;
+  right: -6vmax;
+  width: 54vmax;
+  height: 46vmax;
+  background: radial-gradient(circle, rgba(24, 77, 82, .22) 0%, rgba(47, 138, 143, .08) 54%, transparent 74%);
+}
+.officer-aura-amber {
+  bottom: -14vmax;
+  left: 28%;
+  width: 52vmax;
+  height: 40vmax;
+  background: radial-gradient(circle, rgba(208, 143, 38, .12) 0%, rgba(208, 143, 38, .03) 56%, transparent 74%);
+}
+.officer-atmosphere[data-alert="active"] .officer-aura-amber {
+  background: radial-gradient(circle, rgba(217, 119, 6, .20) 0%, rgba(217, 119, 6, .06) 56%, transparent 74%);
+}
+.officer-radar-station {
+  position: absolute;
+  left: 82%;
+  top: 18%;
+  width: 340px;
+  height: 340px;
+  transform: translate3d(-50%, -50%, 0);
+  pointer-events: none;
+}
+.officer-radar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(24, 77, 82, .10);
+}
+.officer-radar-ring-mid {
+  inset: 58px;
+  border-style: dashed;
+  border-color: rgba(24, 77, 82, .12);
+}
+.officer-radar-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: conic-gradient(from 0deg, rgba(47, 138, 143, .16) 0deg, rgba(67, 134, 58, .05) 38deg, transparent 82deg);
+  will-change: transform;
+  animation: officer-radar-spin 16s linear infinite;
+}
+.officer-atmosphere[data-alert="active"] .officer-radar-sweep {
+  background: conic-gradient(from 0deg, rgba(217, 119, 6, .18) 0deg, rgba(47, 138, 143, .06) 42deg, transparent 84deg);
+}
+.officer-radar-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 9999px;
+  background: rgba(24, 77, 82, .48);
+  box-shadow: 0 0 0 5px rgba(47, 138, 143, .12);
+}
+.officer-atmosphere-vignette {
+  background: radial-gradient(ellipse at 50% 28%, transparent 48%, rgba(244, 247, 245, .45) 82%, rgba(244, 247, 245, .84) 100%);
+}
+@keyframes officer-radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.science-orbital-canopy {
+  background:
+    radial-gradient(ellipse at 18% 0%, rgba(56, 189, 248, .14), transparent 52%),
+    radial-gradient(ellipse at 86% 14%, rgba(67, 134, 58, .16), transparent 55%),
+    linear-gradient(180deg, rgba(10, 29, 20, .96) 0%, rgba(7, 20, 14, .98) 100%);
+  border: 1px solid rgba(56, 189, 248, .22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .14),
+    0 24px 60px -28px rgba(7, 24, 15, .55);
+}
+
+/* Pause decorative ambient loops while document is hidden or viewport is actively scrolling */
+.farmer-atmosphere[data-hidden="true"] *,
+.officer-atmosphere[data-hidden="true"] *,
+.public-atmosphere[data-hidden="true"] *,
+body.is-scrolling .farmer-atmosphere *,
+body.is-scrolling .officer-atmosphere *,
+body.is-scrolling .public-atmosphere * {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-atmosphere,
+  .public-mesh-orb,
+  .officer-aura-orb {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+  .public-mote,
+  .officer-radar-sweep {
+    animation: none !important;
+    transform: none !important;
+    opacity: .28;
+    will-change: auto !important;
+  }
+}
+
+
+/* Trends map: yearly satellite field fades in over the year before it; the year readout settles in */
+.trend-field { image-rendering: auto; mix-blend-mode: normal; }
+.trend-field-in { animation: trendFieldIn 650ms ease-out both; }
+@keyframes trendFieldIn { from { opacity: 0; } }
+.trend-year-in { animation: trendYearIn 420ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes trendYearIn { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .trend-field-in, .trend-year-in { animation: none; } }
+
+/* Home voice card: a waveform that moves while the question is being "spoken", and settles when it is done */
+.voice-bar { flex: none; width: 3px; height: var(--h); border-radius: 9999px; background: #7cc06a; opacity: .85;
+  transform-origin: center; animation: voiceBar 900ms ease-in-out calc(var(--i) * -63ms) infinite alternate; }
+.voice-bar.is-idle { animation: none; transform: scaleY(.18); opacity: .4; transition: transform .4s ease, opacity .4s ease; }
+@keyframes voiceBar { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
+.voice-mic::after { content: ''; position: absolute; inset: 0; border-radius: 9999px; border: 2px solid #7cc06a;
+  animation: voiceRing 1.8s ease-out infinite; }
+@keyframes voiceRing { from { transform: scale(1); opacity: .8; } to { transform: scale(1.7); opacity: 0; } }
+.voice-caret { margin-left: 1px; color: #e8a83e; animation: voiceCaret .8s steps(1) infinite; }
+@keyframes voiceCaret { 50% { opacity: 0; } }
+
+/* Home radar card: the sweep turns every 4 s and each upazila brightens as it passes */
+.ropan-sweep { animation: ropanSweep 4s linear infinite; }
+@keyframes ropanSweep { to { transform: rotate(360deg); } }
+.ropan-cell { opacity: .55; animation: ropanCell 4s ease-out var(--d) infinite; }
+@keyframes ropanCell { 0% { opacity: 1; filter: brightness(1.45); } 30% { opacity: .75; filter: none; } 100% { opacity: .55; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-bar, .voice-mic::after, .voice-caret, .ropan-sweep { animation: none; }
+  .ropan-cell { animation: none; opacity: .9; }
 }

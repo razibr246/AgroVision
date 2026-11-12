@@ -9,7 +9,7 @@ export function TourModePicker({ T, title, steps, quickSteps, onStart, onClose }
   const quickDuration = quickSteps * QUICK_TOUR_STEP_SECONDS;
   return (
     <aside role="dialog" aria-label={T('গাইডের ধরন বাছুন', 'Choose a guide style')}
-      className="sheet-up fixed inset-x-3 bottom-4 z-[80] mx-auto max-w-[620px] rounded-[24px] border border-white/70 bg-white/95 p-4 shadow-[0_24px_56px_-16px_rgba(13,38,20,.6)] backdrop-blur lg:bottom-6">
+      className="tour-mode-picker sheet-up fixed inset-x-3 bottom-4 z-[1100] mx-auto max-w-[620px] rounded-[24px] border border-white/70 bg-white/95 p-4 shadow-[0_24px_56px_-16px_rgba(13,38,20,.6)] backdrop-blur lg:bottom-6">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 text-white shadow-[0_6px_16px_-6px_rgba(36,90,40,.8)]"><Sparkles size={19} /></span>
         <div className="min-w-0 flex-1">

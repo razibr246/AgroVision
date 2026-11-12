@@ -59,7 +59,7 @@ export default function StoryLevel() {
           <h2 className="font-display text-[22px] font-bold text-ink">{T('আট স্তম্ভে জীবন', 'Eight pillars of a farming life')}</h2>
           <div className="mt-4 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4" data-stagger>
             {lv.pillars.map((p, k) => { const Icon = PILLAR_ICONS[k]; return (
-              <div key={k} className="glass flat lift rounded-2xl border border-white/70 p-4.5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary-200 bg-white/85">
+              <div key={k} className="cv-auto glass flat lift rounded-2xl border border-white/70 p-4.5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary-200 bg-white/85">
                 <div className="flex items-center gap-2.5 text-[14.5px] font-bold" style={{ color: lv.tone }}><span className="grid h-8 w-8 place-items-center rounded-xl bg-black/[.04]"><Icon size={18} /></span>{L(PILLARS[k])}</div>
                 <p className="mt-2 text-[14px] leading-6 text-ink/80">{L(p)}</p>
               </div>

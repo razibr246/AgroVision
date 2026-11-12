@@ -27,13 +27,15 @@ import { useStore } from '../../store';
 import MapFrame from '../map/MapFrame';
 import { Recenter } from '../map/MapView';
 import UpazilaBoundary from '../map/UpazilaBoundary';
-import { plotSquare } from '../../engine/world';
+import { boundaryOf, measure, labelPoint } from '../../engine/landgeom';
+import { leafletRings, boundaryLine } from '../map/FieldShape';
 import { num, bnDigits } from '../../engine/dates';
 
 export { LEVEL_LOOK } from './look';
 
 // Crisp circular pin marker with bilingual number and radiant status halo
-const numIcon = (n, color, selected, lang, cropLabel) => L.divIcon({
+// above: anchored at its bottom, so it sits just above a field's outline instead of covering the field.
+const numIcon = (n, color, selected, lang, cropLabel, above = false) => L.divIcon({
   className: 'fs-field-num-pin',
   html: `
     <div style="position:relative;display:flex;flex-direction:column;align-items:center;pointer-events:auto;cursor:pointer;">
@@ -60,7 +62,7 @@ const numIcon = (n, color, selected, lang, cropLabel) => L.divIcon({
     </div>
   `,
   iconSize: [selected ? 36 : 30, selected ? 48 : 30],
-  iconAnchor: [selected ? 18 : 15, selected ? 18 : 15],
+  iconAnchor: above ? [selected ? 18 : 15, selected && cropLabel ? 60 : selected ? 40 : 32] : [selected ? 18 : 15, selected ? 18 : 15],
 });
 
 export default function FieldsMap({
@@ -83,19 +85,22 @@ export default function FieldsMap({
   // Active HUD tab on compact/mobile screens: 'bbch' | 'vra' | 'ndvi' | 'tasks'
   const [activeMobileHud, setActiveMobileHud] = useState('ndvi');
 
-  const squares = useMemo(
-    () => Object.fromEntries(parcels.map((p) => [p.id, plotSquare(p.lat, p.lon, p.area_dec)])),
+  // Each field's real boundary, or null: a field without one is shown by its pin only, never as a made-up shape.
+  const shapes = useMemo(
+    () => Object.fromEntries(parcels.map((p) => { const b = boundaryOf(p); const box = b && measure(b).bbox; return [p.id, b ? { b, rings: leafletRings(b), box, label: [box[1][0], labelPoint(b)[1]] } : null]; })),
     [parcels]
   );
+  // What to frame for a field: its boundary, or about 150 m round its pin.
+  const extentOf = (p) => shapes[p.id]?.box ?? [[p.lat - 0.0007, p.lon - 0.0007], [p.lat + 0.0007, p.lon + 0.0007]];
 
   const sel = parcels.find((p) => p.id === selectedId) || parcels[0];
 
   const bounds = useMemo(() => {
-    const pts = focusAll || !sel ? parcels.flatMap((p) => squares[p.id] || []) : squares[sel?.id] || [];
+    const pts = (focusAll || !sel ? parcels : [sel]).flatMap(extentOf);
     if (!pts.length) return null;
     const b = L.latLngBounds(pts);
-    return focusAll || !sel ? b.pad(0.25) : b.pad(2.2);
-  }, [parcels, squares, sel, focusAll]);
+    return focusAll || !sel ? b.pad(0.25) : b.pad(1.2);
+  }, [parcels, shapes, sel, focusAll]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const centerCoord = parcels[0] ? [parcels[0].lat, parcels[0].lon] : [24, 90];
 
@@ -105,7 +110,7 @@ export default function FieldsMap({
 
   // Weather telemetry readings (truthful from live weather or regional normal)
   const tempC = weather?.tmax ? Math.round(weather.tmax) : 23;
-  const rainMm = weather?.rainNext3 != null ? Number(weather.rainNext3).toFixed(1) : '0.0';
+  const rainMm = weather?.rainNext3 != null ? Number(weather.rainNext3) : 0;
   const humidityPct = 58;
   const windSpeedKmh = 2.4;
 
@@ -181,7 +186,7 @@ export default function FieldsMap({
                     ? 'border-primary-400 bg-primary-950/90 text-white shadow-primary-950/30'
                     : 'border-white/60 bg-white/95 text-ink hover:bg-white'
                 }`}
-                title={T('টেলিমეტ্রি কার্ড প্রদর্শন চালু বা বন্ধ করুন', 'Toggle GIS telemetry cards')}
+                title={T('টেলিমেট্রি কার্ড প্রদর্শন চালু বা বন্ধ করুন', 'Toggle GIS telemetry cards')}
               >
                 {showHud ? <Eye size={14} className="text-paddy-300" /> : <EyeOff size={14} />}
                 <span>{showHud ? T('HUD চালু', 'HUD On') : T('HUD বন্ধ', 'HUD Off')}</span>
@@ -223,22 +228,24 @@ export default function FieldsMap({
 
         {/* Polygons with custom GIS styling */}
         {parcels.map((p, i) => {
+          const shape = shapes[p.id];
+          if (!shape) return null;
           const on = p.id === sel?.id;
-          const style = getPolygonStyle(p, on);
+          const style = { ...getPolygonStyle(p, on), ...boundaryLine(shape.b) };
           return (
             <Polygon
               key={p.id}
-              positions={squares[p.id] || []}
+              positions={shape.rings}
               eventHandlers={{ click: () => onSelect(p.id) }}
               pathOptions={style}
             >
               <Tooltip direction="top" opacity={0.96}>
                 <div className="p-1 font-sans">
                   <div className="text-[13px] font-bold text-slate-900">
-                    {`${i + 1}. ${tr(p.name)}`}
+                    {`${num(i + 1, lang)}. ${tr(p.name)}`}
                   </div>
                   <div className="text-[11.5px] text-slate-600">
-                    {T(`${num(p.area_dec, 'bn')} শতক (${num(p.area_dec / 33, 'bn', { dp: 1 })} বিঘা)`, `${p.area_dec} decimals (${(p.area_dec / 33).toFixed(1)} bigha)`)}
+                    {T(`${num(p.area_dec, 'bn')} শতক (${num(p.area_dec / 33, 'bn', { dp: 1 })} বিঘা)`, `${num(p.area_dec, 'en')} decimals (${num(p.area_dec / 33, 'en', { dp: 1 })} bigha)`)}
                   </div>
                   {chosen?.crop && (
                     <div className="mt-0.5 text-[11px] font-semibold text-primary-700">
@@ -251,21 +258,22 @@ export default function FieldsMap({
           );
         })}
 
-        {/* Parcel center markers */}
+        {/* Each field's number, inside its outline (a field without one keeps its pin) */}
         {parcels.map((p, i) => (
           <Marker
             key={`marker-${p.id}`}
-            position={[p.lat, p.lon]}
+            position={shapes[p.id]?.label ?? [p.lat, p.lon]}
             icon={numIcon(
               i + 1,
               LEVEL_LOOK[levels[p.id] ?? 'none'].color,
               p.id === sel?.id,
               lang,
-              sel && p.id === sel.id ? tr(sel.name) : undefined
+              sel && p.id === sel.id ? tr(sel.name) : undefined,
+              !!shapes[p.id]
             )}
             eventHandlers={{ click: () => onSelect(p.id) }}
             keyboard
-            title={`${i + 1}. ${tr(p.name)}`}
+            title={`${num(i + 1, lang)}. ${tr(p.name)}`}
             zIndexOffset={p.id === sel?.id ? 600 : 100}
           />
         ))}
@@ -280,15 +288,15 @@ export default function FieldsMap({
                 <span className="font-bold text-emerald-300">NDVI:</span>
                 <span className="flex items-center gap-1">
                   <span className="h-2.5 w-4 rounded-sm bg-amber-500" />
-                  <span className="tabular text-[10.5px]">0.3 ({T('কম', 'Low')})</span>
+                  <span className="tabular text-[10.5px]">{num(0.3, lang, { dp: 1 })} ({T('কম', 'Low')})</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="h-2.5 w-4 rounded-sm bg-lime-500" />
-                  <span className="tabular text-[10.5px]">0.6 ({T('মধ্যম', 'Mid')})</span>
+                  <span className="tabular text-[10.5px]">{num(0.6, lang, { dp: 1 })} ({T('মধ্যম', 'Mid')})</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="h-2.5 w-4 rounded-sm bg-emerald-500" />
-                  <span className="tabular text-[10.5px]">0.8+ ({T('চমৎকার', 'High')})</span>
+                  <span className="tabular text-[10.5px]">{num(0.8, lang, { dp: 1 })}+ ({T('চমৎকার', 'High')})</span>
                 </span>
               </div>
             )}
@@ -326,7 +334,7 @@ export default function FieldsMap({
               <div className="flex items-center gap-3 text-[12px] font-semibold">
                 <div className="hidden xs:block">
                   <span className="text-white/60 mr-1">{T('বৃষ্টিপাত:', 'Rain:')}</span>
-                  <span className="tabular text-white">{num(rainMm, lang)} {T('মিমি', 'mm')}</span>
+                  <span className="tabular text-white">{num(rainMm, lang, { dp: 1, min: 1 })} {T('মিমি', 'mm')}</span>
                 </div>
                 <div className="hidden md:block">
                   <span className="text-white/60 mr-1">{T('আর্দ্রতা:', 'Humidity:')}</span>
@@ -334,7 +342,7 @@ export default function FieldsMap({
                 </div>
                 <div>
                   <span className="text-white/60 mr-1">{T('বাতাস:', 'Wind:')}</span>
-                  <span className="tabular text-white">{num(windSpeedKmh, lang)} {T('মি/সে', 'm/s')}</span>
+                  <span className="tabular text-white">{num(windSpeedKmh, lang, { dp: 1 })} {T('মি/সে', 'm/s')}</span>
                 </div>
               </div>
             </div>
@@ -374,7 +382,7 @@ export default function FieldsMap({
                   {T('বৃদ্ধির ধাপ (BBCH)', 'Crop Stage (BBCH)')}
                 </span>
                 <span className="whitespace-nowrap rounded-full bg-white/10 px-2 py-0.5 text-[10.5px] text-white">
-                  BBCH 41–50
+                  BBCH {num(41, lang)}–{num(50, lang)}
                 </span>
               </div>
               <p className="mt-2 text-[13.5px] font-bold leading-snug">

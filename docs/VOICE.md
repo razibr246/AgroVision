@@ -27,7 +27,33 @@ preferred. A paid tier lifts the limit.
 
 The voice is generated from a general description, not copied from a real speaker. Replies are sent to Gemini for speech generation.
 
-## What farmers can ask
+## Several keys, one voice, every character (Nov 2026)
+
+- **Keys in turn.** `GEMINI_API_KEYS` lists the Gemini keys in priority order; `api/_keypool.js` tries them one after
+  another for each model. A key Google refuses for quota rests (per minute ~1 min, per day 6 h) and is skipped, three
+  failures in a row rest it 5 min, and a key slow to answer gets a second key started alongside (2.5 s for the agent,
+  5 s for voice); the first good answer wins. The agent, voice, crop doctor and call notes all use it. Rotating keys is
+  for reliability; Google's terms apply to each key, and a paid key is the supported way to more quota.
+- **The same Bangladeshi voice on every key.** A designed voice belongs to the project that made it, so each key's
+  project has its own copy from the winning description; `GEMINI_TTS_VOICES_BN` lists them in key order. Key 1's
+  voice, the one rated in the listening comparison, is tried first; the others sound close to it, not identical.
+  An override pointing at the older `bn-IN` (Indian Bengali) voice was removed.
+- **Characters.** `api/tts.js` takes `speaker`: `agent` and `tara` speak in the designed Bangladeshi voice, `father`,
+  `mother`, `child` and `frog` have their own voices with a short style line, and everyone speaks British English in
+  English. The children's dream (`/kids`) picks the speaker from each line and makes the next lines' audio while the
+  current one plays (`prefetchNatural`), so a child does not wait between lines.
+- **Mixed replies.** `src/engine/langseg.js` cuts a reply into Bangla and English sentences, and each is spoken in its
+  own voice; an English name inside a Bangla sentence stays Bangla.
+- **Meta AI alongside Gemini.** `META_API_KEYS` (api.meta.ai, OpenAI-style, model `muse-spark-1.3` by default): when
+  Gemini has not answered in 2 s (8 s in deep mode) Meta starts too and the first good answer wins (`firstGood` in
+  `api/agent.js`); if Gemini fails first, Meta starts at once. On 2026-11-12 all three keys listed ten models but every
+  chat call answered 402 `billing_not_configured`, so Meta is wired but silent until billing is set up at
+  dev.meta.ai/billing; a refused key rests 30 min and costs no time.
+- **Measured (Nov 2026, free keys).** Agent: 3.5 Flash-Lite answered in 1.9 s, 3.1 Flash-Lite in 1.6 s; 3.8 Flash hung
+  90 s and is not used for the agent; Gemini 4 Argon and 3.1 Pro are refused on the free tier (quota 0), so deep mode
+  reaches them only with a paid key. Voice: 3.6–7.9 s per line. The Hugging Face fallback needs credits (402 without).
+
+
 
 | Say | Answer comes from |
 | --- | --- |

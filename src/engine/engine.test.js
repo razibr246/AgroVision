@@ -434,3 +434,26 @@ test('user-reported soil-test values adjust SoilGrids estimates without claiming
   assert.equal(adjusted.verified, undefined);
   assert.ok(adjustedStock > modeledStock, 'Higher reported OM% increases the adjusted starting soil-carbon estimate');
 });
+
+test('all 7 Bangladesh officers and every union carry seeded open requests in both Rabi and Aman', async () => {
+  const { UPAZILAS, UPAZILA_IDS } = await import('../data/upazilas.js');
+  const { SYMPTOMS, DISEASES, UNIONS } = await import('../data/demo.js');
+  const { ymd } = await import('./dates.js');
+  for (const [label, opts] of [['rabi', { today: ymd(2027, 1, 12) }], ['aman', { today: ymd(2026, 11, 11) }]]) {
+    const { farmers, requests } = buildDemo(opts);
+    const byFarmer = new Set(farmers.map((f) => f.id));
+    for (const r of requests) {
+      assert.ok(SYMPTOMS[r.symptom], `${label} ${r.id} unknown symptom ${r.symptom}`);
+      assert.ok(byFarmer.has(r.farmerId), `${label} ${r.id} unknown farmer ${r.farmerId}`);
+      if (r.ai) for (const a of r.ai) assert.ok(DISEASES[a.k], `${label} ${r.id} unknown ai key ${a.k}`);
+    }
+    for (const uid of UPAZILA_IDS) {
+      const defOpen = requests.filter((r) => r.union === UPAZILAS[uid].defaultUnion && r.status === 'open').length;
+      assert.ok(defOpen >= 5, `${label} ${uid} default union open=${defOpen}`);
+    }
+    for (const u of UNIONS) {
+      const open = requests.filter((r) => r.union === u.id && r.status === 'open').length;
+      assert.ok(open >= 4, `${label} union ${u.id} open=${open}`);
+    }
+  }
+});

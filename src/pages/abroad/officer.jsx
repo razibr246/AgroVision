@@ -3,15 +3,18 @@
 // language), Farmer requests, Farmer and field, and Whole country (six farming zones on a NASA satellite map).
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapContainer, TileLayer, CircleMarker, Rectangle, Polygon, Tooltip as LTooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Polygon, Tooltip as LTooltip, useMap } from 'react-leaflet';
 import StopOnLeave from '../../components/map/StopOnLeave';
 import 'leaflet/dist/leaflet.css';
 import { ExternalLink, Info, Map as MapIcon, Flame, Megaphone, BellRing, LifeBuoy, Satellite, Send, CheckCircle2, CloudRain, Thermometer, Sun, Globe2, ArrowRight, Phone, UserRound } from 'lucide-react';
 import { useStore } from '../../store';
 import { num, bnDigits } from '../../engine/dates';
+import { sampleBoundary } from '../../data/parcels';
+import { labelPoint } from '../../engine/landgeom';
+import { leafletRings } from '../../components/map/FieldShape';
 import { zoneFlags, zoneLevel, zoneAdvice, FLAG_TEXT, countryFires, todaysCall, SMS_LANG_NAME, SMS_DRAFT } from '../../engine/abroad';
 import { READ_ON, areaIn } from '../../data/abroad';
-import { plotSquare } from '../../engine/world';
+import { ABROAD_TOPICS } from '../../data/abroad_requests';
 import { useAbroad } from '../../layouts/AbroadLayout';
 import { SmsMeter } from '../../components/ui';
 import FarmerAvatar from '../../components/brand/FarmerAvatar';
@@ -50,7 +53,6 @@ function AreaMapBox({ height = 380, full = false, focus = null }) {
   const ring = a?.ring;
   const bounds = ring ? [[Math.min(...ring.map((p) => p[0])), Math.min(...ring.map((p) => p[1]))], [Math.max(...ring.map((p) => p[0])), Math.max(...ring.map((p) => p[1]))]]
     : [[lat0 - 0.3, lon0 - 0.3], [lat0 + 0.3, lon0 + 0.3]];
-  const sq = plotSquare(field.lat, field.lon, field.area_dec);
   const fires = a ? a.fires.points : data.points.farm.fires.points;
   const places = a ? (full ? a.places : a.places.filter((p) => p.town || p.pop > 0).slice(0, 30)) : [];
   return (
@@ -66,10 +68,16 @@ function AreaMapBox({ height = 380, full = false, focus = null }) {
           </CircleMarker>
         ))}
         {fires.map(([la, lo], i) => <CircleMarker key={`f${i}`} center={[la, lo]} radius={4} pathOptions={{ color: '#fff', weight: 1, fillColor: '#ff5a1f', fillOpacity: 0.95 }} />)}
-        <Rectangle bounds={[[Math.min(...sq.map((p) => p[0])), Math.min(...sq.map((p) => p[1]))], [Math.max(...sq.map((p) => p[0])), Math.max(...sq.map((p) => p[1]))]]} pathOptions={{ color: '#edc067', weight: 3 }} />
-        <CircleMarker center={[field.lat, field.lon]} radius={7} pathOptions={{ color: '#fff', weight: 2.5, fillColor: '#edc067', fillOpacity: 1 }}>
-          <LTooltip direction="top" offset={[0, -8]} permanent>{L(c.farmer.name)}</LTooltip>
-        </CircleMarker>
+        {/* The sample field's outline (a real field's edge near the sample pin), labelled with the farmer's name. */}
+        {sampleBoundary(field.id) ? (
+          <Polygon positions={leafletRings(sampleBoundary(field.id))} pathOptions={{ color: '#edc067', weight: 2.5, fillColor: '#edc067', fillOpacity: 0.25, dashArray: '6 4' }}>
+            <LTooltip direction="center" permanent position={labelPoint(sampleBoundary(field.id))}>{L(c.farmer.name)}</LTooltip>
+          </Polygon>
+        ) : (
+          <CircleMarker center={[field.lat, field.lon]} radius={7} pathOptions={{ color: '#fff', weight: 2.5, fillColor: '#edc067', fillOpacity: 1 }}>
+            <LTooltip direction="top" offset={[0, -8]} permanent>{L(c.farmer.name)}</LTooltip>
+          </CircleMarker>
+        )}
       </MapContainer>
     </div>
   );
@@ -273,8 +281,15 @@ export function Requests() {
           <ul className="space-y-3">
             {req.list.map((r) => (
               <li key={r.id} className="rounded-2xl bg-white/75 p-4 ring-1 ring-white/80">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-[12.5px] font-semibold text-muted"><span>{L(c.farmer.name)} · {L(c.farmer.village)}</span><span>{fullDate(r.t.slice(0, 10), s.lang)}</span></div>
-                <p className="mt-1.5 text-[15px] leading-6">{r.text}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[12.5px] font-semibold text-muted">
+                  <span className="inline-flex flex-wrap items-center gap-1.5">
+                    <span>{L(r.farmer ?? c.farmer.name)} · {L(r.village ?? c.farmer.village)}</span>
+                    <span className="rounded-full bg-black/[.05] px-2 py-0.5 text-[11px] font-semibold text-ink/75">{L(ABROAD_TOPICS[r.topic] ?? ABROAD_TOPICS.other)}</span>
+                    {r.demo && <span className="rounded-full bg-paddy-50 px-2 py-0.5 text-[11px] font-semibold text-paddy-700 ring-1 ring-paddy-200">{T('নমুনা', 'Sample')}</span>}
+                  </span>
+                  <span>{fullDate(r.t.slice(0, 10), s.lang)}</span>
+                </div>
+                <p className="mt-1.5 text-[15px] leading-6">{typeof r.text === 'string' ? r.text : L(r.text)}</p>
                 {r.reply ? <div className="mt-2 rounded-xl bg-primary-50 p-2.5 text-[14px] ring-1 ring-primary-100"><b>{T('আপনার উত্তর', 'Your reply')}:</b> {r.reply.text}</div> : (
                   <div className="mt-2.5 flex gap-2">
                     <input aria-label={T('এই কৃষককে উত্তর', 'Reply to this farmer')} value={draft[r.id] ?? ''} onChange={(e) => setDraft({ ...draft, [r.id]: e.target.value })} className="h-10 flex-1 rounded-full border border-border bg-white px-4 text-[14.5px] outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-100" placeholder={T('উত্তর লিখুন', 'Write a reply')} />

@@ -457,12 +457,12 @@ const ABROAD = {
       bn: 'এলেন হার্টলি', en: 'Ellen Hartley', local: 'Ellen Hartley', age: 46,
       trait: q('হিসাবি, মাটি আর পানির খোঁজ রাখেন', 'Careful with numbers, watches the soil and water'),
       skill: q('উপগ্রহে পানির হিসাব: পাম্প চালানোর আগে ফোনে দেখে নেন', 'Satellite water data: checks it on the phone before pumping'),
-      dress: [q('নীল বেসবল ক্যাপ', 'Blue baseball cap'), q('চেক শার্ট', 'Checked work shirt'), q('জিন্সের কাজের প্যান্ট', 'Denim work trousers'), q('চামড়ার বুট', 'Leather work boots')],
+      dress: [q('পরিপাটি পনিটেল চুল', 'Neat ponytail hairstyle'), q('চেক শার্ট', 'Checked work shirt'), q('জিন্সের কাজের প্যান্ট', 'Denim work trousers'), q('চামড়ার বুট', 'Leather work boots')],
       speed: 3.9, run: 6.4, can: 7, sellBonus: 0, scanner: true, alertLead: 0, idle: 'phone',
       look: {
         face: 'ellen', female: true,
         skin: '#e2b48f', hair: '#7a4a2a', build: 0.96,
-        head: 'cap', headA: '#2f5f9e', headB: '#22467a',
+        head: 'short',
         top: 'shirt', topA: '#b0453a', topB: '#7d2e27',
         lower: 'cargo', lowA: '#3d5a80', lowB: '#2e4663',
         feet: 'shoe', feetA: '#6b4a2e',
@@ -547,8 +547,8 @@ ABROAD.caio = {
     ...ABROAD.ellen.farmer, bn: 'কাইও মোরেইরা', en: 'Caio Moreira', local: 'Caio Moreira', age: 34,
     trait: q('সময় মেনে বোনেন, মাটিতে খড় রাখেন', 'Times sowing carefully and keeps straw on the soil'),
     skill: q('আবহাওয়া আর বৃষ্টির রেকর্ড দেখে দুই ফসলের বিরতি সামলান', 'Uses weather and rain records to manage the gap between crops'),
-    dress: [q('সবুজ ছায়ার টুপি', 'Green sun hat'), q('হালকা কাজের শার্ট', 'Light work shirt'), q('কাজের প্যান্ট', 'Work trousers'), q('রাবারের বুট', 'Rubber boots')],
-    look: { face: 'caio', skin: '#b97c55', hair: '#261c17', build: 1.02, head: 'cap', headA: '#1c8a55', headB: '#f2c52b', top: 'shirt', topA: '#e9e1ce', topB: '#5b7a59', lower: 'cargo', lowA: '#4e6449', lowB: '#354632', feet: 'shoe', feetA: '#49372c' },
+    dress: [q('পরিপাটি চুল', 'Neat hairstyle'), q('হালকা কাজের শার্ট', 'Light work shirt'), q('কাজের প্যান্ট', 'Work trousers'), q('রাবারের বুট', 'Rubber boots')],
+    look: { face: 'caio', skin: '#b97c55', hair: '#261c17', build: 1.02, head: 'short', top: 'shirt', topA: '#e9e1ce', topB: '#5b7a59', lower: 'cargo', lowA: '#4e6449', lowB: '#354632', feet: 'shoe', feetA: '#49372c' },
   },
   place: { bn: 'সোরিসো, মাতুগ্রোসু', en: 'Sorriso, Mato Grosso', area: q('সয়াবিনের পর দ্বিতীয় ফসলের ভুট্টা', 'Soybean followed by second-crop maize'), local: [q('লাল-বাদামি সেররাডো মাটি', 'Red-brown Cerrado soil'), q('দুই ফসলের সোজা খেত', 'Long fields with two crops a year'), q('খড়-ঢাকা জমি', 'Fields covered with crop straw'), q('শস্যের সাইলো', 'Grain silos'), q('ইউক্যালিপটাসের বাতাস-আড়াল', 'Eucalyptus windbreaks')], hazard: q('বৃষ্টি দেরি হলে সয়াবিন বোনা ও সাফ্রিনিয়া ভুট্টার জানালা ছোট হয়', 'Late rains delay soybean and compress the second-crop maize window') },
   names: { shed: q('বীজ ও যন্ত্রের সমবায়', 'Seed and machinery co-op'), water: q('বৃষ্টির পানি জমার ট্যাংক', 'Rainwater tank'), market: q('শস্য সংগ্রহ কেন্দ্র', 'Grain collection point'), kiosk: q('EMPAER সম্প্রসারণ অফিস', 'EMPAER extension office'), safe: q('কমিউনিটি হল', 'Community hall') },
@@ -629,6 +629,9 @@ export const QUESTS = [
   { id: 'sell', need: { sold: 1 }, go: 'market', bn: 'হাটে ফসল বিক্রি করুন', en: 'Sell your harvest at the market',
     problem: m('ফসল ঘরে পড়ে থাকলে নষ্ট হয়, টাকা আটকে থাকে।', 'A harvest left at home spoils and ties up the money.'),
     how: m('FieldShift কিয়স্কে আজকের বাজারদর দেখে বেচুন।', 'Check today’s prices at the FieldShift kiosk before you sell.') },
+  { id: 'office', need: { officeVisits: 1, soilTests: 1 }, go: 'office', bn: 'কৃষি অফিসে গিয়ে মাটি পরীক্ষা করান', en: 'Visit the agriculture office and get your soil tested',
+    problem: m('কোন জমিতে কী সার লাগবে, কোন সরকারি সাহায্য পাওয়া যায়, অনেকেই জানেন না; আন্দাজে সার দিলে টাকা যায়, মাটিও নষ্ট হয়।', 'Many farmers don’t know which plot needs what, or which government help they can get; fertiliser by guesswork wastes money and harms the soil.'),
+    how: m('কৃষি কর্মকর্তা বিনা মূল্যে মাটি পরীক্ষা করেন, মাঠের সমস্যার পরামর্শ দেন, আর দেশের আসল সহায়তা কর্মসূচি (উৎসসহ) দেখান।', 'The agriculture officer tests the soil for free, advises on the field’s problems, and shows the country’s real support programmes, with sources.') },
   { id: 'heat', quiz: 'heat', event: 'heat', go: 'field', bn: 'তাপপ্রবাহ পার করুন: চারা বাঁচিয়ে রাখুন', en: 'Get through the heatwave: keep the seedlings alive',
     problem: m('তাপমাত্রা বাড়ছে; গরমে মাটি দ্রুত শুকায়, ফুল আসা ফসল পুড়ে যায়।', 'Temperatures are rising; heat dries the soil fast and burns a flowering crop.'),
     how: m('কিয়স্কে আসল MODIS তাপের রেকর্ডে গরম মাস দেখুন। খেলার তাপ-সতর্কতা সিমুলেটেড; এটি দেখে সেচের অনুশীলন করুন।', 'The kiosk’s real MODIS heat record shows the hottest months. The game heat warning is simulated; use it to practise irrigation.') },
@@ -648,7 +651,7 @@ export const QUESTS = [
 export const STEP_LABEL = {
   satViews: m('উপগ্রহ দৃশ্য খুলুন', 'Open the satellite view'), advised: m('FieldShift দেখুন', 'Check FieldShift'), bought: m('বীজ কিনুন', 'Buy seed'),
   planted: m('জমিতে বুনুন', 'Sow plots'), waterLayer: m('"পানির চাপ" স্তর খুলুন', 'Open the Water stress layer'), watered: m('চারায় পানি দিন', 'Water seedlings'),
-  harvested: m('পাকা ফসল তুলুন', 'Harvest ripe crops'), rotated: m('অন্য ফসল বুনুন', 'Sow a different crop'), sold: m('হাটে বিক্রি', 'Sell at the market'), earned: m('মোট বিক্রি', 'Total sold'),
+  harvested: m('পাকা ফসল তুলুন', 'Harvest ripe crops'), officeVisits: m('কৃষি অফিসে যান', 'Go to the agriculture office'), soilTests: m('মাটি পরীক্ষা করান', 'Get the soil tested'), rotated: m('অন্য ফসল বুনুন', 'Sow a different crop'), sold: m('হাটে বিক্রি', 'Sell at the market'), earned: m('মোট বিক্রি', 'Total sold'),
 };
 
 // The satellite-style game view uses simulated colours. Real local NASA and SoilGrids records appear in the FieldShift kiosk.

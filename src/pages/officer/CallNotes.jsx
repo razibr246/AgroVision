@@ -203,7 +203,7 @@ export default function CallNotes() {
                   : <Button onClick={() => rec.recorder.stop()}><Square size={16} />{T('থামান', 'Stop')} · {clock(secs, lang)}</Button>}
                 {!rec && <Button variant="ghost" onClick={() => fileRef.current?.click()} disabled={busy}><Upload size={16} />{T('অডিও ফাইল', 'Audio file')}</Button>}
                 <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={(e) => { loadFile(e.target.files?.[0]); e.target.value = ''; }} />
-                {rec && <span className="text-[13px] text-muted">{T(`সর্বোচ্চ ${num(MAX_RECORD_SECONDS / 60, 'bn')} মিনিট`, `Up to ${MAX_RECORD_SECONDS / 60} minutes`)}</span>}
+                {rec && <span className="text-[13px] text-muted">{T(`সর্বোচ্চ ${num(MAX_RECORD_SECONDS / 60, 'bn')} মিনিট`, `Up to ${num(MAX_RECORD_SECONDS / 60, 'en')} minutes`)}</span>}
               </div>
               {audio && !rec && (
                 <div className="mt-4 space-y-3">
@@ -267,7 +267,7 @@ function Review({ result, keep, setKeep, summary, setSummary, lang, T, L, onSave
       )}
       {note.dropped.length > 0 && (
         <details className="mt-3 text-[13px]">
-          <summary className="cursor-pointer text-muted">{T(`${num(note.dropped.length, 'bn')}টি অঙ্ক বাদ পড়েছে: লেখায় পাওয়া যায়নি`, `${note.dropped.length} dropped: not found in the transcript`)} <Tags list={['RULE']} /></summary>
+          <summary className="cursor-pointer text-muted">{T(`${num(note.dropped.length, 'bn')}টি অঙ্ক বাদ পড়েছে: লেখায় পাওয়া যায়নি`, `${num(note.dropped.length, 'en')} dropped: not found in the transcript`)} <Tags list={['RULE']} /></summary>
           <ul className="mt-1 space-y-1">{note.dropped.map((d, i) => <li key={i}>{d.what || '—'}: {L({ bn: RULE_TEXT[d.rule]?.[0], en: RULE_TEXT[d.rule]?.[1] })} <code className="text-[11px]">{d.rule}</code></li>)}</ul>
         </details>
       )}
@@ -314,7 +314,7 @@ function SavedNotes({ notes, lang, T, L, dispatch, navigate }) {
                 : <span className="flex items-center gap-1 text-[12px] font-semibold text-red-700"><ShieldAlert size={14} />{T('বদলানো হয়েছে', 'Altered')}</span>}
             </div>
             <p className="mt-2 text-[14px] leading-6">{L(r.note.summary) || r.transcript.text.slice(0, 160)}</p>
-            <p className="mt-1 text-[12px] text-muted">{T(`${num(r.note.items.length, 'bn')}টি অঙ্ক`, `${r.note.items.length} amounts`)} · SHA-256 {n.hash.slice(0, 12)}…</p>
+            <p className="mt-1 text-[12px] text-muted">{T(`${num(r.note.items.length, 'bn')}টি অঙ্ক`, `${num(r.note.items.length, 'en')} amounts`)} · SHA-256 {n.hash.slice(0, 12)}…</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {n.requestId && <Button variant="ghost" className="!px-2 !py-1" onClick={() => navigate(`/officer/requests/${n.requestId}`)}>{T('অনুরোধ দেখুন', 'Open request')}</Button>}
               <Button variant="ghost" className="!px-2 !py-1" onClick={() => { if (window.confirm(T('এই নোটটি মুছবেন?', 'Delete this note?'))) dispatch({ type: 'removeCallNote', id: n.id }); }}><Trash2 size={14} />{T('মুছুন', 'Delete')}</Button>

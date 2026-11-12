@@ -8,7 +8,7 @@ import { Sprout, Wheat, ArrowRight, CloudRain } from 'lucide-react';
 import { useStore } from '../../store';
 import { BN_MONTHS, BN_MONTHS_EN, banglaMonthStart, banglaDate, fmtDate, fmtBangla, addDays, daysBetween, num, bnDigits } from '../../engine/dates';
 import { PLAN_SEASON } from '../../engine/climate';
-import { RABI_SCENE, NEXT_SCENE } from '../farmwork/sceneFor';
+import { RABI_SCENE, NEXT_SCENE, sceneForRabi, sceneForNext } from '../farmwork/sceneFor';
 
 // The farm-work animations (about 150 kB of drawings) load only when a bar opens one, not with the home page.
 const FarmworkSceneLazy = lazy(() => import('../farmwork/FarmworkScene'));
@@ -51,8 +51,9 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
   const nextEnd = r.best ? addDays(r.sowT, r.best.crop.days) : null;
   const amanStart = r.amanT; // the upazila's usual transplanting day (Sentinel-1 radar), or mid-July without it
   // A crop with an animated scene opens it under its bar: this Rabi crop's harvest, the next crop's sowing, Aman planting.
-  const rabiScene = !compact && RABI_SCENE[chosen.crop.id];
-  const nextScene = !compact && r.best && NEXT_SCENE[r.best.crop.id];
+  const rabiScene = !compact && sceneForRabi(chosen.crop.id);
+  const nextScene = !compact && r.best && sceneForNext(r.best.crop.id);
+  const rabiStandIn = !RABI_SCENE[chosen.crop.id], nextStandIn = !!r.best && !NEXT_SCENE[r.best.crop.id]; // no scene of its own: the closest work plays, and says so
   const amanExpanded = !compact;
   const activityExpanded = (key) => key === 'rabi' ? !!rabiScene : key === 'next' ? !!nextScene : key === 'aman' && amanExpanded;
   const activityHeight = (key) => activityExpanded(key) ? 'h-[380px]' : 'h-10';
@@ -164,9 +165,9 @@ export default function SeasonRibbon({ dark = false, compact = false, showToday 
                   </div>
                   {activityExpanded(row.key) && (
                     <div className="absolute top-[48px] z-[2]" style={{ left: `${Math.min(left, 44)}%`, width: 'clamp(300px, 38vw, 400px)' }}>
-                      {row.key === 'rabi' && <FarmworkScene key={rabiScene} kind={rabiScene} from={chosen.hw.start} to={chosen.hw.end} lang={lang} T={T} onDateChange={syncRabiDate} />}
+                      {row.key === 'rabi' && <FarmworkScene key={rabiScene} kind={rabiScene} from={chosen.hw.start} to={chosen.hw.end} lang={lang} T={T} onDateChange={syncRabiDate} standInFor={rabiStandIn ? chosen.crop.name : null} />}
                       {row.key === 'next' && nextStart != null && (
-                        <FarmworkScene key={nextScene} kind={nextScene} from={nextStart} to={nextStart} lang={lang} T={T} onDateChange={syncNextDate} />
+                        <FarmworkScene key={nextScene} kind={nextScene} from={nextStart} to={nextStart} lang={lang} T={T} onDateChange={syncNextDate} standInFor={nextStandIn ? r.best.crop.name : null} />
                       )}
                       {row.key === 'aman' && <FarmworkScene kind="aman" from={amanStart} to={amanStart} lang={lang} T={T} onDateChange={syncAmanDate} />}
                     </div>

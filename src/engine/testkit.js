@@ -15,35 +15,38 @@ export const QUESTIONS = [
 export const ANSWER = { yes: 2, partly: 1, no: 0 };
 
 // A blank session. role: 'farmer' | 'officer'; reading: 'reads' | 'some' | 'none'; phone: 'smart' | 'low' | 'feature'
-export const newSession = (at = Date.now()) => ({ at, place: '', role: 'farmer', woman: false, reading: 'reads', phone: 'smart', tasks: {}, answers: {}, notes: {}, problems: '', rating: null, mode: 'app' });
+export const newSession = (at = Date.now()) => ({ at, consented: false, place: '', role: 'farmer', woman: false, reading: 'reads', phone: 'smart', tasks: {}, answers: {}, notes: {}, problems: '', rating: null, mode: 'app' });
 
 // A session's summary: tasks done unaided, seconds per task, questions understood (0–6), and whether it passes the
 // protocol's bar (all three questions at least partly understood).
 export function summarise(s) {
   const done = TASKS.filter((t) => s.tasks[t.k]?.done && !s.tasks[t.k]?.helped).length;
+  const blocked = TASKS.filter((t) => s.tasks[t.k]?.blocked).length;
   const secs = TASKS.map((t) => s.tasks[t.k]?.secs ?? null);
   const understood = QUESTIONS.reduce((a, q) => a + (ANSWER[s.answers[q.k]] ?? 0), 0);
-  const pass = QUESTIONS.every((q) => (ANSWER[s.answers[q.k]] ?? 0) >= 1);
-  return { done, secs, understood, pass };
+  const pass = s.consented === true && QUESTIONS.every((q) => (ANSWER[s.answers[q.k]] ?? 0) >= 1);
+  return { done, blocked, secs, understood, pass };
 }
 
 // Across sessions: how many people, how many passed, the share who understood each question, the median task times.
 export function overview(sessions) {
-  const n = sessions.length;
+  const consented = sessions.filter((s) => s.consented === true);
+  const n = consented.length;
   const med = (v) => { const x = v.filter((y) => y != null).sort((a, b) => a - b); return x.length ? x[Math.floor(x.length / 2)] : null; };
   return {
-    n, passed: sessions.filter((s) => summarise(s).pass).length,
-    byQuestion: Object.fromEntries(QUESTIONS.map((q) => [q.k, n ? sessions.filter((s) => (ANSWER[s.answers[q.k]] ?? 0) === 2).length / n : 0])),
-    medianSecs: Object.fromEntries(TASKS.map((t) => [t.k, med(sessions.map((s) => s.tasks[t.k]?.secs ?? null))])),
-    lowLiteracy: sessions.filter((s) => s.reading !== 'reads').length, lowPhone: sessions.filter((s) => s.phone !== 'smart').length, women: sessions.filter((s) => s.woman).length,
+    n, passed: consented.filter((s) => summarise(s).pass).length,
+    blockedTasks: consented.reduce((count, s) => count + summarise(s).blocked, 0),
+    byQuestion: Object.fromEntries(QUESTIONS.map((q) => [q.k, n ? consented.filter((s) => (ANSWER[s.answers[q.k]] ?? 0) === 2).length / n : 0])),
+    medianSecs: Object.fromEntries(TASKS.map((t) => [t.k, med(consented.map((s) => s.tasks[t.k]?.secs ?? null))])),
+    lowLiteracy: consented.filter((s) => s.reading !== 'reads').length, lowPhone: consented.filter((s) => s.phone !== 'smart').length, women: consented.filter((s) => s.woman).length,
   };
 }
 
 const cell = (v) => { const x = String(v ?? ''); return /[",\n]/.test(x) ? `"${x.replace(/"/g, '""')}"` : x; };
 export function toCsv(sessions) {
-  const head = ['date', 'place', 'role', 'woman', 'reading', 'phone', 'mode', ...TASKS.flatMap((t) => [`${t.k}_done`, `${t.k}_helped`, `${t.k}_secs`]), ...QUESTIONS.flatMap((q) => [q.k, `${q.k}_note`]), 'problems', 'rating'];
-  const rows = sessions.map((s) => [new Date(s.at).toISOString().slice(0, 10), s.place, s.role, s.woman ? 'yes' : 'no', s.reading, s.phone, s.mode,
-    ...TASKS.flatMap((t) => [s.tasks[t.k]?.done ? 'yes' : 'no', s.tasks[t.k]?.helped ? 'yes' : 'no', s.tasks[t.k]?.secs ?? '']),
+  const head = ['date', 'consented', 'place', 'role', 'woman', 'reading', 'phone', 'mode', ...TASKS.flatMap((t) => [`${t.k}_done`, `${t.k}_helped`, `${t.k}_blocked`, `${t.k}_block_reason`, `${t.k}_secs`]), ...QUESTIONS.flatMap((q) => [q.k, `${q.k}_note`]), 'problems', 'rating'];
+  const rows = sessions.filter((s) => s.consented === true).map((s) => [new Date(s.at).toISOString().slice(0, 10), 'yes', s.place, s.role, s.woman ? 'yes' : 'no', s.reading, s.phone, s.mode,
+    ...TASKS.flatMap((t) => [s.tasks[t.k]?.done ? 'yes' : 'no', s.tasks[t.k]?.helped ? 'yes' : 'no', s.tasks[t.k]?.blocked ? 'yes' : 'no', s.tasks[t.k]?.blockReason ?? '', s.tasks[t.k]?.secs ?? '']),
     ...QUESTIONS.flatMap((q) => [s.answers[q.k] ?? '', s.notes[q.k] ?? '']), s.problems, s.rating ?? '']);
   return [head, ...rows].map((r) => r.map(cell).join(',')).join('\n');
 }
@@ -53,5 +56,9 @@ export function toMarkdownRows(sessions) {
   const who = (s) => `${s.role === 'officer' ? 'officer' : 'farmer'}${s.woman ? ', woman' : ''}${s.reading !== 'reads' ? `, reads ${s.reading === 'some' ? 'a little' : 'no'} Bangla` : ''}`;
   const phone = { smart: 'smartphone', low: 'low-end Android', feature: 'feature phone (SMS)' };
   const ans = (s, k) => `${s.answers[k] ?? '—'}${s.notes[k] ? `: ${s.notes[k]}` : ''}`.replace(/\|/g, '/');
-  return sessions.map((s) => `| ${new Date(s.at).toISOString().slice(0, 10)} | ${(s.place || '—').replace(/\|/g, '/')} | ${who(s)} | ${phone[s.phone] ?? s.phone} | ${ans(s, 'q1')} | ${ans(s, 'q2')} | ${ans(s, 'q3')} | ${(s.problems || '—').replace(/\|/g, '/').replace(/\n/g, ' ')} | |`).join('\n');
+  return sessions.filter((s) => s.consented === true).map((s) => {
+    const blockers = TASKS.filter((t) => s.tasks[t.k]?.blocked).map((t) => `${t.en} blocked: ${s.tasks[t.k].blockReason || 'reason not recorded'}`);
+    const problems = [s.problems, ...blockers].filter(Boolean).join('; ') || '—';
+    return `| ${new Date(s.at).toISOString().slice(0, 10)} | ${(s.place || '—').replace(/\|/g, '/')} | ${who(s)} | ${phone[s.phone] ?? s.phone} | ${ans(s, 'q1')} | ${ans(s, 'q2')} | ${ans(s, 'q3')} | ${problems.replace(/\|/g, '/').replace(/\n/g, ' ')} | |`;
+  }).join('\n');
 }

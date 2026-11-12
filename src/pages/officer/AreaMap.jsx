@@ -18,7 +18,7 @@ const areaChip = (union, T, lang) => {
   return (
     <span className="pointer-events-auto rounded-xl bg-white/95 px-3 py-2 text-[12.5px] leading-5 text-ink shadow-lg">
       <b className="block text-[13.5px]">{T(union.meta.full.bn, union.meta.full.en)}</b>
-      {T(`${num(v, 'bn')}টি গ্রাম · ${num(a.km2, 'bn', { dp: 1 })} বর্গ কিমি · ${num(union.farmers.length, 'bn')} জন নমুনা কৃষক`, `${v} villages · ${a.km2.toFixed(1)} km² · ${union.farmers.length} sample farmers`)}
+      {T(`${num(v, 'bn')}টি গ্রাম · ${num(a.km2, 'bn', { dp: 1 })} বর্গ কিমি · ${num(union.farmers.length, 'bn')} জন নমুনা কৃষক`, `${num(v, 'en')} villages · ${num(a.km2, 'en', { dp: 1 })} km² · ${num(union.farmers.length, 'en')} sample farmers`)}
     </span>
   );
 };
@@ -50,7 +50,7 @@ export default function AreaMap() {
   return (
     <div>
       <PageHeader eyebrow={T('এলাকার মানচিত্র', 'Area map')} title={T(`${union.meta.full.bnOf} মানচিত্র`, `${union.meta.full.en} map`)} subtitle={T('কোন জমিতে কী লাগানো হচ্ছে, কোথা থেকে অনুরোধ এসেছে। কোনো বিন্দুতে চাপ দিলে সেই কৃষক বা অনুরোধ খুলবে।', 'What is planted where, and where requests came from. Tap a dot to open that farmer or request.')} tags={['AI', 'DEMO']} />
-      <Card className="p-4 sm:p-5">
+      <Card className="cv-auto p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {[['crops', T('ফসলের পরিকল্পনা', 'Planned crops')], ['requests', T('খোলা অনুরোধ', 'Open requests')], ['clusters', T('এলাকার সতর্কতা', 'Area alerts')], ['landuse', T('জমির ব্যবহার', 'Land use')], ['places', T('গ্রাম ও ইউনিয়নের নাম', 'Village and union names')]].filter(([k]) => k !== 'landuse' || landcoverOf(upz.id)).map(([k, l]) => (
             <button key={k} type="button" onClick={() => toggle(k)} aria-pressed={layers[k]} className={`min-h-9 rounded-full border px-3.5 py-1.5 text-[13.5px] font-semibold transition ${layers[k] ? 'border-primary-600 bg-primary-600 text-white' : 'border-border bg-white text-ink/70 hover:border-primary-300'}`}>{l}</button>
@@ -77,12 +77,12 @@ export default function AreaMap() {
           {counts.map(([k, c]) => <span key={k} className="inline-flex items-center gap-1.5"><i className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: CROP_COLOR[k] }} />{cropName(k, lang)} ({num(c, lang)})</span>)}
           <span className="inline-flex items-center gap-1.5"><i className="inline-block h-3 w-3 rounded-full bg-paddy-500 ring-2 ring-ink" />{T('অনুরোধ', 'Request')}</span>
           <span className="inline-flex items-center gap-1.5"><i className="inline-block h-3 w-3 rounded-full border-2 border-dashed border-red-600" />{T('একই সমস্যার গুচ্ছ', 'Problem cluster')}</span>
-          <span className="inline-flex items-center gap-1.5"><i className="inline-block w-5 border-t-[2.5px] border-dashed border-ink" />{T(`${upz.name.bn} উপজেলার সীমানা (${num(UPAZILA.areaOfficialKm2, 'bn', { dp: 2 })} বর্গ কিমি)`, `${upz.name.en} upazila boundary (${UPAZILA.areaOfficialKm2} km²)`)}</span>
+          <span className="inline-flex items-center gap-1.5"><i className="inline-block w-5 border-t-[2.5px] border-dashed border-ink" />{T(`${upz.name.bn} উপজেলার সীমানা (${num(UPAZILA.areaOfficialKm2, 'bn', { dp: 2 })} বর্গ কিমি)`, `${upz.name.en} upazila boundary (${num(UPAZILA.areaOfficialKm2, 'en', { dp: 2 })} km²)`)}</span>
         </div>
         {layers.landuse && landcoverOf(upz.id) && <LandUseList upz={upz} year={year} setYear={setYear} />}
         {layers.places && (
           <div className="mt-5 border-t border-border pt-4">
-            <p className="text-[15px] font-semibold text-ink">{T(`ইউনিয়ন ও পৌরসভা — মোট ${num(PLACES.places.filter((p) => p.k === 'village').length, 'bn')}টি গ্রাম`, `Unions and municipalities — ${PLACES.places.filter((p) => p.k === 'village').length} villages in all`)}</p>
+            <p className="text-[15px] font-semibold text-ink">{T(`ইউনিয়ন ও পৌরসভা — মোট ${num(PLACES.places.filter((p) => p.k === 'village').length, 'bn')}টি গ্রাম`, `Unions and municipalities — ${num(PLACES.places.filter((p) => p.k === 'village').length, 'en')} villages in all`)}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {[...PLACES.unions].sort((a, b) => b.villages - a.villages).map((u) => (
                 <span key={u.en} className={`rounded-full px-3 py-1 text-[13px] ${u.en === union.meta.en ? 'bg-primary-700 font-semibold text-white' : 'bg-primary-50 text-ink'}`}>{lang === 'bn' ? u.bn : u.en} · {num(u.villages, lang)} {T('গ্রাম', u.villages === 1 ? 'village' : 'villages')}</span>

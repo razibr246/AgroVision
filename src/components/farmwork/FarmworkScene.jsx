@@ -1,9 +1,10 @@
 // A farm job, animated step by step (season ribbon on the farmer's plan): the tomato harvest, mung-bean sowing or
-// Aman transplanting. Each scene is a pure function of loop time (tomato.js, mungbean.js, aman.js), so the slider,
-// the stage buttons, pause and speed all just move one clock; the frame is painted straight into the SVG without a
-// React render. It runs only while it is on screen, and holds still for "reduced motion".
+// Aman transplanting. Each scene is a pure function of loop time (tomato.js, mungbean.js, aman.js): it plays on a loop
+// by itself, with no player controls, and the line under it names the stage and date. The frame is painted straight
+// into the SVG without a React render. It runs only while it is on screen, and holds still for "reduced motion"
+// (the checkbox above it, or the device setting).
 import { useEffect, useRef, useState } from 'react';
-import { Pause, Play, RotateCcw, SkipBack, SkipForward, Wind } from 'lucide-react';
+import { Wind } from 'lucide-react';
 import { clampProgress, dateAtProgress, stageAtProgress } from '../../engine/farmTimeline';
 import { fmtBangla, fmtDate, num } from '../../engine/dates';
 import { smooth } from '../../engine/motion';
@@ -21,15 +22,13 @@ function useReducedMotion() {
   return [reduced, setReduced];
 }
 
-export default function FarmworkScene({ kind, from, to, lang, T, onDateChange }) {
+export default function FarmworkScene({ kind, from, to, lang, T, onDateChange, standInFor = null }) {
   const sc = SCENES[kind];
   const { Art } = sc;
   const boxRef = useRef(null), artRef = useRef(null), seamRef = useRef(null), seamBox = useRef(null);
   const paint = useRef(null), paintSeam = useRef(null);
   const [reduced, setReduced] = useReducedMotion();
   const clock = useRef({ t: reduced ? sc.poster : 0, w: 0, loops: 0 });
-  const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState(1);
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(clock.current.t / sc.T);
   const stages = sc.stages;
@@ -68,10 +67,10 @@ export default function FarmworkScene({ kind, from, to, lang, T, onDateChange })
   }, []);
 
   useEffect(() => {
-    if (!playing || reduced || !visible) return undefined;
+    if (reduced || !visible) return undefined;
     let raf = 0, prev = performance.now(), lastUi = 0;
     const tick = (now) => {
-      const dt = Math.min(0.1, (now - prev) / 1000) * speed;
+      const dt = Math.min(0.1, (now - prev) / 1000);
       prev = now;
       const c = clock.current;
       c.t += dt; c.w += dt;
@@ -82,23 +81,10 @@ export default function FarmworkScene({ kind, from, to, lang, T, onDateChange })
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing, reduced, visible, speed, kind]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [reduced, visible, kind]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { onDateChange?.(selectedDate); }, [onDateChange, selectedDate]);
 
-  const seek = (p) => {
-    const next = clampProgress(p);
-    clock.current.t = Math.min(next, 0.9999) * sc.T;
-    draw();
-    setProgress(next);
-  };
-  const moveStage = (delta) => seek(stages[(stageIndex + delta + stages.length) % stages.length].at);
-  const togglePlaying = () => {
-    if (reduced) { setReduced(false); setPlaying(true); return; }
-    setPlaying((was) => !was);
-  };
-  const replay = () => { seek(0); setPlaying(true); };
-  const moving = playing && !reduced;
 
   return (
     <section ref={boxRef} className="overflow-hidden rounded-[22px] border border-primary-100 bg-[#f6f8ef]" aria-label={T(sc.title.bn, sc.title.en)}>
@@ -117,29 +103,12 @@ export default function FarmworkScene({ kind, from, to, lang, T, onDateChange })
         {sc.seam ? <div ref={seamBox} aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}><Art lang={lang} svgRef={seamRef} /></div> : null}
       </div>
       <div className="px-4 pb-4 pt-3 sm:px-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1">
-            <button type="button" onClick={() => moveStage(-1)} aria-label={T('আগের ধাপ', 'Previous stage')} className="grid h-11 w-11 place-items-center rounded-full bg-white text-primary-800 shadow-sm ring-1 ring-black/5 hover:bg-primary-50"><SkipBack size={15} /></button>
-            <button type="button" onClick={togglePlaying} aria-label={moving ? T('থামান', 'Pause') : T('চালান', 'Resume')} className="grid h-11 w-11 place-items-center rounded-full bg-primary-700 text-white shadow-sm hover:bg-primary-800">
-              {moving ? <Pause size={14} /> : <Play size={14} />}
-            </button>
-            <button type="button" onClick={replay} aria-label={T('আবার চালান', 'Replay')} className="grid h-11 w-11 place-items-center rounded-full bg-white text-primary-800 shadow-sm ring-1 ring-black/5 hover:bg-primary-50"><RotateCcw size={14} /></button>
-            <button type="button" onClick={() => moveStage(1)} aria-label={T('পরের ধাপ', 'Next stage')} className="grid h-11 w-11 place-items-center rounded-full bg-white text-primary-800 shadow-sm ring-1 ring-black/5 hover:bg-primary-50"><SkipForward size={15} /></button>
-          </div>
-          <label className="flex items-center gap-1 text-[11px] font-semibold text-muted">
-            <span className="sr-only">{T('গতি', 'Speed')}</span>
-            <select aria-label={T('গতি', 'Speed')} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="h-11 rounded-full border border-primary-100 bg-white px-2 text-ink outline-none focus:ring-2 focus:ring-primary-300">
-              <option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option>
-            </select>
-          </label>
-        </div>
-        <input type="range" min="0" max="1000" step="1" value={Math.round(progress * 1000)} onChange={(e) => seek(Number(e.target.value) / 1000)}
-          aria-label={T(sc.slider.bn, sc.slider.en)} className="mt-3 h-2 w-full cursor-pointer accent-primary-700" />
         <div className="grid grid-cols-[1fr_auto_1fr] gap-1 text-[10.5px] text-muted">
           <span className="truncate">{T(`${sc.range.bn} · ${fmtBangla(from, 'bn')}`, `${sc.range.en} · ${fmtDate(from, 'en')}`)}</span>
           <span className="font-semibold text-primary-800">{T(stage.label.bn, stage.label.en)} · {num(stageIndex + 1, lang)}/{num(stages.length, lang)}</span>
           <span className="truncate text-right">{from === to ? '' : lang === 'bn' ? fmtBangla(to, 'bn') : fmtDate(to, 'en')}</span>
         </div>
+        {standInFor && <p className="mt-1.5 text-[11px] text-muted">{T(`${standInFor.bn}-এর নিজস্ব অ্যানিমেশন এখনো নেই; সবচেয়ে কাছের কাজটি দেখানো হচ্ছে।`, `${standInFor.en} has no animation of its own yet; the closest work is shown.`)}</p>}
       </div>
     </section>
   );

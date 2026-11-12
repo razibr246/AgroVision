@@ -5,11 +5,12 @@
 // the invitation on the farmer's home page the first time. Where it was is kept in this browser.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ChevronDown, Compass, HeartHandshake, MousePointerClick, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, Compass, HeartHandshake, MousePointerClick, X, GripHorizontal } from 'lucide-react';
 import { useStore } from '../../store';
 import { num } from '../../engine/dates';
 import { FARMER_TOUR as STEPS, FARMER_CHAPTERS as CHAPTERS } from '../../data/farmer_tour';
 import { TourModePicker, TourPlayback, QUICK_TOUR_STEP_SECONDS, TOUR_STEP_SECONDS } from './TourPlayback';
+import { useDraggable } from './useDraggable';
 
 const KEY = 'fs-farmer-tour';
 const SEEN = 'fs-farmer-tour-seen';
@@ -42,6 +43,7 @@ export default function FarmerTour() {
   const [elapsed, setElapsed] = useState(0);
   const target = useRef(null);
   const panel = useRef(null);
+  const { hasMoved, isDragging, resetPos, dragProps, style: dragStyle } = useDraggable({ nodeRef: panel });
 
   const set = useCallback((n) => {
     setK(n); setMenu(false); setInvite(false);
@@ -174,11 +176,34 @@ export default function FarmerTour() {
   const n = (v) => num(v, s.lang);
   return (
     <>
-      {rect && <div aria-hidden="true" className="pointer-events-none fixed z-[55] rounded-[18px] transition-[top,left,width,height] duration-[450ms] ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none"
+      {rect && <div aria-hidden="true" className="tour-spot pointer-events-none fixed z-[55] rounded-[18px] will-change-[top,left,width,height] transform-gpu motion-reduce:transition-none"
         style={{ ...rect, boxShadow: '0 0 0 9999px rgba(13,38,20,.42), 0 0 0 2px rgba(237,192,103,.95), 0 0 28px 6px rgba(141,190,88,.55)' }} />}
       <aside ref={panel} role="dialog" aria-label={T('অ্যাপের সফর', 'App tour')} aria-live="polite"
-        className="fixed inset-x-3 bottom-[88px] z-[60] mx-auto flex max-h-[min(52vh,460px)] max-w-[580px] flex-col rounded-[22px] border border-black/10 bg-white/95 shadow-[0_18px_44px_-14px_rgba(0,0,0,.5)] backdrop-blur lg:bottom-5 lg:left-auto lg:right-5 lg:mx-0 lg:w-[430px] lg:max-h-[min(60vh,520px)]">
-        <div className="flex items-center gap-2 border-b border-black/[.06] px-4 pb-2 pt-3">
+        {...dragProps}
+        style={dragStyle}
+        onDoubleClick={resetPos}
+        className={`fixed inset-x-3 bottom-[88px] z-[60] mx-auto flex max-h-[min(52vh,460px)] max-w-[580px] flex-col rounded-[22px] border border-black/10 bg-white/95 backdrop-blur lg:bottom-5 lg:left-auto lg:right-5 lg:mx-0 lg:w-[430px] lg:max-h-[min(60vh,520px)] transition-shadow select-none ${
+          isDragging
+            ? 'cursor-grabbing shadow-[0_24px_64px_-10px_rgba(0,0,0,.6)] ring-2 ring-primary-500/40 scale-[1.01]'
+            : 'cursor-grab shadow-[0_18px_44px_-14px_rgba(0,0,0,.5)] hover:shadow-[0_22px_50px_-12px_rgba(0,0,0,.55)]'
+        }`}>
+        <div className="flex items-center justify-between border-b border-black/[.06] px-4 py-1.5 select-none bg-black/[.02]">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-ink/40">
+            <GripHorizontal size={14} className="text-primary-700/60" />
+            <span className="hidden sm:inline">{T('মাউস দিয়ে টেনে যে কোনো স্থানে সরান', 'Drag anywhere to move')}</span>
+          </div>
+          {hasMoved && (
+            <button
+              type="button"
+              onClick={resetPos}
+              className="text-[11px] font-semibold text-primary-700 hover:text-primary-900 transition underline underline-offset-2 cursor-pointer"
+              title={T('মূল অবস্থানে ফিরিয়ে আনুন', 'Reset position to default')}
+            >
+              {T('মাঝখানে আনুন', 'Reset position')}
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2 border-b border-black/[.06] px-4 pb-2 pt-2.5">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary-700 text-white"><Compass size={17} /></span>
           <div className="relative min-w-0 flex-1">
             <button type="button" onClick={() => setMenu(!menu)} aria-expanded={menu} aria-haspopup="menu"

@@ -95,6 +95,14 @@ export function dreamFor(id, region, land = null) {
         line('tara', 'play', f.bare.bn, f.bare.en),
         line('tara', 'play', 'খালি জায়গায় মুগ ডাল লাগাও, ওরা মাটির সবুজ কম্বল। আর ভোলা ছাগলটাকে তাড়াও, ও সব খেয়ে ফেলবে!', 'Plant mung beans on the bare patches: they’re the soil’s green blanket. And shoo Bhola the goat, or he’ll eat everything!'),
       ], win: line('tara', 'joy', 'মুগ ডালের শিকড় বাতাস থেকে নাইট্রোজেন ধরে, মাটি নিজেই সার পায়। জাদু না, বিজ্ঞান!', 'Mung bean roots catch nitrogen from the air, so the soil feeds itself. Not magic, science!') },
+      { id: 'health', kind: 'game', game: 'health', mood: 'play', title: q('গাছের স্বাস্থ্য স্ক্যান', 'Crop health scan'), lines: [
+        line('tara', 'play', 'আমার ল্যান্ডস্যাট (Landsat) চোখে বিশেষ অদৃশ্য আলো—ইনফ্রারেড (Infrared) ধরা পড়ে! ওপর থেকে দেখি কোন কোন গাছ দুর্বল বা হলুদ হয়ে গেছে।', 'My Landsat satellite has infrared eyes that see invisible light! From up here I can spot which crops are weak or yellowing.'),
+        line('tara', 'play', 'অসুস্থ গাছগুলোতে চাপো, ল্যান্ডস্যাটের সবুজ আলো ফেলে ওদের সুস্থ আর সতেজ বানাও!', 'Tap the stressed plants to shine Landsat’s green light and nurse them back to vibrant health!'),
+      ], win: line('tara', 'joy', 'চমৎকার! পুরো মাঠ এখন সবুজ রত্নের মতো জ্বলছে! FieldShift 360 এভাবেই গাছ অসুস্থ হওয়ার শুরুতেই কৃষককে সতর্ক করে।', 'Brilliant! The whole field is glowing emerald green! FieldShift 360 alerts farmers at the earliest sign of crop stress so they can act in time.') },
+      { id: 'cool', kind: 'game', game: 'cool', mood: 'play', title: q('মাঠ ঠান্ডা করো', 'Cool the heatwave'), lines: [
+        line('tara', 'play', 'আমার বন্ধু ইকোস্ট্রেস (ECOSTRESS) মহাকাশ থেকে জমির জ্বর বা উত্তাপ মাপে! দুপুরের চড়া রোদে মাঠের তাপমাত্রা ৪২° তেতে উঠেছে!', 'My friend ECOSTRESS measures the land’s fever from space! In the midday heat the ground is baking at 42 °C!'),
+        line('tara', 'play', 'মাটির গরম বিন্দুগুলোতে চাপো আর কুয়াশা ঢালো: তাপমাত্রা ৩০°-এর নিচে নামাও, নইলে ধানের ফুল পুড়ে যাবে!', 'Tap the hot spots to sprinkle cool mist and shade: bring the temperature below 30 °C or the blossoms will burn!'),
+      ], win: line('tara', 'joy', 'মাঠ একদম ঠান্ডা আর নিরাপদ! ধানের কচি ফুলগুলো বেঁচে গেল! FieldShift 360 তাপপ্রবাহ আসার ৩ দিন আগেই এই ঠান্ডা সুরক্ষার পরামর্শ দেয়।', 'The field is wonderfully cool and safe! The tender rice flowers are saved! FieldShift 360 sends heatwave warnings 3 days early to protect the harvest.') },
       { id: 'water', kind: 'game', game: 'water', mood: 'play', title: q('কতটুকু পানি?', 'How much water?'), lines: [
         line('tara', 'play', 'SMAP উপগ্রহ মাটির নিচের পানি মাপে। পাম্প চালাও, কিন্তু সবুজ দাগে থামো: কম দিলে মাটি ফাটে, বেশি দিলে…', 'The SMAP satellite measures the water in the soil. Run the pump, but stop in the green: too little and the soil cracks, too much and…'),
         line('frog', 'play', 'ঘ্যাঙর-ঘ্যাং! বেশি দিলে আমার পুকুর হয়ে যাবে, হি হি!', 'Ribbit! Too much and it turns into my pond, hee hee!'),
@@ -131,6 +139,16 @@ export function blanketStars(covered, total, eaten = 0) {
   const share = total ? Math.max(0, covered - eaten) / total : 0;
   return share >= 0.9 ? 3 : share >= 0.6 ? 2 : 1;
 }
+export function healthStars(healed, total) {
+  if (!total) return 1;
+  const share = healed / total;
+  return share >= 0.8 ? 3 : share >= 0.5 ? 2 : 1;
+}
+export function coolStars(temp) {
+  if (temp <= 30) return 3;
+  if (temp <= 36) return 2;
+  return 1;
+}
 // The water meter runs 0–100; the green band is where the soil is moist but not flooded.
 export const WATER_BAND = [45, 70];
 export function waterResult(level) {
@@ -143,6 +161,8 @@ export function waterResult(level) {
 export const BADGES = {
   clouds: q('মেঘ-শিকারি', 'Cloud catcher'),
   blanket: q('মাটির বন্ধু', 'Friend of the soil'),
+  health: q('সবুজ ডাক্তার', 'Green doctor'),
+  cool: q('রোদের জাদুকর', 'Heatwave hero'),
   water: q('পানির হিসাবি', 'Water wizard'),
   heart: q('সাহসী হৃদয়', 'Brave heart'),
 };

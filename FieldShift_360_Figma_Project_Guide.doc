@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>FieldShift 360 - Figma Project & App Integration Guide</title>
+<style>
+  body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; line-height: 1.6; color: #1e293b; padding: 40px; max-width: 800px; margin: auto; }
+  h1 { color: #15803d; border-bottom: 2px solid #16a34a; padding-bottom: 8px; margin-bottom: 4px; }
+  .subtitle { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+  h2 { color: #0f172a; margin-top: 28px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+  h3 { color: #334155; margin-top: 18px; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin: 16px 0; }
+  .url-link { color: #2563eb; font-weight: bold; font-size: 16px; text-decoration: underline; }
+  code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>FieldShift 360: Figma Project &amp; App Integration Guide</h1>
+  <div class="subtitle">NASA Space Apps 2026 • Bilingual Decision Support System &amp; 3D Agro-Simulation</div>
+
+  <div class="box">
+    <h2>1. Official Figma Project Details</h2>
+    <ul>
+      <li><strong>File Name:</strong> FieldShift 360</li>
+      <li><strong>File Key:</strong> <code>tALeKIsKPsBhH6BHzcRgVL</code></li>
+      <li><strong>Direct Figma URL:</strong> <a class="url-link" href="https://www.figma.com/design/tALeKIsKPsBhH6BHzcRgVL">https://www.figma.com/design/tALeKIsKPsBhH6BHzcRgVL</a></li>
+      <li><strong>Team / Workspace:</strong> Fan of Football&#39;s team (<code>team::1701473692692137633</code>)</li>
+      <li><strong>Account:</strong> Fan of Football (fanoffootball2023@gmail.com)</li>
+    </ul>
+  </div>
+
+  <h2>2. How to Input and Use the Figma File in the App</h2>
+
+  <h3>Method A: Direct Figma Desktop &amp; Web App Access</h3>
+  <ol>
+    <li>Open your Figma Desktop App or visit <a href="https://www.figma.com/design/tALeKIsKPsBhH6BHzcRgVL">https://www.figma.com/design/tALeKIsKPsBhH6BHzcRgVL</a>.</li>
+    <li>Use your edit access to design UI screens, mobile responsive views (390×844), and desktop views (1280×800).</li>
+  </ol>
+
+  <h3>Method B: Figma Code Connect (Mapping Code to Design)</h3>
+  <p>Code Connect bridges React components directly with Figma canvas components:</p>
+  <ul>
+    <li>Copy component Node IDs from the Figma file URL (e.g., <code>node-id=1:2</code>).</li>
+    <li>Map codebase components using Figma MCP tools or <code>.figma.ts</code> files.</li>
+  </ul>
+
+  <h3>Method C: Push Live App Screens into Figma (Code-to-Design)</h3>
+  <ul>
+    <li>Run the local development server: <code>npm run dev</code> (runs on <code>http://localhost:5173</code>).</li>
+    <li>Use the Figma plugin to capture pixel-perfect layout frames into your design canvas.</li>
+  </ul>
+
+  <h2>3. Project Architecture &amp; Key Entry Points</h2>
+  <ul>
+    <li><strong>3D Farm Game (মাঠের মানুষ):</strong> <code>src/pages/public/FarmGame.jsx</code>, <code>src/game/three/world.js</code>, <code>stage.js</code></li>
+    <li><strong>Farmer Decision Suite:</strong> <code>src/pages/farmer/Plan.jsx</code>, <code>Today.jsx</code>, <code>FieldFuture.jsx</code></li>
+    <li><strong>Agriculture Officer Hub:</strong> <code>src/pages/officer/Requests.jsx</code>, <code>UpazilaSupply.jsx</code>, <code>AreaMap.jsx</code></li>
+    <li><strong>Chakra AI Assistant (চক্র এজেন্ট):</strong> <code>src/components/chakra/ChakraAgent.jsx</code>, <code>src/engine/chakra.js</code></li>
+    <li><strong>NASA Data Harmonization Pipeline:</strong> <code>src/engine/provenance.js</code>, <code>src/data/climate/</code>, <code>src/data/soil/</code></li>
+  </ul>
+</body>
+</html>

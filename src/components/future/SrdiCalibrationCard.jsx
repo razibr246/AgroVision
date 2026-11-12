@@ -10,7 +10,7 @@ export default function SrdiCalibrationCard({
   soilTestValues,
   onApplyValues,
   onReset,
-  lang = 'bn',
+  lang = 'en',
   T,
   L,
 }) {

@@ -1,0 +1,10 @@
+{
+  "source": "NASA GIBS WMS (https://nasa-gibs.github.io/gibs-api-docs/)",
+  "fetched": "2026-11-10",
+  "cloudsDate": "2026-11-09",
+  "layers": {
+    "day": "BlueMarble_NextGeneration",
+    "night": "VIIRS_Black_Marble",
+    "clouds": "VIIRS_NOAA20_CorrectedReflectance_TrueColor"
+  }
+}

@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom';
 import App from './App';
 import AppError from './components/AppError';
 import { StoreProvider, bootClimate } from './store';
+import { AppAuthProvider } from './auth/AuthProvider';
 // Self-hosted variable fonts: Inter for Latin, Noto Sans Bengali for Bangla (only the alphabets a page uses download).
 import '@fontsource-variable/inter/opsz.css';
 import '@fontsource-variable/noto-sans-bengali/index.css';
@@ -15,9 +16,11 @@ const render = () => createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AppError>
       <HashRouter>
-        <StoreProvider>
-          <App />
-        </StoreProvider>
+        <AppAuthProvider>
+          <StoreProvider>
+            <App />
+          </StoreProvider>
+        </AppAuthProvider>
       </HashRouter>
     </AppError>
   </StrictMode>,

@@ -139,8 +139,9 @@ export function normalizeCallNote(raw, transcriptText) {
 
 // ---- consent -------------------------------------------------------------------------------------------------------
 // A decision logged before anything is recorded. Recording is allowed only on a logged yes from this session.
-export function makeConsent({ given, lang = 'bn', by = 'officer', at = new Date().toISOString() }) {
-  return { given: given === true, at, lang: lang === 'en' ? 'en' : 'bn', notice: CONSENT_NOTICE[lang === 'en' ? 'en' : 'bn'], by: str(by, 80) || 'officer' };
+export function makeConsent({ given, lang = 'en', by = 'officer', at = new Date().toISOString() }) {
+  const safeLang = lang === 'bn' ? 'bn' : 'en';
+  return { given: given === true, at, lang: safeLang, notice: CONSENT_NOTICE[safeLang], by: str(by, 80) || 'officer' };
 }
 export const canRecord = (consent) => !!consent && consent.given === true && !Number.isNaN(Date.parse(consent.at));
 

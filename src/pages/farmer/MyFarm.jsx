@@ -6,6 +6,7 @@ import Photo from '../../components/Photo';
 import LandPicker from '../../components/map/LandPicker';
 import FieldsMap, { LEVEL_LOOK } from '../../components/fields/FieldsMap';
 import FieldSatellite from '../../components/fields/FieldSatellite';
+import FieldBoundary from '../../components/fields/FieldBoundary';
 import FieldRisks from '../../components/fields/FieldRisks';
 import FieldRiskMap from '../../components/fields/FieldRiskMap';
 import LandsatThen from '../../components/fields/LandsatThen';
@@ -118,7 +119,7 @@ export default function MyFarm() {
                   {myParcels.map((p, i) => {
                     const r = readingOf(p.id), look = LEVEL_LOOK[levels[p.id]], on = p.id === selected?.id;
                     return (
-                      <li key={p.id}>
+                      <li key={p.id} className="farm-card-row cv-auto">
                         <button type="button" onClick={() => pick(p.id)} aria-pressed={on}
                           className={`my-farm-field-option flex w-full items-center gap-3 rounded-2xl border p-3 text-left ${on ? 'is-selected border-primary-400 bg-primary-50' : 'border-border bg-white hover:border-primary-300 hover:bg-primary-50/50'}`}>
                           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[14px] font-bold text-white" style={{ background: look.color }}>{num(i + 1, lang)}</span>
@@ -147,6 +148,7 @@ export default function MyFarm() {
             <div data-tour="farm-sat"><FieldSatellite key={selected.id} parcel={selected} index={selIndex} active={selected.id === activeParcel?.id}
               onPlan={planThis} onEdit={() => openEditor('edit')} onReading={(id, r) => setLive((x) => (x[id] === r ? x : { ...x, [id]: r }))} /></div>
           )}
+          {selected && editing !== 'add' && <FieldBoundary parcel={selected} />}
           {selected && editing !== 'add' && <FieldRisks parcel={selected} />}
           {selected && editing !== 'add' && <LandsatThen parcel={selected} />}
           {editing !== 'add' && <FieldRiskMap upazilaId={upazila.id} highlight={selected?.id} />}
@@ -188,7 +190,7 @@ export default function MyFarm() {
           <div className="mt-3 flex flex-wrap gap-1.5 text-[13px]">
             {soil.texture && <span className="chip bg-black/5 text-ink/75">{T('বুনট', 'Texture')}: {L(TEXTURE[soil.texture] ?? { bn: soil.texture, en: soil.texture })}</span>}
             {soil.wrb?.[0] && <span className="chip bg-black/5 text-ink/75">{soil.wrb[0].name}</span>}
-            {soil.physiography?.[0] && <span className="chip bg-black/5 text-ink/75">SRDI: {soil.physiography[0]}</span>}
+            {soil.physiography?.[0] && <span className="chip bg-black/5 text-ink/75">SRDI: {lang === 'en' ? ({ 'পলি মাটি': 'Alluvial soil', 'খিয়ার মাটি': 'Barind clay (Khiyar)', 'খিয়ার মাটি': 'Barind clay (Khiyar)', 'পাহাড়ী মাটি': 'Hill soil', 'পাহাড়ী মাটি': 'Hill soil' }[soil.physiography[0]] || soil.physiography[0]) : soil.physiography[0]}</span>}
           </div>
           <p className="mt-3 text-[13.5px] text-muted">{soil.tested ? T('pH আর জৈব পদার্থ আপনার মাটি পরীক্ষার; বাকিটা ISRIC SoilGrids-এর আনুমানিক হিসাব।', 'pH and organic matter are from your soil test; the rest is the ISRIC SoilGrids estimate.') : (soil.scope === 'field' ? T('আপনার জমির ২৫০ মিটারের ঘরের হিসাব (ISRIC SoilGrids), মাঠের মাটি পরীক্ষা নয়।', 'For your field’s 250 m cell (ISRIC SoilGrids), not a field soil test.') : T('ইউনিয়নের মাঝখানের হিসাব (ISRIC SoilGrids), মাঠের মাটি পরীক্ষা নয়।', 'For the union centre (ISRIC SoilGrids), not a field soil test.'))}</p>
           <SoilTestCard />

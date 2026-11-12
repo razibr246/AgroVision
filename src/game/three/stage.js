@@ -11,47 +11,23 @@ import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { createWorld } from './world';
-import { createField } from './field';
-import { buildFarmer, animate, personLight } from './people';
-import { createBackdrop } from './backdrop';
-import { createLife } from './life';
-import { update as step, act as simAct, target, plotAt, dayPhase, ripeAt, STATIONS, note } from '../sim';
-import { QUESTS, FIELD_W, FIELD_D, WORLD_R } from '../regions';
-import { inWater } from '../layout';
-import { bakeNav, findPath } from '../nav';
-import { DEFAULT_SETTINGS, lookDelta } from '../settings';
+import { createWorld } from './world.js';
+import { createField } from './field.js';
+import { buildFarmer, animate, personLight } from './people.js';
+import { createBackdrop } from './backdrop.js';
+import { createLife } from './life.js';
+import { update as step, act as simAct, emote as simEmote, target, plotAt, dayPhase, ripeAt, STATIONS, note, buy as simBuy } from '../sim.js';
+import { newJob, nextStep, stepLine, STEP_TIMEOUT } from '../helper.js';
+import { QUESTS, FIELD_W, FIELD_D, WORLD_R } from '../regions.js';
+import { bakeNav, findPath } from '../nav.js';
+import { DEFAULT_SETTINGS, lookDelta } from '../settings.js';
+import { camReach } from '../camclip.js';
+import { surfaceAt as groundAt } from '../footing.js';
 
-const segDist = (px, pz, [ax, az], [bx, bz]) => {
-  const dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / l));
-  return Math.hypot(px - ax - t * dx, pz - az - t * dz);
-};
-
+// what is underfoot (../footing.js), as the footstep sounds and footprints know it: a plot's dry soil sounds like mud
 function surfaceAt(L, g, x, z) {
-  if (inWater(L, x, z) || (g.ev?.flood > 0.15 && Math.abs(x) < FIELD_W / 2 + 4 && Math.abs(z) < FIELD_D / 2 + 4)) {
-    return 'water';
-  }
-  if (plotAt(x, z) !== null) {
-    return 'mud';
-  }
-  if (L.paths) {
-    for (const p of L.paths) {
-      for (let k = 1; k < p.length; k++) {
-        if (segDist(x, z, p[k - 1], p[k]) < 1.35) return 'path';
-      }
-    }
-  }
-  if (L.props) {
-    for (const pr of L.props) {
-      if ((pr.kind === 'bamboobridge' || pr.kind === 'ghat') && Math.hypot(x - pr.x, z - pr.z) < 2.5) {
-        return 'wood';
-      }
-    }
-  }
-  if (g.S?.shed && Math.hypot(x - g.S.shed.x, z - g.S.shed.z) < 2.6) {
-    return 'wood';
-  }
-  return 'grass';
+  const s = groundAt(L, g, x, z);
+  return s === 'soil' ? 'mud' : s;
 }
 
 const ease = (t) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
@@ -67,12 +43,19 @@ const needWebGL = () => {
 // The cinematic grade, after tone mapping: balanced saturation, clean shadow lift,
 // subtle warm highlight wash, gentle corner vignette framing, and film grain for texture.
 const GRADE = {
-  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 } },
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uHeat: { value: 0 } },
   vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime, uHeat; varying vec2 vUv;
     float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
     void main() {
-      vec3 c = texture2D(tDiffuse, vUv).rgb;
+      vec2 uv = vUv;
+      if (uHeat > 0.005) {
+        float mask = smoothstep(0.05, 0.68, 1.0 - uv.y) * smoothstep(0.0, 0.12, uv.y);
+        float w1 = sin(uv.y * 56.0 - uTime * 7.8 + uv.x * 11.0);
+        float w2 = cos(uv.y * 34.0 - uTime * 5.1 - uv.x * 16.0);
+        uv = clamp(uv + vec2(w1 * 0.0020 + w2 * 0.0011, w2 * 0.0008) * uHeat * mask, 0.001, 0.999);
+      }
+      vec3 c = texture2D(tDiffuse, uv).rgb;
       float l = dot(c, vec3(0.299, 0.587, 0.114));
       /* saturation +14% */
       c = mix(vec3(l), c, 1.14);
@@ -98,6 +81,15 @@ export function lightGraphics() {
 }
 // The drop from orbit is a sweeping camera move; a player who asks for less motion gets a short fade-in instead.
 const lessMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Critically damped scalar spring (zero overshoot, smooth velocity continuity)
+function springStep(cur, vel, target, smoothTime, dt) {
+  const omega = 2 / Math.max(0.01, smoothTime);
+  const x = omega * dt;
+  const exp = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+  const change = cur - target;
+  const temp = (vel + omega * change) * dt;
+  return [target + (change + temp) * exp, (vel - omega * temp) * exp];
+}
 export function createStage({ canvas, overlay, minimap, compass, g, lang, onEvent }) {
   needWebGL();
   const touch = isTouch();
@@ -107,8 +99,8 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !light, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, light ? 1 : touch ? 1.5 : 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.28;
-  renderer.shadowMap.enabled = !light; renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12; // white cloth stays cloth, not a glow
+  renderer.shadowMap.enabled = !light; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.xr.enabled = true;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(touch ? 60 : 52, 1, 0.1, 900);
@@ -121,7 +113,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       gtao = new GTAOPass(scene, camera, 2, 2);
       gtao.blendIntensity = 0.35; gtao.updateGtaoMaterial({ radius: 0.7, distanceExponent: 1.5, thickness: 1.3, scale: 1 });
       composer.addPass(gtao);
-      composer.addPass(new UnrealBloomPass(new THREE.Vector2(2, 2), 0.32, 0.52, 0.88));
+      composer.addPass(new UnrealBloomPass(new THREE.Vector2(2, 2), 0.22, 0.5, 0.97)); // only the truly bright glows (the sun on water, a lamp)
       composer.addPass(new OutputPass());
       gradPass = new ShaderPass(GRADE); composer.addPass(gradPass);
     } catch { composer = null; }
@@ -144,7 +136,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
   const pts = new THREE.Points(pGeo, new THREE.PointsMaterial({ size: 0.14, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false }));
   pts.frustumCulled = false; scene.add(pts);
   const parts = [];
-  const FXCOL = { water: '#8fd3f0', pump: '#8fd3f0', plant: '#6b4a2b', dust: '#a08060', harvest: '#ffe27a', spray: '#bfe8a0', coin: '#f2c94c' };
+  const FXCOL = { water: '#8fd3f0', pump: '#8fd3f0', plant: '#6b4a2b', dust: '#a08060', harvest: '#ffe27a', spray: '#bfe8a0', coin: '#f2c94c', sparkle: '#fbbf24', ripe: '#f59e0b' };
   function burst(kind, x, z) {
     const y = L.ground(x, z), n = kind === 'harvest' || kind === 'coin' ? 30 : 22, c = new THREE.Color(FXCOL[kind] ?? '#ffffff');
     for (let k = 0; k < n && parts.length < MAXP; k++) {
@@ -233,9 +225,10 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
 
   // ---- overlay: names, bubble, floaters, marker tag ----
   const el = (cls, html = '') => { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; overlay.appendChild(d); return d; };
-  const labels = STATIONS.concat('safe').map((id) => ({ id, d: el('g3-label') }));
+  const labels = STATIONS.concat('safe').filter((id) => g.S[id]).map((id) => ({ id, d: el('g3-label') }));
   const bubble = el('g3-bubble'); bubble.style.display = 'none';
   const life = createLife(scene, g, overlay, lang);
+  life.setHerd(world.herd); // people and animals keep out of each other (../footing.js)
   const tag = el('g3-tag'); tag.style.display = 'none';
   const actionTag = el('g3-action-tag'); actionTag.style.display = 'none';
   actionTag.onclick = (e) => { e.stopPropagation(); if (cam.intro === 0) simAct(g); };
@@ -248,7 +241,18 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
 
   // ---- camera and input ----
   // over the shoulder: close, low, and a little to the side so the farmer stands left of centre
-  const cam = { layer: 'health', yaw: -2.4, pitch: 0.32, dist: touch ? 5 : 5.4, look: 0, sat: false, intro: 1, introT: lessMotion() ? 4.7 : 0, side: 0 };
+  const cam = { layer: 'health', yaw: -2.4, pitch: 0.32, dist: touch ? 5 : 5.4, look: 0, sat: false, intro: 1, introT: lessMotion() ? 4.7 : 0, side: 0, reach: 1 };
+  const camSpring = {
+    curDist: cam.dist, distVel: 0,
+    curPitch: cam.pitch, pitchVel: 0,
+    satT: 0, satVel: 0,
+    roll: 0, rollVel: 0,
+    fovVel: 0,
+    pos: new THREE.Vector3(), vel: new THREE.Vector3(),
+    look: new THREE.Vector3(), lookVel: new THREE.Vector3(),
+    ready: false,
+  };
+  let heatMix = 0;
   const keys = new Set();
   const joy = { x: 0, y: 0 };
   let runHeld = false, runToggle = false;
@@ -344,8 +348,8 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 1; for (const p of g.plots) x.strokeRect(X(p.x - 1.6), X(p.z - 1.6), 3.2 * k, 3.2 * k);
     for (const b of L.blockers) if (b.hw) { x.save(); x.translate(X(b.x), X(b.z)); x.rotate(-Math.atan2(b.s, b.c)); x.fillStyle = 'rgba(60,40,30,.55)'; x.fillRect(-b.hw * k, -b.hd * k, b.hw * 2 * k, b.hd * 2 * k); x.restore(); }
     else { x.fillStyle = 'rgba(30,70,30,.45)'; x.beginPath(); x.arc(X(b.x), X(b.z), Math.max(1.2, b.r * k), 0, Math.PI * 2); x.fill(); }
-    const icon = { shed: '#f2c94c', water: '#5fb8f0', market: '#f08a4a', kiosk: '#7fd36b' };
-    for (const id of STATIONS) { x.fillStyle = '#fff'; x.beginPath(); x.arc(X(g.S[id].x), X(g.S[id].z), 5.5, 0, Math.PI * 2); x.fill(); x.fillStyle = icon[id]; x.beginPath(); x.arc(X(g.S[id].x), X(g.S[id].z), 4, 0, Math.PI * 2); x.fill(); }
+    const icon = { shed: '#f2c94c', water: '#5fb8f0', market: '#f08a4a', kiosk: '#7fd36b', office: '#3b82f6' };
+    for (const id of STATIONS) { if (!g.S[id]) continue; x.fillStyle = '#fff'; x.beginPath(); x.arc(X(g.S[id].x), X(g.S[id].z), 5.5, 0, Math.PI * 2); x.fill(); x.fillStyle = icon[id]; x.beginPath(); x.arc(X(g.S[id].x), X(g.S[id].z), 4, 0, Math.PI * 2); x.fill(); }
     mapBg = bg;
   }
   function drawMap(t, goalPos) {
@@ -391,6 +395,44 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     const p = findPath(nav, g.me.x, g.me.z, x, z); if (!p) return false;
     Object.assign(route, { pts: p, to: [x, z], step: 1, auto: true, at: 0.6 }); return true;
   }
+  // চক্র এজেন্ট doing a job: walk to the step's plot or station, do the work there, ask for the next step
+  const helper = { job: null, step: null, t: 0 };
+  function stopJob(why) {
+    if (!helper.job) return;
+    const job = helper.job; helper.job = null; helper.step = null; route.auto = false;
+    onEvent({ type: 'helper', state: why, id: job.id, log: job.log });
+  }
+  function arrived(s) {
+    const me = g.me;
+    if (s.kind === 'plot') return plotAt(me.x, me.z) === s.i && Math.hypot(me.x - s.x, me.z - s.z) < 1.3;
+    if (s.kind === 'station') { const t = target(g); return t?.kind === 'station' && t.id === s.id; }
+    return Math.hypot(me.x - s.x, me.z - s.z) < s.r;
+  }
+  function helperTick(dt) {
+    const job = helper.job; if (!job || g.me.act || g.me.down > 0) return;
+    if (!helper.step) {
+      const s = nextStep(g, job);
+      if (!s) { stopJob('done'); return; }
+      helper.step = s; helper.t = 0;
+      if (!arrived(s) && !walkTo(s.x, s.z)) { stopJob('blocked'); return; }
+      onEvent({ type: 'helper', state: 'going', id: job.id, step: s });
+      return;
+    }
+    const s = helper.step; helper.t += dt;
+    if (!arrived(s)) {
+      if (helper.t > STEP_TIMEOUT) stopJob('blocked');
+      else if (!route.auto) walkTo(s.x, s.z); // the route ended short of a station's reach: try again from here
+      return;
+    }
+    route.auto = false;
+    if (s.sel) g.sel = s.sel;
+    if (s.buy) { for (const b of s.buy) simBuy(g, b.k, b.n); job.bought = true; }
+    const what = s.kind === 'plot' ? target(g)?.what : null;
+    if (!s.buy && s.kind !== 'spot') simAct(g);
+    const line = stepLine(g, s, what); job.log.push(line); job.steps++;
+    helper.step = null;
+    onEvent({ type: 'helper', state: 'step', id: job.id, line, steps: job.steps });
+  }
   function updateRoute(dt, goalPos, xrOn) {
     route.at -= dt;
     const to = route.auto ? route.to : goalPos, me = g.me;
@@ -427,11 +469,13 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
   // on top (dom-overlay), so the joystick, the act button and every panel work as they do on screen.
   // VR on a headset: life size, standing behind the farmer. Left stick walks, right stick turns in steps, trigger (or A/X)
   // acts, grip runs, and a sign over the farmer carries what they say, the mission and the alerts. A headset's AR
-  // (passthrough, no dom-overlay) plays the tabletop with the same controllers and sign. A panel (a question, the
-  // shop) is part of the page, so it ends the session; the player answers it and comes back in with the same button.
+  // (passthrough, no dom-overlay) plays the tabletop with the same controllers and sign. Full VR (first person,
+  // teleport, hands, panels in the world, the wrist) lives in xr.js, loaded when a session starts: `vr` while it runs.
   const AR_SCALE = 40, UP = new THREE.Vector3(0, 1, 0), fov0 = camera.fov;
   const rig = new THREE.Group(); rig.add(camera); scene.add(rig);
   const xr = { mode: null, pads: false, run: false, yaw: 0, turnHeld: false, actHeld: false, eye: new THREE.Vector3(), dir: new THREE.Vector3(), at: new THREE.Vector3() };
+  let vr = null, arx = null; // xr.js: the VR game and the AR placement, while a session runs
+  const toPage = onEvent; onEvent = (e) => { vr?.peek(e); toPage(e); };
   const signC = document.createElement('canvas'); signC.width = 1024; signC.height = 320;
   const signTex = new THREE.CanvasTexture(signC); signTex.colorSpace = THREE.SRGBColorSpace;
   const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: signTex, transparent: true, depthTest: false, fog: false }));
@@ -478,8 +522,10 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
   async function enterXR(mode, root) {
     if (renderer.xr.isPresenting) return;
     const ar = mode === 'ar';
-    const session = await navigator.xr.requestSession(ar ? 'immersive-ar' : 'immersive-vr', ar ? { optionalFeatures: ['dom-overlay'], domOverlay: { root } } : { optionalFeatures: ['local-floor'] });
+    const session = await navigator.xr.requestSession(ar ? 'immersive-ar' : 'immersive-vr', ar ? { optionalFeatures: ['dom-overlay', 'hit-test'], domOverlay: { root } } : { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'] });
     renderer.xr.setReferenceSpaceType(ar ? 'local' : 'local-floor');
+    const X = await import('./xr.js');
+    X.prepareXR(renderer);
     await renderer.xr.setSession(session);
     xr.mode = mode; xr.pads = !ar || !session.domOverlayState;
     if (cam.intro) { cam.intro = 0; onEvent({ type: 'introDone' }); }
@@ -490,7 +536,19 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       rig.scale.setScalar(AR_SCALE); rig.rotation.y = cam.yaw; rig.position.set(-v.x, L.ground(0, 0) - v.y, -v.z);
       sign.scale.set(12.8, 4, 1);
     } else { xr.yaw = cam.yaw; placeVR(1, L.ground(g.me.x, g.me.z)); sign.scale.set(3.2, 1, 1); }
+    try {
+      if (ar) arx = X.createAR({ renderer, rig, L, scale0: AR_SCALE, root });
+      else vr = X.createXR({ renderer, scene, camera, rig, g, L, P, world, xrs: xr, joy, cam, emit: toPage, api: {
+        lang: () => lang, act: () => { if (cam.intro === 0) simAct(g); }, emote: (k) => simEmote(g, k), npcs: () => life.dots?.() ?? [], route,
+        sat: () => cam.sat, layer: () => cam.layer, toggleSat() { cam.sat = !cam.sat; g.ndvi = cam.sat; if (cam.sat) note(g, 'satViews'); if (cam.sat && cam.layer === 'water') note(g, 'waterLayer'); },
+        setLayer(l) { cam.layer = l; if (l === 'water' && cam.sat) note(g, 'waterLayer'); },
+        runJob(id, opts) { if (cam.intro || !nav) return false; stopJob('replaced'); helper.job = newJob(id, opts); helper.step = null; return true; },
+        stopJob: () => stopJob('stopped'), job: () => (helper.job ? { id: helper.job.id, steps: helper.job.steps } : null),
+      } });
+    } catch (err) { if (import.meta.env.DEV) console.error('[xr]', err); }
     session.addEventListener('end', () => {
+      try { vr?.end(); arx?.end(); } catch { /* the scene may be gone */ }
+      vr = null; arx = null;
       xr.mode = null; xr.pads = false; xr.run = false; joy.x = joy.y = 0;
       rig.position.set(0, 0, 0); rig.rotation.set(0, 0, 0); rig.scale.setScalar(1);
       world.sky.visible = true; sign.visible = false; camera.fov = fov0; resize();
@@ -522,7 +580,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     for (const [i, action] of Object.entries(PAD_EVENTS)) if (edge(+i)) onEvent({ type: 'pad', action });
   }
   function inputVector() {
-    if (route.auto && (MOVE.some((k) => keys.has(k)) || Math.hypot(joy.x, joy.y) > 0.15 || Math.hypot(pad.x, pad.y) > 0)) route.auto = false; // the player takes over
+    if (route.auto && (MOVE.some((k) => keys.has(k)) || Math.hypot(joy.x, joy.y) > 0.15 || Math.hypot(pad.x, pad.y) > 0)) { route.auto = false; stopJob('taken'); } // the player takes over
     if (route.auto && route.pts) {
       const me = g.me; let p = route.pts[route.step];
       while (p && Math.hypot(p[0] - me.x, p[1] - me.z) < 0.7 && route.step < route.pts.length - 1) p = route.pts[++route.step];
@@ -538,7 +596,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     const l = Math.hypot(fx, fz); if (l > 1) { fx /= l; fz /= l; }
     const s = Math.sin(cam.yaw), c = Math.cos(cam.yaw);
     // forward is from the camera towards the farmer; right is forward × up
-    return { mx: -s * fz + c * fx, mz: -c * fz - s * fx, run: pad.run || runHeld || runToggle || xr.run || Math.hypot(joy.x, joy.y) > 0.95 };
+    return { mx: -s * fz + c * fx, mz: -c * fz - s * fx, run: pad.run || runHeld || runToggle || xr.run || Math.hypot(joy.x, joy.y) > 0.95, brisk: !!prefs.fastWalk };
   }
 
   function frame(now) {
@@ -551,18 +609,24 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       if (xrOn) {
         const xc = renderer.xr.getCamera(); xc.getWorldPosition(xr.eye); xc.getWorldDirection(xr.dir);
         if (Math.hypot(xr.dir.x, xr.dir.z) > 0.1) cam.yaw = Math.atan2(-xr.dir.x, -xr.dir.z);
-        if (xr.pads) pollPads();
+        if (vr) vr.input(dt); else if (xr.pads) pollPads();
       }
       if (!xrOn) readPad(dt);
       const inp = inputVector();
       if (cam.intro > 0) { cam.introT += dt; if (cam.introT > 5.2) { cam.intro = 0; onEvent({ type: 'introDone' }); } }
-      if (gradPass) gradPass.uniforms.uTime.value = t;
+      heatMix += (((g.ev.heat > 0 && !cam.sat && !xrOn) ? 1 : 0) - heatMix) * Math.min(1, dt * 3.2);
+      if (gradPass) { gradPass.uniforms.uTime.value = t; gradPass.uniforms.uHeat.value = heatMix; }
       if (!paused && cam.intro === 0) {
         if (keys.has('Space') || keys.has('KeyE') || keys.has('KeyF')) { keys.delete('Space'); keys.delete('KeyE'); keys.delete('KeyF'); simAct(g); }
+        if (keys.has('KeyG')) { keys.delete('KeyG'); simEmote(g, 'greet'); }
+        if (keys.has('KeyT')) { keys.delete('KeyT'); simEmote(g, 'wipe'); }
+        if (keys.has('KeyH')) { keys.delete('KeyH'); simEmote(g, 'soilcheck'); }
         step(g, dt, inp);
+        helperTick(dt);
       }
       for (const e of g.out.splice(0)) {
-        if (xr.pads) {
+        if (vr && vr.event(e)) continue; // VR shows it in the world (a panel never ends the session)
+        if (xr.pads && !vr) {
           if (e.type === 'say' || e.type === 'toast') showSign('', T(e.text));
           else if (e.type === 'alert') showSign(T(e.title), T(e.body));
           else if (e.type === 'quest') showSign(lang === 'bn' ? `মিশন ${String(e.index + 1).replace(/\d/g, (n) => '০১২৩৪৫৬৭৮৯'[n])}` : `Mission ${e.index + 1}`, T(QUESTS[e.index]));
@@ -579,15 +643,21 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       // the farmer
       const me = g.me, gy = L.ground(me.x, me.z) + (g.ev.flood > 0.3 && Math.abs(me.x) < FIELD_W / 2 + 4 && Math.abs(me.z) < FIELD_D / 2 + 4 ? -0.15 : 0);
       P.root.position.set(me.x, gy, me.z); P.root.rotation.y = me.yaw;
-      if (me.slopeZ !== undefined && me.slopeX !== undefined) {
-        P.root.rotation.x += (me.slopeZ * 0.45 - P.root.rotation.x) * Math.min(1, dt * 8);
-        P.root.rotation.z += (-me.slopeX * 0.45 - P.root.rotation.z) * Math.min(1, dt * 8);
-      }
+      // people stand upright on a slope; their feet follow the ground (people.js animate, slopeX / slopeZ)
+      P.root.rotation.x = 0; P.root.rotation.z = 0;
       let nearestNpc = null, minNpcD = 4.2;
       const npcs = life.dots?.() ?? [];
       for (const [nx, nz] of npcs) {
         const d = Math.hypot(nx - me.x, nz - me.z);
         if (d < minNpcD) { minNpcD = d; nearestNpc = { x: nx, y: L.ground(nx, nz) + 1.35, z: nz }; }
+      }
+      if (g.S?.shed) {
+        const d = Math.hypot(g.S.shed.x - me.x, g.S.shed.z - me.z);
+        if (d < minNpcD) { minNpcD = d; nearestNpc = { x: g.S.shed.x, y: L.ground(g.S.shed.x, g.S.shed.z) + 1.45, z: g.S.shed.z }; }
+      }
+      if (g.S?.kiosk) {
+        const d = Math.hypot(g.S.kiosk.x - me.x, g.S.kiosk.z - me.z);
+        if (d < minNpcD) { minNpcD = d; nearestNpc = { x: g.S.kiosk.x, y: L.ground(g.S.kiosk.x, g.S.kiosk.z) + 1.35, z: g.S.kiosk.z }; }
       }
       animate(P, {
         speed: me.speed,
@@ -603,13 +673,14 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
         slopeX: me.slopeX,
       }, dt);
       if (me.speed > 0.6 && !me.act && me.down <= 0) {
-        stepT -= dt;
-        if (stepT <= 0) {
-          stepT = me.run ? 0.22 : 0.36;
-          fpFootLeft = !fpFootLeft;
-          const sideOffset = fpFootLeft ? -0.13 : 0.13;
-          const fx = me.x + Math.cos(me.yaw) * sideOffset;
-          const fz = me.z - Math.sin(me.yaw) * sideOffset;
+        // a footstep at each heel strike of the stride (people.js keeps P.phase: 0 and π are the two feet landing)
+        const half = Math.floor((P.phase ?? 0) / Math.PI);
+        if (half !== stepT) {
+          stepT = half;
+          fpFootLeft = half === 0; // leg 0 (the figure's -x side) lands at phase 0
+          const sideOffset = fpFootLeft ? -0.11 : 0.11, ahead = Math.min(0.35, me.speed * 0.12);
+          const fx = me.x + Math.cos(me.yaw) * sideOffset + Math.sin(me.yaw) * ahead;
+          const fz = me.z - Math.sin(me.yaw) * sideOffset + Math.cos(me.yaw) * ahead;
           const fy = L.ground(fx, fz);
           const surf = surfaceAt(L, g, fx, fz);
           onEvent({ type: 'sound', s: 'step', surface: surf, run: me.run });
@@ -624,37 +695,80 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
           }
         }
       } else {
-        stepT = 0.08;
+        stepT = Math.floor((P.phase ?? 0) / Math.PI);
       }
-      // camera: dynamic follow with velocity look-ahead and speed pull-back
+      // camera: critically damped spring follow with velocity look-ahead, orbital zoom blend & dynamic roll banking
       const runShare = me.run ? Math.min(1, me.speed / 4.8) : 0;
       const leadX = (me.vx ?? 0) * 0.25, leadZ = (me.vz ?? 0) * 0.25;
       focus.set(me.x + leadX, gy + 1.45, me.z + leadZ);
       if (cam.look > 0) cam.look -= dt;
       else if (me.speed > 1 && !cam.sat) { let d = (me.yaw + Math.PI) - cam.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); if (Math.abs(d) < 2.2) cam.yaw += d * Math.min(1, dt * 1.1); }
-      const dist = (cam.sat ? 46 : cam.dist) * (1 + runShare * 0.16), pitch = cam.sat ? 1.35 : cam.pitch;
+      [camSpring.curDist, camSpring.distVel] = springStep(camSpring.curDist, camSpring.distVel, cam.dist, 0.12, dt);
+      [camSpring.curPitch, camSpring.pitchVel] = springStep(camSpring.curPitch, camSpring.pitchVel, cam.pitch, 0.08, dt);
+      [camSpring.satT, camSpring.satVel] = springStep(camSpring.satT, camSpring.satVel, cam.sat ? 1 : 0, 0.34, dt);
+      const dist = THREE.MathUtils.lerp(camSpring.curDist * (1 + runShare * 0.16), 46, camSpring.satT);
+      const pitch = THREE.MathUtils.lerp(camSpring.curPitch, 1.35, camSpring.satT);
       cam.side += ((cam.sat ? 0 : 0.55) - cam.side) * Math.min(1, dt * 3.5);
       const rx = Math.cos(cam.yaw) * cam.side, rz = -Math.sin(cam.yaw) * cam.side;
       focus.x += rx; focus.z += rz;
       camPos.set(focus.x + Math.sin(cam.yaw) * Math.cos(pitch) * dist, gy + 1.45 + Math.sin(pitch) * dist, focus.z + Math.cos(cam.yaw) * Math.cos(pitch) * dist);
-      if (xrOn) { if (xr.mode === 'vr') placeVR(Math.min(1, dt * 2.5), gy); }
+      // never inside a house: come in to just before the wall at once, ease back out once the way is clear
+      if (!cam.sat && !xrOn) {
+        const want = camReach(L.blockers, [focus.x, 1.45, focus.z], [camPos.x, camPos.y - gy, camPos.z]);
+        cam.reach = want < cam.reach ? want : cam.reach + (want - cam.reach) * Math.min(1, dt * 2.2);
+        if (cam.reach < 0.999) camPos.lerpVectors(focus, camPos, Math.max(0.16, cam.reach));
+      } else cam.reach = 1;
+      if (xrOn) { if (vr) vr.place(dt, gy); else if (xr.mode === 'vr') placeVR(Math.min(1, dt * 2.5), gy); arx?.frame(); }
       else if (cam.intro > 0) {
         const k = ease((cam.introT - 0.8) / 4.0);
         const top = tmpV.set(0, 200, 50);
         camera.position.copy(top).lerp(camPos, k);
         camera.up.set(0, 1, 0); camera.lookAt(focus.x * k, focus.y * k, focus.z * k);
+        camSpring.pos.copy(camera.position); camSpring.vel.set(0, 0, 0);
+        camSpring.look.copy(focus); camSpring.lookVel.set(0, 0, 0);
+        camSpring.ready = true;
         if (scene.fog) scene.fog.far = Math.max(scene.fog.far, 420);
       } else {
         camPos.y = Math.max(camPos.y, L.ground(camPos.x, camPos.z) + 0.6);
-        camera.position.lerp(camPos, Math.min(1, dt * (cam.sat ? 4.5 : 12)));
-        camera.lookAt(focus);
-        if (!cam.sat) {
-          const baseFov = (touch ? 60 : 52) + prefs.fov;
-          const targetFov = baseFov + runShare * 4;
-          if (Math.abs(camera.fov - targetFov) > 0.05) {
-            camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 7.5);
-            camera.updateProjectionMatrix();
+        if (!camSpring.ready) {
+          camSpring.pos.copy(camPos); camSpring.vel.set(0, 0, 0);
+          camSpring.look.copy(focus); camSpring.lookVel.set(0, 0, 0);
+          camSpring.ready = true;
+        } else {
+          const st = THREE.MathUtils.lerp(0.11, 0.24, camSpring.satT);
+          [camSpring.pos.x, camSpring.vel.x] = springStep(camSpring.pos.x, camSpring.vel.x, camPos.x, st, dt);
+          [camSpring.pos.y, camSpring.vel.y] = springStep(camSpring.pos.y, camSpring.vel.y, camPos.y, st, dt);
+          [camSpring.pos.z, camSpring.vel.z] = springStep(camSpring.pos.z, camSpring.vel.z, camPos.z, st, dt);
+          const lt = THREE.MathUtils.lerp(0.085, 0.20, camSpring.satT);
+          [camSpring.look.x, camSpring.lookVel.x] = springStep(camSpring.look.x, camSpring.lookVel.x, focus.x, lt, dt);
+          [camSpring.look.y, camSpring.lookVel.y] = springStep(camSpring.look.y, camSpring.lookVel.y, focus.y, lt, dt);
+          [camSpring.look.z, camSpring.lookVel.z] = springStep(camSpring.look.z, camSpring.lookVel.z, focus.z, lt, dt);
+        }
+        camSpring.pos.y = Math.max(camSpring.pos.y, L.ground(camSpring.pos.x, camSpring.pos.z) + 0.6);
+        if (!cam.sat && camSpring.satT < 0.35) {
+          const springReach = camReach(L.blockers, [camSpring.look.x, camSpring.look.y - gy, camSpring.look.z], [camSpring.pos.x, camSpring.pos.y - gy, camSpring.pos.z]);
+          if (springReach < 0.999) {
+            camSpring.pos.lerpVectors(camSpring.look, camSpring.pos, Math.max(0.16, springReach));
+            camSpring.vel.multiplyScalar(0.5);
           }
+        }
+        camera.position.copy(camSpring.pos);
+        camera.up.set(0, 1, 0);
+        camera.lookAt(camSpring.look);
+        const wantRoll = (cam.sat || camSpring.satT > 0.1 || lessMotion() || me.speed < 0.6)
+          ? 0
+          : Math.max(-0.032, Math.min(0.032, (me.turnRate ?? 0) * (me.run ? 0.0075 : 0.0035)));
+        [camSpring.roll, camSpring.rollVel] = springStep(camSpring.roll, camSpring.rollVel, wantRoll, 0.16, dt);
+        if (Math.abs(camSpring.roll) > 1e-4) camera.rotateZ(camSpring.roll);
+        const baseFov = (touch ? 60 : 52) + prefs.fov;
+        const targetFov = baseFov + (1 - camSpring.satT) * runShare * 4;
+        if (Math.abs(camera.fov - targetFov) > 0.02 || Math.abs(camSpring.fovVel) > 0.02) {
+          [camera.fov, camSpring.fovVel] = springStep(camera.fov, camSpring.fovVel, targetFov, 0.14, dt);
+          camera.updateProjectionMatrix();
+        } else if (camera.fov !== targetFov) {
+          camera.fov = targetFov;
+          camSpring.fovVel = 0;
+          camera.updateProjectionMatrix();
         }
       }
       const goalPos = cam.intro ? null : goal();
@@ -664,7 +778,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       const eye = xrOn ? xr.eye : camera.position;
       const ph = dayPhase(g), sunUp = ph < 0.75 ? Math.sin((ph / 0.75) * Math.PI) : 0;
       personLight.value = 0.35 + 0.65 * Math.min(1, sunUp * 2.5);
-      fill.intensity = 0.25 + 0.45 * Math.min(1, sunUp * 2.5);
+      fill.intensity = 0.2 + 0.3 * Math.min(1, sunUp * 2.5);
       fill.position.copy(eye).add(tmpV.set(0, 2, 0)); fill.target.position.copy(focus);
       const { wind } = world.update(t, dt, ph, g.ev, eye, focus, me);
       if (xr.mode === 'ar') { scene.fog.near = 1e4; scene.fog.far = 2e4; } // the room is the horizon
@@ -707,6 +821,58 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
               vy: -0.1 - Math.random() * 0.3,
               vz: Math.cos(spread) * (1.9 + Math.random() * 0.7),
               life: 0.38,
+              c,
+            });
+          }
+        } else if (me.act.type === 'harvest' && actProg > 0.15 && actProg < 0.75) {
+          const sx = me.x + Math.sin(yw) * 0.45;
+          const sz = me.z + Math.cos(yw) * 0.45;
+          const sy = gy + 0.25;
+          const c = new THREE.Color('#fcd34d');
+          for (let k = 0; k < 2; k++) {
+            parts.push({
+              x: sx + (Math.random() - 0.5) * 0.35,
+              y: sy + Math.random() * 0.2,
+              z: sz + (Math.random() - 0.5) * 0.35,
+              vx: (Math.random() - 0.5) * 0.8,
+              vy: 1.6 + Math.random() * 1.2,
+              vz: (Math.random() - 0.5) * 0.8,
+              life: 0.42,
+              c,
+            });
+          }
+        } else if (me.act.type === 'plant' && actProg > 0.2 && actProg < 0.7) {
+          const sx = me.x + Math.sin(yw) * 0.45;
+          const sz = me.z + Math.cos(yw) * 0.45;
+          const sy = gy + 0.45;
+          const c = new THREE.Color('#78350f');
+          for (let k = 0; k < 2; k++) {
+            parts.push({
+              x: sx + (Math.random() - 0.5) * 0.2,
+              y: sy,
+              z: sz + (Math.random() - 0.5) * 0.2,
+              vx: (Math.random() - 0.5) * 0.6,
+              vy: -0.4 - Math.random() * 0.4,
+              vz: (Math.random() - 0.5) * 0.6,
+              life: 0.32,
+              c,
+            });
+          }
+        } else if (me.act.type === 'sell' && actProg > 0.15 && actProg < 0.8) {
+          const sx = me.x + Math.sin(yw) * 0.35;
+          const sz = me.z + Math.cos(yw) * 0.35;
+          const sy = gy + 0.85;
+          const c = new THREE.Color('#f59e0b');
+          for (let k = 0; k < 3; k++) {
+            const a = Math.random() * Math.PI * 2;
+            parts.push({
+              x: sx,
+              y: sy,
+              z: sz,
+              vx: Math.cos(a) * (1.2 + Math.random() * 1.5),
+              vy: 2.2 + Math.random() * 1.4,
+              vz: Math.sin(a) * (1.2 + Math.random() * 1.5),
+              life: 0.52,
               c,
             });
           }
@@ -781,20 +947,20 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
       // overlay
       for (const l of labels) {
         const s = g.S[l.id], d = Math.hypot(s.x - me.x, s.z - me.z);
-        const show = !cam.intro && d < 16 && (l.id !== 'safe' || g.ev.zone);
+        const show = !cam.intro && d < (l.id === 'office' ? 26 : 16) && (l.id !== 'safe' || g.ev.zone);
         if (!show) { l.d.style.display = 'none'; continue; }
-        const [x, y, vis] = project(s.x, L.ground(s.x, s.z) + (l.id === 'safe' ? 7 : 3.6), s.z);
+        const [x, y, vis] = project(s.x, L.ground(s.x, s.z) + (l.id === 'safe' ? 7 : l.id === 'office' ? 7.4 : 3.6), s.z);
         l.d.style.display = vis ? '' : 'none'; l.d.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`; l.d.style.opacity = String(Math.min(1, (16 - d) / 5));
       }
       if (bubbleT > 0) {
         if (!hush) bubbleT -= dt; const [x, y, vis] = project(me.x, gy + 2.15, me.z);
-        bubble.style.display = vis && !cam.intro && !hush ? '' : 'none'; bubble.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+        bubble.style.display = vis && !cam.intro && !hush ? '' : 'none'; bubble.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -100%)`;
         if (bubbleT <= 0) bubble.style.display = 'none';
       }
       for (let i = floats.length - 1; i >= 0; i--) {
         const f = floats[i]; f.t += dt;
         const [x, y, vis] = project(f.x, L.ground(f.x, f.z) + 1.6 + f.t * 0.9, f.z);
-        f.d.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`; f.d.style.opacity = String(Math.max(0, 1 - Math.max(0, f.t - 0.9) / 0.6)); f.d.style.display = vis ? '' : 'none';
+        f.d.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`; f.d.style.opacity = String(Math.max(0, 1 - Math.max(0, f.t - 0.9) / 0.6)); f.d.style.display = vis ? '' : 'none';
         if (f.t > 1.5) { f.d.remove(); floats.splice(i, 1); }
       }
       if (goalPos && !onIt && !cam.sat) {
@@ -804,7 +970,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
         if (!vis) { x = W - x; y = H - y; }
         const off = !vis || x < m || x > W - m || y < m || y > H - m;
         x = Math.min(W - m, Math.max(m, x)); y = Math.min(H - m, Math.max(m + 40, y));
-        tag.style.display = ''; tag.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+        tag.style.display = ''; tag.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
         tag.classList.toggle('g3-edge', off);
         const dm = Math.round(Math.hypot(goalPos[0] - me.x, goalPos[1] - me.z));
         tag.textContent = lang === 'bn' ? `${String(dm).replace(/\d/g, (n) => '০১২৩৪৫৬৭৮৯'[n])} মি` : `${dm} m`;
@@ -847,7 +1013,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
             const [x, y, vis] = project(tx, ty, tz);
             if (vis) {
               actionTag.style.display = '';
-              actionTag.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+              actionTag.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -100%)`;
               actionTag.innerHTML = `<span class="g3-action-kbd">${touch ? '👆' : 'E'}</span> <span>${actionTxt}</span>`;
             } else {
               actionTag.style.display = 'none';
@@ -877,10 +1043,14 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     get walking() { return route.auto; },
     setRun(on) { runToggle = on; },
     act() { if (cam.intro === 0) simAct(g); },
+    emote(type) { if (cam.intro === 0) simEmote(g, type); },
     toggleSat() { cam.sat = !cam.sat; g.ndvi = cam.sat; if (cam.sat) note(g, 'satViews'); if (cam.sat && cam.layer === 'water') note(g, 'waterLayer'); return cam.sat; },
     get sat() { return cam.sat; },
     setLayer(l) { cam.layer = l; if (l === 'water' && cam.sat) note(g, 'waterLayer'); },
     setHush(v) { hush = !!v; },
+    runJob(id, opts) { if (cam.intro || !nav) return false; stopJob('replaced'); helper.job = newJob(id, opts); helper.step = null; return true; },
+    stopJob() { stopJob('stopped'); },
+    get job() { return helper.job ? { id: helper.job.id, steps: helper.job.steps, log: helper.job.log } : null; },
     setPrefs(p) { prefs = { ...DEFAULT_SETTINGS, ...p }; },
     snap: () => new Promise((resolve) => { snapReq = resolve; }),
     skipIntro() { if (cam.intro) cam.introT = Math.max(cam.introT, 4.6); },
@@ -890,9 +1060,11 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
     onPlot: () => plotAt(g.me.x, g.me.z) !== null,
     enterXR,
     get xr() { return xr.mode; },
+    get vr() { return vr; }, // the running VR game (xr.js), for a script driving an emulator (dev)
+    get cam() { return cam; }, get farmer() { return P; }, // for a script or headless browser looking at the people up close (dev, window.__fsGame)
     dispose() {
       clearTimeout(navTimer); minimap?.removeEventListener('pointerdown', mapTap);
-      alive = false; renderer.xr.getSession()?.end().catch(() => {}); renderer.setAnimationLoop(null); ro.disconnect(); signTex.dispose(); life.dispose(); composer?.dispose(); gtao?.dispose?.(); gradPass?.dispose?.(); fpMat.dispose(); wrMat.dispose();
+      alive = false; renderer.xr.getSession()?.end().catch(() => {}); renderer.setAnimationLoop(null); ro.disconnect(); signTex.dispose(); world.dispose?.(); field.dispose?.(); life.dispose(); composer?.dispose(); gtao?.dispose?.(); gradPass?.dispose?.(); fpMat.dispose(); wrMat.dispose();
       window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); window.removeEventListener('blur', clearInput); document.removeEventListener('visibilitychange', onVisibility);
       overlay.replaceChildren();
       scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
@@ -919,11 +1091,11 @@ export function createPreview(canvas, look, { world = null } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
   scene.add(new THREE.HemisphereLight('#fff6e0', '#4a6838', 1.6));
-  const key = new THREE.DirectionalLight('#fffbe8', 2.8); key.position.set(2.8, 4.5, 3.2); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+  const key = new THREE.DirectionalLight('#fffbe8', 2.8); key.position.set(2.8, 4.5, 3.2); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
   // a tight shadow box round the figure, with bias, so cloth shows no shadow speckle
   Object.assign(key.shadow.camera, { left: -1.5, right: 1.5, top: 2.6, bottom: -0.5, near: 1, far: 12 }); key.shadow.bias = -0.0005; key.shadow.normalBias = 0.018; scene.add(key);
   const rim = new THREE.DirectionalLight('#c8e4ff', 1.4); rim.position.set(-3, 2.5, -3); scene.add(rim);
@@ -931,9 +1103,9 @@ export function createPreview(canvas, look, { world = null } = {}) {
   const ground = new THREE.Mesh(new THREE.CircleGeometry(1.1, 40).rotateX(-Math.PI / 2), new THREE.ShadowMaterial({ opacity: 0.25 })); ground.receiveShadow = true; scene.add(ground);
   // the set: soft studio shadows (a blurred shadow edge) over the farmer's own place
   const backdrop = world ? createBackdrop(scene) : null;
-  if (backdrop) { key.shadow.radius = 6; key.shadow.blurSamples = 16; ground.visible = false; }
+  if (backdrop) { key.shadow.radius = 4; key.shadow.blurSamples = 20; ground.visible = false; }
   let P = null, raf = 0, alive = true, last = performance.now(), mode = 'idle', spin = 0.35;
-  const set = (lk, w) => { if (P) scene.remove(P.root); P = buildFarmer(lk); P.root.traverse((o) => { if (o.isMesh) o.castShadow = true; }); scene.add(P.root); if (backdrop && w !== undefined) backdrop.set(w); };
+  const set = (lk, w) => { if (P) scene.remove(P.root); P = buildFarmer(lk); P.root.traverse((o) => { if (o.isMesh) o.castShadow = true; }); scene.add(P.root); if (backdrop && w !== undefined) backdrop.set(w); return P.realReady; };
   set(look, world);
   const resize = () => { const w = canvas.clientWidth, h = canvas.clientHeight; if (w && h) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); } };
   const ro = new ResizeObserver(resize); ro.observe(canvas); resize();
@@ -941,13 +1113,12 @@ export function createPreview(canvas, look, { world = null } = {}) {
     if (!alive) return; raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = now / 1000;
     spin += dt * 0.5; P.root.rotation.y = Math.sin(spin) * 0.7;
-    const cycle = t % 7;
-    animate(P, { speed: mode === 'walk' ? 2.2 : 0, act: mode === 'cheer' ? { type: 'cheer', p: 0, dur: 9 } : cycle > 4.5 ? { type: P.look.head === 'short' || P.look.head === 'cap' ? 'phone' : P.look.lower === 'ghagra' ? 'adjust' : 'wipe', p: cycle - 4.5, dur: 2.5 } : null, t }, dt);
-    camera.position.set(0, 1.2, 4.6); camera.lookAt(0, 0.95, 0);
+    animate(P, { speed: mode === 'walk' ? 2.2 : 0, act: mode === 'cheer' ? { type: 'cheer', p: 0, dur: 9 } : null, t }, dt);
+    camera.position.set(0, 1.2, 4.6); camera.lookAt(world ? -0.3 : 0, 0.95, 0);
     renderer.render(scene, camera);
   };
   raf = requestAnimationFrame(loop);
-  const renderOnce = () => { resize(); P.root.rotation.y = 0.35; for (let k = 0; k < 20; k++) animate(P, { speed: 0, act: null, t: 0 }, 0.05); camera.position.set(0, 1.2, 4.6); camera.lookAt(0, 0.95, 0); renderer.render(scene, camera); };
+  const renderOnce = () => { resize(); P.root.rotation.y = 0.35; for (let k = 0; k < 20; k++) animate(P, { speed: 0, act: null, t: 0 }, 0.05); camera.position.set(0, 1.2, 4.6); camera.lookAt(world ? -0.3 : 0, 0.95, 0); renderer.render(scene, camera); };
   return {
     set, renderOnce, mode(m) { mode = m; },
     dispose() { alive = false; cancelAnimationFrame(raf); ro.disconnect(); backdrop?.dispose(); renderer.dispose(); },
@@ -955,14 +1126,14 @@ export function createPreview(canvas, look, { world = null } = {}) {
 }
 
 // Still pictures of several farmers (for the cards), rendered once on one hidden canvas.
-export function portraits(looks, size = 220) {
+export async function portraits(looks, size = 220) {
   needWebGL();
   const cv = document.createElement('canvas'); cv.width = size; cv.height = Math.round(size * 1.15);
   cv.style.cssText = `position:fixed;left:-9999px;width:${size}px;height:${Math.round(size * 1.15)}px`; document.body.appendChild(cv);
   const pv = createPreview(cv, looks[0]);
   const out = [];
   try {
-    for (const lk of looks) { pv.set(lk); pv.renderOnce(); out.push(cv.toDataURL('image/png')); }
+    for (const lk of looks) { await pv.set(lk); pv.renderOnce(); out.push(cv.toDataURL('image/png')); }
   } finally { pv.dispose(); cv.remove(); }
   return out;
 }

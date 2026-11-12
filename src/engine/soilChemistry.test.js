@@ -30,14 +30,19 @@ test('soil chemistry: Base saturation scales sigmoidally with pH and partitions 
   assert.ok(Math.abs(sumCations - acid.totalBasesCmol) <= 0.3, 'Cation fractions must sum to total bases');
 });
 
-test('carbon pools: partitions total SOC into labile, humus, and fossil/paleosol fractions', () => {
-  const res = calculateCarbonPools({ totalCarbonTHa: 30, landform: 'barind', clayPct: 35 });
+test('carbon pools: ICBM steady-state young and old pools plus the RothC inert pool', () => {
+  const res = calculateCarbonPools({ totalCarbonTHa: 30, landform: 'barind' });
   assert.equal(res.totalTHa, 30);
-  assert.equal(res.fossilPaleosol.pct, 32, 'Barind terrace should have ~32% recalcitrant paleosol carbon');
-  assert.equal(res.labile.pct, 14, 'Barind terrace should have ~14% labile carbon');
+  // Falloon et al. (1998): IOM = 0.049 × 30^1.139 ≈ 2.36 t C/ha
+  assert.ok(Math.abs(res.inert.tHa - 2.36) < 0.02, `inert ${res.inert.tHa}`);
+  // ICBM steady state: young / old = k2 / (h k1) = 0.006 / 0.1 = 0.06
+  assert.ok(Math.abs(res.labile.tHa / res.humus.tHa - 0.06) < 0.001);
+  const poolSum = res.labile.tHa + res.humus.tHa + res.inert.tHa;
+  assert.ok(Math.abs(poolSum - 30) <= 0.02, 'Carbon pools must sum to total carbon');
+  assert.equal(res.humus.residenceYears, 167);
 
-  const poolSum = res.labile.tHa + res.humus.tHa + res.fossilPaleosol.tHa;
-  assert.ok(Math.abs(poolSum - 30) <= 0.2, 'Carbon pools must sum to total carbon');
+  const peat = calculateCarbonPools({ totalCarbonTHa: 50, landform: 'peat' });
+  assert.equal(peat.mineralSoilOnly, true, 'the inert-pool equation is flagged outside mineral soils');
 });
 
 test('fossil fuel diesel offset: quantifies avoided diesel pumping and CO2 emissions', () => {
@@ -62,4 +67,16 @@ test('net environmental footprint: integrates soil carbon, methane avoidance, an
   assert.ok(net.dieselCo2eKg > 0, 'Diesel fossil emissions avoided must be positive');
   assert.ok(net.netClimateMitigationCo2eKg >= 800, 'Combined climate mitigation should exceed 800 kg CO2e/bigha');
   assert.ok(net.netTonnesCo2e >= 0.8, 'Net tonnes CO2e should exceed 0.8 t');
+});
+
+test('calculateCarbonPools localizes turnover descriptions cleanly in English (default) and Bangla', () => {
+  const enPools = calculateCarbonPools({ totalCarbonTHa: 28 });
+  assert.ok(!/[\u0980-\u09ff]/.test(enPools.labile.turnoverYears));
+  assert.ok(!/[\u0980-\u09ff]/.test(enPools.humus.turnoverYears));
+  assert.ok(!/[\u0980-\u09ff]/.test(enPools.inert.turnoverYears));
+  assert.ok(enPools.labile.turnoverLabel?.en && enPools.labile.turnoverLabel?.bn);
+
+  const bnPools = calculateCarbonPools({ totalCarbonTHa: 28, lang: 'bn' });
+  assert.ok(/[\u0980-\u09ff]/.test(bnPools.labile.turnoverYears));
+  assert.ok(/[\u0980-\u09ff]/.test(bnPools.inert.turnoverYears));
 });

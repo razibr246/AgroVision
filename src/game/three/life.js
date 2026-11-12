@@ -4,9 +4,10 @@
 // written in the local script. Human intelligence, needs, memory, and reciprocal social interactions are powered
 // by npcMind.js.
 import * as THREE from 'three';
-import { buildFarmer, animate, canvasTex, mat } from './people';
-import { resolve, inWater } from '../layout';
-import { spot } from '../places';
+import { buildFarmer, animate, canvasTex, mat } from './people.js';
+import { resolve, inWater } from '../layout.js';
+import { keepApart } from '../footing.js';
+import { spot } from '../places.js';
 import {
   createNpcMind,
   updateNpcNeeds,
@@ -14,8 +15,12 @@ import {
   recordPlayerInteraction,
   generateContextualDialogue,
   computeObstacleAvoidance,
-} from '../npcMind';
-import { dayPhase } from '../sim';
+} from '../npcMind.js';
+import { dayPhase } from '../sim.js';
+import { officeOf, officerLook } from '../office.js';
+import { cropLook, cropAtlas, cropCards, CROP_COLS } from './plants.js';
+let beanMatCache = null, beanDepth = null;
+import { siteKind, newJob, nextStep, finishStep, toWorld, SITE, ROW } from '../villagework.js';
 
 const FONT = '"Hind Siliguri", "Noto Sans Bengali", "Noto Sans Gurmukhi", "Noto Naskh Arabic", "Noto Sans Devanagari", "Noto Sans Myanmar", system-ui, sans-serif';
 const segDist = (px, pz, [ax, az], [bx, bz]) => {
@@ -40,7 +45,8 @@ function signTex(key, sign, rtl) {
 function signs(scene, g) {
   const H = g.home, L = g.L, out = [];
   const wood = mat('#6b4a2b'), back = mat('#e9e2cf');
-  for (const id of ['shed', 'market', 'kiosk', 'safe']) {
+  for (const id of ['shed', 'market', 'kiosk', 'safe', 'office']) {
+    if (!g.S[id]) continue;
     const sign = H.signs[id]; if (!sign) continue;
     const s = g.S[id], l = Math.hypot(s.x, s.z), dx = -s.x / l, dz = -s.z / l;
     const cand = [1, -1].map((side) => {
@@ -59,13 +65,20 @@ function signs(scene, g) {
   return out;
 }
 
-export function createLife(scene, g, overlay, lang = 'bn') {
+export function createLife(scene, g, overlay, lang = 'en') {
   const H = g.home, L = g.L;
-  if (!H) return { update() {}, dots: () => [], setLang() {}, dispose() {} };
+  if (!H) return { update() {}, dots: () => [], setLang() {}, setHerd() {}, dispose() {} };
   const boards = signs(scene, g);
-  const T = (o) => (o ? o[lang] ?? o.bn : '');
+  const T = (o) => (o ? o[lang] ?? o.en ?? o.bn : '');
   const el = (cls) => { const d = document.createElement('div'); d.className = cls; d.style.display = 'none'; overlay.appendChild(d); return d; };
-  const folk = H.folk.map((f, i) => {
+  // the agriculture officer, on the office verandah (office.js): a neighbour like the others, who greets farmers
+  const off = g.S.office && officeOf(g.R.country), offL = g.S.office && (Math.hypot(g.S.office.x, g.S.office.z) || 1);
+  const officer = off ? [{
+    id: 'officer', name: off.officer.name, look: officerLook(g.R.country), does: 'stand',
+    at: [g.S.office.x + (g.S.office.x / offL) * 1.6, g.S.office.z + (g.S.office.z / offL) * 1.6],
+    hello: { bn: 'আসুন, বসুন! মাঠের কী অবস্থা? ভেতরে এসে বলুন, একসাথে দেখি।', en: 'Come in, sit down! How is the field? Come inside and tell me, we’ll look together.' },
+  }] : [];
+  const folk = [...H.folk, ...officer].map((f, i) => {
     const P = buildFarmer(f.look);
     P.root.traverse((o) => { if (o.isMesh) o.castShadow = true; });
     scene.add(P.root);
@@ -98,6 +111,70 @@ export function createLife(scene, g, overlay, lang = 'bn') {
       npcChatCool: 4 + i * 3,
     };
   });
+  // every worker gets the things the work is done on: a courtyard's drying mat, paddy heap and swept ground, or a
+  // picker's own short row of plants and the basket heap at its end (../villagework.js has the routine)
+  const sites = [];
+  for (const n of folk) {
+    if (n.f.does !== 'work' || !n.at) continue;
+    const kind = siteKind(n.f), H0 = kind === 'courtyard' && g.S[n.f.at[0]];
+    // a courtyard opens away from its house, so the mat, the heap and the swept ground are all in the open
+    const site = { x: n.x, z: n.z, yaw: H0 ? Math.atan2(n.x - H0.x, n.z - H0.z) : n.yaw, kind };
+    const grp = new THREE.Group(); grp.position.set(n.x, L.ground(n.x, n.z), n.z); grp.rotation.y = site.yaw; scene.add(grp);
+    const put = (geo, m, pos, rot = [0, 0, 0], sc) => { const o = new THREE.Mesh(geo, m); o.position.set(...pos); o.rotation.set(...rot); if (sc) o.scale.set(...sc); o.receiveShadow = true; o.castShadow = pos[1] > 0.05; grp.add(o); return o; };
+    if (kind === 'courtyard') {
+      const [mx, mz, sx, sz] = SITE.courtyard.mat;
+      put(new THREE.CircleGeometry(2.3, 28), mat('#b59a6a', { rough: 1 }), [-0.3, 0.012, 1.25], [-Math.PI / 2, 0, 0]); // the swept, packed earth of the yard
+      put(new THREE.BoxGeometry(sx, 0.02, sz), mat('#a8834c', { rough: 1 }), [mx, 0.02, mz]); // the pati (woven mat)
+      site.grain = put(new THREE.BoxGeometry(sx - 0.12, 0.025, sz - 0.12), mat('#d6ad45', { rough: 1 }), [mx, 0.04, mz]);
+      const [hx, hz] = SITE.courtyard.heap;
+      site.heap = put(new THREE.SphereGeometry(0.42, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat('#cfa23e', { rough: 1 }), [hx, 0.02, hz], [0, 0, 0], [1, 0.6, 1]);
+      put(new THREE.CylinderGeometry(0.16, 0.13, 0.32, 14), mat('#7a4a2a'), [hx + 0.55, 0.16, hz + 0.35]); // a clay pot for the clean rice
+    } else {
+      put(new THREE.PlaneGeometry(ROW * 0.6 + 0.6, 1.1), mat('#7a5a3a', { rough: 1 }), [-1.5 + (ROW - 1) * 0.3, 0.015, 0.95], [-Math.PI / 2, 0, 0]); // the row's dug soil
+      // real bean plants on stakes (plants.js's drawn bean): laden with pods while waiting, picked bare after
+      const pod = mat('#86b04a', { rough: 0.7 });
+      const BEAN = cropLook('bean'), A = cropAtlas('bean');
+      const cardsAt = (col) => { const gq = cropCards(BEAN, A.vSplit), uv = gq.attributes.uv; for (let q = 0; q < uv.count; q++) uv.setX(q, uv.getX(q) + col / CROP_COLS); return gq; };
+      const beanMat = beanMatCache ?? (beanMatCache = new THREE.MeshStandardMaterial({ map: A.map, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.8 }));
+      const ripeG = cardsAt(3), pickedG = cardsAt(2);
+      site.plants = []; site.pickedG = pickedG; site.ripeG = ripeG;
+      for (let k = 0; k < ROW; k++) {
+        const [px, pz] = SITE.field.plant(k), h = BEAN.h[3] * (0.92 + (k % 3) * 0.05), w = h / BEAN.aspect;
+        const m = new THREE.Mesh(ripeG, beanMat); m.position.set(px, 0, pz); m.scale.set(w, h, w); m.rotation.y = k * 0.7;
+        m.castShadow = true; m.receiveShadow = true;
+        m.customDepthMaterial = beanDepth ?? (beanDepth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: A.map, alphaTest: 0.5 }));
+        grp.add(m); site.plants.push(m);
+      }
+      const [bx, bz] = SITE.field.basket;
+      site.pile = put(new THREE.SphereGeometry(0.4, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), pod, [bx, 0.01, bz], [0, 0, 0], [1, 0.25, 1]);
+    }
+    n.site = site; n.job = newJob(kind); n.step = null; sites.push(grp);
+  }
+  // one step of a worker's routine: walk to the spot, turn to the work, do it, and leave its mark
+  function work(n, dt, obstacles) {
+    if (n.act) {
+      n.act.p += dt;
+      if (n.act.p >= n.act.dur) {
+        const done = n.step, s = n.site;
+        if (!done || done.act !== n.act.type) { n.act = null; return; } // a greeting's gesture, not a work step
+        n.job = finishStep(n.job); n.act = null; n.step = null;
+        if (done.act === 'spread' && s.heap) s.heap.scale.multiplyScalar(0.9);
+        if (done.act === 'winnow' && s.heap) s.heap.scale.set(1, 0.6, 1); // the cleaned rice tipped back onto the heap
+        if (done.act === 'pick') s.plants.forEach((pl, k) => { pl.geometry = n.job.picked[k] ? s.pickedG : s.ripeG; }); // a picked plant stays, bare of pods
+        if (done.act === 'tip') { s.plants.forEach((pl) => { pl.geometry = s.ripeG; }); s.pile.scale.y = Math.min(0.75, s.pile.scale.y + 0.1); }
+      }
+      return;
+    }
+    if (!n.step) { n.step = nextStep(n.job); n.stepT = 0; }
+    const [gx, gz] = toWorld(n.site, n.step.at);
+    n.stepT += dt;
+    // a spot that someone (the farmer, a hen) is standing on, or that a wall keeps her from: work where she is
+    if (n.stepT < 7 && !walkTo(n, gx, gz, dt, false, obstacles)) return;
+    n.speed = 0;
+    let dy = n.site.yaw + n.step.face - n.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    n.yaw += dy * Math.min(1, dt * 6);
+    if (Math.abs(dy) < 0.12) n.act = { type: n.step.act, p: 0, dur: n.step.dur };
+  }
   const setNames = () => { for (const n of folk) n.label.textContent = T(n.f.name); };
   setNames();
   const home = (n) => n.at ?? n.route[0];
@@ -106,18 +183,21 @@ export function createLife(scene, g, overlay, lang = 'bn') {
     const dx = gx - n.x, dz = gz - n.z, d = Math.hypot(dx, dz);
     if (d < 0.25) { n.speed = 0; return true; }
     const maxSp = fast ? 3.4 : (n.baseSpeed ?? 1.25);
-    const sp = Math.min(d / dt, maxSp);
+    const sp = Math.min(d / Math.max(dt, 1e-4), maxSp);
     const avoid = computeObstacleAvoidance([n.x, n.z], n.yaw, obstacles, 2.3);
     const wantX = dx + (avoid.mustSteer ? avoid.avoidX * 1.6 : 0);
     const wantZ = dz + (avoid.mustSteer ? avoid.avoidZ * 1.6 : 0);
     const want = Math.atan2(wantX, wantZ);
     let dy = want - n.yaw;
     dy = Math.atan2(Math.sin(dy), Math.cos(dy));
-    n.yaw += dy * Math.min(1, dt * 7.5);
+    const turn = Math.max(-5 * dt, Math.min(5 * dt, dy * Math.min(1, dt * 7.5)));
+    n.yaw += turn; n.turnRate = turn / Math.max(dt, 1e-4);
 
-    // Natural deceleration when approaching destination
-    const targetSp = d < 0.8 ? Math.min(sp, d * (fast ? 3.6 : 1.8)) : sp;
-    n.speed = THREE.MathUtils.lerp(n.speed, targetSp, Math.min(1, dt * 8));
+    // a person gets going and stops over a step or two (about 2 m/s² walking, 4 running, 3.5 braking), slows near
+    // the spot, and turns round on the spot before setting off the other way
+    const targetSp = (d < 0.8 ? Math.min(sp, d * (fast ? 3.6 : 1.8)) : sp) * Math.max(0.1, Math.cos(Math.min(Math.PI / 2, Math.abs(dy))));
+    const v0 = n.vel ?? 0;
+    n.speed = v0 + Math.max(-3.5 * dt, Math.min((fast ? 4 : 2) * dt, targetSp - v0));
     n.run = fast;
 
     const nx = n.x + Math.sin(n.yaw) * n.speed * dt, nz = n.z + Math.cos(n.yaw) * n.speed * dt;
@@ -157,14 +237,17 @@ export function createLife(scene, g, overlay, lang = 'bn') {
       const p = (m - d) / 2, ux = dx / d, uz = dz / d;
       [a.x, a.z] = resolve(L, a.x - ux * p, a.z - uz * p, 0.3); [b.x, b.z] = resolve(L, b.x + ux * p, b.z + uz * p, 0.3);
     }
+    // and the animals (world.js herd): nobody walks through a cow; a hen in the way is shoved aside
+    if (herd) { beasts = herd.bodies(); herd.settle(beasts, keepApart(L, [me, ...folk], beasts)); }
   }
+  let herd = null, beasts = [];
 
   function update(t, dt, project, camPos) {
     const me = g.me, storm = !!(g.ev.zone && (g.ev.zone.left > 0 || g.ev.storm > 0));
     const ph = dayPhase ? dayPhase(g) : ((t * 0.02) % 1);
     if (dt > 0) bodies(dt);
     folk.forEach((n, i) => {
-      n.cool -= dt; n.hold -= dt; n.npcChatCool -= dt; n.speed = 0;
+      n.cool -= dt; n.hold -= dt; n.npcChatCool -= dt; n.vel = n.speed; n.speed = 0; n.turnRate = 0; // walkTo() carries the speed on
       const dMe = Math.hypot(me.x - n.x, me.z - n.z);
 
       // Living AI needs and circadian updates
@@ -201,7 +284,7 @@ export function createLife(scene, g, overlay, lang = 'bn') {
         n.mind = updateNpcNeeds(n.mind, dt, { isSocializing: true });
       }
 
-      const obstacles = [me, ...folk.filter((_, idx) => idx !== i).map((o) => ({ x: o.x, z: o.z }))];
+      const obstacles = [me, ...folk.filter((_, idx) => idx !== i).map((o) => ({ x: o.x, z: o.z })), ...beasts.filter((b) => b.mass === Infinity && Math.abs(b.x - n.x) < 4 && Math.abs(b.z - n.z) < 4)];
 
       if (storm) {
         // to the safe ground, each to their own spot inside the circle
@@ -221,8 +304,10 @@ export function createLife(scene, g, overlay, lang = 'bn') {
             n.seg += n.dir;
           }
         }
+      } else if (n.site) {
+        work(n, dt, obstacles);
       } else {
-        // working a plot of their own, or busy where they stand
+        // busy where they stand
         n.next -= dt;
         if (!n.act && n.next <= 0) { n.act = { type: n.f.does === 'work' ? (Math.random() < 0.6 ? 'plant' : 'harvest') : Math.random() < 0.5 ? 'wipe' : 'adjust', p: 0, dur: n.f.does === 'work' ? 1.8 : 2.2 }; }
         if (n.act) { n.act.p += dt; if (n.act.p >= n.act.dur) { n.act = null; n.next = n.f.does === 'work' ? 0.6 + Math.random() * 1.6 : 4 + Math.random() * 6; } }
@@ -241,10 +326,13 @@ export function createLife(scene, g, overlay, lang = 'bn') {
       animate(n.P, {
         speed: n.speed,
         run: n.run,
-        act: n.hold > 0 ? null : n.act,
+        act: n.hold > 0 ? { type: 'talk', p: Math.max(0, 2.6 - n.hold), dur: 2.6 } : n.act, // talking to the farmer: hands and head move with the words
+        basket: n.site?.kind === 'field',
+        fill: n.job?.fill ?? 0,
         t: t + i * 7,
         down: 0,
         lookTarget: n.lookTarget,
+        turnRate: n.turnRate,
       }, dt);
       // name when near, words when speaking
       const showName = dMe < 7 && n.bubT <= 0;
@@ -262,6 +350,7 @@ export function createLife(scene, g, overlay, lang = 'bn') {
     update,
     dots: () => folk.map((n) => [n.x, n.z]),
     setLang(l) { lang = l; setNames(); },
-    dispose() { for (const n of folk) { n.label.remove(); n.bubble.remove(); } boards.length = 0; },
+    setHerd(h) { herd = h; },
+    dispose() { for (const n of folk) { n.label.remove(); n.bubble.remove(); } for (const s of sites) scene.remove(s); boards.length = 0; },
   };
 }

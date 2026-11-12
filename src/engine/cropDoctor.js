@@ -13,7 +13,7 @@ const CROP_NAMES = {
   sesame: { bn: 'তিল', en: 'Sesame' },
 };
 
-export function localCropAssessment({ crop = 'tomato', symptomKey = null, context = {}, lang = 'bn' }) {
+export function localCropAssessment({ crop = 'tomato', symptomKey = null, context = {}, lang = 'en' }) {
   const cName = CROP_NAMES[crop] ?? { bn: crop, en: crop };
   const note = String(context.note || '').toLowerCase();
   const known = CROP_PROBLEMS[crop] ?? CROP_PROBLEMS.tomato ?? [];

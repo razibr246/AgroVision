@@ -48,10 +48,10 @@ export const REGIONS_BD = {
       bn: 'রাজিব মিয়া', en: 'Razib Miah', age: 30,
       trait: q('তরুণ, প্রযুক্তিপ্রেমী', 'Young and tech-savvy'),
       skill: q('ফোনে সব জমির পানি দেখেন, সতর্কতা আগে পান', 'Sees every plot’s moisture, gets warnings early'),
-      dress: [q('খয়েরি ক্যাপ', 'Rust-brown cap'), q('স্ট্রাইপ পোলো শার্ট', 'Peach striped polo shirt'), q('খাকি কার্গো প্যান্ট', 'Khaki cargo trousers'), q('হাতে ফোন', 'Phone in hand')],
-      speed: 4, run: 7.4, can: 5, sellBonus: 0, scanner: true, alertLead: 5, idle: 'phone',
-      // drawn from Razib's own photo: a painted face in Razib's likeness, the cap, the striped polo and the cargo trousers
-      look: { face: 'razib', skin: '#cea382', hair: '#1a1411', build: 1, head: 'cap', headA: '#8a4a38', headB: '#f4f1ec', headC: '#5a2f20', top: 'polo', topA: '#dfae9c', topB: '#d9a531', topC: '#3b2f45', topD: '#a98a6a', lower: 'cargo', lowA: '#ad8d70', lowB: '#937559', feet: 'sneaker', feetA: '#ecebe6', feetB: '#7b4a2e' },
+      dress: [q('ছোট করে কাটা চুল', 'Short-cut hair'), q('স্ট্রাইপ পোলো শার্ট', 'Peach striped polo shirt'), q('খাকি কার্গো প্যান্ট', 'Khaki cargo trousers')],
+      speed: 4, run: 7.4, can: 5, sellBonus: 0, scanner: true, alertLead: 5, idle: 'wipe',
+      // drawn from Razib's own photo: a painted face in Razib's likeness, his own short hair, the striped polo and the cargo trousers
+      look: { face: 'razib', skin: '#cea382', hair: '#1a1411', build: 1, head: 'short', top: 'polo', topA: '#dfae9c', topB: '#d9a531', topC: '#3b2f45', topD: '#a98a6a', lower: 'cargo', lowA: '#ad8d70', lowB: '#937559', feet: 'sneaker', feetA: '#ecebe6', feetB: '#7b4a2e' },
     },
     place: {
       bn: 'চৌহাট, ধামরাই, ঢাকা', en: 'Chauhat, Dhamrai, Dhaka', area: q('রাজধানীর পাশের গ্রাম', 'Farmland on the capital’s edge'),

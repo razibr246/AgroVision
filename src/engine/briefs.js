@@ -106,7 +106,7 @@ export function strategyBrief({ s, b, rot, kind, world = 'now', terrain = null }
   risks.push(t('এটা মডেলের হিসাব, পূর্বাভাস নয়; শুরু করার আগে কৃষি কর্মকর্তা আর অভিজ্ঞ কৃষকের সঙ্গে কথা বলুন।', 'These are model estimates, not forecasts; talk to your agriculture officer and experienced farmers before you start.'));
 
   // ── what needs local review before acting ──
-  review.push(t('ফসলের তাপ-বৃষ্টির সীমা প্রকাশিত গবেষণার শুরুর মান; স্থানীয় কৃষিবিদ এখনো যাচাই করেননি।', 'The crops’ heat and rain limits are starting values from published research; no local agronomist has reviewed them yet.'));
+  review.push(t('ফসলের তাপ-বৃষ্টির সীমা প্রকাশিত গবেষণার শুরুর মান। প্রকল্পের মালিক স্থানীয় কৃষিবিদের অনুমোদনের কথা জানিয়েছেন, কিন্তু কোন নিয়ম, কবে, কে যাচাই করেছেন তার নথি নেই; তাই সীমাগুলোকে শুরুর মান হিসেবেই ধরুন।', 'The crops’ heat and rain limits are starting values from published research. The project owner reports local agronomist approval, but the reviewer, date and rules checked are not documented; treat the thresholds as provisional.'));
   review.push(t('একটা মাটি পরীক্ষা: শুরুর কার্বন, pH আর সারের মাত্রা ঠিক করতে।', 'A soil test: to fix the starting carbon, pH and fertiliser doses.'));
   if (fresh.length) review.push(t(`${list(fresh, 'bn')}: জাত, বোনার সময়, বীজ আর বাজার উপসহকারী কৃষি কর্মকর্তার সঙ্গে।`, `${list(fresh, 'en')}: variety, sowing time, seed and market, with the sub-assistant agriculture officer.`));
   if (tr && tr.wet !== 'none') review.push(t('বর্ষায় আর ভারী বৃষ্টির পর জমিতে পানি জমে কি না, নিজের চোখে।', 'Whether water stands on the field in the monsoon and after heavy rain, seen with your own eyes.'));

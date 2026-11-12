@@ -1,6 +1,8 @@
 // Speech I/O for the voice assistant: try the configured natural voice service, then fall back to installed browser
 // voices. The Soniox pipeline in services/voice-agent remains the production phone-line path.
 
+import { segmentsByLanguage } from '../engine/langseg.js';
+
 const w = typeof window !== 'undefined' ? window : {};
 export const sttSupported = () => !!(w.SpeechRecognition || w.webkitSpeechRecognition);
 const browserTtsSupported = () => !!w.speechSynthesis;
@@ -22,7 +24,7 @@ export function createRecognizer({ lang, onInterim, onFinal, onStart, onEnd, onE
   const Rec = w.SpeechRecognition || w.webkitSpeechRecognition;
   if (!Rec) return null;
   const rec = new Rec();
-  rec.lang = RECOGNITION_LANG[lang] ?? 'bn-BD';
+  rec.lang = RECOGNITION_LANG[lang] ?? 'en-US';
   rec.interimResults = true;
   rec.continuous = false;
   rec.maxAlternatives = 1;
@@ -105,7 +107,7 @@ export async function speak(text, lang, { rate = 0.97, pitch = 1, gap = 130, onE
   const me = ++run;
   const say = (p, last, next) => {
     const u = new SpeechSynthesisUtterance(p.replace(/…$/, '।'));
-    u.lang = voice?.lang ?? SPEECH_LANG[lang];
+    u.lang = voice?.lang ?? SPEECH_LANG[lang] ?? 'en-GB';
     if (voice) u.voice = voice;
     u.rate = rate; u.pitch = pitch;
     u.onend = () => (last ? onEnd?.() : next?.());
@@ -131,7 +133,7 @@ export async function speak(text, lang, { rate = 0.97, pitch = 1, gap = 130, onE
 let audio = null;
 let ttsOff = null; // null, or why the natural voice is off for this visit: 'no-key' | 'quota'
 export const naturalVoiceState = () => ttsOff;
-const VOICE_CACHE = 'fs360-voice-v1'; // a new name when the voice itself changes, so old clips are not replayed
+const VOICE_CACHE = 'fs360-voice-v2'; // v2: the Bangladeshi designed voice (v1 clips may hold the old bn-IN voice) // a new name when the voice itself changes, so old clips are not replayed
 // Replays (the children's "Dream again", a repeated briefing) should not wait for the network again: up to 64 clips,
 // and at most ~16 MB of audio text in memory, the oldest dropped first.
 const clips = new Map();
@@ -154,8 +156,8 @@ async function storeClip(key, src) {
 }
 
 // One clip: memory, then Cache Storage, then api/tts.js with one retry on a slow or failed request.
-async function fetchClip(text, lang) {
-  const key = `${lang}|${text}`;
+async function fetchClip(text, lang, speaker = 'agent') {
+  const key = `${lang}|${speaker}|${text}`;
   const mem = clips.get(key);
   if (mem) return { src: mem };
   const kept = await storedClip(key);
@@ -163,7 +165,7 @@ async function fetchClip(text, lang) {
   if (ttsOff || w.navigator?.onLine === false) return { fail: ttsOff ?? 'offline' };
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const r = await fetch('/api/tts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, lang }), signal: AbortSignal.timeout(18000) });
+      const r = await fetch('/api/tts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, lang, speaker }), signal: AbortSignal.timeout(25000) });
       if (r.status === 503 || r.status === 404) { ttsOff = 'no-key'; return { fail: ttsOff }; }
       if (r.status === 429) { ttsOff = 'quota'; return { fail: ttsOff }; }
       if (r.ok) {
@@ -177,6 +179,22 @@ async function fetchClip(text, lang) {
   return { fail: 'error' };
 }
 
+// What one reply is spoken as: its Bangla and English parts in order (each with its own voice), and the first part's
+// opening sentence on its own when the reply is long, so speech starts sooner.
+function speechParts(t, lang) {
+  const segs = segmentsByLanguage(t, lang);
+  if (!segs.length) return [{ text: t, lang }];
+  const [head, ...rest] = segs;
+  return [...splitFirst(head.text).map((x) => ({ text: x, lang: head.lang })), ...rest];
+}
+
+// Make a line's audio ahead of time (the next line of a story while this one plays): it waits in the clip cache.
+export function prefetchNatural(text, lang, speaker = 'agent') {
+  const t = String(text ?? '').trim();
+  if (!t || typeof Audio === 'undefined' || ttsOff) return Promise.resolve(false);
+  return Promise.all(speechParts(t, lang).map((p) => fetchClip(p.text, p.lang, speaker))).then((r) => r.every((x) => x.src), () => false);
+}
+
 // The first sentence, and the rest, of a reply long enough to be worth two requests.
 function splitFirst(t) {
   if (t.length < 140) return [t];
@@ -186,9 +204,10 @@ function splitFirst(t) {
 
 // The natural voice's own turn counter: speak() moves `run`, so a device-voice part must not look like a stop.
 let chain = 0;
-const play = (src, me) => new Promise((resolve) => {
+const play = (src, me, rate = 1) => new Promise((resolve) => {
   if (me !== chain) { resolve(false); return; }
   const a = new Audio(src);
+  if (rate >= 0.7 && rate <= 1.3) a.playbackRate = rate; // the pitch stays; only the pace changes
   audio = a;
   const done = (ok) => { if (audio === a) audio = null; resolve(ok); };
   a.onended = () => done(true);
@@ -202,8 +221,10 @@ export async function speakNatural(text, lang, opts = {}) {
   if (typeof Audio === 'undefined') return speak(t, lang, opts);
   stopSpeaking();
   const me = ++chain;
-  const parts = splitFirst(t);
-  const pending = parts.map((p) => fetchClip(p, lang)); // both requested at once; the first plays as soon as it is ready
+  const parts = speechParts(t, lang);
+  const speaker = opts.speaker ?? 'agent';
+  // All parts requested at once (two or three at most); the first plays as soon as it is ready.
+  const pending = parts.map((p) => fetchClip(p.text, p.lang, speaker));
   const first = await pending[0];
   if (me !== chain) return { ok: false, reason: 'stopped' };
   if (!first.src) return { ...(await speak(t, lang, opts)), fallback: first.fail };
@@ -212,8 +233,8 @@ export async function speakNatural(text, lang, opts = {}) {
     for (let i = 0; i < parts.length; i++) {
       const c = i === 0 ? first : await pending[i];
       if (me !== chain) return;
-      if (c.src) { if (!(await play(c.src, me))) break; }
-      else { await new Promise((resolve) => speak(parts[i], lang, { ...opts, onEnd: resolve })); }
+      if (c.src) { if (!(await play(c.src, me, opts.rate))) break; }
+      else { await new Promise((resolve) => speak(parts[i].text, parts[i].lang, { ...opts, onEnd: resolve })); }
     }
     if (me === chain) opts.onEnd?.();
   })();

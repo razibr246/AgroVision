@@ -39,12 +39,12 @@ export default function TopographyInundation({ parcelId }) {
 
   // Hydrological land class definition
   const landClass = elev <= 7
-    ? { bn: 'উপকূলীয় / অতি নিচু জমি (Lowland/Tidal)', en: 'Coastal / Lowland', tone: 'text-sky-700', bg: 'bg-sky-50' }
+    ? { bn: 'উপকূলীয় / অতি নিচু জমি', en: 'Coastal / Lowland', tone: 'text-sky-700', bg: 'bg-sky-50' }
     : relief <= -1.2
-    ? { bn: 'মাঝারি নিচু জমি / গর্ত (Depression/Hollow)', en: 'Depression / Hollow', tone: 'text-amber-700', bg: 'bg-amber-50' }
+    ? { bn: 'মাঝারি নিচু জমি / গর্ত', en: 'Depression / Hollow', tone: 'text-amber-700', bg: 'bg-amber-50' }
     : relief >= 1.0
-    ? { bn: 'উঁচু জমি / চালা জমি (Ridge/Highland)', en: 'Highland / Ridge', tone: 'text-emerald-700', bg: 'bg-emerald-50' }
-    : { bn: 'মাঝারি উঁচু জমি (Medium Highland)', en: 'Medium Highland', tone: 'text-teal-700', bg: 'bg-teal-50' };
+    ? { bn: 'উঁচু জমি / চালা জমি', en: 'Highland / Ridge', tone: 'text-emerald-700', bg: 'bg-emerald-50' }
+    : { bn: 'মাঝারি উঁচু জমি', en: 'Medium Highland', tone: 'text-teal-700', bg: 'bg-teal-50' };
 
   // Determine crop impact based on simulated water depth
   const floodAdvisory = useMemo(() => {
@@ -84,7 +84,7 @@ export default function TopographyInundation({ parcelId }) {
         title: { bn: 'গভীর প্লাবন / জলমগ্নতা (জলাভূমি দশা)', en: 'Deep Inundation (Haor/Marsh Condition)' },
         desc: {
           bn: 'বোনা আমন বা গভীর পানির ধান (জল-আমন) ছাড়া বর্ষায় কোনো ফসল সম্ভব নয়। জমিতে রবি মৌসুমে বোরো বা মাছ চাষের ফসলচক্র মানানসই।',
-          en: 'Only deepwater floating Aman or fish-rice rotation is viable during monsoon. Land is best optimized for winter Boro.',
+          en: 'Only deepwater floating Aman or fish-rice rotation is viable during monsoon. Land is best optimised for winter Boro.',
         },
         badge: 'bad',
       };
@@ -129,7 +129,7 @@ export default function TopographyInundation({ parcelId }) {
             {num(elev, lang, { dp: 1 })} <span className="text-[12px] font-normal text-muted">{T('মিটার', 'm')}</span>
           </div>
           <div className="text-[11px] text-muted">
-            {T(`মডেল ফারাক: ±${num(spread, lang, { dp: 1 })} মি`, `Model spread: ±${spread}m`)}
+            {T(`মডেল ফারাক: ±${num(spread, lang, { dp: 1 })} মি`, `Model spread: ±${num(spread, lang, { dp: 1 })} m`)}
           </div>
         </div>
 
@@ -174,7 +174,7 @@ export default function TopographyInundation({ parcelId }) {
             </span>
           </div>
           <div className="font-display text-[17px] font-bold text-teal-800">
-            {num(waterLevelM, lang, { dp: 2 })} {T('মিটার প্লাবন', 'm depth')} ({num(Math.round(waterLevelM * 3.28084 * 10) / 10, lang)} {T('ফুট', 'ft')})
+            {num(waterLevelM, lang, { dp: 2 })} {T('মিটার প্লাবন', 'm depth')} ({num(Math.round(waterLevelM * 3.28084 * 10) / 10, lang, { dp: 1 })} {T('ফুট', 'ft')})
           </div>
         </div>
 
@@ -185,6 +185,7 @@ export default function TopographyInundation({ parcelId }) {
           step="0.05"
           value={waterLevelM}
           onChange={(e) => setWaterLevelM(parseFloat(e.target.value))}
+          aria-label={T('বন্যার পানির উচ্চতা', 'Flood inundation depth')}
           className="mt-3 h-2.5 w-full cursor-pointer appearance-none rounded-lg bg-teal-200 accent-teal-700"
         />
 
@@ -198,7 +199,7 @@ export default function TopographyInundation({ parcelId }) {
 
       {/* Dynamic 2D Parcel Cross-Section Graphic */}
       <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-sky-50 to-amber-50/30 p-2">
-        <svg viewBox="0 0 500 180" className="w-full" role="img" aria-label="Parcel Topographic Inundation Cross Section">
+        <svg viewBox="0 0 500 180" className="w-full" role="img" aria-label={T('জমির ভূ-প্রকৃতি ও প্লাবন প্রস্থচ্ছেদ', 'Parcel Topographic Inundation Cross Section')}>
           <defs>
             <linearGradient id="soilGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#8d6e4f" />
@@ -272,7 +273,7 @@ export default function TopographyInundation({ parcelId }) {
                 strokeWidth="1.5"
               />
               <text x="15" y={waterY + 14} fontSize="9.5" fontWeight="bold" fill="#0369a1">
-                {T(`প্লাবন গভীরতা: ${num(waterLevelM, lang, { dp: 2 })} মি`, `Inundation depth: ${waterLevelM.toFixed(2)}m`)}
+                {T(`প্লাবন গভীরতা: ${num(waterLevelM, lang, { dp: 2 })} মি`, `Inundation depth: ${num(waterLevelM, lang, { dp: 2 })} m`)}
               </text>
             </g>
           )}
@@ -280,7 +281,7 @@ export default function TopographyInundation({ parcelId }) {
           {/* Elevation Datum Marker */}
           <line x1="20" y1="20" x2="20" y2="140" stroke="#64748b" strokeWidth="1" strokeDasharray="3 3" />
           <text x="25" y="30" fontSize="9" fill="#475569" fontWeight="bold">
-            SRTM {num(elev, lang, { dp: 1 })}m ASL
+            {T(`SRTM ${num(elev, lang, { dp: 1 })} মি. গড় সমুদ্রপৃষ্ঠ`, `SRTM ${num(elev, lang, { dp: 1 })} m ASL`)}
           </text>
         </svg>
       </div>

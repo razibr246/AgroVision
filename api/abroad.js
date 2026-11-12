@@ -1,5 +1,6 @@
 import { parseBody } from './body.js';
 import { isHostedRuntime } from './runtime.js';
+import { ABROAD_ORDER } from '../src/data/abroad.js';
 
 // The neighbouring countries' board: the sample farmer's requests to the local agriculture office, the officer's
 // replies, and the advisories (SMS drafts) the officer sends. One board per country, in the same Upstash Redis store
@@ -13,7 +14,7 @@ import { isHostedRuntime } from './runtime.js';
 // Before real use, replies and notices must require an officer sign-in; this prototype has no accounts.
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-const COUNTRIES = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar'];
+const COUNTRIES = ABROAD_ORDER;
 const TOPICS = ['pest', 'seed', 'water', 'machine', 'loss', 'other'];
 const KEY = /^[a-z]{2,20}$/;
 const MAX_TEXT = 1000, KEEP = 40;

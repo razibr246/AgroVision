@@ -61,7 +61,7 @@ export function extractLeafMetrics({ data, width, height }) {
 }
 
 // Report colour measurements only. RGB thresholds cannot identify a crop or distinguish diseases.
-export function classifyLeafPixels({ metrics, lang = 'bn' }) {
+export function classifyLeafPixels({ metrics, lang = 'en' }) {
   const hasGreenSignal = !!metrics?.isCrop;
   return {
     is_crop_photo: hasGreenSignal, // weak colour heuristic; green backgrounds can produce false positives

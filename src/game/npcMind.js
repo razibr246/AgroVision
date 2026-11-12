@@ -158,7 +158,7 @@ export function getNpcActionGoal(mind, dayPhase, stormActive = false) {
     case SCHEDULE_PHASES.AFTERNOON:
       return { action: mind.role === 'work' ? 'work' : 'route', spotType: 'duty', priority: 0.7 };
     case SCHEDULE_PHASES.DUSK:
-      return { action: 'gather', spotType: 'market', priority: 0.65, gesture: 'cheer' };
+      return { action: 'gather', spotType: 'market', priority: 0.65, gesture: 'wave' };
     case SCHEDULE_PHASES.NIGHT:
     default:
       return { action: 'sleep', spotType: 'home', priority: 0.85 };

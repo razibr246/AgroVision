@@ -121,7 +121,7 @@ export function problemTask(text, ctx) {
   const { crop, symptom, urgent } = classifyProblem(clean, ctx.cropNow);
   if (!symptom) return null;
   const f = ctx.farmer;
-  const look = localCropAssessment({ crop, symptomKey: symptom, context: { weather: ctx.weather, note: clean }, lang: ctx.lang ?? 'bn' });
+  const look = localCropAssessment({ crop, symptomKey: symptom, context: { weather: ctx.weather, note: clean }, lang: ctx.lang === 'bn' ? 'bn' : 'en' });
   const top = look.findings?.[0];
   const priority = urgent ? 'High' : 'Medium';
   const req = {
@@ -145,6 +145,7 @@ export function problemTask(text, ctx) {
 // ctx: { unions: Set|array of union ids in the officer's upazila, today, requests: [...], hotspots: [{id, crop, symptom,
 //        members, recipients, draft:{bn,en}, sent}], replyFn(r) -> {bn,en}, farmerName(id) -> {bn,en}, upazila }
 export function officerTasks(ctx) {
+  const lang = ctx.lang === 'bn' ? 'bn' : 'en';
   const mine = new Set(ctx.unions);
   const out = [];
   const open = (ctx.requests ?? []).filter((r) => r.status === 'open' && mine.has(r.union));
@@ -152,7 +153,7 @@ export function officerTasks(ctx) {
   open.sort((a, b) => PR[a.priority] - PR[b.priority] || a.created - b.created);
   for (const r of open.slice(0, 12)) {
     const reply = ctx.replyFn(r);
-    const look = r.crop && CROP_PROBLEMS[r.crop] ? localCropAssessment({ crop: r.crop, symptomKey: r.symptom, context: { note: r.text?.bn }, lang: 'bn' }) : null;
+    const look = r.crop && CROP_PROBLEMS[r.crop] ? localCropAssessment({ crop: r.crop, symptomKey: r.symptom, context: { note: r.text?.[lang] ?? r.text?.en ?? r.text?.bn }, lang }) : null;
     const name = ctx.farmerName(r.farmerId) ?? both(r.farmerId, r.farmerId);
     const age = Math.floor((ctx.today - r.created) / DAY);
     out.push({ id: `reply-${r.id}`, kind: 'reply', request: r.id, risk: r.priority === 'High' ? 'high' : 'medium', tags: ['RULE'],
@@ -160,7 +161,7 @@ export function officerTasks(ctx) {
       why: both(`${bn(age)} দিনের পুরোনো অনুরোধ, অগ্রাধিকার ${r.priority === 'High' ? 'জরুরি' : r.priority === 'Low' ? 'কম' : 'মাঝারি'}`, `Request ${age} days old, ${r.priority.toLowerCase()} priority`),
       nav: `/officer/requests/${r.id}`,
       effects: [
-        { type: 'addAdvisory', adv: { id: `CK-ADV-${r.id}`, text: reply.bn, to: [r.farmerId], at: ctx.today, request: r.id, via: 'chakra' } },
+        { type: 'addAdvisory', adv: { id: `CK-ADV-${r.id}`, text: reply[lang] ?? reply.en ?? reply.bn, to: [r.farmerId], at: ctx.today, request: r.id, via: 'chakra' } },
         { type: 'updateRequest', ids: [r.id], patch: { status: 'answered' } },
       ] });
     if (r.priority === 'High' && age >= 2) {
@@ -177,7 +178,7 @@ export function officerTasks(ctx) {
       title: both(`এলাকায় একই সমস্যার ${bn(members.length)}টি খবর`, `${members.length} reports of the same problem nearby`), body: h.draft,
       why: both('কাছাকাছি গ্রামে একই ফসলে একই লক্ষণ', 'The same symptom on the same crop in nearby villages'),
       effects: [
-        { type: 'addAdvisory', adv: { id: `CK-AREA-${h.id}`, text: h.draft.bn, to: [...new Set(members.map((m) => m.farmerId))], at: ctx.today, cluster: h.id, via: 'chakra' } },
+        { type: 'addAdvisory', adv: { id: `CK-AREA-${h.id}`, text: h.draft?.[lang] ?? h.draft?.en ?? h.draft?.bn, to: [...new Set(members.map((m) => m.farmerId))], at: ctx.today, cluster: h.id, via: 'chakra' } },
         { type: 'updateRequest', ids: members.map((m) => m.id), patch: { status: 'answered' } },
       ] });
   }
@@ -258,4 +259,44 @@ export function verifyAudit(log) {
     if (i > 0 && e.prev !== log[i - 1].hash) return { ok: false, brokenAt: e.seq };
   }
   return { ok: true, n: log?.length ?? 0 };
+}
+
+// ───────────────────────── verdict window state ─────────────────────────
+// Pure state helpers for the officer verdict approval queue (Red = snooze all remaining popups at once,
+// Yellow = minimize to Dock/pill, restore = un-snooze and resume cleanly).
+export function nextAutoVerdict(verdicts, { mode, panelOpen = false, snoozedAll = false, minimized = false, later = new Set() } = {}) {
+  if (mode !== 'agent' || panelOpen || snoozedAll || minimized) return null;
+  const hidden = later instanceof Set ? later : new Set(later ?? []);
+  return (verdicts ?? []).find((t) => !hidden.has(t.id)) ?? null;
+}
+
+export function dismissAllVerdicts(later, shownId) {
+  const nextLater = new Set(later instanceof Set ? later : (later ?? []));
+  if (shownId) nextLater.add(shownId);
+  return { later: nextLater, snoozedAll: true, minimized: false, verdict: null };
+}
+
+export function minimizeVerdictWindow() {
+  return { minimized: true };
+}
+
+export function restoreVerdictWindow(task = null) {
+  return { minimized: false, snoozedAll: false, ...(task ? { verdict: task } : {}) };
+}
+
+export function verdictQueueNav(verdicts, currentId) {
+  const list = Array.isArray(verdicts) ? verdicts : [];
+  const total = list.length;
+  if (!total) return { total: 0, index: -1, position: 0, left: 0, right: 0, prev: null, next: null };
+  const found = currentId ? list.findIndex((v) => v?.id === currentId) : 0;
+  const index = found >= 0 ? found : 0;
+  return {
+    total,
+    index,
+    position: index + 1,
+    left: index,
+    right: total - 1 - index,
+    prev: index > 0 ? list[index - 1] : null,
+    next: index < total - 1 ? list[index + 1] : null,
+  };
 }

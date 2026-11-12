@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import handler, { wav } from './tts.js';
+import { resetPool } from './_keypool.js';
 
 function response() {
   return {
@@ -14,6 +15,7 @@ function response() {
 }
 
 async function withEnv(values, run) {
+  resetPool(); // the key pool remembers resting keys; each test starts fresh
   const saved = Object.fromEntries(Object.keys(values).map((key) => [key, process.env[key]]));
   const originalFetch = globalThis.fetch;
   for (const [key, value] of Object.entries(values)) {
@@ -152,11 +154,59 @@ test('moves to the Lite model when the day\'s quota is used, and to the prebuilt
     await handler({ method: 'POST', body: { text: 'শুভ সকাল', lang: 'bn' } }, res);
     assert.equal(res.statusCode, 200);
     assert.equal(res.body.voice, 'Sulafat');
-    assert.deepEqual(calls.map((c) => c.split('|')[0]), ['gemini-3.8-flash-tts', 'gemini-3.8-flash-lite-tts', 'gemini-3.8-flash-tts', 'gemini-3.8-flash-lite-tts']);
+    // the full model is out of quota; on Lite the designed voice is missing and the prebuilt one answers on the same key
+    assert.deepEqual(calls, ['gemini-3.8-flash-tts|voice_zajpkutxwrdt', 'gemini-3.8-flash-lite-tts|voice_zajpkutxwrdt', 'gemini-3.8-flash-lite-tts|Sulafat']);
 
     globalThis.fetch = async () => ({ ok: false, status: 429, json: async () => ({}) });
     const out = response();
     await handler({ method: 'POST', body: { text: 'শুভ সকাল', lang: 'bn' } }, out);
     assert.equal(out.statusCode, 429);
   });
+});
+
+test('each character has its own voice in both languages; when key 1 is out, key 2 speaks with its own copy of the Bangladeshi voice', async () => {
+  await withEnv({ GEMINI_API_KEY: undefined, GEMINI_API_KEYS: 'key-one-aaaa,key-two-bbbb', GEMINI_TTS_VOICES_BN: 'voice_one,voice_two', GEMINI_TTS_MODEL: undefined, GEMINI_TTS_VOICE: undefined, GEMINI_TTS_VOICE_BN: undefined }, async () => {
+    const wavB64 = wav(Buffer.from([1, 2])).toString('base64');
+    const calls = [];
+    globalThis.fetch = async (url, options) => {
+      const body = JSON.parse(options.body);
+      const voice = body.generation_config?.speech_config?.[0]?.voice ?? body.generationConfig?.speechConfig?.voiceConfig?.voice;
+      const style = body.input?.[0]?.content?.[0]?.annotations?.[0]?.style ?? body.contents?.[0]?.parts?.[0]?.speech_metadata?.style ?? '';
+      const key = options.headers['x-goog-api-key'];
+      calls.push({ key, voice, style });
+      if (key === 'key-one-aaaa' && /^voice_/.test(voice)) return { ok: false, status: 429, json: async () => ({}), text: async () => 'limit: 10 requests per day' };
+      return { ok: true, status: 200, json: async () => ({ output_audio: { mime_type: 'audio/wav', data: wavB64 }, candidates: [{ content: { parts: [{ inlineData: { mimeType: 'audio/wav', data: wavB64 } }] } }] }) };
+    };
+    const dad = response();
+    await handler({ method: 'POST', body: { text: 'শুভরাত্রি', lang: 'bn', speaker: 'father' } }, dad);
+    assert.equal(dad.body.voice, 'Iapetus');
+    assert.match(calls.at(-1).style, /Bangladeshi farmer/);
+    const dadEn = response();
+    await handler({ method: 'POST', body: { text: 'Good night', lang: 'en', speaker: 'father' } }, dadEn);
+    assert.match(calls.at(-1).style, /British English/);
+    const agent = response();
+    await handler({ method: 'POST', body: { text: 'আসসালামু আলাইকুম', lang: 'bn' } }, agent);
+    assert.equal(agent.statusCode, 200);
+    assert.equal(agent.body.voice, 'voice_two'); // key one was out for the day; key two used its own copy
+    assert.equal(agent.body.key, 2);
+    assert.equal(calls.at(-1).style, ''); // the designed voice carries its accent itself
+    const odd = response();
+    await handler({ method: 'POST', body: { text: 'hello', lang: 'en', speaker: '__proto__' } }, odd);
+    assert.equal(odd.body.speaker, 'agent');
+  });
+});
+
+test('a man speaks with a male voice and a woman or girl with a female one, in both languages', async () => {
+  const { SPEAKERS, SPEAKER_GENDER, VOICE_GENDER } = await import('./tts.js');
+  for (const [who, langs] of Object.entries(SPEAKERS)) {
+    assert.ok(SPEAKER_GENDER[who], `${who} has a gender`);
+    for (const lang of ['bn', 'en']) {
+      const v = langs[lang];
+      if (!v) { assert.equal(SPEAKER_GENDER[who], 'female', `${who}/${lang} uses the designed Bangladeshi woman's voice`); continue; }
+      assert.equal(VOICE_GENDER[v.voice], SPEAKER_GENDER[who], `${who}/${lang}: ${v.voice} is ${VOICE_GENDER[v.voice]}`);
+    }
+  }
+  // the default English agent voice and the Bangla fallback are women's voices too
+  assert.equal(VOICE_GENDER.Sulafat, 'female');
+  assert.equal(VOICE_GENDER.Aoede, 'female');
 });

@@ -85,6 +85,15 @@ export default function CommandPalette() {
     }
   }, [open]);
 
+  // Keep selected item visible in view during arrow navigation
+  useEffect(() => {
+    if (!listRef.current) return;
+    const activeEl = listRef.current.children[selectedIndex];
+    if (activeEl?.scrollIntoView) {
+      activeEl.scrollIntoView({ block: 'nearest' });
+    }
+  }, [selectedIndex]);
+
   // Close palette on route change
   useEffect(() => {
     setOpen(false);
@@ -116,8 +125,8 @@ export default function CommandPalette() {
         id: 'hub-farm-game',
         category: T('অ্যাপসমূহ', 'Applications'),
         icon: Gamepad2,
-        title: T(`${GAMES.farm.name.bn} · ৩D খামার খেলা`, `${GAMES.farm.name.en} · 3D Farm Game`),
-        sub: T('১৫টি চরিত্রের ৩D বাস্তব সিমুলেশন ও আবহাওয়া চ্যালেঞ্জ', '3D living-world farm simulation with 15 characters'),
+        title: T(`${GAMES.farm.name.bn} · ৩ডি খামার খেলা`, `${GAMES.farm.name.en} · 3D Farm Game`),
+        sub: T('১৫টি চরিত্রের ৩ডি বাস্তব সিমুলেশন ও আবহাওয়া চ্যালেঞ্জ', '3D living-world farm simulation with 15 characters'),
         action: () => navigate('/farm'),
         keywords: ['game', '3d', 'farm', 'khela', 'folk', 'play', 'harvest', 'horizon', 'maather manush'],
       },
@@ -125,7 +134,7 @@ export default function CommandPalette() {
         id: 'hub-saga',
         category: T('অ্যাপসমূহ', 'Applications'),
         icon: BookOpen,
-        title: T('দশ বছরের উত্তরাধিকার · গল্পের ৩D অভিযান', 'Ten-Year Inheritance · 3D Story Campaign'),
+        title: T('দশ বছরের উত্তরাধিকার · ৩ডি গল্পের অভিযান', 'Ten-Year Inheritance · 3D Story Campaign'),
         sub: T('ধামরাইয়ের আসল নাসা আবহাওয়ায় বাবার জমির তিন মৌসুম', 'Generational farm campaign through real NASA weather seasons'),
         action: () => navigate('/saga'),
         keywords: ['saga', 'story', 'inheritance', 'campaign', 'golpo'],
@@ -134,7 +143,7 @@ export default function CommandPalette() {
         id: 'hub-kids',
         category: T('অ্যাপসমূহ', 'Applications'),
         icon: Sparkles,
-        title: T(`${GAMES.kids.name.bn} · ছোটদের ৩D স্বপ্ন (VR/AR)`, `${GAMES.kids.name.en} · Kids 3D Journey (VR/AR)`),
+        title: T(`${GAMES.kids.name.bn} · ছোটদের ৩ডি স্বপ্ন`, `${GAMES.kids.name.en} · Kids 3D Journey (VR/AR)`),
         sub: T('শিশুর চোখে তারা উপগ্রহের সঙ্গে মেঘ ও মাটির স্বপ্ন', 'Peaceful, non-violent children’s farming dream with Tara satellite'),
         action: () => navigate('/kids'),
         keywords: ['kids', 'dream', 'children', 'vr', 'ar', 'chotoder', 'tara', 'swapner math'],
@@ -181,7 +190,7 @@ export default function CommandPalette() {
         id: 'farmer-future',
         category: T('কৃষক সেবা', 'Farmer Tools'),
         icon: Telescope,
-        title: T('জমির ভবিষ্যৎ (Field Future)', 'Field Future Projections'),
+        title: T('জমির ভবিষ্যৎ', 'Field Future Projections'),
         sub: T('৪০টি জলবায়ু ভবিষ্যৎ ও মাটির স্বাস্থ্য পূর্বাভাস', '40-scenario climate ensemble and 10-year soil health forecast'),
         action: () => navigate('/farmer/future'),
         keywords: ['future', 'climate', 'ensemble', 'carbon', 'health'],
@@ -219,7 +228,7 @@ export default function CommandPalette() {
         id: 'officer-radar',
         category: T('কর্মকর্তা সেবা', 'Officer Tools'),
         icon: Radar,
-        title: T('রোপণ রাডার (Ropon Radar)', 'Ropon Radar (Monsoon Onset)'),
+        title: T('রোপণ রাডার', 'Ropon Radar (Monsoon Onset)'),
         sub: T('নাসা আইমার্গ থেকে বর্ষার শুরু ও আমন বোনার দিনক্ষণ', 'NASA IMERG monsoon onset prediction and Aman hazard window'),
         action: () => navigate('/officer/radar'),
         keywords: ['radar', 'monsoon', 'rain', 'onset', 'imerg', 'aman'],
@@ -270,51 +279,78 @@ export default function CommandPalette() {
         keywords: ['call', 'audio', 'transcribe', 'kothar note', 'gemini', 'sha256', 'evidence'],
       },
 
-      // ---- Regional Abroad Hubs ----
+      // ---- Regional Abroad & World Hubs ----
       {
         id: 'abroad-in',
-        category: T('আন্তর্জাতিক প্রতিবেশী', 'Regional Abroad'),
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
         icon: Globe2,
-        title: 'India · Punjab (Harjinder Singh)',
+        title: T('ভারত · পাঞ্জাব (হরজিন্দর সিং)', 'India · Punjab (Harjinder Singh)'),
         sub: T('পাঞ্জাবের গম ও ধান চক্র, ইআরএ৫ তথ্যসহ', 'Punjab wheat-paddy cycle with ERA5 normals and PM-Kisan'),
-        action: () => navigate('/abroad/in'),
+        action: () => navigate('/abroad/india'),
         keywords: ['india', 'punjab', 'bharat', 'harjinder'],
       },
       {
         id: 'abroad-pk',
-        category: T('আন্তর্জাতিক প্রতিবেশী', 'Regional Abroad'),
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
         icon: Globe2,
-        title: 'Pakistan · Sindh (Ghulam Nabi Chandio)',
+        title: T('পাকিস্তান · সিন্ধু (গোলাম নবী চান্ডিও)', 'Pakistan · Sindh (Ghulam Nabi Chandio)'),
         sub: T('সিন্ধুর তুলা ও গম চাষ, ক্যানাল সেচ ব্যবস্থা', 'Sindh cotton-wheat rotation, canal water and drought advisory'),
-        action: () => navigate('/abroad/pk'),
+        action: () => navigate('/abroad/pakistan'),
         keywords: ['pakistan', 'sindh', 'ghulam'],
       },
       {
         id: 'abroad-np',
-        category: T('আন্তর্জাতিক প্রতিবেশী', 'Regional Abroad'),
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
         icon: Globe2,
-        title: 'Nepal · Terai (Rampyari Chaudhary)',
+        title: T('নেপাল · তরাই (রামপ্যারী চৌধুরী)', 'Nepal · Terai (Rampyari Chaudhary)'),
         sub: T('তরাই অঞ্চলের ধান ও মসুর চাষ, আকস্মিক বন্যা ঝুঁকি', 'Terai paddy-lentil farming with flash flood early warnings'),
-        action: () => navigate('/abroad/np'),
+        action: () => navigate('/abroad/nepal'),
         keywords: ['nepal', 'terai', 'rampyari'],
       },
       {
         id: 'abroad-bt',
-        category: T('আন্তর্জাতিক প্রতিবেশী', 'Regional Abroad'),
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
         icon: Globe2,
-        title: 'Bhutan · Punakha (Kinley Wangmo)',
+        title: T('ভুটান · পুনাখা (কিনলে ওয়াংমো)', 'Bhutan · Punakha (Kinley Wangmo)'),
         sub: T('পুনাখা উপত্যকার ধাপযুক্ত পাহাড়ি চাষ ও লাল ধান', 'Punakha terrace rice and organic mountain microclimate'),
-        action: () => navigate('/abroad/bt'),
+        action: () => navigate('/abroad/bhutan'),
         keywords: ['bhutan', 'punakha', 'kinley'],
       },
       {
         id: 'abroad-mm',
-        category: T('আন্তর্জাতিক প্রতিবেশী', 'Regional Abroad'),
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
         icon: Globe2,
-        title: 'Myanmar · Mandalay (U Kyaw Win)',
+        title: T('মিয়ানমার · মান্দালয় (উ চ উইন)', 'Myanmar · Mandalay (U Kyaw Win)'),
         sub: T('শুষ্ক অঞ্চলের তিল ও ডাল চাষ, মৌসুমি খরা প্রস্তুতি', 'Dry zone sesame-pulse rotation and monsoon resilience'),
-        action: () => navigate('/abroad/mm'),
+        action: () => navigate('/abroad/myanmar'),
         keywords: ['myanmar', 'burma', 'mandalay', 'kyaw'],
+      },
+      {
+        id: 'abroad-us',
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
+        icon: Globe2,
+        title: T('যুক্তরাষ্ট্র · নেভাডা (এলেন হার্টলি)', 'United States · Nevada (Ellen Hartley)'),
+        sub: T('ইউরেকা কাউন্টির আলফালফা ও ভূগর্ভস্থ সেচ ব্যবস্থা', 'Eureka County alfalfa cycle and groundwater irrigation'),
+        action: () => navigate('/abroad/usa'),
+        keywords: ['usa', 'us', 'united states', 'nevada', 'eureka', 'ellen', 'alfalfa'],
+      },
+      {
+        id: 'abroad-br',
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
+        icon: Globe2,
+        title: T('ব্রাজিল · মাতুগ্রোসু (কাইও মোরেইরা)', 'Brazil · Mato Grosso (Caio Moreira)'),
+        sub: T('সোরিসোর সয়াবিন-ভুট্টা চক্র ও বর্ষা সূচনা পর্যবেক্ষণ', 'Sorriso soybean-maize cycle and rainy-season onset tracking'),
+        action: () => navigate('/abroad/brazil'),
+        keywords: ['brazil', 'br', 'mato grosso', 'sorriso', 'caio', 'soybean'],
+      },
+      {
+        id: 'abroad-es',
+        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
+        icon: Globe2,
+        title: T('স্পেন · আন্দালুসিয়া (লুসিয়া গার্সিয়া)', 'Spain · Andalusia (Lucía García)'),
+        sub: T('মার্তোসের জলপাই বাগান, তাপ-খরা ও পালাক্রমে সেচ', 'Martos olive groves, heat stress, and rotational irrigation'),
+        action: () => navigate('/abroad/spain'),
+        keywords: ['spain', 'es', 'andalusia', 'martos', 'jaen', 'lucia', 'olive'],
       },
 
       // ---- System Actions ----
@@ -322,7 +358,7 @@ export default function CommandPalette() {
         id: 'action-lang',
         category: T('সিস্টেম ও পছন্দ', 'System & Preferences'),
         icon: Languages,
-        title: lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন (Switch to Bangla)',
+        title: lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন',
         sub: T('পুরো প্ল্যাটফর্মের ভাষা পরিবর্তন করুন', 'Toggle app language between Bangla and English'),
         action: () => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } }),
         keywords: ['language', 'bhasha', 'bangla', 'english', 'toggle'],
@@ -391,7 +427,7 @@ export default function CommandPalette() {
       aria-label={T('কমান্ড প্যালেট ও সার্চ', 'Command Palette & Search')}
     >
       <div
-        className="w-full max-w-2xl overflow-hidden rounded-[24px] border border-white/60 bg-white/95 shadow-[0_25px_65px_-12px_rgba(13,38,20,0.45)] backdrop-blur-xl transition-all duration-250 animate-in fade-in zoom-in-95"
+        className="palette-pop w-full max-w-2xl overflow-hidden rounded-[24px] border border-white/60 bg-white/95 shadow-[0_25px_65px_-12px_rgba(13,38,20,0.45)] backdrop-blur-xl"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDownInList}
       >
@@ -491,7 +527,7 @@ export default function CommandPalette() {
             </span>
           </div>
           <span className="text-[11.5px] font-medium text-primary-800">
-            FieldShift 360 Ecosystem
+            {T('ফিল্ডশিফট ৩৬০ ইকোসিস্টেম', 'FieldShift 360 Ecosystem')}
           </span>
         </div>
       </div>

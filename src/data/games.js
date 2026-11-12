@@ -20,17 +20,17 @@ export const GAMES = {
   },
   kids: {
     to: '/kids', section: 'people',
-    name: { bn: 'তারার স্বপ্ন-খামার', en: 'Tara’s Dream Farm' },
-    kind: { bn: 'ছোটদের ৩D স্বপ্নের গল্প · VR আর AR', en: '3D dream story for children · VR and AR' },
+    name: { bn: 'তারা আর স্বপ্নের মাঠ', en: 'Tara and the Dream Fields' },
+    kind: { bn: 'ছোটদের ৩D স্বপ্ন-অভিযান · VR আর AR', en: 'A 3D dream adventure for children · VR and AR' },
     audience: { bn: 'ছোটদের জন্য (৬–১২ বছর)', en: 'For children (6–12)' }, time: { bn: '১০–১৫ মিনিট', en: '10–15 min' },
-    seo: { en: 'Tara’s Dream Farm: a 3D, VR and AR story game for children. Fly with Tara, a NASA satellite, catch clouds and help a farm family through drought and flood.' },
+    seo: { en: 'Tara and the Dream Fields: a 3D, VR and AR dream adventure for children. Fly with Tara, a little NASA satellite, catch rain clouds, cool a heatwave and help a farm family through drought and flood.' },
   },
   people: {
     to: '/people', section: 'people',
-    name: { bn: 'কৃষকদের সাথে পরিচয়', en: 'Meet the Farmers' },
-    kind: { bn: '১৫ জন কৃষক আর তাঁদের সন্তান · ৩D', en: '15 farmers and their children · 3D' },
+    name: { bn: 'মাঠের মুখ', en: 'Faces of the Field' },
+    kind: { bn: '৯ দেশের ১৫ জন কৃষক আর তাঁদের সন্তান · ৩D', en: '15 farmers and their children from 9 countries · 3D' },
     audience: { bn: 'সবার জন্য', en: 'For everyone' }, time: { bn: '২ মিনিট', en: '2 min' },
-    seo: { en: 'Meet the Farmers: 3D farmers and their children from Bangladesh, five neighbouring countries, the USA, Brazil and Spain, and the weather each one fears.' },
+    seo: { en: 'Faces of the Field: 15 farmers and their children in 3D, from Bangladesh, five neighbouring countries, the USA, Brazil and Spain, and the weather each one fears.' },
   },
   saga: {
     to: '/saga', section: 'stories',

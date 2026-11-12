@@ -18,6 +18,41 @@ const SRC = {
   lab: { label: 'SRDI mobile soil labs: Tk 25 per sample for pH, P, K, S (Jago News, 2025)', url: 'https://www.jagonews24.com/en/sci-tech/news/78422' },
 };
 const TONE = { ok: 'text-primary-800 bg-primary-50 ring-primary-200', watch: 'text-amber-800 bg-amber-50 ring-amber-200', warn: 'text-red-800 bg-red-50 ring-red-200' };
+const FERT_EN = {
+  'ইউরিয়া': 'Urea', 'ইউরিয়া': 'Urea', 'টিএসপি': 'TSP', 'ডিএপি': 'DAP',
+  'এমওপি': 'MoP', 'জিপসাম': 'Gypsum', 'জিংক সালফেট': 'Zinc sulphate',
+  'বরিক এসিড': 'Boric acid', 'বোরিক এসিড': 'Boric acid',
+  'গোবর/কম্পোস্ট': 'Cow dung / compost', 'গোবর/কম্পোষ্ট': 'Cow dung / compost', 'চুন': 'Lime',
+};
+const NUTR_EN = {
+  'নাইট্রোজেন': 'Nitrogen', 'ফসফরাস': 'Phosphorus', 'পটাশিয়াম': 'Potassium', 'পটাশিয়াম': 'Potassium',
+  'গন্ধক': 'Sulphur', 'দস্তা': 'Zinc', 'বোরণ': 'Boron', 'বোরন': 'Boron', 'গোবর': 'Organic manure', 'চুন': 'Lime',
+};
+const PHYS_EN = {
+  'পলি মাটি': 'Alluvial soil',
+  'খিয়ার মাটি': 'Barind clay (Khiyar)', 'খিয়ার মাটি': 'Barind clay (Khiyar)',
+  'পাহাড়ী মাটি': 'Hill soil', 'পাহাড়ী মাটি': 'Hill soil',
+};
+const fertName = (raw, lang) => {
+  const b = String(raw || '').replace(/\s*\(.*\)/, '').trim();
+  return lang === 'en' ? (FERT_EN[b] || FERT_EN[b.normalize('NFC')] || b) : b;
+};
+const nutrName = (raw, lang) => {
+  const b = String(raw || '').trim();
+  return lang === 'en' ? (NUTR_EN[b] || NUTR_EN[b.normalize('NFC')] || b) : b;
+};
+const physName = (raw, lang) => {
+  const b = String(raw || '').trim();
+  return lang === 'en' ? (PHYS_EN[b] || PHYS_EN[b.normalize('NFC')] || b) : b;
+};
+const howText = (raw, lang) => {
+  if (lang !== 'en' || !raw) return raw;
+  const s = String(raw).trim();
+  if (!/[\u0980-\u09ff]/.test(s)) return s;
+  if (s.includes('জমি তৈরির')) return 'Apply at final land preparation';
+  if (s.includes('কিস্তি')) return 'Apply in split doses per SRDI schedule (basal / tillering / panicle initiation)';
+  return 'Apply as per SRDI schedule';
+};
 
 export default function StepSoil() {
   const { s, T, L, soil, union, chosen, farmer, activeParcel, srdiUnion } = useStore();
@@ -52,7 +87,7 @@ export default function StepSoil() {
         tags={['MODEL', 'RECORD', 'RULE']} />
 
       {/* ---- the soil itself ---- */}
-      <Card className="p-5">
+      <Card className="cv-auto p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-[17px] font-bold"><Layers size={18} className="text-clay-500" />{T('মাটির ধরন, ওপরের ৩০ সেমি', 'The soil, top 30 cm')}</h3>
           <span className="text-[12.5px] text-muted">{soil.tested ? T('pH ও জৈব পদার্থ: আপনার মাটি পরীক্ষা', 'pH and organic matter: your soil test') : soil.scope === 'field' ? T('আপনার জমির ২৫০ মিটারের ঘর', 'Your field’s 250 m cell') : T('ইউনিয়নের মাঝখান', 'Union centre')}</span>
@@ -105,7 +140,7 @@ export default function StepSoil() {
       </Card>
 
       {/* ---- SRDI fertilizer advice ---- */}
-      <Card className="mt-4 p-5">
+      <Card className="cv-auto mt-4 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-[17px] font-bold"><FlaskConical size={18} className="text-primary-600" />{T('কতটা সার দেবেন (SRDI)', 'How much fertiliser (SRDI)')}</h3>
           <Tags list={['RECORD']} />
@@ -122,7 +157,7 @@ export default function StepSoil() {
             <span className="text-muted">{T('SRDI-র মাটির ধরন', 'SRDI soil type')}:</span>
             {plan.types.map((t) => (
               <button key={t} type="button" onClick={() => setPhys(t)} aria-pressed={plan.physiography === t}
-                className={`rounded-full px-2.5 py-1 ring-1 ${plan.physiography === t ? 'bg-primary-700 text-white ring-primary-700' : 'ring-border hover:bg-primary-50'}`}>{t}</button>
+                className={`rounded-full px-2.5 py-1 ring-1 ${plan.physiography === t ? 'bg-primary-700 text-white ring-primary-700' : 'ring-border hover:bg-primary-50'}`}>{physName(t, lang)}</button>
             ))}
             <span className="text-[12px] text-muted">{T('এই ইউনিয়নে SRDI দুই ধরনের মাটির জন্য আলাদা মাত্রা দেয়; আপনার জমি যেটায়, সেটা বাছুন।', 'SRDI gives separate doses for both soils in this union; pick the one your field is on.')}</span>
           </div>
@@ -154,11 +189,11 @@ export default function StepSoil() {
                 <tbody className="divide-y divide-border">
                   {plan.items.map((it) => (
                     <tr key={it.nutrient + it.fertilizer} className={it.notNeeded ? 'text-muted' : ''}>
-                      <td className="py-2 pr-3"><div className="font-semibold">{it.fertilizer.replace(/\s*\(.*\)/, '')}</div><div className="text-[12px] text-muted">{it.nutrient}</div></td>
+                      <td className="py-2 pr-3"><div className="font-semibold">{fertName(it.fertilizer, lang)}</div><div className="text-[12px] text-muted">{nutrName(it.nutrient, lang)}</div></td>
                       <td className="py-2 pr-3 font-display text-[15.5px] font-bold">{it.notNeeded ? <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary-700"><CheckCircle2 size={14} />{T('লাগবে না', 'Not needed')}</span> : it.kg == null ? T('প্রয়োজন মতো', 'As needed') : kgTxt(it.kg)}</td>
                       <td className="py-2 pr-3 text-muted">{it.notNeeded || it.kgPerBigha == null ? '' : kgTxt(it.kgPerBigha)}</td>
                       <td className="py-2 pr-3">{it.cost != null && it.cost > 0 ? `${num(it.cost, lang)} ${T('টাকা', 'Tk')}` : ''}</td>
-                      <td className="py-2 text-[12.5px] leading-5 text-ink/75">{it.how}</td>
+                      <td className="py-2 text-[12.5px] leading-5 text-ink/75">{howText(it.how, lang)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -173,18 +208,18 @@ export default function StepSoil() {
               {plan.enough.length > 0 && (
                 <div className="rounded-xl bg-canvas p-3 text-[14px] leading-6">
                   <div className="flex items-center gap-1.5 font-semibold"><CheckCircle2 size={15} className="text-primary-700" />{T('মাটিতে যথেষ্ট আছে', 'Already enough in the soil')}</div>
-                  <div className="text-ink/80">{plan.enough.join(', ')}{T(' — SRDI-র পরীক্ষায় এই ইউনিয়নে এগুলো দিতে হবে না।', ' — by SRDI’s tests these need not be added in this union.')}</div>
+                  <div className="text-ink/80">{plan.enough.map((n) => nutrName(n, lang)).join(', ')}{T(' — SRDI-র পরীক্ষায় এই ইউনিয়নে এগুলো দিতে হবে না।', ' — by SRDI’s tests these need not be added in this union.')}</div>
                 </div>
               )}
             </div>
-            <p className="mt-2 text-[12.5px] text-muted">{T(`জাত: ${plan.variety}। মাটির ধরন: ${plan.physiography}। জমির ধরন: ${L(LAND_TYPES[plan.land])} (${L(LAND_TYPES[plan.land].detail)})।`, `Varieties: ${plan.variety}. Soil: ${plan.physiography}. Land type: ${L(LAND_TYPES[plan.land])} (${L(LAND_TYPES[plan.land].detail)}).`)}</p>
+            <p className="mt-2 text-[12.5px] text-muted">{T(`জাত: ${plan.variety}। মাটির ধরন: ${plan.physiography}। জমির ধরন: ${L(LAND_TYPES[plan.land])} (${L(LAND_TYPES[plan.land].detail)})।`, `Soil: ${physName(plan.physiography, 'en')}. Land type: ${L(LAND_TYPES[plan.land])} (${L(LAND_TYPES[plan.land].detail)}).`)}</p>
           </>
         )}
         <Sources list={[SRC.srdi, PRICE_SRC]} T={T} />
       </Card>
 
       {/* ---- what to do ---- */}
-      <Card className="mt-4 p-5">
+      <Card className="cv-auto mt-4 p-5">
         <h3 className="flex items-center gap-2 text-[17px] font-bold"><Sprout size={18} className="text-primary-600" />{T('মাটির জন্য যা করবেন', 'What to do for the soil')}</h3>
         <ul className="mt-3 space-y-2.5 text-[14px] leading-6">
           {soil.ph < PH_GOOD[0] && <Do icon={AlertTriangle} tone="text-amber-700">{T(`মাটি টক (pH ${num(soil.ph, 'bn', { dp: 1 })})। SRDI মাটি পরীক্ষা করে ডলোমাইট চুন দিতে বলে: সাধারণত প্রতি শতকে ৩–১০ কেজি (বেলে মাটিতে কম, এঁটেলে বেশি), অর্থাৎ বিঘায় ১০০–৩৩০ কেজি।`, `The soil is acidic (pH ${soil.ph}). SRDI advises dolomite lime after a soil test: usually 3–10 kg per decimal (less on sandy soil, more on clay), that is 100–330 kg per bigha.`)}</Do>}
@@ -196,11 +231,11 @@ export default function StepSoil() {
       </Card>
 
       {/* ---- which crops suit it ---- */}
-      <Card className="mt-4 p-4">
+      <Card className="cv-auto mt-4 p-4">
         <div className="mb-2 flex items-center justify-between"><div className="text-[15px] font-semibold">{T('কোন ফসলের সঙ্গে মাটি মেলে', 'Which crops suit this soil')}</div><WhyButton small payload={why} /></div>
         <ul className="divide-y divide-border">
           {fits.map(({ c, f }) => (
-            <li key={c.id} className="grid grid-cols-[88px_64px_1fr] items-center gap-3 py-2 text-[14px]">
+            <li key={c.id} className="grid grid-cols-[88px_64px_1fr] items-center gap-3 rounded-xl px-2 py-2.5 text-[14px] transition-colors hover:bg-black/[0.02]">
               <span className="font-semibold">{L(c.name)}</span>
               <MiniBar value={f.score} color={f.score >= 80 ? 'bg-primary-500' : f.score >= 55 ? 'bg-paddy-500' : 'bg-red-500'} />
               <span className="leading-snug text-muted">{L(f.notes[f.notes.length - 1])}</span>

@@ -105,3 +105,25 @@ test('abroad: Spain olive plan uses real dates and a full crop year', () => {
   assert.ok(steps.every((s) => s.at != null || s.atEnd));
   assert.equal(steps.at(-1).a, '2028-09-22');
 });
+
+test('abroad: all 8 officers have 4–7 open bilingual sample requests compatible with the shared board', async () => {
+  const { ABROAD_ORDER } = await import('../data/abroad.js');
+  const { ABROAD_TOPICS, seedAbroadRequests, seedAbroadBoard } = await import('../data/abroad_requests.js');
+  const { applyOp, listBoard } = await import('../../api/abroad.js');
+  assert.equal(ABROAD_ORDER.length, 8);
+  for (const cc of ABROAD_ORDER) {
+    const reqs = seedAbroadRequests(cc, { today: '2026-11-11' });
+    assert.ok(reqs.length >= 4 && reqs.length <= 7, `${cc} expected 4–7 seeded requests, got ${reqs.length}`);
+    for (const r of reqs) {
+      assert.equal(r.demo, true);
+      assert.equal(r.reply, null);
+      assert.ok(ABROAD_TOPICS[r.topic], `${cc} ${r.id} invalid topic ${r.topic}`);
+      assert.ok(r.text.bn && r.text.en, `${cc} ${r.id} bilingual text`);
+      assert.ok(r.farmer.bn && r.farmer.en, `${cc} ${r.id} bilingual farmer`);
+    }
+    const board = seedAbroadBoard(cc, { today: '2026-11-11' });
+    const replied = applyOp(board, { op: 'reply', id: reqs[0].id, text: 'Advisory noted.' });
+    assert.equal(replied.error, undefined);
+    assert.equal(listBoard(board).requests.filter((r) => !r.reply).length, reqs.length - 1);
+  }
+});

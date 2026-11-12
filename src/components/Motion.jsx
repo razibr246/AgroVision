@@ -10,13 +10,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigationType } from 'react-router-dom';
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reducedMotion = () => typeof window !== 'undefined' && Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
 const smoothOr = (smooth) => (smooth && !reducedMotion() ? 'smooth' : 'instant');
 
 // Scroll helpers used everywhere instead of window.scrollTo.
 export function scrollToTop(smooth = false) {
   window.scrollTo({ top: 0, behavior: smoothOr(smooth) });
 }
+
+export function scrollToBottom(smooth = false) {
+  const max = typeof document !== 'undefined' ? Math.max(0, document.documentElement.scrollHeight - window.innerHeight) : 0;
+  window.scrollTo({ top: max, behavior: smoothOr(smooth) });
+}
+
 // An element's place in the page from its layout box, ignoring transforms: a card still waiting to rise into view
 // sits a few pixels low, and measuring that would make the glide land short and then nudge.
 export function pageTop(el) {
@@ -26,15 +32,56 @@ export function pageTop(el) {
 }
 export function scrollToEl(el, offset = -96) {
   if (!el) return;
+  const header = typeof document !== 'undefined' ? (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-header')) || 72) : 72;
   const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
-  window.scrollTo({ top: pageTop(el) + offset - margin, behavior: smoothOr(true) });
+  const finalOffset = offset === -96 ? -(header + 16) : offset;
+  window.scrollTo({ top: Math.max(0, pageTop(el) + finalOffset - margin), behavior: smoothOr(true) });
 }
+
 // Subscribe to the scroll position, at most once per frame however fast the events arrive.
+// Also marks document.body.is-scrolling during motion to pause hover recalculations for 60/120fps fluid scrolling.
+let scrollTimeout = null;
+let scrollListeners = 0;
 export function onScroll(fn) {
   let raf = 0;
-  const h = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; fn(window.scrollY); }); };
+  let lastY = typeof window !== 'undefined' ? window.scrollY : 0;
+  scrollListeners += 1;
+  const h = () => {
+    if (typeof document !== 'undefined') {
+      if (!document.body.classList.contains('is-scrolling')) {
+        document.body.classList.add('is-scrolling');
+      }
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        scrollTimeout = null;
+        document.body.classList.remove('is-scrolling');
+      }, 130);
+    }
+    if (!raf) {
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY;
+        const dir = y >= lastY ? 'down' : 'up';
+        lastY = y;
+        fn(y, dir);
+      });
+    }
+  };
   window.addEventListener('scroll', h, { passive: true });
-  return () => { window.removeEventListener('scroll', h); cancelAnimationFrame(raf); };
+  return () => {
+    window.removeEventListener('scroll', h);
+    if (raf) cancelAnimationFrame(raf);
+    scrollListeners = Math.max(0, scrollListeners - 1);
+    if (scrollListeners === 0) {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = null;
+      }
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('is-scrolling');
+      }
+    }
+  };
 }
 
 // Where each visited page was scrolled to, by history entry, so Back and Forward land where you left off. One listener
@@ -74,43 +121,164 @@ export function useScrollOnNavigate({ skip = false } = {}) {
 
 const AUTO = 'main .surface-card, main section, main [data-reveal-children] > *, main [data-stagger] > *, main .stagger-grid > *';
 
+// Route Prefetch Registry: warms up lazy-loaded chunks on link hover or idle for 0ms transitions.
+const PREFETCHED = new Set();
+const PREFETCHING = new Set();
+const PREFETCH_MAP = {
+  '/play': () => import('../pages/public/Play'),
+  '/farm': () => import('../pages/public/FarmGame'),
+  '/kids': () => import('../pages/public/KidsDream'),
+  '/saga': () => import('../pages/public/Saga'),
+  '/stories': () => import('../pages/public/Stories'),
+  '/games': () => import('../pages/public/Games'),
+  '/science': () => import('../pages/public/Science'),
+  '/people': () => import('../pages/public/People'),
+  '/testkit': () => import('../pages/public/TestKit'),
+  '/login': () => import('../pages/public/Login'),
+  '/farmer': () => Promise.all([import('../layouts/FarmerLayout'), import('../pages/farmer/Dashboard')]),
+  '/farmer/farm': () => import('../pages/farmer/MyFarm'),
+  '/farmer/plan': () => import('../pages/farmer/Plan'),
+  '/farmer/future': () => import('../pages/farmer/FieldFuture'),
+  '/farmer/today': () => import('../pages/farmer/Today'),
+  '/farmer/doctor': () => import('../pages/farmer/CropDoctor'),
+  '/farmer/help': () => import('../pages/farmer/Help'),
+  '/farmer/support': () => import('../pages/farmer/Support'),
+  '/farmer/profile': () => import('../pages/farmer/Profile'),
+  '/farmer/harvest': () => import('../pages/farmer/Harvest'),
+  '/farmer/signals': () => import('../pages/farmer/Signals'),
+  '/farmer/voice': () => import('../pages/farmer/Voice'),
+  '/farmer/sms': () => import('../pages/farmer/SmsMode'),
+  '/officer': () => Promise.all([import('../layouts/OfficerLayout'), import('../pages/officer/Dashboard')]),
+  '/officer/map': () => import('../pages/officer/AreaMap'),
+  '/officer/requests': () => import('../pages/officer/Requests'),
+  '/officer/farmers': () => import('../pages/officer/Farmers'),
+  '/officer/planting': () => import('../pages/officer/Planting'),
+  '/officer/upazila': () => import('../pages/officer/UpazilaSupply'),
+  '/officer/supply': () => import('../pages/officer/UpazilaSupply'),
+  '/officer/alerts': () => import('../pages/officer/Alerts'),
+  '/officer/radar': () => import('../pages/officer/Radar'),
+  '/officer/notes': () => import('../pages/officer/CallNotes'),
+  '/officer/voice': () => import('../pages/officer/Voice'),
+};
+
+export function prefetchRoute(to) {
+  if (!to || typeof to !== 'string') return;
+  let path = to.trim();
+  if (path.startsWith('#/')) path = path.slice(1);
+  if (path.startsWith('#')) path = path.slice(1);
+  path = path.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+  if (PREFETCHED.has(path)) return;
+  const loadFn = PREFETCH_MAP[path];
+  if (loadFn && !PREFETCHING.has(path)) {
+    PREFETCHING.add(path);
+    try {
+      Promise.resolve(loadFn()).then(
+        () => PREFETCHED.add(path),
+        (error) => {
+          PREFETCHING.delete(path);
+          console.warn(`Route prefetch failed for ${path}:`, error);
+        }
+      ).finally(() => PREFETCHING.delete(path));
+    } catch (error) {
+      PREFETCHING.delete(path);
+      console.warn(`Route prefetch failed for ${path}:`, error);
+    }
+  }
+}
+
 export function MotionManager() {
   const { pathname } = useLocation();
 
-  // Interactive spotlight for cards on mouse movement (compositor-friendly, non-touch only)
+  // Instant hover & touch route prefetching across every navigation link
+  useEffect(() => {
+    const onPointerOver = (e) => {
+      const anchor = e.target?.closest?.('a[href]');
+      if (!anchor) return;
+      let href = anchor.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+      prefetchRoute(href);
+    };
+    document.addEventListener('pointerover', onPointerOver, { passive: true });
+    document.addEventListener('touchstart', onPointerOver, { passive: true });
+
+    // Idle prefetching for adjacent frequent destinations
+    const connection = navigator.connection;
+    const constrained = connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType ?? '') ||
+      (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2) ||
+      (navigator.deviceMemory > 0 && navigator.deviceMemory <= 2);
+    const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 1200));
+    const h = constrained ? null : idle(() => {
+      if (pathname === '/') {
+        ['/farmer/plan', '/farmer'].forEach(prefetchRoute);
+      } else if (pathname.startsWith('/farmer')) {
+        ['/farmer/plan', '/farmer/today'].forEach(prefetchRoute);
+      } else if (pathname.startsWith('/officer')) {
+        ['/officer/map', '/officer/requests'].forEach(prefetchRoute);
+      }
+    }, { timeout: 2500 });
+
+    return () => {
+      document.removeEventListener('pointerover', onPointerOver);
+      document.removeEventListener('touchstart', onPointerOver);
+      if (h != null) {
+        if (window.cancelIdleCallback) window.cancelIdleCallback(h); else clearTimeout(h);
+      }
+    };
+  }, [pathname]);
+
+  // Interactive spotlight for cards on mouse movement (zero-reflow cached geometry)
   useEffect(() => {
     if (reducedMotion() || (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches)) return undefined;
     let hovered = null;
+    let hoveredRect = null;
     let raf = 0;
+    let latestX = 0, latestY = 0;
+
     const onPointerMove = (e) => {
       const card = e.target?.closest?.('.spotlight-card, .lift, .surface-card');
       if (card !== hovered) {
         if (hovered) hovered.style.setProperty('--spotlight-opacity', '0');
         hovered = card;
+        hoveredRect = hovered ? hovered.getBoundingClientRect() : null;
         if (hovered) hovered.style.setProperty('--spotlight-opacity', '1');
       }
-      if (!hovered) return;
-      const { clientX, clientY } = e;
+      if (!hovered || !hoveredRect) return;
+      latestX = e.clientX;
+      latestY = e.clientY;
       if (!raf) {
         raf = requestAnimationFrame(() => {
           raf = 0;
-          if (!hovered) return;
-          const rect = hovered.getBoundingClientRect();
-          hovered.style.setProperty('--mouse-x', `${clientX - rect.left}px`);
-          hovered.style.setProperty('--mouse-y', `${clientY - rect.top}px`);
+          if (!hovered || !hoveredRect) return;
+          hovered.style.setProperty('--mouse-x', `${latestX - hoveredRect.left}px`);
+          hovered.style.setProperty('--mouse-y', `${latestY - hoveredRect.top}px`);
         });
       }
+    };
+    const onScroll = () => {
+      if (!hoveredRect || !hovered || raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        hoveredRect = hovered?.getBoundingClientRect() ?? null;
+      });
+    };
+    const onResize = () => {
+      if (hovered) hoveredRect = hovered.getBoundingClientRect();
     };
     const onPointerLeave = () => {
       if (hovered) {
         hovered.style.setProperty('--spotlight-opacity', '0');
         hovered = null;
+        hoveredRect = null;
       }
     };
     window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
     document.addEventListener('mouseleave', onPointerLeave, { passive: true });
     return () => {
       window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
       document.removeEventListener('mouseleave', onPointerLeave);
       if (raf) cancelAnimationFrame(raf);
     };
@@ -127,11 +295,15 @@ export function MotionManager() {
           io.unobserve(e.target);
         }
       }
-    }, { rootMargin: '0px 0px 22% 0px', threshold: 0 }); // reveal well ahead of arrival for seamless scrolling
+    }, { rootMargin: '24% 0px 24% 0px', threshold: 0 }); // reveal well ahead of arrival whether scrolling up or down
     const seen = new WeakSet(); // checked once each, so later scans do not measure the whole page again
-    const scan = () => {
-      const fresh = [...document.querySelectorAll(AUTO)].filter((el) => !seen.has(el));
-      if (!fresh.length) return;
+    const within = (root, selector) => [
+      ...(root.matches?.(selector) ? [root] : []),
+      ...root.querySelectorAll(selector),
+    ];
+    const scan = (root) => {
+      if (!root?.querySelectorAll) return;
+      const fresh = within(root, AUTO).filter((el) => !seen.has(el));
       const fold = window.innerHeight;
       const tops = fresh.map((el) => el.getBoundingClientRect().top); // all reads first, then writes: one layout pass
       fresh.forEach((el, k) => {
@@ -140,32 +312,60 @@ export function MotionManager() {
         if (tops[k] > fold) { el.setAttribute('data-reveal', ''); io.observe(el); }
       });
       // Stagger children of grid groups, [data-reveal-children] and [data-stagger]
-      document.querySelectorAll('[data-reveal-children], [data-stagger], .stagger-grid').forEach((g) => {
+      const groups = new Set(within(root, '[data-reveal-children], [data-stagger], .stagger-grid'));
+      root.closest?.('[data-reveal-children], [data-stagger], .stagger-grid') && groups.add(root.closest('[data-reveal-children], [data-stagger], .stagger-grid'));
+      groups.forEach((g) => {
         [...g.children].forEach((c, k) => {
           if (!c.style.getPropertyValue('--d')) c.style.setProperty('--d', `${(k % 5) * 30}ms`);
         });
       });
-      document.querySelectorAll('[data-reveal]:not(.is-in)').forEach((el) => io.observe(el));
+      within(root, '[data-reveal]:not(.is-in)').forEach((el) => io.observe(el));
     };
-    scan();
+    const main = document.querySelector('main') ?? document.body;
+    scan(main);
     // Pages fill in after data arrives or a tab changes; pick up what appears, when the browser is idle.
     const idle = window.requestIdleCallback ?? ((f) => setTimeout(f, 60));
     const cancel = window.cancelIdleCallback ?? clearTimeout;
     let t = 0, h = 0;
-    const mo = new MutationObserver(() => {
+    const pending = new Set();
+    const mo = new MutationObserver((records) => {
+      for (const node of records.flatMap((record) => [...record.addedNodes])) {
+        if (node.nodeType === Node.ELEMENT_NODE) pending.add(node);
+      }
       clearTimeout(t);
-      t = setTimeout(() => { cancel(h); h = idle(scan, { timeout: 300 }); }, 80);
+      t = setTimeout(() => {
+        cancel(h);
+        h = idle(() => { const roots = [...pending]; pending.clear(); roots.forEach(scan); }, { timeout: 300 });
+      }, 80);
     });
-    mo.observe(document.querySelector('main') ?? document.body, { childList: true, subtree: true });
-    return () => { io.disconnect(); mo.disconnect(); clearTimeout(t); cancel(h); };
+    mo.observe(main, { childList: true, subtree: true });
+    return () => { io.disconnect(); mo.disconnect(); clearTimeout(t); cancel(h); pending.clear(); };
   }, [pathname]);
   return null;
 }
 
-// The routed page, re-entering with a soft rise and hardware accelerated scale settle each time the address changes.
+// The routed page, re-entering with a soft hardware-accelerated cross-fade and zero layout shift.
 export function PageOutlet() {
   const { pathname } = useLocation();
-  return <div key={pathname} className="page-enter"><Outlet /></div>;
+  const [settledPath, setSettledPath] = useState(() => (reducedMotion() ? pathname : null));
+  const settling = !reducedMotion() && settledPath !== pathname;
+
+  useEffect(() => {
+    if (!settling) return undefined;
+    const t = setTimeout(() => setSettledPath(pathname), 260);
+    return () => clearTimeout(t);
+  }, [settling, pathname]);
+
+  return (
+    <div
+      key={pathname}
+      data-transition={settling ? 'entering' : 'settled'}
+      onAnimationEnd={(e) => { if (e.target === e.currentTarget) setSettledPath(pathname); }}
+      className={`page-enter ${settling ? 'is-entering' : 'is-settled'}`}
+    >
+      <Outlet />
+    </div>
+  );
 }
 
 // A thin progress line under the header showing how far down the page you are.

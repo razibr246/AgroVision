@@ -5,12 +5,15 @@ import { BackToTop } from '../components/SectionNav';
 import OfficerTour, { startOfficerTour } from '../components/tour/OfficerTour';
 import { Bell, Compass, Menu, Search, X, LayoutDashboard, LifeBuoy, UsersRound, Map as MapIcon, BellRing, CalendarRange, Building2, Truck, UserRound, Mic, PhoneCall, Radar as RadarIcon } from 'lucide-react';
 import BrandMark from '../components/brand/BrandMark';
+import OfficerAtmosphere from '../components/brand/OfficerAtmosphere';
 import { LangToggle, PlaceholderBanner, DataStatusChips, ResetDemo, BackButton, SkipToMain } from '../components/chrome';
 import { useStore } from '../store';
 import { num } from '../engine/dates';
 import { unionsOf } from '../data/demo';
 import ChakraAgent from '../components/chakra/ChakraAgent';
 import { openCommandPalette } from '../components/CommandPalette';
+import { MacTrafficLights, MacNavPills, MacPortalToggle, MacPortalDock } from '../components/MacOSPortalChrome';
+import { useAuth } from '../auth/AuthProvider';
 
 // The white highlight behind the current page's link glides from item to item instead of jumping.
 function useNavThumb(navRef, deps) {
@@ -33,7 +36,8 @@ function useNavThumb(navRef, deps) {
 }
 
 function Sidebar({ onNavigate }) {
-  const { s, dispatch, T, L, hotspots, officerUpazila: upz } = useStore();
+  const { s, dispatch, T, L, hotspots, officerUpazila: upz, macosPortal } = useStore();
+  const { isAuthenticated, user } = useAuth();
   const navRef = useRef(null);
   const { pathname } = useLocation();
   const thumb = useNavThumb(navRef, [pathname, s.lang]);
@@ -41,7 +45,7 @@ function Sidebar({ onNavigate }) {
   const open = s.requests.filter((r) => r.status === 'open' && r.union === s.officerUnion).length;
   const alerts = hotspots.filter((h) => h.members.some((m) => m.union === s.officerUnion)).length;
   // Ordered by the officer's day: today's tasks, the selected union, then the season's planning in crop-cycle order
-  // (Ropan Radar: rain and Aman planting, then Rabi planting and prices, then harvest), and the whole-upazila overview last.
+  // (Ropon Radar: rain and Aman planting, then Rabi planting and prices, then harvest), and the whole-upazila overview last.
   const groups = [
     { title: T('আজকের কাজ', 'Today’s work'), items: [
       { to: '/officer', end: true, icon: LayoutDashboard, label: T('আজকের চিত্র', 'Overview') },
@@ -54,7 +58,7 @@ function Sidebar({ onNavigate }) {
       { to: '/officer/map', icon: MapIcon, label: T('এলাকার মানচিত্র', 'Area map') },
     ] },
     { title: T('মৌসুমের পরিকল্পনা', 'Season planning'), items: [
-      { to: '/officer/radar', icon: RadarIcon, label: T('রোপণ রাডার', 'Ropan Radar') },
+      { to: '/officer/radar', icon: RadarIcon, label: T('রোপণ রাডার', 'Ropon Radar') },
       { to: '/officer/planting', icon: CalendarRange, label: T('লাগানোর সময় ও দাম', 'Planting and prices') },
       { to: '/officer/supply', icon: Truck, label: T('কবে কত ফসল উঠবে', 'Harvest timing') },
     ] },
@@ -67,7 +71,28 @@ function Sidebar({ onNavigate }) {
   ];
   return (
     <div className="officer-sidebar flex h-full flex-col overflow-y-auto overscroll-contain bg-[#163020] text-white shadow-[inset_-1px_0_0_rgba(255,255,255,.08)]">
-      <div className="officer-sidebar-brand border-b border-white/10 p-5"><Link to="/" onClick={onNavigate}><BrandMark inverse /></Link></div>
+      <div className="officer-sidebar-brand border-b border-white/10 p-5">
+        {macosPortal && (
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <MacTrafficLights decorative />
+            <span className="rounded-full border border-white/15 bg-white/[.08] px-2 py-0.5 text-[10.5px] font-semibold text-white/75 backdrop-blur-xs">
+              {T('ম্যাক পোর্টাল', 'macOS')}
+            </span>
+          </div>
+        )}
+        <Link to="/" onClick={onNavigate}><BrandMark inverse /></Link>
+        {macosPortal && (
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            className="mt-3.5 flex h-9 w-full items-center gap-2 rounded-full border border-white/18 bg-white/[.10] px-3 text-[13px] text-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,.16)] transition hover:bg-white/[.16] hover:text-white cursor-pointer"
+          >
+            <Search size={14} className="shrink-0 opacity-75" />
+            <span className="flex-1 text-left">{T('দ্রুত খুঁজুন…', 'Search…')}</span>
+            <kbd className="rounded border border-white/20 bg-white/10 px-1.5 py-0.5 text-[10px] font-bold text-white/75">⌘K</kbd>
+          </button>
+        )}
+      </div>
       <div className="p-4">
         <div className="officer-context rounded-2xl bg-white/[.07] p-4">
           <div className="text-[12.5px] text-primary-200">{T('উপজেলা কৃষি অফিসার', 'Upazila agriculture officer')}</div>
@@ -77,7 +102,7 @@ function Sidebar({ onNavigate }) {
             <span className="mb-1 block text-[12px] text-primary-300">{T('কোন ইউনিয়ন বা পৌরসভা দেখবেন', 'Union or municipality to look at')}</span>
             <select value={s.officerUnion} onChange={(e) => dispatch({ type: 'set', patch: { officerUnion: e.target.value } })}
               className="w-full rounded-xl border border-white/15 bg-primary-950 px-2.5 py-2 text-[14px] font-semibold text-white">
-              <optgroup label={T(`ইউনিয়ন (${num(areas.filter((u) => u.kind === 'union').length, 'bn')})`, 'Unions')}>
+              <optgroup label={T(`ইউনিয়ন (${num(areas.filter((u) => u.kind === 'union').length, 'bn')})`, `Unions (${areas.filter((u) => u.kind === 'union').length})`)}>
                 {areas.filter((u) => u.kind === 'union').map((u) => <option key={u.id} value={u.id}>{T(u.full.bn, u.full.en)}</option>)}
               </optgroup>
               <optgroup label={T('পৌরসভা (ওয়ার্ডে ভাগ)', 'Municipalities (in wards)')}>
@@ -85,11 +110,25 @@ function Sidebar({ onNavigate }) {
               </optgroup>
             </select>
           </label>
-          <div className="mt-2 text-[12px] text-primary-300">{T('নমুনা অ্যাকাউন্ট', 'Sample account')}</div>
+          <div className="mt-2.5 flex items-center justify-between text-[12px] text-primary-300">
+            <span>
+              {isAuthenticated ? (
+                <span className="flex items-center gap-1.5 font-bold text-emerald-300">
+                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+                  Auth0: {user?.name || user?.email}
+                </span>
+              ) : (
+                T('নমুনা অ্যাকাউন্ট', 'Sample account')
+              )}
+            </span>
+            <Link to="/login" onClick={onNavigate} className="text-primary-200 underline hover:text-white">
+              {isAuthenticated ? T('হিসাব', 'Account') : T('সাইন ইন', 'Sign in')}
+            </Link>
+          </div>
         </div>
       </div>
       <nav ref={navRef} className="officer-sidebar-nav relative space-y-4 px-3 pb-4" aria-label={T('কর্মকর্তার পাতা', 'Officer pages')}>
-        {thumb && <span aria-hidden="true" className="nav-thumb pointer-events-none absolute inset-x-3 top-0 rounded-xl bg-white shadow-[inset_0_1px_0_#fff,0_6px_18px_-8px_rgba(0,0,0,.5)]" style={{ transform: `translateY(${thumb.top}px)`, height: thumb.h, transitionDuration: thumb.glide ? undefined : '0s' }} />}
+        {thumb && <span aria-hidden="true" className="nav-thumb pointer-events-none absolute inset-x-3 top-0 rounded-xl bg-white shadow-[inset_0_1px_0_#fff,0_6px_18px_-8px_rgba(0,0,0,.5)]" style={{ transform: `translate3d(0, ${thumb.top}px, 0)`, height: thumb.h, transitionDuration: thumb.glide ? undefined : '0s' }} />}
         {groups.map((g) => (
           <div key={g.title} className="space-y-0.5">
             <div className="px-3 pb-1 text-[11.5px] font-semibold uppercase tracking-wide text-primary-300">{g.title}</div>
@@ -97,7 +136,7 @@ function Sidebar({ onNavigate }) {
               <NavLink key={n.to} to={n.to} end={n.end} onClick={onNavigate}
                 className={({ isActive }) => `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14.5px] font-semibold transition-all duration-200 active:scale-[0.98] ${isActive ? `text-primary-950 font-bold ${thumb ? '' : 'bg-white shadow-sm'}` : 'text-primary-100 hover:bg-white/[.08] hover:text-white'}`}>
                 <n.icon size={18} className="transition-transform duration-200 group-hover:scale-110" /><span className="flex-1">{n.label}</span>
-                {n.badge > 0 && <span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${n.hot ? 'pulse-ring bg-red-600 text-white shadow-sm' : 'bg-paddy-700 text-white'}`}>{n.badge}</span>}
+                {n.badge > 0 && <span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${n.hot ? 'pulse-ring bg-red-600 text-white shadow-sm' : 'bg-paddy-700 text-white'}`}>{num(n.badge, s.lang)}</span>}
               </NavLink>
             ))}
           </div>
@@ -113,7 +152,7 @@ function Sidebar({ onNavigate }) {
 }
 
 export default function OfficerLayout() {
-  const { s, T, L, hotspots, officerUpazila: upz } = useStore();
+  const { s, T, L, hotspots, officerUpazila: upz, macosPortal } = useStore();
   const [drawer, setDrawer] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [q, setQ] = useState('');
@@ -170,14 +209,22 @@ export default function OfficerLayout() {
   }, [drawer]);
   const open = s.requests.filter((r) => r.status === 'open' && r.union === s.officerUnion).length;
   const alertsCount = hotspots.filter((h) => h.members.some((m) => m.union === s.officerUnion)).length;
+  const dockItems = [
+    { to: '/officer', end: true, icon: LayoutDashboard, label: T('আজকের চিত্র', 'Overview') },
+    { to: '/officer/requests', icon: LifeBuoy, label: T('কৃষকের অনুরোধ', 'Farmer requests'), badge: open },
+    { to: '/officer/alerts', icon: BellRing, label: T('এলাকার সতর্কতা', 'Area alerts'), badge: alertsCount, hot: true },
+    { to: '/officer/map', icon: MapIcon, label: T('এলাকার মানচিত্র', 'Area map') },
+    { to: '/officer/radar', icon: RadarIcon, label: T('রোপণ রাডার', 'Ropon Radar') },
+  ];
   const name = L(upz.officer);
   const search = (e) => { e.preventDefault(); navigate(`/officer/farmers?q=${encodeURIComponent(q.trim())}`); setShowSearch(false); };
   return (
-    <div className="officer-experience min-h-screen lg:flex">
+    <div data-macos-portal={macosPortal ? 'true' : 'false'} className="officer-experience relative isolate min-h-screen lg:flex">
+      <OfficerAtmosphere alertsCount={alertsCount} />
       <SkipToMain />
       <aside className="officer-sidebar-rail sticky top-0 hidden h-screen w-[268px] shrink-0 lg:block"><Sidebar /></aside>
       {drawer && (
-        <div className="fixed inset-0 z-[1500] lg:hidden" role="dialog" aria-modal="true" aria-label={T('মেনু', 'Menu')}>
+        <div className="fixed inset-0 z-[1500] lg:hidden overscroll-contain" role="dialog" aria-modal="true" aria-label={T('মেনু', 'Menu')}>
           <div className="sheet-fade absolute inset-0 bg-primary-950/50 backdrop-blur-[2px]" onClick={() => setDrawer(false)} />
           <div ref={drawerRef} className="officer-drawer drawer-in absolute inset-y-0 left-0 w-[290px] max-w-[86vw] shadow-2xl">
             <button type="button" onClick={() => setDrawer(false)} className="absolute right-3 top-5 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white" aria-label={T('বন্ধ করুন', 'Close')}><X size={18} /></button>
@@ -190,7 +237,8 @@ export default function OfficerLayout() {
           <div className="flex h-[64px] items-center gap-1.5 px-2.5 sm:gap-2.5 sm:px-6">
             <button type="button" onClick={() => setDrawer(true)} className="grid h-10 w-10 place-items-center rounded-xl border border-border bg-white text-ink shadow-2xs hover:bg-primary-50 active:scale-95 lg:hidden" aria-label={T('মেনু খুলুন', 'Open menu')} aria-expanded={drawer} aria-haspopup="dialog"><Menu size={19} /></button>
             <BackButton />
-            <form onSubmit={search} className="hidden max-w-md flex-1 items-center gap-2 rounded-xl bg-black/[.05] px-3 transition-all duration-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary-500/25 focus-within:shadow-sm md:flex" role="search">
+            {macosPortal && <MacNavPills />}
+            <form onSubmit={search} className="hidden min-w-[130px] max-w-sm flex-1 items-center gap-2 rounded-xl bg-black/[.05] px-3 transition-all duration-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary-500/25 focus-within:shadow-sm md:flex" role="search">
               <Search size={17} className="text-muted transition-colors duration-200 group-focus-within:text-primary-600" />
               <input ref={searchRef} type="search" aria-label={T('কৃষক বা গ্রামের নাম খুঁজুন', 'Search a farmer or village')} value={q} onChange={(e) => setQ(e.target.value)} className="h-10 w-full bg-transparent text-[14.5px] outline-none" placeholder={T('কৃষক বা গ্রামের নাম খুঁজুন', 'Search a farmer or village')} aria-keyshortcuts="/" />
               <button type="button" onClick={openCommandPalette} className="hidden shrink-0 items-center gap-1 rounded-md border border-border bg-white/80 px-1.5 py-0.5 text-[11px] font-semibold text-muted shadow-2xs hover:text-ink hover:bg-white lg:inline-flex cursor-pointer" title={T('কমান্ড প্যালেট খুলুন (Cmd+K)', 'Open Command Palette (Cmd+K)')}>
@@ -206,10 +254,10 @@ export default function OfficerLayout() {
                 <button
                   type="button"
                   onClick={() => navigate('/officer/alerts')}
-                  className="hidden items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-2.5 py-2 text-[13px] font-bold text-red-700 shadow-2xs transition-all duration-200 hover:scale-105 hover:bg-red-100 active:scale-95 xl:inline-flex"
+                  className="hidden shrink-0 whitespace-nowrap items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-2.5 py-2 text-[13px] font-bold text-red-700 shadow-2xs transition-all duration-200 hover:scale-105 hover:bg-red-100 active:scale-95 xl:inline-flex"
                   title={T('এলাকার সতর্কতা দেখুন', 'View area alerts')}
                 >
-                  <span className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-red-600 animate-pulse" />
                   <span>{T(`${num(alertsCount, s.lang)}টি সতর্কতা`, `${alertsCount} alerts`)}</span>
                 </button>
               )}
@@ -217,6 +265,7 @@ export default function OfficerLayout() {
                 <Search size={18} />
               </button>
               <ChakraAgent role="officer" />
+              <MacPortalToggle className="hidden md:inline-flex" />
               {/* The complete guide to the officer pages (components/tour/OfficerTour.jsx). */}
               <button type="button" onClick={() => startOfficerTour(0)} aria-label={T('পুরো অফিসার অংশের গাইড', 'Guide to the officer pages')}
                 className="officer-guide-trigger inline-flex h-10 items-center gap-1.5 rounded-xl border border-primary-200 bg-primary-50 px-2.5 text-[14px] font-semibold text-primary-800 transition-all duration-200 hover:scale-105 hover:bg-primary-100 active:scale-95 sm:px-3">
@@ -224,9 +273,9 @@ export default function OfficerLayout() {
               </button>
               <button type="button" onClick={() => navigate('/officer/requests')}
                 className={`relative grid h-10 w-10 place-items-center rounded-xl border bg-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xs ${open > 0 ? 'border-amber-200 text-amber-700 shadow-[0_0_12px_rgba(208,143,38,0.25)] hover:bg-amber-50/50' : 'border-border text-ink hover:bg-primary-50'}`}
-                aria-label={T(`খোলা অনুরোধ ${open}টি`, `${open} open requests`)}>
+                aria-label={T(`খোলা অনুরোধ ${num(open, s.lang)}টি`, `${open} open requests`)}>
                 <Bell size={18} />
-                {open > 0 && <span className="pulse-ring absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-amber-600 px-1 text-[11px] font-bold text-white shadow-sm">{open}</span>}
+                {open > 0 && <span className="pulse-ring absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-amber-600 px-1 text-[11px] font-bold text-white shadow-sm">{num(open, s.lang)}</span>}
               </button>
               <LangToggle />
               <div className="hidden text-right sm:block">
@@ -248,9 +297,10 @@ export default function OfficerLayout() {
         </header>
         <PlaceholderBanner />
         {/* Switching union re-plays a soft fade, so the change of data reads as a change, not a flicker. */}
-        <main id="main" tabIndex={-1} className="officer-main mx-auto max-w-[1280px] scroll-mt-20 p-4 outline-none sm:p-6 lg:p-8"><div key={s.officerUnion} className="union-fade"><PageOutlet /></div></main>
+        <main id="main" tabIndex={-1} className={`officer-main mx-auto max-w-[1280px] scroll-mt-20 p-4 outline-none sm:p-6 lg:p-8 ${macosPortal ? 'md:pb-24' : ''}`}><div key={s.officerUnion} className="union-fade"><PageOutlet /></div></main>
         <ScrollProgress />
         <OfficerTour />
+        <MacPortalDock portal="officer" items={dockItems} />
       <BackToTop />
       </div>
     </div>

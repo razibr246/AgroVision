@@ -63,8 +63,26 @@ function nearestOpen(nav, i, j, max = 14) {
   return null;
 }
 
+// does the straight line a→b pass through any blocked cell? Every cell it touches, walked cell by cell (a sampled line
+// can step over the corner of a wall)
+function crossesWall(nav, ax, az, bx, bz) {
+  let [i, j] = toCell(nav, ax, az);
+  const [ti, tj] = toCell(nav, bx, bz), dx = bx - ax, dz = bz - az;
+  const si = Math.sign(dx), sj = Math.sign(dz), x0 = ax + nav.R, z0 = az + nav.R;
+  const tdx = si ? nav.cell / Math.abs(dx) : Infinity, tdz = sj ? nav.cell / Math.abs(dz) : Infinity;
+  let tmx = si ? ((si > 0 ? (i + 1) * nav.cell : i * nav.cell) - x0) / dx : Infinity;
+  let tmz = sj ? ((sj > 0 ? (j + 1) * nav.cell : j * nav.cell) - z0) / dz : Infinity;
+  for (let k = 0; k < 4 * nav.n; k++) {
+    if (i < 0 || j < 0 || i >= nav.n || j >= nav.n || nav.cost[j * nav.n + i] === Infinity) return true;
+    if (i === ti && j === tj) return false;
+    if (tmx < tmz) { i += si; tmx += tdx; } else { j += sj; tmz += tdz; }
+  }
+  return false;
+}
+
 // the cost of walking the straight line a→b, or Infinity if it crosses a blocked cell
 function lineCost(nav, [ax, az], [bx, bz]) {
+  if (crossesWall(nav, ax, az, bx, bz)) return Infinity;
   const d = Math.hypot(bx - ax, bz - az), steps = Math.max(1, Math.ceil(d / (nav.cell * 0.4)));
   let sum = 0;
   for (let k = 0; k <= steps; k++) { const c = costAt(nav, ax + ((bx - ax) * k) / steps, az + ((bz - az) * k) / steps); if (c === Infinity) return Infinity; sum += c; }
@@ -115,7 +133,7 @@ export function smooth(nav, pts) {
   let a = 0;
   while (a < pts.length - 1) {
     let b = pts.length - 1;
-    while (b > a + 1 && lineCost(nav, pts[a], pts[b]) > polyCost(nav, pts, a, b) * 1.02) b--;
+    while (b > a + 1) { const lc = lineCost(nav, pts[a], pts[b]); if (lc < Infinity && lc <= polyCost(nav, pts, a, b) * 1.02) break; b--; } // never a shortcut through a wall, even past a costly stretch
     out.push(pts[b]); a = b;
   }
   return out;

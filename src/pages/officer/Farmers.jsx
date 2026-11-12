@@ -11,7 +11,9 @@ import { PageHeader, Card, Badge, Button, Tags, EmptyState, RISK_STYLE, LABEL_ST
 import MapView from '../../components/map/MapView';
 import { cropName, IRRIGATION, RABI_CROPS } from '../../engine/crops';
 import { decide } from '../../engine/decision';
-import { num, fmtDate, todayDhaka } from '../../engine/dates';
+import { num, fmtDate, todayDhaka, iso } from '../../engine/dates';
+import { boundaryOf, measure } from '../../engine/landgeom';
+import { BoundaryBadge } from '../../components/map/FieldShape';
 import { CROP_COLOR, REQ_STATUS, ageLabel } from './shared';
 import { SYMPTOMS, upazilaOfUnion } from '../../data/demo';
 import FieldsMap, { LEVEL_LOOK } from '../../components/fields/FieldsMap';
@@ -58,12 +60,12 @@ export default function Farmers() {
         {/* Phones: one card per farmer. The table below needs a wider screen. */}
         <ul className="divide-y divide-border md:hidden">
           {shown.slice(0, LIMIT).map(({ f, u, plan, open }) => (
-            <li key={f.id}>
+            <li key={f.id} className="cv-auto">
               <Link to={`/officer/farmers/${f.id}`} className="flex items-center gap-3 px-4 py-3.5 active:bg-primary-50">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700"><UsersRound size={18} /></span>
                 <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-1.5"><span className="font-bold">{L(f.name)}</span>{f.hero && <Badge tone="blue">{T('গল্পের কৃষক', 'Story farmer')}</Badge>}{open > 0 && <Badge tone="amber">{T(`${num(open, 'bn')}টি অনুরোধ`, `${open} open`)}</Badge>}</span>
-                  <span className="block truncate text-[13.5px] text-muted">{lang === 'bn' ? f.villageBn : f.village}, {L(u.meta)} · {T(`${num(f.area_dec, 'bn')} শতক`, `${f.area_dec} dec`)} · {L(IRRIGATION[f.irrigation])}</span>
+                  <span className="flex flex-wrap items-center gap-1.5"><span className="font-bold">{L(f.name)}</span>{f.hero && <Badge tone="blue">{T('গল্পের কৃষক', 'Story farmer')}</Badge>}{open > 0 && <Badge tone="amber">{T(`${num(open, 'bn')}টি অনুরোধ`, `${num(open, 'en')} open`)}</Badge>}</span>
+                  <span className="block truncate text-[13.5px] text-muted">{lang === 'bn' ? f.villageBn : f.village}, {L(u.meta)} · {T(`${num(f.area_dec, 'bn')} শতক`, `${num(f.area_dec, 'en')} dec`)} · {L(IRRIGATION[f.irrigation])}</span>
                   <span className="mt-0.5 block text-[13.5px] font-semibold">{plan ? <span className="inline-flex items-center gap-1.5"><i className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: CROP_COLOR[plan.crop] }} />{cropName(plan.crop, lang)}, {fmtDate(plan.date, lang)}</span> : <span className="font-normal text-muted">{T('এখনো ঠিক করেননি', 'Not decided yet')}</span>}</span>
                 </span>
                 <ChevronRight size={18} className="shrink-0 text-muted" />
@@ -76,11 +78,11 @@ export default function Farmers() {
             <thead className="bg-canvas text-[13px] text-muted"><tr>{[T('কৃষক', 'Farmer'), T('গ্রাম, ইউনিয়ন', 'Village, union'), T('এই রবিতে', 'This Rabi'), T('জমি', 'Land'), T('সেচ', 'Water'), T('খোলা অনুরোধ', 'Open requests'), ''].map((x, i) => <th key={i} className="px-5 py-3 font-semibold">{x}</th>)}</tr></thead>
             <tbody className="divide-y divide-border text-[14.5px]">
               {shown.slice(0, LIMIT).map(({ f, u, plan, open }) => (
-                <tr key={f.id} className="hover:bg-primary-50/40">
+                <tr key={f.id} className="cv-auto hover:bg-primary-50/40">
                   <td className="px-5 py-3"><Link to={`/officer/farmers/${f.id}`} className="flex items-center gap-3 font-bold hover:text-primary-700"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary-50 text-primary-700"><UsersRound size={17} /></span>{L(f.name)}{f.hero && <Badge tone="blue">{T('গল্পের কৃষক', 'Story farmer')}</Badge>}</Link></td>
                   <td className="px-5 py-3 text-muted">{lang === 'bn' ? f.villageBn : f.village}, {L(u.meta)}</td>
                   <td className="px-5 py-3 font-semibold">{plan ? <span className="inline-flex items-center gap-1.5"><i className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: CROP_COLOR[plan.crop] }} />{cropName(plan.crop, lang)}, {fmtDate(plan.date, lang)}</span> : <span className="font-normal text-muted">{T('এখনো ঠিক করেননি', 'Not decided')}</span>}</td>
-                  <td className="px-5 py-3 tabular">{T(`${num(f.area_dec, 'bn')} শতক`, `${f.area_dec} dec`)}</td>
+                  <td className="px-5 py-3 tabular">{T(`${num(f.area_dec, 'bn')} শতক`, `${num(f.area_dec, 'en')} dec`)}</td>
                   <td className="px-5 py-3">{L(IRRIGATION[f.irrigation])}</td>
                   <td className="px-5 py-3">{open ? <Badge tone="amber">{num(open, lang)}</Badge> : <span className="text-muted">—</span>}</td>
                   <td className="px-5 py-3"><Button to={`/officer/farmers/${f.id}`} variant="ghost" className="!px-2 !py-1">{T('দেখুন', 'View')}</Button></td>
@@ -90,7 +92,7 @@ export default function Farmers() {
           </table>
         </div>
         {shown.length === 0 && <div className="p-6"><EmptyState icon={UsersRound} title={T('কাউকে পাওয়া যায়নি', 'No one found')} text={T('অন্য নাম লিখুন, অথবা "সব ইউনিয়ন" বেছে নিন।', 'Try another name, or choose "All unions".')} /></div>}
-        <div className="border-t border-border px-5 py-3 text-[13px] text-muted">{shown.length > LIMIT ? T(`${num(shown.length, 'bn')} জনের মধ্যে প্রথম ${num(LIMIT, 'bn')} জন`, `First ${LIMIT} of ${shown.length}`) : T(`${num(shown.length, 'bn')} জন`, `${shown.length} shown`)}</div>
+        <div className="border-t border-border px-5 py-3 text-[13px] text-muted">{shown.length > LIMIT ? T(`${num(shown.length, 'bn')} জনের মধ্যে প্রথম ${num(LIMIT, 'bn')} জন`, `First ${num(LIMIT, 'en')} of ${num(shown.length, 'en')}`) : T(`${num(shown.length, 'bn')} জন`, `${num(shown.length, 'en')} shown`)}</div>
       </Card>
     </div>
   );
@@ -98,6 +100,25 @@ export default function Farmers() {
 
 // The upazila office's register of a farmer's fields: each one's satellite status, and the farmer's own changes
 // waiting to be checked (verify, or put the field back where the register has it).
+// A field's boundary: where it came from, its measured size, and the office's check (which never turns a traced or
+// walked boundary into a surveyed one).
+function BoundaryCheck({ p, today }) {
+  const { T, dispatch, toast } = useStore();
+  const b = boundaryOf(p);
+  const m = b && measure(b);
+  return (
+    <div className="flex basis-full flex-wrap items-center gap-2 pl-11 text-[13px]">
+      <BoundaryBadge parcel={p} />
+      {m && <span className="tabular text-muted">{T(`মাপা ${num(m.area.decimal, 'bn', { dp: 1 })} শতক, খাতায় ${num(p.area_dec, 'bn')}`, `measured ${num(m.area.decimal, 'en', { dp: 1 })} dec, record ${num(p.area_dec, 'en')}`)}</span>}
+      {b && !b.checked && (
+        <Button variant="secondary" className="!px-3 !py-1 text-[13px]" onClick={() => { dispatch({ type: 'saveParcel', parcel: { id: p.id, boundary: { ...p.boundary, checked: { date: iso(today), by: 'office' } } } }); toast('সীমানা দেখা হয়েছে', 'Boundary checked'); }}>
+          <CheckCircle2 size={14} />{b.source === 'survey' ? T('জরিপের সীমানা যাচাই করুন', 'Verify surveyed boundary') : T('সীমানা দেখেছি', 'Mark boundary checked')}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function FarmerFields({ f }) {
   const { s, T, L, dispatch, toast, parcels, unionsAll } = useStore();
   const lang = s.lang;
@@ -110,7 +131,7 @@ function FarmerFields({ f }) {
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 p-5 pb-3">
-        <h2 className="flex items-center gap-2 text-[19px] font-bold"><MapPin size={18} className="text-primary-600" />{T(`অফিসে নিবন্ধিত জমি (${num(mine.length, 'bn')}টি)`, `Fields on the office register (${mine.length})`)}</h2>
+        <h2 className="flex items-center gap-2 text-[19px] font-bold"><MapPin size={18} className="text-primary-600" />{T(`অফিসে নিবন্ধিত জমি (${num(mine.length, 'bn')}টি)`, `Fields on the office register (${num(mine.length, 'en')})`)}</h2>
         <Tags list={['REAL', 'AI', 'DEMO']} />
       </div>
       <FieldsMap parcels={mine} levels={Object.fromEntries(mine.map((p) => [p.id, levels[p.id]?.level ?? 'none']))} selectedId={sel} focusAll={all}
@@ -123,9 +144,10 @@ function FarmerFields({ f }) {
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold text-white" style={{ background: look.color }}>{num(i + 1, lang)}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5 font-semibold">{L(p.name)} <span className="text-[12.5px] font-normal text-muted">{p.id}</span>{p.pending && <Badge tone="amber">{p.added ? T('কৃষক নতুন যোগ করেছেন', 'Added by the farmer') : T('কৃষক অবস্থান বদলেছেন', 'Moved by the farmer')}</Badge>}</div>
-                <div className="text-[13px] text-muted">{lang === 'bn' ? p.villageBn : p.village}, {L(unionsAll[p.union]?.meta ?? { bn: p.union, en: p.union })} · {T(`${num(p.area_dec, 'bn')} শতক`, `${p.area_dec} dec`)} · {r?.top ? L(r.top.pattern.name) : T('উপগ্রহের হিসাব নেই', 'No satellite reading yet')}</div>
+                <div className="text-[13px] text-muted">{lang === 'bn' ? p.villageBn : p.village}, {L(unionsAll[p.union]?.meta ?? { bn: p.union, en: p.union })} · {T(`${num(p.area_dec, 'bn')} শতক`, `${num(p.area_dec, 'en')} dec`)} · {r?.top ? L(r.top.pattern.name) : T('উপগ্রহের হিসাব নেই', 'No satellite reading yet')}</div>
                 {r && r.level !== 'ok' && <div className="mt-0.5 text-[13px]" style={{ color: look.color }}><look.icon size={13} className="mr-1 inline" />{L(r.findings.find((x) => x.tone !== 'ok') ?? look)}</div>}
               </div>
+              <BoundaryCheck p={p} today={today} />
               {p.pending && (
                 <div className="flex gap-2">
                   <Button className="!px-3 !py-1.5 text-[13.5px]" onClick={() => { dispatch({ type: 'verifyParcel', id: p.id, date: today }); toast('জমি যাচাই হয়েছে', 'Field verified'); }}><CheckCircle2 size={15} />{T('যাচাই করুন', 'Verify')}</Button>
@@ -157,7 +179,7 @@ export function FarmDetail() {
   return (
     <div>
       <Link to="/officer/farmers" className="mb-4 inline-flex items-center gap-2 text-[14.5px] font-semibold text-muted hover:text-primary-700"><ArrowLeft size={16} />{T('কৃষকের তালিকা', 'All farmers')}</Link>
-      <PageHeader eyebrow={T('কৃষক ও জমি', 'Farmer and field')} title={L(f.name)} subtitle={`${lang === 'bn' ? f.villageBn : f.village}, ${L(u.meta)}. ${T(`${num(f.area_dec, 'bn')} শতক, ${IRRIGATION[f.irrigation].bn}`, `${f.area_dec} decimal, ${IRRIGATION[f.irrigation].en.toLowerCase()}`)}`} tags={['DEMO']} />
+      <PageHeader eyebrow={T('কৃষক ও জমি', 'Farmer and field')} title={L(f.name)} subtitle={`${lang === 'bn' ? f.villageBn : f.village}, ${L(u.meta)}. ${T(`${num(f.area_dec, 'bn')} শতক, ${IRRIGATION[f.irrigation].bn}`, `${num(f.area_dec, 'en')} decimal, ${IRRIGATION[f.irrigation].en.toLowerCase()}`)}`} tags={['DEMO']} />
       <div className="grid gap-6 xl:grid-cols-[1fr_.85fr]">
         <Card className="overflow-hidden">
           <MapView center={[f.lat, f.lon]} zoom={15} basemap="satellite" points={[...u.farmers.filter((x) => x.id !== f.id).map((x) => ({ id: x.id, lat: x.lat, lon: x.lon, color: '#b9d8aa', r: 4 })), { id: f.id, lat: f.lat, lon: f.lon, color: '#d08f26', r: 10, ring: '#ffffff', label: L(f.name) }]} height={320} className="!rounded-none !border-0" label={T('জমির মানচিত্র', 'Field map')} />

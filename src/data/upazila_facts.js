@@ -12,7 +12,7 @@ export const UPAZILA_FACTS = {
       source: {
         bn: 'উপজেলা কৃষি অফিসের তথ্য, খবর ২৪ ঘণ্টা, ২৩ আগস্ট ২০২৬', en: 'Upazila agriculture office figures, Khobor 24 Ghonta, 23 August 2026',
         url: 'https://khobor24ghonta.com/%E0%A6%97%E0%A7%8B%E0%A6%A6%E0%A6%BE%E0%A6%97%E0%A6%BE%E0%A6%A1%E0%A6%BC%E0%A7%80%E0%A6%A4%E0%A7%87-%E0%A6%86%E0%A6%AE%E0%A6%A8%E0%A7%87%E0%A6%B0-%E0%A6%B8%E0%A6%AC%E0%A7%81%E0%A6%9C-%E0%A6%B8/',
-        quote: { bn: 'আবহাওয়া অনুকূলে থাকলে এবং কৃষকেরা সঠিকভাবে পরিচর্যা অব্যাহত রাখলে এবার আমনে ভালো ফলন পাওয়ার আশা করছি।', by: 'মরিয়ম আহমেদ, উপজেলা কৃষি অফিসার' },
+        quote: { bn: 'আবহাওয়া অনুকূলে থাকলে এবং কৃষকেরা সঠিকভাবে পরিচর্যা অব্যাহত রাখলে এবার আমনে ভালো ফলন পাওয়ার আশা করছি।', en: 'If the weather stays favourable and farmers maintain good field care, we expect a strong Aman harvest this season.', by: { bn: 'মরিয়ম আহমেদ, উপজেলা কৃষি অফিসার', en: 'Mariam Ahmed, Upazila Agriculture Officer' } },
       },
     },
     profile: {

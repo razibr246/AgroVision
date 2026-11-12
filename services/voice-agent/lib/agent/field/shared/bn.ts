@@ -49,7 +49,7 @@ export function joinList(items, lang) {
 
 export const num = (n, lang, dp = 0) => {
   if (n === null || n === undefined || Number.isNaN(n)) return '–';
-  const s = Number(n).toLocaleString('en-IN', { maximumFractionDigits: dp, minimumFractionDigits: 0 });
+  const s = Number(n).toLocaleString('en-US', { maximumFractionDigits: dp, minimumFractionDigits: 0 });
   return lang === 'bn' ? bnDigits(s) : s;
 };
 

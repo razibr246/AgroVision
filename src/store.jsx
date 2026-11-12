@@ -66,12 +66,22 @@ const Ctx = createContext(null);
 // ---- saved demo state (per browser; safe to lose) ----
 const STATE_KEY = `${STORAGE_PREFIX}.demo.v5`; // v5: every farmer's fields from the upazila office registry
 const LANG_KEY = `${STORAGE_PREFIX}.lang`;
-const SAVED_KEYS = ['seenMsgs', 'irrigated', 'farmerId', 'profiles', 'priorities', 'exclude', 'constraints', 'pick', 'confirmed', 'fields', 'requests', 'advisories', 'escalations', 'seenAdvisories', 'officerUpazila', 'officerUnion', 'step', 'fieldCheck', 'scenario', 'harvests', 'parcelEdits', 'activeParcel', 'savedCompares', 'sawStrategies', 'chakra', 'soilTests', 'callNotes'];
+const SAVED_KEYS = ['seenMsgs', 'irrigated', 'farmerId', 'profiles', 'priorities', 'exclude', 'constraints', 'pick', 'confirmed', 'fields', 'requests', 'advisories', 'escalations', 'seenAdvisories', 'officerUpazila', 'officerUnion', 'step', 'fieldCheck', 'scenario', 'harvests', 'parcelEdits', 'activeParcel', 'savedCompares', 'sawStrategies', 'chakra', 'soilTests', 'callNotes', 'farmerMode', 'macosPortal'];
 const readJSON = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
-const savedLang = () => { try { return localStorage.getItem(LANG_KEY) || 'bn'; } catch { return 'bn'; } };
+const savedLang = () => {
+  try {
+    const v = localStorage.getItem(LANG_KEY);
+    return v === 'bn' || v === 'en' ? v : 'en';
+  } catch {
+    return 'en';
+  }
+};
+if (typeof document !== 'undefined') document.documentElement.lang = savedLang();
 
 const fresh = () => ({
   lang: savedLang(),
+  farmerMode: 'advanced', // 'advanced' (full science suite) | 'simple' (accessible essential view for smallholders)
+  macosPortal: true, // optional macOS Liquid Glass chrome, traffic-light window controls & floating Dock in portal views
   step: 0, // season planner step
   farmerId: 'RAHIM',
   fields: {}, // farmerId -> { lat, lon, union, village, villageBn, area_dec, last_crop, irrigation, confirmed }
@@ -151,8 +161,9 @@ function reducer(s, a) {
     case 'saveParcel': return { ...s, parcelEdits: { ...s.parcelEdits, [a.parcel.id]: { ...s.parcelEdits[a.parcel.id], ...a.parcel } } };
     case 'verifyParcel': return { ...s, parcelEdits: { ...s.parcelEdits, [a.id]: { ...s.parcelEdits[a.id], pending: false, source: 'office', verified: a.date } } };
     case 'resetParcel': {
-      const { [a.id]: _gone, ...rest } = s.parcelEdits;
-      return { ...s, parcelEdits: rest };
+      // Back to the registered position and size; a boundary someone measured stays (it is not the pin's to undo).
+      const { [a.id]: gone, ...rest } = s.parcelEdits;
+      return { ...s, parcelEdits: gone?.boundary && !gone.added ? { ...rest, [a.id]: { id: a.id, boundary: gone.boundary } } : rest };
     }
     // Plan the season for one of the farmer's fields: it becomes the field every screen works from.
     case 'useParcel': {
@@ -274,16 +285,29 @@ export function StoreProvider({ children }) {
   const synced = useRef(null);
   useEffect(() => {
     if (!synced.current) { synced.current = new Set(s.advisories.map((a) => a.id)); return; } // what was there at start is not resent
-    for (const a of s.advisories) if (!synced.current.has(a.id)) { synced.current.add(a.id); postMessage({ ...a, from: a.from }); }
+    for (const a of s.advisories) if (!synced.current.has(a.id)) {
+      synced.current.add(a.id);
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('fs360_peer_sync');
+          bc.postMessage({ type: 'peerAdvisory', advisory: { ...a, from: a.from } });
+          bc.close();
+        }
+      } catch { /* broadcast error safe fallback */ }
+      postMessage({ ...a, from: a.from });
+    }
   }, [s.advisories]);
   // The farmer's own messages: read on start, every 30 seconds and on coming back; a new one raises a phone
   // notification when the farmer has allowed them.
   const known = useRef(null);
+  const langRef = useRef(s.lang);
+  langRef.current = s.lang;
   const refreshMessages = useCallback(async () => {
     const list = await loadMessages(farmer.id);
     if (!list) return;
     if (known.current && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      for (const m of list) if (!known.current.has(m.id)) { try { new Notification('কৃষি কর্মকর্তার নতুন বার্তা', { body: m.text.slice(0, 140), tag: m.id }); } catch { /* not allowed here */ } }
+      const title = langRef.current === 'bn' ? 'কৃষি কর্মকর্তার নতুন বার্তা' : 'New message from Agricultural Officer';
+      for (const m of list) if (!known.current.has(m.id)) { try { new Notification(title, { body: m.text.slice(0, 140), tag: m.id }); } catch { /* not allowed here */ } }
     }
     known.current = new Set(list.map((m) => m.id));
     dispatch({ type: 'set', patch: { remoteMsgs: list } });
@@ -296,6 +320,25 @@ export function StoreProvider({ children }) {
     document.addEventListener('visibilitychange', back);
     return () => { clearInterval(t); document.removeEventListener('visibilitychange', back); };
   }, [refreshMessages]);
+
+  // Peer-to-peer cross-tab synchronization for live multi-user demonstrations and offline sync:
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return undefined;
+    let bc;
+    try {
+      bc = new BroadcastChannel('fs360_peer_sync');
+      bc.onmessage = (ev) => {
+        const data = ev?.data;
+        if (!data) return;
+        if (data.type === 'peerPlan' && data.plan) {
+          dispatch({ type: 'confirmPlan', plan: data.plan });
+        } else if (data.type === 'peerAdvisory' && data.advisory) {
+          dispatch({ type: 'addAdvisory', adv: data.advisory });
+        }
+      };
+    } catch { /* unsupported in restricted sandboxes */ }
+    return () => { try { bc?.close(); } catch { /* noop */ } };
+  }, []);
 
   // The shared plan board: read on start, every 30 seconds, and whenever the app comes back to the screen.
   const refreshShared = useCallback(async () => {
@@ -313,6 +356,13 @@ export function StoreProvider({ children }) {
   // Confirm a plan here and on the shared board, then read the board again so every count is current.
   const confirmPlan = useCallback(async (plan) => {
     dispatch({ type: 'confirmPlan', plan });
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('fs360_peer_sync');
+        bc.postMessage({ type: 'peerPlan', plan });
+        bc.close();
+      }
+    } catch { /* broadcast error safe fallback */ }
     const ok = await sendSharedPlan(plan);
     if (ok) await refreshShared();
     return ok;
@@ -358,14 +408,34 @@ export function StoreProvider({ children }) {
   const toast = useCallback((bn, en) => dispatch({ type: 'toast', toast: { bn, en } }), []);
   const farmerOf = useCallback((id) => farmerById.get(id), [farmerById]);
 
-  const value = {
+  const profile = useMemo(() => ({ ...(farmer.mobile ? { mobile: farmer.mobile } : {}), ...s.profiles[farmer.id] }), [farmer.mobile, s.profiles, farmer.id]);
+  const markSeen = useCallback((ids) => dispatch({ type: 'markSeen', id: farmer.id, ids: ids ?? myAdvisories.map((a) => a.id) }), [farmer.id, myAdvisories]);
+
+  const toggleFarmerMode = useCallback(() => {
+    dispatch({ type: 'set', patch: { farmerMode: s.farmerMode === 'simple' ? 'advanced' : 'simple' } });
+  }, [s.farmerMode]);
+
+  const macosPortal = s.macosPortal !== false;
+  const toggleMacosPortal = useCallback(() => {
+    dispatch({ type: 'set', patch: { macosPortal: !macosPortal } });
+  }, [macosPortal]);
+
+  const value = useMemo(() => ({
     s, dispatch, T, L, toast, farmer, farmers, farmerOf, soil, union, unions, unionsAll, decision, decisionBase, decisionArgs, chosen, rotation, hotspots, excludeAll,
-    // a mobile number on the registry (the demo phone) shows until the farmer saves their own
-    profile: { ...(farmer.mobile ? { mobile: farmer.mobile } : {}), ...s.profiles[farmer.id] }, upazila, clim: fclim, tm: tms[upazila.id], officerUpazila, officerClim, upazilaFarmers,
+    profile, upazila, clim: fclim, tm: tms[upazila.id], officerUpazila, officerClim, upazilaFarmers,
     today, daysAfter, demoNow: today, weather, liveWeather: !!live, stage, water,
-    myAdvisories, unreadMsgs, unreadAdvisories: unreadMsgs.length, markSeen: (ids) => dispatch({ type: 'markSeen', id: farmer.id, ids: ids ?? myAdvisories.map((a) => a.id) }), confirmedPlan, landConfirmed,
+    myAdvisories, unreadMsgs, unreadAdvisories: unreadMsgs.length, markSeen, confirmedPlan, landConfirmed,
     parcels, myParcels, activeParcel, srdiUnion, econ, shared: s.shared, refreshShared, confirmPlan, confirmedAll,
-  };
+    farmerMode: s.farmerMode ?? 'advanced', isSimpleMode: s.farmerMode === 'simple', toggleFarmerMode,
+    macosPortal, toggleMacosPortal,
+  }), [
+    s, dispatch, T, L, toast, farmer, farmers, farmerOf, soil, union, unions, unionsAll, decision, decisionBase, decisionArgs, chosen, rotation, hotspots, excludeAll,
+    profile, upazila, fclim, officerUpazila, officerClim, upazilaFarmers,
+    today, daysAfter, weather, live, stage, water,
+    myAdvisories, unreadMsgs, markSeen, confirmedPlan, landConfirmed,
+    parcels, myParcels, activeParcel, srdiUnion, econ, refreshShared, confirmPlan, confirmedAll,
+    toggleFarmerMode, macosPortal, toggleMacosPortal,
+  ]);
   return <Ctx.Provider value={value}>{climReady ? children : <div className="grid min-h-[60vh] place-items-center text-[15px] text-muted" role="status">{s.lang === 'bn' ? 'নাসার আবহাওয়ার তথ্য আসছে…' : 'Loading NASA weather data…'}</div>}</Ctx.Provider>;
 }
 

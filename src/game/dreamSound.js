@@ -35,12 +35,18 @@ export function createDreamSound() {
   }
   const FX = {
     pop: () => { note(880, ctx.currentTime, 0.15, { wave: 'triangle', vol: 0.12 }); note(1320, ctx.currentTime + 0.06, 0.15, { wave: 'triangle', vol: 0.1 }); },
-    sprout: () => [523.3, 659.3, 784].forEach((f, i) => note(f, ctx.currentTime + i * 0.07, 0.25, { wave: 'sine', vol: 0.1 })),
-    splash: () => note(180, ctx.currentTime, 0.4, { wave: 'sawtooth', vol: 0.05 }),
+    sprout: () => [523.3, 659.3, 784, 987.8].forEach((f, i) => note(f, ctx.currentTime + i * 0.06, 0.28, { wave: 'sine', vol: 0.1 })),
+    splash: () => { note(180, ctx.currentTime, 0.4, { wave: 'sawtooth', vol: 0.05 }); note(320, ctx.currentTime + 0.08, 0.25, { wave: 'sine', vol: 0.07 }); },
     goat: () => { for (let i = 0; i < 5; i++) note(420 + (i % 2) * 40, ctx.currentTime + i * 0.06, 0.08, { wave: 'sawtooth', vol: 0.06 }); },
-    cheer: () => [523.3, 659.3, 784, 1046.5].forEach((f, i) => note(f, ctx.currentTime + i * 0.1, 0.4, { wave: 'square', vol: 0.05 })),
+    cheer: () => [523.3, 659.3, 784, 1046.5, 1318.5].forEach((f, i) => note(f, ctx.currentTime + i * 0.09, 0.45, { wave: 'triangle', vol: 0.07 })),
     sad: () => [392, 349.2, 293.7].forEach((f, i) => note(f, ctx.currentTime + i * 0.3, 0.6, { wave: 'sine', vol: 0.08 })),
     ting: () => note(1567.98, ctx.currentTime, 0.5, { wave: 'sine', vol: 0.08 }),
+    stardust: () => [1046.5, 1318.5, 1568, 2093].forEach((f, i) => note(f, ctx.currentTime + i * 0.05, 0.32, { wave: 'sine', vol: 0.09 })),
+    rainbow: () => [523.3, 659.3, 784, 1046.5, 1318.5].forEach((f, i) => note(f, ctx.currentTime + i * 0.06, 0.35, { wave: 'triangle', vol: 0.08 })),
+    ribbit: () => [140, 175, 130].forEach((f, i) => note(f, ctx.currentTime + i * 0.07, 0.14, { wave: 'sawtooth', vol: 0.08 })),
+    boing: () => { note(260, ctx.currentTime, 0.22, { wave: 'sine', vol: 0.12 }); note(520, ctx.currentTime + 0.05, 0.2, { wave: 'triangle', vol: 0.1 }); },
+    twinkle: () => [1568, 1760, 2093, 2349].forEach((f, i) => note(f, ctx.currentTime + i * 0.04, 0.22, { wave: 'sine', vol: 0.07 })),
+    rooster: () => { [587.3, 659.3, 784, 880].forEach((f, i) => note(f, ctx.currentTime + i * 0.11, 0.35, { wave: 'triangle', vol: 0.08 })); },
   };
   return {
     music,

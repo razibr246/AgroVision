@@ -75,4 +75,18 @@ test('generateLossDossierText constructs valid UNFCCC loss dossier certificate',
   assert.ok(text.includes('50 Hectares'));
   assert.ok(text.includes('Kalpana Rahman'));
   assert.ok(text.includes('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'));
+
+  const bnText = generateLossDossierText({
+    upazilaNameEn: 'Sitakunda',
+    districtNameEn: 'Chattogram',
+    upazilaNameBn: 'সীতাকুণ্ড',
+    districtNameBn: 'চট্টগ্রাম',
+    assessment,
+    officerNameBn: 'কল্পনা রহমান',
+    dossierHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    lang: 'bn',
+  });
+  assert.ok(bnText.includes('সীতাকুণ্ড, চট্টগ্রাম'));
+  assert.ok(bnText.includes('কল্পনা রহমান'));
+  assert.ok(/[০-৯]/.test(bnText));
 });

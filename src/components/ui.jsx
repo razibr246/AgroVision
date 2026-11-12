@@ -16,16 +16,16 @@ export function CountUp({ value, duration, className = '' }) {
 }
 
 // Focus: a 2 px ring in the button's own strong colour, 2 px off its edge, so keyboard focus is plain on any surface.
-const BTN_BASE = 'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[15px] font-semibold transition-all duration-200 ease-[var(--ease-spring)] active:scale-[.96] disabled:pointer-events-none disabled:opacity-45 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 will-change-transform select-none cursor-pointer';
+const BTN_BASE = 'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[15px] font-semibold transition-[transform,box-shadow,background-color,border-color,color,opacity,filter] duration-200 ease-[var(--ease-spring)] active:scale-[.96] motion-reduce:transition-none motion-reduce:active:scale-100 motion-reduce:hover:translate-y-0 disabled:pointer-events-none disabled:opacity-45 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 select-none cursor-pointer';
 const BTN = {
   // Glossy green: the same lit gradient and light sweep as the header CTAs, so every primary action reads as one.
   primary: 'btn-gloss text-white focus-visible:ring-primary-500 shadow-sm hover:shadow-md',
-  secondary: 'border border-border/80 bg-white/95 text-ink hover:border-primary-300 hover:bg-primary-50/80 hover:shadow-sm hover:-translate-y-0.5 focus-visible:ring-primary-500 backdrop-blur-xs',
+  secondary: 'border border-border/80 bg-white/95 text-ink hover:border-primary-300 hover:bg-primary-50/80 hover:shadow-sm hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 focus-visible:ring-primary-500 backdrop-blur-xs',
   outline: 'border-2 border-primary-600 bg-transparent text-primary-800 hover:bg-primary-50 active:bg-primary-100 focus-visible:ring-primary-500',
   ghost: 'text-ink hover:bg-primary-50/80 hover:text-primary-800 focus-visible:ring-primary-500 active:bg-primary-100',
-  danger: 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-red-500',
-  dark: 'bg-primary-950 text-white hover:bg-primary-900 hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-primary-600',
-  light: 'bg-white text-primary-900 hover:bg-primary-50 hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-white focus-visible:ring-offset-transparent',
+  danger: 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 focus-visible:ring-red-500',
+  dark: 'bg-primary-950 text-white hover:bg-primary-900 hover:shadow-md hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 focus-visible:ring-primary-600',
+  light: 'bg-white text-primary-900 hover:bg-primary-50 hover:shadow-md hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 focus-visible:ring-white focus-visible:ring-offset-transparent',
 };
 export function Button({ to, variant = 'primary', loading = false, disabled = false, className = '', children, type = 'button', ...props }) {
   const cls = `${BTN_BASE} ${BTN[variant]} ${className}`;
@@ -50,7 +50,7 @@ const BADGE = {
 };
 export function Badge({ tone = 'green', dot = false, children, className = '' }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[12.5px] font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] ${BADGE[tone]} ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[12.5px] font-semibold transition-[transform,border-color,box-shadow] duration-200 ease-[var(--ease-spring)] hover:scale-[1.03] active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:active:scale-100 ${BADGE[tone]} ${className}`}>
       {dot && <span className="live-dot shrink-0" />}
       {children}
     </span>
@@ -109,16 +109,16 @@ export function StatCard({ icon: Icon, label, value, note, tone = 'green', tag, 
     <>
       <div className="flex items-start justify-between gap-2">
         <span className="text-[13.5px] font-semibold text-muted tracking-tight">{label}</span>
-        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl shadow-2xs transition-all duration-300 ease-[var(--ease-spring)] group-hover:scale-110 group-hover:rotate-3 ${STAT_TONE[tone]}`}>{Icon && <Icon size={18} />}</span>
+        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl shadow-2xs transition-transform duration-300 ease-[var(--ease-spring)] group-hover:scale-110 group-hover:rotate-3 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-hover:rotate-0 ${STAT_TONE[tone]}`}>{Icon && <Icon size={18} />}</span>
       </div>
       <p className="font-display mt-1 min-w-0 pr-4 text-[24px] font-bold leading-tight text-ink tabular tracking-tight">{value}</p>
       {note && <p className="mt-1 text-[13px] leading-5 text-muted truncate">{note}</p>}
       {tag && <div className="mt-2"><Tags list={[tag]} /></div>}
-      <span aria-hidden="true" className={`pointer-events-none absolute inset-x-4 bottom-0 h-[2px] bg-gradient-to-r opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${STAT_ACCENT[tone] || STAT_ACCENT.green}`} />
-      {to && <ChevronRight aria-hidden="true" size={17} className="stat-card-arrow absolute bottom-3.5 right-3.5 text-muted/60 transition-all duration-250 group-hover:translate-x-1 group-hover:text-primary-700" />}
+      <span aria-hidden="true" className={`pointer-events-none absolute inset-x-4 bottom-0 h-[2px] bg-gradient-to-r opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none ${STAT_ACCENT[tone] || STAT_ACCENT.green}`} />
+      {to && <ChevronRight aria-hidden="true" size={17} className="stat-card-arrow absolute bottom-3.5 right-3.5 text-muted/60 transition-[transform,color] duration-250 ease-[var(--ease-spring)] group-hover:translate-x-1 group-hover:text-primary-700 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />}
     </>
   );
-  const cls = `stat-card surface-card group relative block overflow-hidden rounded-2xl p-4 transition-all duration-300 ease-[var(--ease-smooth)] ${to ? 'pb-8' : ''} ${STAT_GLOW[tone] || ''}`;
+  const cls = `stat-card surface-card cv-auto group relative block overflow-hidden rounded-2xl p-4 transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-spring)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${to ? 'pb-8' : ''} ${STAT_GLOW[tone] || ''}`;
   return to ? <Link to={to} className={`${cls} lift`}>{body}</Link> : <div className={cls}>{body}</div>;
 }
 
@@ -306,8 +306,8 @@ export function Segmented({ value, onChange, options, className = '' }) {
   return (
     <div ref={box} className={`relative inline-flex rounded-xl bg-black/[.05] p-1 shadow-inner ${className}`} role="tablist">
       {thumb && (
-        <span aria-hidden="true" className="seg-thumb pointer-events-none absolute left-0 top-0 rounded-lg bg-white shadow-[0_2px_10px_-2px_rgba(13,38,20,0.22),0_1px_0_rgba(255,255,255,0.95)] ring-1 ring-black/5"
-          style={{ transform: `translate(${thumb.x}px, ${thumb.y}px)`, width: thumb.w, height: thumb.h, transitionProperty: thumb.glide ? 'transform, width, height' : 'none' }} />
+        <span aria-hidden="true" className="seg-thumb pointer-events-none absolute left-0 top-0 rounded-lg bg-white shadow-[0_2px_10px_-2px_rgba(13,38,20,0.22),0_1px_0_rgba(255,255,255,0.95)] ring-1 ring-black/5 will-change-[transform,width,height]"
+          style={{ transform: `translate3d(${thumb.x}px, ${thumb.y}px, 0)`, width: thumb.w, height: thumb.h, transitionProperty: thumb.glide ? 'transform, width, height' : 'none' }} />
       )}
       {options.map((o) => (
         <button key={o.value} type="button" role="tab" aria-selected={value === o.value} onClick={() => onChange(o.value)}
@@ -321,11 +321,15 @@ export function Segmented({ value, onChange, options, className = '' }) {
 
 export function EmptyState({ icon: Icon, title, text, action }) {
   return (
-    <div className="empty-state grid place-items-center rounded-2xl border border-dashed border-border px-6 py-10 text-center">
-      {Icon && <div className="empty-state-icon grid h-12 w-12 place-items-center rounded-xl bg-primary-50 text-primary-700"><Icon size={22} /></div>}
-      <div className="mt-3 font-bold">{title}</div>
-      {text && <p className="mt-1 max-w-sm text-[14px] text-muted">{text}</p>}
-      {action && <div className="mt-4">{action}</div>}
+    <div className="empty-state surface-card cv-auto grid place-items-center rounded-[24px] border border-dashed border-border/90 bg-gradient-to-b from-white to-primary-50/20 px-6 py-12 text-center shadow-2xs">
+      {Icon && (
+        <div className="empty-state-icon grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary-100 to-primary-50 text-primary-700 shadow-inner ring-1 ring-primary-200/50 transition-transform duration-300 hover:scale-105">
+          <Icon size={26} />
+        </div>
+      )}
+      <div className="font-display mt-4 text-[17px] font-bold text-ink">{title}</div>
+      {text && <p className="mt-1.5 max-w-md text-[14px] leading-6 text-muted">{text}</p>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }

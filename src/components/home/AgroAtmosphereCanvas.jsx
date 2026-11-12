@@ -27,7 +27,20 @@ export default function AgroAtmosphereCanvas() {
       width = canvas.width = canvas.offsetWidth || window.innerWidth;
       height = canvas.height = canvas.offsetHeight || 600;
     };
-    window.addEventListener('resize', onResize, { passive: true });
+    let canvasRect = null;
+    const updateRect = () => {
+      if (canvas) canvasRect = canvas.getBoundingClientRect();
+    };
+    const onScroll = () => {
+      canvasRect = null;
+    };
+    updateRect();
+    const handleResize = () => {
+      onResize();
+      updateRect();
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     // Initialize 16 gentle motes with golden/emerald hues
     const motes = Array.from({ length: MOTE_COUNT }, () => ({
@@ -45,17 +58,19 @@ export default function AgroAtmosphereCanvas() {
     let mouseX = -1000;
     let mouseY = -1000;
     const onMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
+      if (!canvasRect) updateRect();
+      if (!canvasRect) return;
+      mouseX = e.clientX - canvasRect.left;
+      mouseY = e.clientY - canvasRect.top;
     };
     window.addEventListener('mousemove', onMouseMove, { passive: true });
 
     let lastTime = performance.now();
+    let isIntersecting = true;
 
     const loop = (now) => {
-      if (document.visibilityState !== 'visible') {
-        animId = requestAnimationFrame(loop);
+      if (!isIntersecting || document.visibilityState !== 'visible') {
+        animId = 0;
         return;
       }
 
@@ -102,11 +117,45 @@ export default function AgroAtmosphereCanvas() {
       animId = requestAnimationFrame(loop);
     };
 
-    animId = requestAnimationFrame(loop);
+    const startLoop = () => {
+      if (!animId && isIntersecting && document.visibilityState === 'visible') {
+        lastTime = performance.now();
+        animId = requestAnimationFrame(loop);
+      }
+    };
+
+    let observer = null;
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver(([entry]) => {
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting) {
+          startLoop();
+        } else if (animId) {
+          cancelAnimationFrame(animId);
+          animId = 0;
+        }
+      }, { rootMargin: '50px' });
+      observer.observe(canvas);
+    } else {
+      startLoop();
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        startLoop();
+      } else if (animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', onResize);
+      if (animId) cancelAnimationFrame(animId);
+      if (observer) observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('mousemove', onMouseMove);
     };
   }, []);

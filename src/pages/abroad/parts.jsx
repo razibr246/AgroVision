@@ -4,7 +4,11 @@ import { STORAGE_PREFIX } from '../../config/brand';
 import { ResponsiveContainer, ComposedChart, BarChart, Bar, Line, XAxis, YAxis, Tooltip, CartesianGrid, Cell, ReferenceLine } from 'recharts';
 import { Flame, Satellite, Telescope, ShieldAlert, ExternalLink } from 'lucide-react';
 import { useStore } from '../../store';
+import { seedAbroadRequests } from '../../data/abroad_requests';
 import { num, bnDigits } from '../../engine/dates';
+import { sampleBoundary } from '../../data/parcels';
+import { toBoxPercent } from '../../engine/landgeom';
+import { pictureBox } from '../../engine/sentinel';
 import { fetchForecast, weatherOf } from '../../engine/forecast';
 // Each country's data file (about 120 KB) loads only when that country is opened.
 const FILES = import.meta.glob('../../data/abroad/*.json', { import: 'default' });
@@ -56,24 +60,36 @@ export function useLiveForecast(lat, lon, tz) {
 // kept in this browser instead and the farmer and officer views share it there.
 const API = `${import.meta.env?.BASE_URL || './'}api/abroad`;
 const localKey = (id, k) => `${STORAGE_PREFIX}.abroad.${k}.${id}`;
-const readLocal = (id, k) => { try { return JSON.parse(localStorage.getItem(localKey(id, k)) || '[]'); } catch { return []; } };
+const readLocal = (id, k) => {
+  try {
+    const raw = localStorage.getItem(localKey(id, k));
+    if (raw != null) {
+      const parsed = JSON.parse(raw);
+      if (k !== 'req' || (Array.isArray(parsed) && parsed.length > 0)) return parsed;
+    }
+    return k === 'req' ? seedAbroadRequests(id) : [];
+  } catch {
+    return k === 'req' ? seedAbroadRequests(id) : [];
+  }
+};
 const writeLocal = (id, k, v) => { try { localStorage.setItem(localKey(id, k), JSON.stringify(v)); } catch { /* storage blocked */ } };
 const stamp = (p) => `${p}${Date.now().toString(36)}`;
 
 export function useBoard(id) {
   const [mode, setMode] = useState('checking'); // checking | server | local
   const [writeError, setWriteError] = useState(false);
-  const [board, setBoard] = useState(() => ({ requests: readLocal(id, 'req'), notices: readLocal(id, 'notice') }));
+  const [board, setBoard] = useState(() => ({ id, requests: readLocal(id, 'req'), notices: readLocal(id, 'notice') }));
   const pull = useCallback(async () => {
     try {
       const r = await fetch(`${API}?cc=${id}`, { cache: 'no-store' });
       if (!r.ok) throw new Error(String(r.status));
       const j = await r.json();
-      setBoard({ requests: j.requests, notices: j.notices });
+      if (!Array.isArray(j?.requests) || !Array.isArray(j?.notices)) throw new Error('bad board');
+      setBoard({ id, requests: j.requests, notices: j.notices });
       setMode('server');
     } catch {
       setMode('local');
-      setBoard({ requests: readLocal(id, 'req'), notices: readLocal(id, 'notice') });
+      setBoard({ id, requests: readLocal(id, 'req'), notices: readLocal(id, 'notice') });
     }
   }, [id]);
   useEffect(() => {
@@ -103,21 +119,23 @@ export function useBoard(id) {
     const nt = local.notice ? local.notice(readLocal(id, 'notice')) : null;
     if (req) writeLocal(id, 'req', req);
     if (nt) writeLocal(id, 'notice', nt);
-    setBoard({ requests: readLocal(id, 'req'), notices: readLocal(id, 'notice') });
+    setBoard({ id, requests: readLocal(id, 'req'), notices: readLocal(id, 'notice') });
     return true;
   }, [id, mode, pull]);
   const now = () => new Date().toISOString();
+  const activeReq = board.id === id ? board.requests : readLocal(id, 'req');
+  const activeNotices = board.id === id ? board.notices : readLocal(id, 'notice');
   return {
     mode,
     writeError,
     req: {
-      list: board.requests,
+      list: activeReq,
       add: (topic, text) => write({ op: 'request', topic, text }, { req: (p) => [{ id: stamp('R'), t: now(), topic, text, reply: null }, ...p] }),
       reply: (rid, text) => write({ op: 'reply', id: rid, text }, { req: (p) => p.map((r) => (r.id === rid ? { ...r, reply: { text, t: now() }, seen: false } : r)) }),
-      seenAll: () => { if (board.requests.some((r) => r.reply && !r.seen)) write({ op: 'seen' }, { req: (p) => p.map((r) => (r.reply ? { ...r, seen: true } : r)) }); },
+      seenAll: () => { if (activeReq.some((r) => r.reply && !r.seen)) write({ op: 'seen' }, { req: (p) => p.map((r) => (r.reply ? { ...r, seen: true } : r)) }); },
     },
     notices: {
-      list: board.notices,
+      list: activeNotices,
       send: (key, text) => write({ op: 'notice', key, text }, { notice: (p) => [{ id: stamp('N'), t: now(), key, text }, ...p].slice(0, 20) }),
     },
   };
@@ -176,7 +194,7 @@ function CountUp({ text }) {
     return () => { io.disconnect(); cancelAnimationFrame(raf); };
   }, [target]);
   if (!m || v == null) return <span ref={ref}>{text}</span>;
-  const n = v.toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  const n = v.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
   return <span ref={ref}>{m[1]}{bn ? n.replace(/[0-9]/g, (d) => BN[d]) : n}{m[3]}</span>;
 }
 
@@ -362,9 +380,12 @@ export function FieldPanel({ field }) {
     <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
       <div>
         <div className="relative aspect-square overflow-hidden rounded-2xl bg-primary-950 ring-1 ring-black/5">
-          {(view === 'tc' ? tc : nd) && <img key={view} src={view === 'tc' ? tc : nd} alt={T('জমির উপগ্রহ ছবি', 'Satellite picture of the field')} onLoad={(e) => e.currentTarget.classList.add('is-loaded')} className="fade-img h-full w-full object-cover" />}
+          {(view === 'tc' ? tc : nd) && <img key={view} src={view === 'tc' ? tc : nd} alt={T('জমির উপগ্রহ ছবি', 'Satellite picture of the field')} loading="lazy" decoding="async" onLoad={(e) => e.currentTarget.classList.add('is-loaded')} className="fade-img h-full w-full object-cover" />}
           <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-            {(() => { const h = Math.min(40, Math.max(8, 100 * Math.sqrt(field.area_dec * 40.4686) / Math.max(480, 6 * Math.sqrt(field.area_dec * 40.4686)))) / 2; return <rect x={50 - h} y={50 - h} width={2 * h} height={2 * h} fill="none" stroke="#edc067" strokeWidth="0.9" strokeDasharray="2 1.4" />; })()}
+            {/* The sample field's outline: a real field's edge seen near the sample pin (data/fields/sample_shapes.json). */}
+            {sampleBoundary(field.id)
+              ? <path d={toBoxPercent(sampleBoundary(field.id), pictureBox(field)).map((poly) => poly.map((ring) => `M${ring.map(([x, y]) => `${x},${y}`).join('L')}Z`).join(' ')).join(' ')} fill="rgba(237,192,103,.14)" stroke="#edc067" strokeWidth="0.7" strokeDasharray="2 1.2" />
+              : [[46, 50, 48.8, 50], [51.2, 50, 54, 50], [50, 46, 50, 48.8], [50, 51.2, 50, 54]].map(([a, b, c, d], i) => <line key={i} x1={a} y1={b} x2={c} y2={d} stroke="#edc067" strokeWidth="0.9" />)}
           </svg>
           <div className="absolute inset-x-2 bottom-2 flex gap-1 rounded-full bg-black/45 p-1 backdrop-blur">
             {[['tc', T('আসল রঙ', 'True colour')], ['nd', T('সবুজের মাত্রা', 'Green cover')]].map(([k, l]) => (
@@ -372,7 +393,7 @@ export function FieldPanel({ field }) {
             ))}
           </div>
         </div>
-        <p className="mt-2 text-[12px] leading-4 text-muted">{T(`সেন্টিনেল-২, ${last ? fullDate(last.d, lang) : '—'}; হলুদ দাগ জমির সীমা।`, `Sentinel-2, ${last ? fullDate(last.d, 'en') : '—'}; the yellow outline is the field.`)}</p>
+        <p className="mt-2 text-[12px] leading-4 text-muted">{T(`সেন্টিনেল-২, ${last ? fullDate(last.d, lang) : '—'}; হলুদ রেখা নমুনা জমির সীমানা (ডেমো): ছবিতে দেখা কাছের একটি আসল জমির কিনারা, মাপা জমি নয়।`, `Sentinel-2, ${last ? fullDate(last.d, 'en') : '—'}; the yellow line is the sample field's outline (demo): a real field's edge seen nearby in the photo, not measured land.`)}</p>
       </div>
       <div className="min-w-0">
         <div className="mb-3 grid grid-cols-3 gap-2">

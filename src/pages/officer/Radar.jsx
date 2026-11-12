@@ -55,7 +55,7 @@ function RadarPage() {
 
   return (
     <div>
-      <PageHeader eyebrow={T(`রোপণ রাডার · বৃষ্টি ও ফসল রোপণ · ${district.bn} জেলা`, `Ropan Radar · Rain and crop planting · ${district.en} district`)}
+      <PageHeader eyebrow={T(`রোপণ রাডার · বৃষ্টি ও ফসল রোপণ · ${district.bn} জেলা`, `Ropon Radar · Rain and crop planting · ${district.en} district`)}
         title={T(`${row.bn}: এবার ফসল রোপণ সময়মতো হচ্ছে কি?`, `${row.en}: is planting on time this year?`)}
         subtitle={T('মেঘের নিচেও সেন্টিনেল-১ রাডার দেখে কোন জমিতে কবে পানি দিয়ে চারা রোপণ হলো (এখন বর্ষার আমন ধান মাপা হয়, কারণ রোপণের সময় জমিতে পানি থাকে); নাসার জিপিএম আইমার্জ উপগ্রহ মাপে বৃষ্টি। প্রতিটি উপজেলাকে তার নিজের গত বছরগুলোর সঙ্গে মেলানো হয়; নিচে জেলার অন্য উপজেলার সঙ্গে তুলনা।', 'Sentinel-1 radar sees through monsoon cloud when each field is flooded and transplanted (it measures monsoon Aman rice for now, because its fields stand in water at planting); NASA’s GPM IMERG satellites measure the rain. Each upazila is compared with its own past seasons, and with the rest of the district below.')}
         tags={['SAT', 'RULE']} />
@@ -120,9 +120,9 @@ function RadarPage() {
             value={se.shift === null ? '—' : se.shift === 0 ? T('ঠিক স্বাভাবিক দিনে', 'On the usual day') : T(`${num(Math.abs(se.shift), 'bn')} দিন ${se.shift < 0 ? 'আগে' : 'পরে'}`, `${Math.abs(se.shift)} days ${se.shift < 0 ? 'earlier' : 'later'}`)}
             note={row.transplantNormal === null ? '' : T(`স্বাভাবিক ${day(row.transplantNormal)} (২০১৭–২০২৫-এর মধ্যমা); ±${num(SHIFT_DAYS, 'bn')} দিন স্বাভাবিক ধরা হয়`, `Usual ${day(row.transplantNormal)} (2017–2025 median); ±${SHIFT_DAYS} days counts as usual`)} />
           <Stat icon={CloudRain} tone={rainDiff !== null && rainDiff < 0 ? '#a8552a' : '#2f8a8f'} label={T('জুন–জুলাইয়ের বৃষ্টি', 'June–July rain')}
-            value={se.rainJJ === null ? '—' : T(`${num(se.rainJJ, 'bn')} মিমি${se.rainProvisional ? '*' : ''}`, `${se.rainJJ} mm${se.rainProvisional ? '*' : ''}`)}
-            note={se.rainProvisional ? T(`* অস্থায়ী: আইমার্জের সাম্প্রতিক মাসগুলো প্রাথমিক উপগ্রহ-হিসাব, মাপযন্ত্রে মেলানো চূড়ান্ত তথ্য ৩–৪ মাস পরে আসে। তাই স্বাভাবিকের (${num(row.rainNormal, 'bn')} মিমি) সঙ্গে তুলনা করা হয়নি।`, `* Provisional: IMERG's latest months are its early satellite-only estimate; the gauge-calibrated final arrives 3–4 months later, so it is not compared with the normal (${row.rainNormal} mm).`)
-              : rainDiff === null ? '' : T(`স্বাভাবিক ${num(row.rainNormal, 'bn')} মিমি; এবার ${num(Math.abs(rainDiff), 'bn')}% ${rainDiff < 0 ? 'কম' : 'বেশি'}`, `Normal ${row.rainNormal} mm; ${Math.abs(rainDiff)}% ${rainDiff < 0 ? 'less' : 'more'} this year`)} />
+            value={se.rainJJ === null ? '—' : T(`${num(se.rainJJ, 'bn')} মিমি${se.rainProvisional ? '*' : ''}`, `${num(se.rainJJ, 'en')} mm${se.rainProvisional ? '*' : ''}`)}
+            note={se.rainProvisional ? T(`* অস্থায়ী: আইমার্জের সাম্প্রতিক মাসগুলো প্রাথমিক উপগ্রহ-হিসাব, মাপযন্ত্রে মেলানো চূড়ান্ত তথ্য ৩–৪ মাস পরে আসে। তাই স্বাভাবিকের (${num(row.rainNormal, 'bn')} মিমি) সঙ্গে তুলনা করা হয়নি।`, `* Provisional: IMERG's latest months are its early satellite-only estimate; the gauge-calibrated final arrives 3–4 months later, so it is not compared with the normal (${num(row.rainNormal, 'en')} mm).`)
+              : rainDiff === null ? '' : T(`স্বাভাবিক ${num(row.rainNormal, 'bn')} মিমি; এবার ${num(Math.abs(rainDiff), 'bn')}% ${rainDiff < 0 ? 'কম' : 'বেশি'}`, `Normal ${num(row.rainNormal, 'en')} mm; ${Math.abs(rainDiff)}% ${rainDiff < 0 ? 'less' : 'more'} this year`)} />
         </div>
 
         <div className="mt-6">
@@ -143,7 +143,7 @@ function RadarPage() {
       <Card id="rd-story" className="mt-6 p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="text-[20px] font-bold">{T(`জেলার চোখে রোপণ রাডার: ${district.bn}`, `Ropan Radar through the district: ${district.en}`)}</h2>
+            <h2 className="text-[20px] font-bold">{T(`জেলার চোখে রোপণ রাডার: ${district.bn}`, `Ropon Radar through the district: ${district.en}`)}</h2>
             <p className="text-[14px] leading-6 text-muted">{T('প্রথম রোপণ রাডারের আটটি দৃশ্য, নমুনা রংপুরের বদলে আপনার জেলার আসল উপগ্রহ তথ্যে। নিজে থেকে চলে; দৃশ্যে চাপ দিয়ে বা তীর দিয়ে বদলান।', 'The first Ropon Radar\'s eight scenes, on your district\'s real satellite data instead of sample Rangpur data. It plays by itself; tap a scene or use the arrows.')}</p>
           </div>
           <Tags list={['SAT', 'RULE']} />
@@ -381,8 +381,8 @@ function OnsetCard({ upazila, name }) {
           {r.power.doy != null && <circle cx={X(r.year)} cy={Y(r.power.doy)} r="4" fill="none" stroke="#8a948e" strokeWidth="1.4" />}
           {r.imerg.doy != null && (r.imerg.atStart
             // set in by the day the search opens: drawn as a triangle pointing earlier
-            ? <path d={`M${X(r.year)} ${Y(r.imerg.doy) - 6} l5 8 h-10z`} fill={r.imerg.complete ? '#2f8a8f' : '#ffffff'} stroke="#2f8a8f" strokeWidth="1.4"><title>{`${r.year}: ${T('১৫ মে বা আগে', 'by 15 May or earlier')}`}</title></path>
-            : <circle cx={X(r.year)} cy={Y(r.imerg.doy)} r="5" fill={r.imerg.complete ? '#2f8a8f' : '#ffffff'} stroke="#2f8a8f" strokeWidth="1.6"><title>{`${r.year}: ${day(r.year, r.imerg.doy)}${r.imerg.complete ? '' : ' (provisional)'}`}</title></circle>)}
+            ? <path d={`M${X(r.year)} ${Y(r.imerg.doy) - 6} l5 8 h-10z`} fill={r.imerg.complete ? '#2f8a8f' : '#ffffff'} stroke="#2f8a8f" strokeWidth="1.4"><title>{`${num(r.year, lang).replace(/,/g, '')}: ${T('১৫ মে বা আগে', 'by 15 May or earlier')}`}</title></path>
+            : <circle cx={X(r.year)} cy={Y(r.imerg.doy)} r="5" fill={r.imerg.complete ? '#2f8a8f' : '#ffffff'} stroke="#2f8a8f" strokeWidth="1.6"><title>{`${num(r.year, lang).replace(/,/g, '')}: ${day(r.year, r.imerg.doy)}${r.imerg.complete ? '' : T(' (অস্থায়ী)', ' (provisional)')}`}</title></circle>)}
           {(r.year - y0) % 5 === 0 && <text x={X(r.year)} y={H - 8} textAnchor="middle" fontSize="10.5" fill="#5d6a63">{num(r.year, lang).replace(/,/g, '')}</text>}
         </g>)}
       </svg>
@@ -450,7 +450,7 @@ function rainTrendText(row, T) {
   const dir = t.perDecade > 0 ? T('বেড়েছে', 'risen') : T('কমেছে', 'fallen');
   return T(
     `২৫ বছরে জুন–জুলাইয়ের বৃষ্টি প্রতি দশকে প্রায় ${num(Math.abs(t.perDecade), 'bn')} মিমি ${dir}। ${t.significant ? 'প্রমাণ জোরালো, জেলার অন্য উপজেলার সঙ্গে মিলিয়েও টেকে।' : 'তবে প্রমাণ দুর্বল: বছরে বছরে ওঠানামা এত বেশি যে এটাকে নিশ্চিত ধারা বলা যায় না।'} বাদামি দণ্ড: স্বাভাবিকের চেয়ে কম বৃষ্টি; ধূসর দণ্ড: অস্থায়ী।`,
-    `Over 25 years June–July rain has ${dir} by about ${Math.abs(t.perDecade)} mm per decade. ${t.significant ? 'The evidence is strong and survives the district-wide correction.' : 'But the evidence is weak: years swing so much that it cannot be called a sure trend.'} Brown bars: less rain than normal; grey: provisional.`,
+    `Over 25 years June–July rain has ${dir} by about ${num(Math.abs(t.perDecade), 'en')} mm per decade. ${t.significant ? 'The evidence is strong and survives the district-wide correction.' : 'But the evidence is weak: years swing so much that it cannot be called a sure trend.'} Brown bars: less rain than normal; grey: provisional.`,
   );
 }
 

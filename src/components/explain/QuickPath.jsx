@@ -14,7 +14,7 @@ export default function QuickPath() {
     { icon: MapPinned, k: T('জমি বাছুন', 'Choose your field'), sub: activeParcel ? T('বাছা হয়েছে', 'Done') : T('মানচিত্রে জমি দিন', 'Put it on the map'), done: !!activeParcel, run: () => go('/farmer/plan', 0) },
     { icon: SlidersHorizontal, k: T('কী চান বলুন', 'Say what matters'), sub: s.priorities.length ? T('বাছা হয়েছে', 'Done') : T('পানি, আয়, ঝুঁকি, মাটি...', 'Water, income, risk, soil…'), done: s.priorities.length > 0, run: () => go('/farmer/plan', 3) },
     { icon: Columns3, k: T('ফসলচক্র মিলিয়ে দেখুন', 'Compare the rotations'), sub: T('এখনকার চাষ বনাম বিকল্প: কেন, ঝুঁকি, কী যাচাই', 'Now against the alternatives: why, risks, what to check'), done: !!s.sawStrategies, run: () => { nav('/farmer/future'); setTimeout(() => document.getElementById('ff-strategies')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 900); } },
-    { icon: UserRoundCheck, k: T('কর্মকর্তার সঙ্গে আলোচনা', 'Talk it over with the officer'), sub: asked ? T('পাঠানো হয়েছে', 'Sent') : T('সিদ্ধান্তের আগে', 'Before you decide'), done: asked, run: () => go('/farmer/help') },
+    { icon: UserRoundCheck, k: T('কর্মকর্তার সঙ্গে আলোচনা', 'Talk it over with the officer'), sub: asked ? T('ডেমোতে রাখা', 'Saved in demo') : T('সিদ্ধান্তের আগে', 'Before you decide'), done: asked, run: () => go('/farmer/help') },
   ];
   const n = steps.filter((x) => x.done).length;
   const pct = Math.round((n / steps.length) * 100);

@@ -71,11 +71,11 @@ function RequestDetailInner({ id }) {
   const reply = () => {
     if (!draft.trim()) return;
     dispatch({ type: 'addAdvisory', adv: { id: `A-${r.id}-${Date.now().toString(36)}`, text: draft.trim(), to: [r.farmerId], at: todayDhaka(), request: r.id } });
-    update({ status: 'answered' }, 'কৃষকের কাছে উত্তর গেছে', 'Reply sent to the farmer');
+    update({ status: 'answered' }, 'উত্তরটি এই ব্রাউজারের ডেমোতে রাখা হয়েছে; কৃষকের কাছে পৌঁছায়নি', 'Reply saved in this browser demo; not delivered to the farmer');
   };
   const askInfo = () => {
     dispatch({ type: 'addAdvisory', adv: { id: `I-${r.id}-${Date.now().toString(36)}`, text: T('পাতার ওপর আর নিচ দুই দিকের আরও পরিষ্কার ছবি পাঠান, দিনের আলোয় তুলবেন।', 'Please send clearer photos of both sides of the leaf, taken in daylight.'), to: [r.farmerId], at: todayDhaka(), request: r.id } });
-    update({ status: 'need_info' }, 'আরও ছবি চাওয়া হয়েছে', 'Asked for more photos');
+    update({ status: 'need_info' }, 'ছবির অনুরোধটি ডেমোতে রাখা হয়েছে; কৃষকের কাছে পৌঁছায়নি', 'Photo request saved in demo; not delivered to the farmer');
   };
   const days3 = weather ? weather.days.slice(0, 3) : [];
   const wetSoon = days3.slice(0, 2).some((d) => d.pop >= 60);
@@ -113,7 +113,7 @@ function RequestDetailInner({ id }) {
               )}
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2 text-[13px] sm:grid-cols-4">
-              {[[Wheat, T('জমি', 'Land'), T(`${num(f.area_dec, 'bn')} শতক (${num(f.area_dec / 33, 'bn', { dp: 1 })} বিঘা)`, `${f.area_dec} dec (${num(f.area_dec / 33, 'en', { dp: 1 })} bigha)`)],
+              {[[Wheat, T('জমি', 'Land'), T(`${num(f.area_dec, 'bn')} শতক (${num(f.area_dec / 33, 'bn', { dp: 1 })} বিঘা)`, `${num(f.area_dec, 'en')} dec (${num(f.area_dec / 33, 'en', { dp: 1 })} bigha)`)],
                 [Sprout, T('গতবার', 'Last Rabi'), cropName(f.last_crop, lang)],
                 [Droplets, T('সেচ', 'Water'), L(IRRIGATION[f.irrigation])],
                 [Layers, T('মাটি', 'Soil'), `pH ${num(soil.ph, lang, { dp: 1 })} · ${T('জৈব', 'OM')} ${num(soil.om_pct, lang, { dp: 1 })}%`]].map(([Icon, k, v]) => (
@@ -138,14 +138,14 @@ function RequestDetailInner({ id }) {
               <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50/60 p-3.5 text-[13.5px] leading-6">
                 <div className="flex items-center justify-between gap-2"><b className="text-sky-950">{T('কৃষকের জমি থেকে সঙ্গে এসেছে', 'Sent from the farmer’s field')}</b><Tags list={['REAL']} /></div>
                 <ul className="mt-1 space-y-0.5 text-ink/80">
-                  <li>{r.context.dAfter >= 0 ? T(`লাগানোর ${bnDigits(r.context.dAfter)} দিন পর: ${r.context.stage.bn}`, `${r.context.dAfter} days after planting: ${r.context.stage.en.toLowerCase()}`) : T(`এখনো লাগানো হয়নি (আর ${bnDigits(-r.context.dAfter)} দিন)`, `Not planted yet (${-r.context.dAfter} days to go)`)}{r.context.field?.area_dec ? T(`, ${bnDigits(r.context.field.area_dec)} শতক`, `, ${r.context.field.area_dec} decimal`) : ''}</li>
+                  <li>{r.context.dAfter >= 0 ? T(`লাগানোর ${bnDigits(r.context.dAfter)} দিন পর: ${r.context.stage.bn}`, `${r.context.dAfter} days after planting: ${r.context.stage.en.toLowerCase()}`) : T(`এখনো লাগানো হয়নি (আর ${bnDigits(-r.context.dAfter)} দিন)`, `Not planted yet (${-r.context.dAfter} days to go)`)}{r.context.field?.area_dec ? T(`, ${num(r.context.field.area_dec, 'bn')} শতক`, `, ${num(r.context.field.area_dec, 'en')} decimal`) : ''}</li>
                   {r.context.water && <li>{T('মাটির পানি (FAO-56 হিসাব): ', 'Soil water (FAO-56 balance): ')}{{ GREEN: T('সবুজ', 'green'), YELLOW: T('হলুদ', 'yellow'), ORANGE: T('কমলা, সেচ দরকার', 'orange, needs water'), RED: T('লাল, খুব শুকনো', 'red, very dry') }[r.context.water]}</li>}
                   {r.context.sat && <li>{T(`উপগ্রহ ${fmtDate(parseISO(r.context.sat.d), 'bn')}: সবুজ (NDVI) ${num(r.context.sat.ndvi, 'bn', { dp: 2 })}, আর্দ্রতা ${num(r.context.sat.ndmi, 'bn', { dp: 2 })}`, `Satellite ${fmtDate(parseISO(r.context.sat.d), 'en')}: NDVI ${num(r.context.sat.ndvi, 'en', { dp: 2 })}, NDMI ${num(r.context.sat.ndmi, 'en', { dp: 2 })}`)}{r.context.sat.finding ? ` · ${L(r.context.sat.finding)}` : ''}</li>}
                   {r.context.weather && <li>{T(`বৃষ্টি: গত ৭ দিনে ${num(r.context.weather.rain7, 'bn')} মিমি, পরের ৩ দিনে ${num(r.context.weather.rainNext3, 'bn')} মিমি পূর্বাভাস; সর্বোচ্চ ${num(r.context.weather.tmax, 'bn')}°`, `Rain: ${num(r.context.weather.rain7, 'en')} mm in the last 7 days, ${num(r.context.weather.rainNext3, 'en')} mm forecast for 3; high ${num(r.context.weather.tmax, 'en')}°`)}</li>}
                 </ul>
               </div>
             )}
-            {r.image && <img src={r.image} alt={T('কৃষকের পাঠানো ছবি', 'Photo from the farmer')} className="mt-4 max-h-64 rounded-xl object-contain" />}
+            {r.image && <img src={r.image} alt={T('কৃষকের পাঠানো ছবি', 'Photo from the farmer')} loading="lazy" decoding="async" className="mt-4 max-h-64 rounded-xl object-contain" />}
             {r.ai && (
               <div className="mt-5 rounded-xl border border-violet-200 bg-violet-50 p-4">
                 <div className="flex items-center justify-between"><div className="flex items-center gap-2 font-bold text-violet-900"><Bot size={18} />{T('ফসলের ডাক্তারের ধারণা', 'Crop doctor’s first look')}</div><Tags list={[r.doctor ? 'AI' : 'DEMO']} /></div>
@@ -176,7 +176,7 @@ function RequestDetailInner({ id }) {
             )}
           </Card>
 
-          <Card className="overflow-hidden">
+          <Card className="cv-auto overflow-hidden">
             <MapView center={[f.lat, f.lon]} zoom={14} basemap="satellite" points={points} height={280} className="!rounded-none !border-0" label={T('কৃষকের জমি', 'Farmer’s field')} />
             <div className="grid gap-4 p-4 sm:grid-cols-2">
               <div>
@@ -208,9 +208,9 @@ function RequestDetailInner({ id }) {
           </Card>
         </div>
 
-        <Card className="h-fit p-5 sm:p-6 xl:sticky xl:top-24">
+        <Card className="cv-auto h-fit p-5 sm:p-6 xl:sticky xl:top-24">
           <h2 className="text-[20px] font-bold">{T('আপনার উত্তর', 'Your reply')}</h2>
-          {(r.status === 'answered' || done) && <Note tone="ok" className="mt-3">{T('উত্তর পাঠানো হয়েছে। কৃষক তাঁর "সাহায্য" পাতায় দেখবেন।', 'Reply sent. The farmer will see it on their Help page.')}</Note>}
+          {(r.status === 'answered' || done) && <Note tone="ok" className="mt-3">{T('উত্তরটি শুধু এই ব্রাউজারের ডেমোতে রাখা হয়েছে; কৃষকের ফোন বা অন্য ডিভাইসে যায়নি।', 'The reply is saved only in this browser demo; it has not reached the farmer’s phone or another device.')}</Note>}
           <div className="mt-4 flex flex-wrap gap-1.5" role="group" aria-label={T('খসড়া বাছুন', 'Pick a draft')}>
             {options.map((o) => (
               <button key={o.key} type="button" aria-pressed={opt === o.key && text === null} disabled={done} onClick={() => { setOpt(o.key); setText(null); }}
@@ -221,15 +221,17 @@ function RequestDetailInner({ id }) {
           <textarea id="reply" rows={8} value={draft} onChange={(e) => setText(e.target.value)} disabled={done} className="mt-2 w-full rounded-xl border border-border p-3 text-[15px] leading-7 outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-50 disabled:bg-canvas" />
           <SmsMeter text={draft} className="mt-1" />
           <p className="mt-1 text-[12.5px] leading-5 text-muted">{T('খসড়াটি প্রশ্ন আর সমস্যার ধরন দেখে বানানো, প্রচলিত কৃষি পরামর্শ থেকে; পাঠানোর আগে পড়ে দরকারমতো বদলে নিন।', 'The draft is built from the question and problem type, using standard extension advice; read it and change it as needed before sending.')}</p>
-          <Button onClick={reply} disabled={done || !draft.trim()} className="mt-3 w-full py-3"><Send size={16} />{T('কৃষককে উত্তর পাঠান', 'Send reply')}</Button>
+          <p className="mt-2 text-[12.5px] leading-5 text-amber-800">{T('ডেমো: উত্তরটি এখানে সংরক্ষিত হবে, কৃষকের কাছে পাঠানো হবে না।', 'Demo: the reply will be saved here, not delivered to the farmer.')}</p>
+          <Button onClick={reply} disabled={done || !draft.trim()} className="mt-3 w-full py-3"><Send size={16} />{T('ডেমোতে উত্তর রাখুন', 'Save demo reply')}</Button>
+          <p className="mt-2 text-[12.5px] leading-5 text-amber-800">{T('ডেমো: উত্তরটি এই ব্রাউজারে থাকবে, কৃষকের কাছে যাবে না।', 'Demo only: this reply stays in this browser and will not reach the farmer.')}</p>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            <Button variant="secondary" onClick={askInfo} disabled={done}><Camera size={16} />{T('আরও ছবি চান', 'Ask for photos')}</Button>
+            <Button variant="secondary" onClick={askInfo} disabled={done}><Camera size={16} />{T('ডেমোতে ছবির অনুরোধ রাখুন', 'Save demo photo request')}</Button>
             <Button variant="secondary" onClick={() => update({ visit: !r.visit, priority: r.visit ? r.priority : 'High' }, r.visit ? 'জমিতে যাওয়ার তালিকা থেকে বাদ' : 'জমিতে যাওয়ার তালিকায় রাখা হলো', r.visit ? 'Removed from visits' : 'Added to field visits')} disabled={done}><Footprints size={16} />{r.visit ? T('জমিতে যাবেন ✓', 'Visiting ✓') : T('জমিতে যাবেন', 'Plan a visit')}</Button>
             <Button variant="ghost" className="col-span-2 text-primary-700" onClick={() => update({ status: 'resolved' }, 'মিটে গেছে বলে রাখা হলো', 'Marked as resolved')} disabled={done}><CheckCircle2 size={16} />{T('মিটে গেছে', 'Resolved')}</Button>
           </div>
           {sent.length > 0 && (
             <div className="mt-5 border-t border-border pt-4">
-              <h3 className="flex items-center gap-1.5 text-[14px] font-bold"><History size={15} className="text-primary-600" />{T('এই অনুরোধে পাঠানো', 'Sent on this request')}</h3>
+              <h3 className="flex items-center gap-1.5 text-[14px] font-bold"><History size={15} className="text-primary-600" />{T('এই অনুরোধে ডেমো উত্তর', 'Demo replies on this request')}</h3>
               <ul className="mt-2 space-y-2">
                 {sent.map((a) => <li key={a.id} className="rounded-xl bg-primary-50 p-3 text-[13.5px] leading-6 whitespace-pre-line">{a.text}</li>)}
               </ul>

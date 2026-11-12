@@ -102,7 +102,7 @@ function Profile() {
             <Field id="pf-bn" label={T('নাম (বাংলায়)', 'Name (Bangla)')}><input id="pf-bn" value={form.nameBn} onChange={set('nameBn')} className={INPUT} autoComplete="name" /></Field>
             <Field id="pf-en" label={T('নাম (ইংরেজিতে)', 'Name (English)')}><input id="pf-en" value={form.nameEn} onChange={set('nameEn')} className={INPUT} lang="en" /></Field>
             <Field id="pf-mobile" label={T('মোবাইল নম্বর', 'Mobile number')}>
-              <input id="pf-mobile" type="tel" inputMode="tel" value={form.mobile} onChange={set('mobile')} placeholder="01XXXXXXXXX" className={`${INPUT} ${mobile.ok ? '' : '!border-red-400'}`} aria-invalid={!mobile.ok} aria-describedby="pf-mobile-msg" autoComplete="tel" />
+              <input id="pf-mobile" type="tel" inputMode="tel" value={form.mobile} onChange={set('mobile')} placeholder={T('০১XXXXXXXXX', '01XXXXXXXXX')} className={`${INPUT} ${mobile.ok ? '' : '!border-red-400'}`} aria-invalid={!mobile.ok} aria-describedby="pf-mobile-msg" autoComplete="tel" />
               {!mobile.ok && <span id="pf-mobile-msg" className="mt-1 block text-[13px] text-red-700">{T('১১ অঙ্কের নম্বর দিন, ০১ দিয়ে শুরু (যেমন ০১৭১২৩৪৫৬৭৮)।', 'Enter 11 digits starting with 01 (for example 01712345678).')}</span>}
             </Field>
             <Field id="pf-guardian" label={T('পিতা বা স্বামীর নাম', 'Father’s or husband’s name')} hint={T('(ইচ্ছা হলে)', '(optional)')}><input id="pf-guardian" value={form.guardian} onChange={set('guardian')} className={INPUT} /></Field>

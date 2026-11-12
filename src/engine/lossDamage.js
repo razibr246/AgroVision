@@ -123,17 +123,67 @@ export function computeLossAndDamage({ disasterTypeId, affectedAreaHa, cropKey, 
 export function generateLossDossierText({
   upazilaNameEn,
   districtNameEn,
+  upazilaNameBn,
+  districtNameBn,
   assessment,
   officerNameEn = 'Upazila Agriculture Officer (UAO)',
+  officerNameBn = 'উপজেলা কৃষি অফিসার (UAO)',
   timestamp = new Date().toISOString(),
   dossierHash = null,
+  lang = 'en',
 }) {
+  const fmtEn = (n) => Number(n ?? 0).toLocaleString('en-US');
+  const bnMap = '০১২৩৪৫৬৭৮৯';
+  const fmtBn = (n) => fmtEn(n).replace(/[0-9]/g, (d) => bnMap[d]);
+  if (lang === 'bn') {
+    const upzLabel = upazilaNameBn || upazilaNameEn;
+    const distLabel = districtNameBn || districtNameEn;
+    return `================================================================================
+জাতিসংঘ জলবায়ু পরিবর্তন কাঠামো সনদ (UNFCCC)
+ওয়ারশ আন্তর্জাতিক ক্ষয়ক্ষতি ও ক্ষতিপূরণ ব্যবস্থা (অনুচ্ছেদ ৮ ডসিয়ার)
+সান্তিয়াগো নেটওয়ার্ক দ্রুত প্রতিক্রিয়া মূল্যায়ন প্রতিবেদন
+================================================================================
+এখতিয়ার: উপজেলা কৃষি অফিস, ${upzLabel}, ${distLabel}, বাংলাদেশ
+বাস্তবায়নকারী কর্তৃপক্ষ: কৃষি সম্প্রসারণ অধিদপ্তর (DAE), কৃষি মন্ত্রণালয়
+দুর্যোগের ধরন: ${assessment.disasterName.bn} (${assessment.disasterName.en})
+UNFCCC নিবন্ধন কোড: ${assessment.unfcccCode}
+মূল্যায়নের তারিখ: ${timestamp}
+যাচাইকরণ মানদণ্ড: নাসা (NASA) ও কোপার্নিকাস ভূ-পর্যবেক্ষণ উপগ্রহ সমন্বয়
+
+১. উপগ্রহ প্রমাণ ও দায়বদ্ধতা রেকর্ড:
+- প্রধান সেন্সরসমূহ: ${assessment.sensors.join('; ')}
+- ভিত্তি জলবায়ু: NASA POWER MERRA-2 ২৫ বছরের জলবায়ু গড় (২০০১–২০২৫)
+- ব্যতিক্রম শ্রেণিবিন্যাস: পরিসংখ্যানগতভাবে উল্লেখযোগ্য বিচ্যুতি (BMD স্বাভাবিকের তুলনায় > ২.৫ সিগমা)
+
+২. কৃষি ক্ষয়ক্ষতির পরিমাণ নির্ণয়:
+- ক্ষতিগ্রস্ত ফসলি জমি: ${fmtBn(assessment.affectedAreaHa)} হেক্টর (~${fmtBn(assessment.affectedAreaBigha)} বিঘা)
+- প্রধান ক্ষতিগ্রস্ত ফসল: ${assessment.cropName.bn}
+- ক্ষতির তীব্রতা সূচক: ${fmtBn(assessment.severityPct)}% উৎপাদন হ্রাস
+- আনুমানিক নষ্ট ফসলের পরিমাণ: ${fmtBn(assessment.lostYieldMt)} মেট্রিক টন
+- অবশিষ্ট সংগ্রহযোগ্য ফসল: ${fmtBn(assessment.harvestedYieldMt)} মেট্রিক টন
+
+৩. অর্থনৈতিক ক্ষয়ক্ষতির মূল্যায়ন:
+- প্রদত্ত উপকরণ ব্যয় (বীজ, সার, চাষ, সেচ): ৳${fmtBn(assessment.sunkInputCostBdt)} টাকা
+- মোট ফসল হানি (খামার পর্যায়ের বাজারমূল্য): ৳${fmtBn(assessment.grossLostValueBdt)} টাকা
+- মোট যাচাইকৃত অর্থনৈতিক ক্ষতি: ৳${fmtBn(assessment.totalEconomicLossBdt)} টাকা
+  [মার্কিন ডলারে সমতুল্য (১ USD = ১২০ টাকা): USD $${fmtBn(assessment.totalEconomicLossUsd)}]
+
+৪. COP28 ক্ষয়ক্ষতি ও পুনরুদ্ধার সহায়তা প্রাপ্যতা:
+- জরুরি উপকরণ পুনরুদ্ধার অনুদান (৭০% ব্যয় সহায়তা): USD $${fmtBn(assessment.immediateReliefGrantUsd)}
+- দাবি দাখিলের মাধ্যম: সান্তিয়াগো নেটওয়ার্ক কারিগরি সহায়তা
+
+৫. প্রাতিষ্ঠানিক প্রত্যয়ন ও তথ্য সুরক্ষা:
+- প্রত্যয়নকারী কর্মকর্তা: ${officerNameBn}
+- ডিজিটাল সিস্টেম যাচাই: ফিল্ডশিফট ৩৬০ ডিসিশন ও ইন্টেলিজেন্স ইঞ্জিন
+- ডসিয়ার SHA-256 হ্যাশ: ${dossierHash || 'সিল অপেক্ষমাণ'}
+================================================================================`;
+  }
   return `================================================================================
 UNITED NATIONS FRAMEWORK CONVENTION ON CLIMATE CHANGE (UNFCCC)
 WARSAW INTERNATIONAL MECHANISM FOR LOSS AND DAMAGE (ARTICLE 8 DOSSIER)
 SANTIAGO NETWORK ON LOSS AND DAMAGE RAPID RESPONSE ASSESSMENT
 ================================================================================
-Jurisdiction: Upazila Agriculture Office, ${upazilaNameEn.toUpperCase()}, ${districtNameEn.toUpperCase()}, BANGLADESH
+Jurisdiction: Upazila Agriculture Office, ${(upazilaNameEn ?? '').toUpperCase()}, ${(districtNameEn ?? '').toUpperCase()}, BANGLADESH
 Executing Authority: Department of Agricultural Extension (DAE), Ministry of Agriculture
 Event Classification: ${assessment.disasterName.en.toUpperCase()}
 UNFCCC Registry Code: ${assessment.unfcccCode}
@@ -153,13 +203,13 @@ Verification Standard: NASA Earth Observation & Copernicus Earth Observation Syn
 - Residual Harvestable Biomass: ${assessment.harvestedYieldMt} Metric Tons
 
 3. ECONOMIC LOSS & DAMAGE VALUATION:
-- Sunk Input Costs (Seeds, Fertilizer, Tillage, Irrigation): BDT ৳${assessment.sunkInputCostBdt.toLocaleString()}
-- Gross Harvest Loss (Farmgate Commodity Valuation): BDT ৳${assessment.grossLostValueBdt.toLocaleString()}
-- TOTAL VERIFIED ECONOMIC DAMAGE: BDT ৳${assessment.totalEconomicLossBdt.toLocaleString()}
-  [Equivalent in United States Dollars (1 USD = 120 BDT): USD $${assessment.totalEconomicLossUsd.toLocaleString()}]
+- Sunk Input Costs (Seeds, Fertilizer, Tillage, Irrigation): BDT ৳${fmtEn(assessment.sunkInputCostBdt)}
+- Gross Harvest Loss (Farmgate Commodity Valuation): BDT ৳${fmtEn(assessment.grossLostValueBdt)}
+- TOTAL VERIFIED ECONOMIC DAMAGE: BDT ৳${fmtEn(assessment.totalEconomicLossBdt)}
+  [Equivalent in United States Dollars (1 USD = 120 BDT): USD $${fmtEn(assessment.totalEconomicLossUsd)}]
 
 4. COP28 LOSS & DAMAGE REPARATION ENTITLEMENT:
-- Immediate Emergency Input Recovery Grant (70% Input Coverage): USD $${assessment.immediateReliefGrantUsd.toLocaleString()}
+- Immediate Emergency Input Recovery Grant (70% Input Coverage): USD $${fmtEn(assessment.immediateReliefGrantUsd)}
 - Sovereign Claim Submission Pathway: Santiago Network Loss and Damage Technical Assistance
 
 5. INSTITUTIONAL CERTIFICATION & TAMPER-EVIDENCE:

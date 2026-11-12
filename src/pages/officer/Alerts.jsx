@@ -51,10 +51,10 @@ function WeatherCard({ w, union, sign }) {
   const value = w.kind === 'rain' ? T(`সর্বোচ্চ ${num(w.value, 'bn')} মিমি এক দিনে`, `up to ${num(w.value, 'en')} mm in a day`) : w.kind === 'heat' ? T(`সর্বোচ্চ ${num(w.value, 'bn', { dp: 1 })}°`, `highs to ${num(w.value, 'en', { dp: 1 })} °C`) : w.kind === 'cold' ? T(`সর্বনিম্ন ${num(w.value, 'bn', { dp: 1 })}°`, `lows to ${num(w.value, 'en', { dp: 1 })} °C`) : w.id === 'late_blight' ? T(`দিনে ${bnDigits(w.value)} ঘণ্টা আর্দ্রতা ৯০%+`, `${w.value} hours a day at 90%+ humidity`) : T(`${bnDigits(w.value)} দিন ঝুঁকির`, `${w.value} risky days`);
   const send = () => {
     dispatch({ type: 'addAdvisory', adv: { id: advId, text: draft, to, at: todayDhaka(), weather: w.id } });
-    toast(`${num(to.length, 'bn')} জন কৃষকের কাছে সতর্কবার্তা গেছে`, `Warning sent to ${to.length} farmers`);
+    toast(`${num(to.length, 'bn')} জনের জন্য নমুনা সতর্কবার্তা এই ব্রাউজারে রাখা হয়েছে; পৌঁছায়নি`, `Demo warning saved in this browser for ${num(to.length, 'en')} farmers; not delivered`);
   };
   return (
-    <Card className={`lift border-l-4 ${k.bar} p-5 transition-all duration-200 hover:shadow-md`}>
+    <Card className={`lift cv-auto border-l-4 ${k.bar} p-5 transition-all duration-200 hover:shadow-md`}>
       <div className="flex flex-wrap items-start gap-3">
         <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl shadow-2xs ${k.chip}`}><k.icon size={19} /></span>
         <div className="min-w-0 flex-1">
@@ -62,9 +62,9 @@ function WeatherCard({ w, union, sign }) {
           <p className="mt-0.5 text-[14px] leading-6">{when}{ahead > 0 ? T(` (আর ${bnDigits(ahead)} দিন পর)`, ` (in ${ahead} days)`) : T(' (আজ থেকে)', ' (from today)')} · <span className="font-semibold">{value}</span>{w.crop ? ` · ${cropName(w.crop, lang)}` : ''}</p>
           <p className="mt-0.5 text-[12.5px] text-muted">{T('নিয়ম: ', 'Rule: ')}{L(w.rule)} · {T('পূর্বাভাস: Open-Meteo, ইউনিয়নের মাঝখানে', 'Forecast: Open-Meteo at the union centre')}</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-canvas/80 px-2.5 py-1.5 text-[13px] font-semibold text-ink/80 shadow-2xs"><Users size={14} className="text-primary-700" />{T(`${num(to.length, 'bn')} জন কৃষক`, `${to.length} farmers`)}</span>
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-canvas/80 px-2.5 py-1.5 text-[13px] font-semibold text-ink/80 shadow-2xs"><Users size={14} className="text-primary-700" />{T(`${num(to.length, 'bn')} জন কৃষক`, `${num(to.length, 'en')} farmers`)}</span>
       </div>
-      {!open && !sent && <button type="button" onClick={() => setOpen(true)} className="mt-3 inline-flex min-h-9 items-center gap-1 text-[14px] font-semibold text-primary-700 hover:text-primary-800 hover:underline">{T('কৃষকদের সতর্কবার্তা পাঠান', 'Warn the farmers')}<ChevronRight size={16} /></button>}
+      {!open && !sent && <button type="button" onClick={() => setOpen(true)} className="mt-3 inline-flex min-h-9 items-center gap-1 text-[14px] font-semibold text-primary-700 hover:text-primary-800 hover:underline">{T('নমুনা সতর্কবার্তা লিখুন', 'Draft a demo warning')}<ChevronRight size={16} /></button>}
       {(open || sent) && (
         <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto]">
           <label className="block" htmlFor={advId}>
@@ -73,7 +73,7 @@ function WeatherCard({ w, union, sign }) {
             <SmsMeter text={draft} className="mt-1" />
           </label>
           <div className="flex flex-col gap-2 md:w-60">
-            <Button disabled={sent || !to.length} onClick={send} className="btn-gloss py-3 shadow-sm">{sent ? <><CheckCircle2 size={16} />{T('পাঠানো হয়েছে', 'Sent')}</> : <><Send size={16} />{T(`${num(to.length, 'bn')} জনকে পাঠান`, `Send to ${to.length}`)}</>}</Button>
+            <Button disabled={sent || !to.length} onClick={send} className="btn-gloss py-3 shadow-sm">{sent ? <><CheckCircle2 size={16} />{T('ডেমোতে রাখা হয়েছে', 'Saved in demo')}</> : <><Send size={16} />{T('ডেমোতে রাখুন', 'Save in demo')}</>}</Button>
             <p className="text-[12.5px] leading-5 text-muted">{w.crop ? T(`কারা পাবেন: এই দিনগুলোতে যাঁদের ${cropName(w.crop, 'bn')} বীজতলায় বা জমিতে থাকবে।`, `Who gets it: everyone whose ${cropName(w.crop, 'en').toLowerCase()} is in the seedbed or field on these days.`) : T('কারা পাবেন: এই ইউনিয়নের পরিকল্পনা করা সব কৃষক।', 'Who gets it: every farmer with a plan in this union.')}</p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function Alerts() {
         {wx.filter((w) => w.level !== 'high').map((w) => <WeatherCard key={`${union.id}-${w.id}`} w={w} union={union} sign={sign} />)}
         {sat.length > 0 && (
           <Card className="lift border-l-4 !border-l-sky-700 p-5 transition-all duration-200 hover:shadow-md">
-            <div className="flex flex-wrap items-center gap-2"><Satellite size={19} className="text-sky-700" /><h2 className="text-[17px] font-bold">{T(`উপগ্রহে ${num(sat.length, 'bn')}টি জমি দুর্বল বা অস্বাভাবিক দেখাচ্ছে`, `${sat.length} fields look weak or unusual from space`)}</h2><Tags list={['REAL', 'RULE']} /></div>
+            <div className="flex flex-wrap items-center gap-2"><Satellite size={19} className="text-sky-700" /><h2 className="text-[17px] font-bold">{T(`উপগ্রহে ${num(sat.length, 'bn')}টি জমি দুর্বল বা অস্বাভাবিক দেখাচ্ছে`, `${num(sat.length, 'en')} fields look weak or unusual from space`)}</h2><Tags list={['REAL', 'RULE']} /></div>
             <p className="mt-0.5 text-[12.5px] text-muted">{T('সেন্টিনেল-২-এর শেষ পরিষ্কার ছবি, ১০ মিটার। উপগ্রহ রোগ চিনতে পারে না, শুধু দেখায় কোথায় ফসল দুর্বল; জমিতে গিয়ে দেখা দরকার।', 'Latest clear Sentinel-2 pass, 10 m. A satellite cannot name a disease, only show where the crop is weaker; it needs a field visit.')}</p>
             <ul className="mt-3 divide-y divide-border">
               {sat.map(({ p, r, f }) => (
@@ -186,14 +186,14 @@ export default function Alerts() {
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-paddy-50 text-paddy-700"><TrendingDown size={19} /></span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 font-bold">{T(`${bnOf(cropName(c, 'bn'))} দাম পড়ার ঝুঁকি`, `${cropName(c, 'en')}: price-drop risk`)} <span className={`chip ${RISK_STYLE[g.risk.level].cls}`}>{L(RISK_STYLE[g.risk.level])}</span></div>
-                <div className="text-[13.5px] text-muted">{T(`সবচেয়ে ব্যস্ত সপ্তাহে (${peakWeek != null ? fmtDate(weekStart(peakWeek), 'bn') : '–'}) স্বাভাবিকের ${num(g.peak, 'bn', { dp: 1 })} গুণ ফসল উঠবে · ${num(growers, 'bn')} জন কৃষক`, `The busiest week (${peakWeek != null ? fmtDate(weekStart(peakWeek), 'en') : '–'}) brings ${num(g.peak, 'en', { dp: 1 })}× the normal amount · ${growers} farmers`)}</div>
+                <div className="text-[13.5px] text-muted">{T(`সবচেয়ে ব্যস্ত সপ্তাহে (${peakWeek != null ? fmtDate(weekStart(peakWeek), 'bn') : '–'}) স্বাভাবিকের ${num(g.peak, 'bn', { dp: 1 })} গুণ ফসল উঠবে · ${num(growers, 'bn')} জন কৃষক`, `The busiest week (${peakWeek != null ? fmtDate(weekStart(peakWeek), 'en') : '–'}) brings ${num(g.peak, 'en', { dp: 1 })}× the normal amount · ${num(growers, 'en')} farmers`)}</div>
               </div>
               <Link to="/officer/planting" className="inline-flex min-h-10 items-center gap-1 rounded-lg px-2.5 text-[14px] font-semibold text-primary-700 hover:bg-primary-50 transition active:scale-95">{T('লাগানোর পালা দেখুন', 'See planting slots')}<ChevronRight size={16} /></Link>
             </Card>
           );
         })}
       </div>
-      <Note className="mt-6">{T('আবহাওয়ার সতর্কতা আসে লাইভ পূর্বাভাস আর আবহাওয়া অধিদপ্তরের প্রকাশিত সীমা থেকে; কাছাকাছি একই রকম খবরগুলো AI এক গুচ্ছে ধরে। কৃষকের কাছে কিছু যাওয়ার আগে আপনি নিজে পড়ে, দরকারমতো বদলে, পাঠান।', 'Weather warnings come from the live forecast and BMD’s published limits; AI groups similar nearby reports. Nothing reaches farmers until you have read, edited and sent it.')} <Tags list={['AI']} /></Note>
+      <Note className="mt-6">{T('এখানে সতর্কবার্তা শুধু এই ব্রাউজারের ডেমোতে সংরক্ষিত হয়; কৃষকের ফোনে বা অন্য ডিভাইসে পৌঁছায় না। লাইভ বার্তা পাঠাতে অনুমোদিত কর্মকর্তা-লগইন ও সার্ভার সংযোগ দরকার।', 'Warnings here are saved only in this browser’s demo; they do not reach farmers’ phones or other devices. Live delivery requires authenticated officer access and a configured server.')} <Tags list={['AI']} /></Note>
     </div>
   );
 }

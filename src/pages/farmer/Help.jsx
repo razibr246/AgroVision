@@ -23,7 +23,7 @@ const TYPES = {
 const SPREAD = { few: { bn: 'কয়েকটা গাছে', en: 'A few plants', short: { bn: 'কয়েক গাছ', en: 'Few plants' } }, part: { bn: 'জমির একাংশে', en: 'Part of the field', short: { bn: 'একাংশে', en: 'Part' } }, whole: { bn: 'প্রায় পুরো জমিতে', en: 'Most of the field', short: { bn: 'প্রায় সবটা', en: 'Most' } } };
 const SINCE = { today: { bn: 'আজ দেখলাম', en: 'Seen today', short: { bn: 'আজ', en: 'Today' } }, days: { bn: '২–৩ দিন ধরে', en: '2–3 days', short: { bn: '২–৩ দিন', en: '2–3 days' } }, week: { bn: 'এক সপ্তাহের বেশি', en: 'Over a week', short: { bn: '৭+ দিন', en: '7+ days' } } };
 const STATUS = {
-  open: { tone: 'amber', bn: 'উত্তরের অপেক্ষায়', en: 'Waiting for a reply' },
+  open: { tone: 'amber', bn: 'ডেমোতে রাখা · অফিসে যায়নি', en: 'Saved in demo · not sent to office' },
   need_info: { tone: 'blue', bn: 'আরও ছবি চেয়েছেন', en: 'Officer asked for more' },
   answered: { tone: 'green', bn: 'উত্তর দিয়েছেন', en: 'Answered' },
   resolved: { tone: 'slate', bn: 'মিটে গেছে', en: 'Resolved' },
@@ -87,21 +87,26 @@ export default function Help() {
   const submit = (e) => {
     e.preventDefault();
     if (type === 'question' && !text.trim()) { setErr({ bn: 'আপনার প্রশ্নটা লিখুন।', en: 'Please write your question.' }); return; }
-    const head = picked ? L(picked) : L(t);
-    const extra = t.kinds.length ? T(` ${SPREAD[spread].bn}, ${SINCE[since].bn}।`, ` ${SPREAD[spread].en}, ${SINCE[since].en.toLowerCase()}.`) : '';
-    const body = (text.trim() || head) + extra;
+    const bnHead = picked ? picked.bn : t.bn;
+    const enHead = picked ? picked.en : t.en;
+    const bnExtra = t.kinds.length ? ` ${SPREAD[spread].bn}, ${SINCE[since].bn}।` : '';
+    const enExtra = t.kinds.length ? ` ${SPREAD[spread].en}, ${SINCE[since].en.toLowerCase()}.` : '';
+    const trimmed = text.trim();
+    const bnBody = (trimmed || bnHead) + bnExtra;
+    const enBody = (trimmed || enHead) + enExtra;
     dispatch({ type: 'addRequest', req: {
       id: `H-${farmer.id}-${Date.now().toString(36)}`, farmerId: farmer.id, union: farmer.union, village: farmer.village, villageBn: farmer.villageBn, lat: farmer.lat, lon: farmer.lon,
-      crop: crop.id, symptom: picked?.key ?? t.symptom, type: 'help', text: { bn: body, en: body }, ai: null, image: img, created: today, status: 'open', priority,
+      crop: crop.id, symptom: picked?.key ?? t.symptom, type: 'help', text: { bn: bnBody, en: enBody }, ai: null, image: img, created: today, status: 'open', priority,
       spread: t.kinds.length ? spread : null, since: t.kinds.length ? since : null, context, mine: true } });
     setText(''); setImg(null); setErr(null); setProblem(null);
-    toast('অনুরোধ পাঠানো হয়েছে; জমির তথ্যও সঙ্গে গেছে', 'Request sent, with your field’s details');
+    toast('অনুরোধটি এই ব্রাউজারের ডেমোতে রাখা হয়েছে; অফিসে পৌঁছায়নি', 'Request saved in this browser demo; not delivered to the office');
   };
 
   return (
     <div>
       <PageHeader eyebrow={T('সাহায্য', 'Help')} title={T('কৃষি কর্মকর্তার কাছে জানান', 'Ask your agriculture officer')}
         subtitle={T(`সমস্যাটা বেছে নিন; আপনার জমি, ${bnOf(crop.name.bn)} অবস্থা, উপগ্রহের ছবি আর আবহাওয়া নিজে থেকেই সঙ্গে যাবে।`, `Pick the problem; your field, the state of your ${crop.name.en.toLowerCase()}, the satellite reading and the weather go with it.`)} />
+      <Note tone="gold" className="mb-4">{T('ডেমো: অনুরোধটি এই ব্রাউজারে সংরক্ষিত হবে; কৃষি কর্মকর্তার কাছে যাবে না।', 'Demo only: this request is saved in this browser and will not reach an agriculture officer.')}</Note>
       <div className="grid gap-6 lg:grid-cols-[1.05fr_.95fr]">
         <Card data-tour="help-form" className="p-5 sm:p-6">
           <form onSubmit={submit} noValidate>
@@ -163,7 +168,7 @@ export default function Help() {
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onFile} />
               <Button variant="secondary" onClick={() => fileRef.current?.click()}><Camera size={16} />{img ? T('ছবি বদলান', 'Change photo') : T('ছবি দিন', 'Add a photo')}</Button>
-              {img && <span className="relative"><img src={img} alt={T('যুক্ত করা ছবি', 'Attached photo')} className="h-11 w-11 rounded-lg object-cover ring-2 ring-primary-500/20 shadow-xs" /><button type="button" onClick={() => setImg(null)} className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-ink text-white shadow-xs transition hover:bg-black" aria-label={T('ছবি সরান', 'Remove photo')}><X size={12} /></button></span>}
+              {img && <span className="relative"><img src={img} alt={T('যুক্ত করা ছবি', 'Attached photo')} loading="lazy" decoding="async" className="h-11 w-11 rounded-lg object-cover ring-2 ring-primary-500/20 shadow-xs" /><button type="button" onClick={() => setImg(null)} className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-ink text-white shadow-xs transition hover:bg-black" aria-label={T('ছবি সরান', 'Remove photo')}><X size={12} /></button></span>}
               {t.kinds.length > 0 && !img && <Link to="/farmer/doctor" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13.5px] font-semibold text-primary-700 hover:bg-primary-50 transition active:scale-95"><ScanLine size={15} />{T('আগে ফসলের ডাক্তারে ছবি দেখান', 'Try the crop doctor first')}</Link>}
             </div>
 
@@ -219,7 +224,7 @@ export default function Help() {
                   return (
                     <li
                       key={r.id}
-                      className={`rounded-2xl border p-4 transition-all duration-200 hover:shadow-md ${
+                      className={`cv-auto rounded-2xl border p-4 transition-all duration-200 hover:shadow-md ${
                         isUrgent
                           ? 'border-l-4 !border-l-red-500 border-border bg-white'
                           : status === 'answered'
@@ -229,7 +234,7 @@ export default function Help() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex min-w-0 gap-3">
-                          {r.image && <img src={r.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-border shadow-2xs" />}
+                          {r.image && <img src={r.image} alt="" loading="lazy" decoding="async" className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-border shadow-2xs" />}
                           <div className="min-w-0">
                             <div className="text-[15px] font-bold text-ink">{L(SYMPTOMS[r.symptom] ?? SYMPTOMS.question)}</div>
                             <div className="mt-0.5 text-[13.5px] leading-5 text-muted">{L(r.text)}</div>

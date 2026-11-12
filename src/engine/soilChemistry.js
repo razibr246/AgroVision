@@ -43,9 +43,10 @@ export function calculateBaseSaturation({ cec, ph, landform = 'alluvium' }) {
   // Barind terrace (kaolinite/iron-rich) has lower Ca/Mg ratio than active floodplains (illite/smectite)
   const totalBases = (boundedBs / 100) * cec;
   const isBarind = landform === 'barind';
+  const isPeat = landform === 'peat';
 
-  const caRatio = isBarind ? 0.60 : 0.68;
-  const mgRatio = isBarind ? 0.25 : 0.22;
+  const caRatio = isPeat ? 0.48 : isBarind ? 0.60 : 0.68;
+  const mgRatio = isPeat ? 0.28 : isBarind ? 0.25 : 0.22;
   const kRatio = 0.07;
   const naRatio = Math.max(0.01, 1 - (caRatio + mgRatio + kRatio));
 
@@ -62,25 +63,38 @@ export function calculateBaseSaturation({ cec, ph, landform = 'alluvium' }) {
 
 // Three-Pool Soil Organic Carbon (SOC) Fractionation:
 // Separates soil carbon into biological labile, humus aggregate, and fossilized/recalcitrant mineral fractions.
-export function calculateCarbonPools({ totalCarbonTHa = 28, landform = 'alluvium', clayPct = 25 }) {
+// Soil carbon split three ways by published methods, not by guessed shares:
+//   inert  RothC inert organic matter, IOM = 0.049 × SOC^1.139 t C/ha (Falloon et al. 1998, Soil Biol. Biochem.
+//          30:1207), carbon that takes no part in the decades a rotation is judged over. Fitted on mineral soils.
+//   young / old  the rest at ICBM steady state (Andrén & Kätterer 1997), with the same rates as Field Future
+//          (soilfuture.js ICBM: k1 = 0.8, k2 = 0.006 a year, straw humification h = 0.125): young = i/k1, old = h·i/k2,
+//          so young : old = k2 : h·k1 = 0.06. Residence times are 1/k at the model's reference climate; Bangladesh's
+//          heat runs both faster, by the same factor.
+export const CARBON_POOL_PARAMS = { k1: 0.8, k2: 0.006, h: 0.125, iomA: 0.049, iomB: 1.139 };
+
+export function calculateCarbonPools({ totalCarbonTHa = 28, landform = 'alluvium', lang = 'en' }) {
+  const { k1, k2, h, iomA, iomB } = CARBON_POOL_PARAMS;
   const cTot = Math.max(5, totalCarbonTHa);
-  const isBarind = landform === 'barind';
-
-  // Barind Pleistocene red paleosol has higher mineral-bound fossilized recalcitrant carbon (up to 32%)
-  // Active floodplains have more recent alluvial labile carbon
-  const fossilShare = isBarind ? 0.32 : Math.min(0.28, 0.16 + (clayPct / 100) * 0.18);
-  const labileShare = isBarind ? 0.14 : 0.20;
-  const humusShare = Math.max(0.40, 1 - (fossilShare + labileShare));
-
-  const labileTHa = Math.round(cTot * labileShare * 100) / 100;
-  const humusTHa = Math.round(cTot * humusShare * 100) / 100;
-  const fossilTHa = Math.round(cTot * fossilShare * 100) / 100;
-
+  const inertTHa = Math.min(cTot * 0.5, iomA * cTot ** iomB);
+  const active = cTot - inertTHa;
+  const youngOverOld = k2 / (h * k1);
+  const youngTHa = active * (youngOverOld / (1 + youngOverOld));
+  const oldTHa = active - youngTHa;
+  const r2 = (x) => Math.round(x * 100) / 100;
+  const pct = (x) => Math.round((x / cTot) * 100);
+  const isBn = lang === 'bn';
+  const inertLabel = { bn: 'শতাব্দী থেকে হাজার বছর (RothC inert)', en: 'Centuries to millennia (RothC inert)' };
+  const labileLabel = { bn: '~১.৩ বছর (ICBM young)', en: '~1.3 years (ICBM young)' };
+  const humusLabel = { bn: '~১৬৭ বছর (ICBM old, মডেলের মান তাপে)', en: '~167 years (ICBM old, temperature-scaled)' };
+  const inert = { tHa: r2(inertTHa), pct: pct(inertTHa), residenceYears: null, turnoverYears: isBn ? inertLabel.bn : inertLabel.en, turnoverLabel: inertLabel };
   return {
     totalTHa: cTot,
-    labile: { tHa: labileTHa, pct: Math.round(labileShare * 100), turnoverYears: '১–২ বছর (Labile active)' },
-    humus: { tHa: humusTHa, pct: Math.round(humusShare * 100), turnoverYears: '২০–৫০ বছর (Stable humus)' },
-    fossilPaleosol: { tHa: fossilTHa, pct: Math.round(fossilShare * 100), turnoverYears: '৫০০–২,০০০+ বছর (Recalcitrant mineral-fossil)' },
+    method: 'ICBM steady state (Andrén & Kätterer 1997) + RothC inert pool (Falloon et al. 1998)',
+    mineralSoilOnly: landform === 'peat', // Falloon's IOM equation was fitted on mineral soils, not peat
+    labile: { tHa: r2(youngTHa), pct: pct(youngTHa), residenceYears: Math.round((1 / k1) * 10) / 10, turnoverYears: isBn ? labileLabel.bn : labileLabel.en, turnoverLabel: labileLabel },
+    humus: { tHa: r2(oldTHa), pct: pct(oldTHa), residenceYears: Math.round(1 / k2), turnoverYears: isBn ? humusLabel.bn : humusLabel.en, turnoverLabel: humusLabel },
+    inert,
+    fossilPaleosol: inert, // older name, still read by the soil profile and the biomechanics lab
   };
 }
 

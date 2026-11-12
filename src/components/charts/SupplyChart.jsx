@@ -77,11 +77,11 @@ export default function SupplyChart({ bins, real, mine, normal, dip, highlight =
             <Tooltip content={tip} cursor={{ fill: 'rgba(19,38,27,.05)' }} />
             <ReferenceLine y={limit} stroke={LIMIT} strokeDasharray="5 4" ifOverflow="extendDomain"
               label={legend ? undefined : { value: T('অতিরিক্ত সরবরাহের সীমা', 'Oversupply line'), position: 'insideTopRight', fontSize: 10.5, fill: LIMIT }} />
-            <Bar dataKey="others" stackId="a" fill={color} maxBarSize={56} radius={mine || real ? [0, 0, 0, 0] : [5, 5, 0, 0]}>
+            <Bar dataKey="others" stackId="a" fill={color} maxBarSize={56} radius={mine || real ? [0, 0, 0, 0] : [5, 5, 0, 0]} animationDuration={450}>
               {data.map((d) => <Cell key={d.w} fill={d.over ? OVER : color} fillOpacity={highlight.length && !highlight.includes(d.w) ? 0.45 : 0.9} />)}
             </Bar>
-            {real && <Bar dataKey="real" stackId="a" fill={REAL} fillOpacity={0.9} maxBarSize={56} radius={mine ? [0, 0, 0, 0] : [5, 5, 0, 0]} />}
-            {mine && <Bar dataKey="mine" stackId="a" fill={DIP} maxBarSize={56} radius={[5, 5, 0, 0]} />}
+            {real && <Bar dataKey="real" stackId="a" fill={REAL} fillOpacity={0.9} maxBarSize={56} radius={mine ? [0, 0, 0, 0] : [5, 5, 0, 0]} animationDuration={450} />}
+            {mine && <Bar dataKey="mine" stackId="a" fill={DIP} maxBarSize={56} radius={[5, 5, 0, 0]} animationDuration={450} />}
           </ComposedChart>
         </ResponsiveContainer>
       </div>

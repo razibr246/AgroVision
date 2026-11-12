@@ -1,22 +1,106 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
+import { useStore } from '../../store';
+
+/** Derive a calm ambient mood from live field weather. */
+function climateMood(weather) {
+  if (!weather || weather.unavailable) return 'calm';
+  if ((weather.rainNext3 ?? 0) >= 8 || (weather.rain7 ?? 0) >= 25) return 'rain';
+  if ((weather.tmax ?? 0) >= 34) return 'heat';
+  return 'calm';
+}
+
+/** Derive Bangladesh diurnal lighting phase for subtle sky/aura shifts without jarring jumps. */
+function diurnalPhase(hour) {
+  if (hour >= 5 && hour < 8) return 'dawn';
+  if (hour >= 8 && hour < 16) return 'day';
+  if (hour >= 16 && hour < 19) return 'dusk';
+  return 'night';
+}
+
+const AGRO_PARTICLES = [
+  { x: '7%', y: '20%', s: 4.5, d: '0s', t: '14s' },
+  { x: '15%', y: '62%', s: 3.5, d: '-3s', t: '17s' },
+  { x: '23%', y: '38%', s: 5, d: '-7s', t: '15s' },
+  { x: '34%', y: '78%', s: 3.5, d: '-1.5s', t: '19s' },
+  { x: '44%', y: '18%', s: 4, d: '-9s', t: '16s' },
+  { x: '53%', y: '54%', s: 4.5, d: '-4.5s', t: '18s' },
+  { x: '62%', y: '32%', s: 3.5, d: '-11s', t: '14.5s' },
+  { x: '71%', y: '70%', s: 5, d: '-2.5s', t: '16.5s' },
+  { x: '80%', y: '24%', s: 4, d: '-8s', t: '15.5s' },
+  { x: '89%', y: '58%', s: 3.5, d: '-5.5s', t: '17.5s' },
+  { x: '29%', y: '14%', s: 3, d: '-6.5s', t: '20s' },
+  { x: '75%', y: '86%', s: 4, d: '-10s', t: '18.5s' },
+];
 
 /**
- * FarmerAtmosphere — World-class atmospheric backdrop for the FieldShift 360 farmer portal.
- * Blends living agro-climatic gradients (Aman emerald, sunrise mustard, river mist, Barind clay)
- * with tactile agrarian topography and precision satellite field grid lines.
+ * FarmerAtmosphere — Agro-climatic atmospheric backdrop for the FieldShift 360 farmer portal.
+ * Blends smooth diurnal & weather-adaptive gradients (Aman emerald, sunrise mustard, river mist, Barind clay)
+ * with tactile agrarian topography, precision satellite field grid lines, and subtle GPU-composited particles
+ * on a strict-containment layer so foreground Liquid Glass never re-blurs unnecessarily.
  */
-function FarmerAtmosphere() {
+function FarmerAtmosphere({ hourOverride = null }) {
+  const { weather } = useStore();
+  const climate = climateMood(weather);
+  const [hidden, setHidden] = useState(() => (typeof document !== 'undefined' ? document.visibilityState === 'hidden' : false));
+  const [hour, setHour] = useState(() => (hourOverride ?? new Date().getHours()));
+
+  useEffect(() => {
+    if (hourOverride != null) { setHour(hourOverride); return undefined; }
+    const timer = setInterval(() => setHour(new Date().getHours()), 300000);
+    return () => clearInterval(timer);
+  }, [hourOverride]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    const onVis = () => {
+      setHidden(document.visibilityState === 'hidden');
+      if (document.visibilityState === 'visible' && hourOverride == null) {
+        setHour(new Date().getHours());
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [hourOverride]);
+
+  const diurnal = diurnalPhase(hour);
+
   return (
     <div
+      data-climate={climate}
+      data-diurnal={diurnal}
+      data-hidden={hidden ? 'true' : 'false'}
       className="farmer-atmosphere pointer-events-none fixed inset-0 -z-10 select-none overflow-hidden"
       aria-hidden="true"
     >
-      {/* Dynamic agro-climatic gradient aura orbs */}
+      {/* Dynamic agro-climatic & diurnal gradient aura orbs */}
       <div className="farmer-aura-orb farmer-aura-emerald" />
       <div className="farmer-aura-orb farmer-aura-gold" />
       <div className="farmer-aura-orb farmer-aura-river" />
       <div className="farmer-aura-orb farmer-aura-silt" />
       <div className="farmer-aura-orb farmer-aura-canopy" />
+
+      {/* Subtle drifting agro-climatic particles (pollen/dew, rain droplets/mist, heat shimmer wisps) */}
+      <div className="farmer-particles absolute inset-0">
+        {AGRO_PARTICLES.map((p, idx) => (
+          <span
+            key={idx}
+            className="farmer-particle"
+            style={{
+              '--px': p.x,
+              '--py': p.y,
+              '--ps': `${p.s}px`,
+              '--pd': p.d,
+              '--pt': p.t,
+            }}
+          />
+        ))}
+        {climate === 'rain' && (
+          <>
+            <span className="farmer-mist-wisp farmer-mist-wisp-a" />
+            <span className="farmer-mist-wisp farmer-mist-wisp-b" />
+          </>
+        )}
+      </div>
 
       {/* Tactile agrarian topography & precision field surveying grid */}
       <svg

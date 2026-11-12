@@ -1,5 +1,5 @@
 // The original Ropon Radar (public/radar/): the first prototype, a standalone D3 app on seeded sample data for
-// Rangpur, kept as it was. Shown here inside the officer pages; the real-satellite Ropan Radar is /officer/radar.
+// Rangpur, kept as it was. Shown here inside the officer pages; the real-satellite Ropon Radar is /officer/radar.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, Radar as RadarIcon, MonitorPlay, MousePointerClick, FileText } from 'lucide-react';
@@ -25,7 +25,7 @@ export default function RadarOriginal() {
         action={<a href={v.src} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-white px-3.5 py-2.5 text-[14px] font-semibold hover:bg-primary-50"><ExternalLink size={16} />{T('পুরো পর্দায় খুলুন', 'Open full screen')}</a>} />
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <Segmented value={view} onChange={setView} options={Object.entries(VIEWS).map(([k, x]) => ({ value: k, icon: x.icon, label: L(x) }))} />
-        <Link to="/officer/radar" className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary-700 hover:underline"><RadarIcon size={16} />{T('আসল উপগ্রহ তথ্যের রোপণ রাডার →', 'Ropan Radar on real satellite data →')}</Link>
+        <Link to="/officer/radar" className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary-700 hover:underline"><RadarIcon size={16} />{T('আসল উপগ্রহ তথ্যের রোপণ রাডার →', 'Ropon Radar on real satellite data →')}</Link>
       </div>
       <div className="overflow-hidden rounded-[20px] border border-border bg-white shadow-[var(--shadow-card)]">
         <iframe key={view} src={v.src} title={T('রোপণ রাডার, প্রথম সংস্করণ', 'Ropon Radar, first version')} className="block h-[calc(100vh-220px)] min-h-[640px] w-full" loading="lazy" />

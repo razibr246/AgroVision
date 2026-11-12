@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import { useStore, climates, tms, loadClimate } from '../../store';
 import { Tags } from '../ui';
-import Photo from '../Photo';
+import ClimateScene from './ClimateScene';
 import { TM_METRICS, THEN, NOW } from '../../engine/climate';
 import { ABROAD, ABROAD_ORDER } from '../../data/abroad';
 
@@ -107,7 +107,7 @@ function ClimateShiftView() {
     <section className="py-16 sm:py-20">
       <div className="page-shell grid items-start gap-10 lg:grid-cols-[1fr_1.15fr] [&>*]:min-w-0">
         <figure data-reveal className="overflow-hidden rounded-[22px] shadow-[var(--shadow-card)] lg:sticky lg:top-24">
-          <Photo name="droughtFlood" sizes="(min-width: 1024px) 560px, 100vw" />
+          <ClimateScene country="bangladesh" />
         </figure>
         <div data-reveal style={{ '--d': '120ms' }}>
           <h2 className="text-[32px] font-bold sm:text-[40px]">{T('আবহাওয়া আর আগের মতো নেই', 'The weather is not what it used to be')}</h2>
@@ -166,7 +166,7 @@ function AbroadShift({ c, data, chips }) {
     <section className="py-16 sm:py-20">
       <div className="page-shell grid items-start gap-10 lg:grid-cols-[1fr_1.15fr] [&>*]:min-w-0">
         <figure data-reveal className="overflow-hidden rounded-[22px] shadow-[var(--shadow-card)] lg:sticky lg:top-24">
-          <Photo name="droughtFlood" sizes="(min-width: 1024px) 560px, 100vw" />
+          <ClimateScene country={c.id} />
         </figure>
         <div>
           <h2 className="text-[32px] font-bold sm:text-[40px]">{T('আবহাওয়া আর আগের মতো নেই', 'The weather is not what it used to be')}</h2>

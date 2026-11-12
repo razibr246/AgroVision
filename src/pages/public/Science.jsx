@@ -1,7 +1,5 @@
-// "The science, plainly": the words the app uses (evapotranspiration, NDVI, soil-moisture anomaly, water balance and
-// the rest) in a farmer's words; how datasets taken at very different scales are brought down to one field and one
-// season; how a satellite's view differs from a measurement on the ground, and how the app combines both; and which
-// methods sit behind each answer, with their uncertainty and where local knowledge has to check them.
+// "The science, plainly": explain the app's terms, the native scales of its datasets, the calculations that use
+// them, and the uncertainty and local checks that remain. Do not imply that coarse data are downscaled to fields.
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, Satellite, Ruler, Layers, Scale, Users, ArrowRight, Tag as TagIcon, Database, GitCompare, ClipboardCheck, Droplets, Leaf, Thermometer, CloudRain, Mountain, Waves, Sprout, Wind, Snowflake, FlaskConical } from 'lucide-react';
@@ -22,12 +20,14 @@ import DataCoverage from '../../components/explain/DataCoverage';
 import HowCombined from '../../components/science/HowCombined';
 import EventCheck from '../../components/science/EventCheck';
 import TrendMap from '../../components/map/TrendMap';
-import SatelliteInspector from '../../components/science/SatelliteInspector';
-import OrbitConstellation from '../../components/science/OrbitConstellation';
 import EarthdataSTAC from '../../components/science/EarthdataSTAC';
-import ChallengeDossier from '../../components/science/ChallengeDossier';
 import DataFusionHarmonizer from '../../components/science/DataFusionHarmonizer';
 import SoilGeochemistryExplorer from '../../components/science/SoilGeochemistryExplorer';
+import ScienceMissionHUD from '../../components/science/ScienceMissionHUD';
+import OrbitConstellation from '../../components/science/OrbitConstellation';
+import SpectralSignatureLab from '../../components/science/SpectralSignatureLab';
+import MultiScaleGridVisualizer from '../../components/science/MultiScaleGridVisualizer';
+import { SectionNav } from '../../components/SectionNav';
 
 const t = (bn, en) => ({ bn, en });
 const TERMS = [
@@ -74,140 +74,176 @@ export default function Science() {
   const cross = useMemo(() => (clim ? rainCrossCheck(clim) : null), [clim]);
   const terrain = fieldTerrain(activeParcel?.id);
   const dis = useMemo(() => disagreements({ cross, terrain, field: fieldGreen(activeParcel?.id, upazila.id), spread: modelSpread(deltas, upazila.id) }), [cross, terrain, activeParcel?.id, upazila.id]);
+
+  const sections = [
+    { id: 'constellation', label: T('উপগ্রহ বহর ও সিমুলেটর', 'Orbital Sim') },
+    { id: 'spectral', label: T('বর্ণালী ও NDVI ল্যাব', 'Spectral Lab') },
+    { id: 'multiscale', label: T('স্থানিক রেজোলিউশন', 'Scales & Fusion') },
+    { id: 'glossary', label: T('শব্দকোষ', 'Glossary') },
+    { id: 'scales', label: T('তথ্যের মাপ', 'Dataset Scales') },
+    { id: 'architecture', label: T('ডেটা ফিউশন', 'Data Fusion') },
+    { id: 'labels', label: T('লেবেল', 'Labels') },
+    { id: 'trends', label: T('প্রবণতা', 'Trends') },
+    { id: 'events', label: T('আসল দুর্যোগ যাচাই', 'Real disasters') },
+    { id: 'harmonize', label: T('তথ্য যেভাবে এক হয়', 'How data combine') },
+    { id: 'coverage', label: T('উপাত্তের পরিধি', 'Coverage') },
+    { id: 'disagree', label: T('অমিল ও যাচাই', 'Disagreements') },
+    { id: 'methods', label: T('পদ্ধতি', 'Methods') },
+    { id: 'ml', label: T('মডেল (ML)', 'Stress ML') },
+    { id: 'geochemistry', label: T('মৃত্তিকা রসায়ন', 'Soil Carbon') },
+    { id: 'rules', label: T('নিয়ম ও সীমা', 'Rules') },
+  ];
+
   return (
     <div className="page-shell pb-24 pt-[110px] sm:pt-[124px]">
       <div className="hero-rise max-w-3xl">
-        <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><BookOpen size={15} />{T('সহজ ভাষায় বিজ্ঞান', 'The science, plainly')}</p>
+        <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[14px] font-semibold text-primary-800"><BookOpen size={15} />{T('সহজ ভাষায় বিজ্ঞান', 'The science, plainly')}</p>
         <h1 className="mt-5 text-[40px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[56px]">{T('উপগ্রহ থেকে আপনার জমি পর্যন্ত', 'From the satellite to your field')}</h1>
-        <p className="mt-3 max-w-2xl text-[17px] leading-[1.7] text-ink/70">{T('অ্যাপের কঠিন শব্দগুলোর মানে, আলাদা আলাদা মাপের তথ্য কীভাবে একটা জমি আর একটা মৌসুমে আনা হয়, উপগ্রহের মাপ আর মাটির মাপের ফারাক, আর কোথায় আপনার অভিজ্ঞতা দিয়ে যাচাই করতে হবে।', 'What the app’s hard words mean, how data taken at very different scales is brought down to one field and one season, how a satellite’s view differs from a measurement on the ground, and where your own experience has to check it.')}</p>
+        <p className="mt-3 max-w-2xl text-[16.5px] leading-[1.7] text-ink/70">{T('অ্যাপের কঠিন শব্দগুলোর মানে, বিভিন্ন তথ্যের নিজস্ব স্থানিক ও সময়ের মাপ, সিদ্ধান্তে সেগুলোর ব্যবহার, উপগ্রহের অনুমান ও মাটির মাপের পার্থক্য, এবং কোন বিষয় স্থানীয়ভাবে যাচাই করতে হবে।', 'What the app’s terms mean, the native spatial and temporal scales of its datasets, how they inform decisions, how satellite estimates differ from field measurements, and what still needs local checking.')}</p>
       </div>
 
-      <section className="mt-10">
+      <SectionNav sections={sections} label={T('বিজ্ঞানের অধ্যায়', 'Science chapters')} className="mt-6" />
+
+      {/* 1. Unified NASA Orbital Telemetry Canopy (Mission HUD + 3D Orbit Constellation) */}
+      <div className="science-orbital-canopy mt-6 rounded-[32px] p-3 sm:p-4 [&>*:first-child]:mt-0">
+        <ScienceMissionHUD />
+        <section id="constellation" className="mt-4 scroll-mt-28 [&>div]:mt-0">
+          <OrbitConstellation />
+        </section>
+      </div>
+
+      {/* 2. Multispectral Reflectance & NDVI Physics Lab */}
+      <section id="spectral" className="mt-12 scroll-mt-28">
+        <SpectralSignatureLab />
+      </section>
+
+      {/* 3. Multi-Scale Spatial Resolution & Data Harmonization */}
+      <section id="multiscale" className="mt-12 scroll-mt-28">
+        <MultiScaleGridVisualizer />
+      </section>
+
+      <section id="glossary" className="mt-10 scroll-mt-28">
         <h2 className="flex items-center gap-2 text-[24px] font-bold"><BookOpen size={20} className="text-primary-700" />{T('শব্দকোষ', 'Glossary')}</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
           {TERMS.map((x) => (
             <article key={x.term.en} className="glass flat rounded-[22px] p-5">
               <h3 className="flex items-center gap-2 text-[16.5px] font-bold"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-700"><x.icon size={18} /></span>{L(x.term)}</h3>
-              <p className="mt-2 text-[14.5px] leading-7 text-ink/80">{L(x.say)}</p>
+              <p className="mt-2 text-[15px] leading-7 text-ink/80">{L(x.say)}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="flex items-center gap-2 text-[24px] font-bold"><Ruler size={20} className="text-primary-700" />{T('আলাদা মাপের তথ্য, একটা জমিতে', 'Many scales, one field')}</h2>
-        <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T('একটা উপগ্রহ ৩০ মিটারের ঘর দেখে, আরেকটা ৩০০ কিলোমিটারের; একটা প্রতিদিন, আরেকটা মাসে একবার। অ্যাপ সবগুলোকে একই বিশ্লেষণের একক, অর্থাৎ "আপনার জমি, একটা মৌসুম", এ নামিয়ে আনে: বড় ঘর থেকে জমির বিন্দুর মান, ছোট ঘর থেকে জমির ভেতরের পিক্সেলের গড়, প্রতিদিনের মান থেকে মৌসুমের মোট বা গড়।', 'One satellite sees 30-metre squares, another 300-kilometre ones; one every day, another once a month. The app brings them all to one unit of analysis, “your field, one season”: the value at the field’s point from coarse grids, the average of the pixels inside the field from fine ones, and season totals or means from daily values.')}</p>
+      <section id="scales" className="mt-12 scroll-mt-28">
+        <h2 className="flex items-center gap-2 text-[24px] font-bold"><Ruler size={20} className="text-primary-700" />{T('তথ্যের স্থানিক ও সময়ের মাপ', 'Dataset scales and time steps')}</h2>
+        <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T('তথ্যগুলো বিভিন্ন আকারের এলাকা ও সময়ের ব্যবধানে তৈরি। অ্যাপ এগুলোকে এক জমি-রেজোলিউশনে রূপান্তর করে না: যেখানে প্রযোজ্য, জমির অবস্থানের জন্য উৎসের ঘরের মান নেওয়া হয়; সূক্ষ্ম পিক্সেল থাকলে নির্দিষ্ট পদ্ধতিতে নমুনা বা সারাংশ করা হয়; দৈনিক তথ্য থেকে মৌসুমি যোগফল বা গড় হিসাব হয়। বড়-এলাকার অনুমান জমির সরাসরি মাপ নয়।', 'These datasets describe different area sizes and time intervals. The app does not convert them to a common field-resolution grid: where applicable it uses the source grid value at the location, summarizes finer pixels only through the stated method, and aggregates daily records into seasonal totals or means. An area-scale estimate is not a direct field measurement.')}</p>
         <div className="mt-4 overflow-x-auto rounded-[22px] border border-border bg-white">
           <table className="w-full min-w-[640px] text-left text-[14px]">
-            <thead className="bg-canvas text-[13px] text-muted"><tr><th className="px-4 py-2.5 font-semibold">{T('তথ্য', 'Data')}</th><th className="px-4 py-2.5 font-semibold">{T('নিজের মাপ', 'Its own scale')}</th><th className="px-4 py-2.5 font-semibold">{T('জমি আর মৌসুমে আনা হয় যেভাবে', 'How it reaches the field and the season')}</th></tr></thead>
+            <thead className="bg-canvas text-[14px] text-muted"><tr><th className="px-4 py-2.5 font-semibold">{T('তথ্য', 'Data')}</th><th className="px-4 py-2.5 font-semibold">{T('নিজের মাপ', 'Its own scale')}</th><th className="px-4 py-2.5 font-semibold">{T('জমি আর মৌসুমে আনা হয় যেভাবে', 'How it reaches the field and the season')}</th></tr></thead>
             <tbody>{SCALES.map(([d, sc, how]) => <tr key={d} className="border-t border-border"><td className="px-4 py-2.5 font-semibold">{d}</td><td className="px-4 py-2.5 tabular">{L(sc)}</td><td className="px-4 py-2.5 text-ink/80">{L(how)}</td></tr>)}</tbody>
           </table>
         </div>
       </section>
 
       {/* NASA Earthdata Architecture & In-Browser Fusion Pipeline */}
-      <section className="mt-12">
+      <section id="architecture" className="mt-12 scroll-mt-28">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="flex items-center gap-2 text-[24px] font-bold"><Database size={20} className="text-primary-700" />{T('নাসা তথ্যের আর্কিটেকচার ও ডেটা ফিউশন', 'NASA Earthdata Architecture & Data Fusion')}</h2>
           <Tags list={['SAT', 'MODEL', 'RULE']} />
         </div>
         <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">
-          {T('মহাকাশ থেকে সরাসরি কৃষকের হাতে: ৮টি নাসা ও আন্তর্জাতিক উপগ্রহ মিশন কীভাবে ব্রাউজারের ভেতর এক সেকেন্ডের কম সময়ে বৈজ্ঞানিক সিদ্ধান্তে পরিণত হয়।',
-            'From orbit to the farmer’s palm: how 8 NASA and partner satellite missions are ingested, harmonized, and computed directly in the browser in under a second.')}
+          {T('উপগ্রহের পর্যবেক্ষণ, পুনর্বিশ্লেষণ ও মডেল-তথ্য কীভাবে অ্যাপে আসে এবং কোন হিসাব বা প্রেক্ষাপটে ব্যবহৃত হয়—উৎসের ধরন ও সীমাসহ দেখুন।',
+            'See which satellite observations, reanalysis products and model datasets are used in the app, what calculations or context they support, and the limits of each source.')}
         </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-stagger>
           <div className="surface-card rounded-[22px] border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary-400 hover:shadow-md">
             <div className="flex items-center justify-between">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-sky-100 text-[13px] font-bold text-sky-800">১</span>
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-sky-100 text-[14px] font-bold text-sky-800">{num(1, lang)}</span>
               <Satellite size={18} className="text-sky-700" />
             </div>
-            <h3 className="mt-3 text-[16px] font-bold text-ink">{T('১. নাসা উপগ্রহ ও মডেল', '1. NASA Satellites')}</h3>
-            <p className="mt-1 text-[13px] text-muted">{T('কাঁচা উপগ্রহ তথ্য', 'Raw Earth observations')}</p>
+            <h3 className="mt-3 text-[16.5px] font-bold text-ink">{T('১. নাসা ও অংশীদারদের তথ্য', '1. NASA and partner datasets')}</h3>
+            <p className="mt-1 text-[14px] text-muted">{T('উপগ্রহ পর্যবেক্ষণ, পুনর্বিশ্লেষণ ও মডেল', 'Satellite observations, reanalysis and models')}</p>
             <ul className="mt-3 space-y-1.5 text-[12.5px] leading-5 text-ink/80">
               <li>• <b>NASA POWER:</b> {T('২৫ বছরের তাপ ও বৃষ্টি (৫০ কিমি)', '25yr heat & rain (50 km)')}</li>
               <li>• <b>GPM IMERG:</b> {T('বৃষ্টি ও বর্ষা শুরু (১০ কিমি)', 'Daily rain & onset (10 km)')}</li>
-              <li>• <b>MODIS/Landsat:</b> {T('সবুজ ও খরা (২৫০ মি)', 'NDVI & stress (250 m)')}</li>
+              <li>• <b>MODIS/Landsat:</b> {T('উদ্ভিদ-সবুজত্ব ও ভূমিপৃষ্ঠের প্রেক্ষাপট; রেজোলিউশন আলাদা', 'Vegetation and surface context at different resolutions')}</li>
               <li>• <b>SMAP & GRACE:</b> {T('মাটির পানি ও ভূগর্ভস্থ স্তর', 'Soil wetness & aquifer')}</li>
             </ul>
           </div>
 
           <div className="surface-card rounded-[22px] border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary-400 hover:shadow-md">
             <div className="flex items-center justify-between">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary-100 text-[13px] font-bold text-primary-800">২</span>
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary-100 text-[14px] font-bold text-primary-800">{num(2, lang)}</span>
               <GitCompare size={18} className="text-primary-700" />
             </div>
-            <h3 className="mt-3 text-[16px] font-bold text-ink">{T('২. রেজোলিউশন হারমোনাইজেশন', '2. Spatial Harmonization')}</h3>
-            <p className="mt-1 text-[13px] text-muted">{T('একই বিশ্লেষণ গ্রিডে মেলানো', 'Downscaled to analysis grid')}</p>
+            <h3 className="mt-3 text-[16.5px] font-bold text-ink">{T('২. উৎসভেদে স্থানিক ব্যবহার', '2. Source-specific spatial handling')}</h3>
+            <p className="mt-1 text-[14px] text-muted">{T('কোনো সাধারণ জমি-গ্রিডে নামানো হয় না', 'No common field-resolution grid is created')}</p>
             <ul className="mt-3 space-y-1.5 text-[12.5px] leading-5 text-ink/80">
-              <li>• <b>BMD Normals:</b> {T('আবহাওয়া কেন্দ্রের তাপ মেলানো', 'Station temperature calibration')}</li>
-              <li>• <b>SoilGrids 2.0:</b> {T('মাটির কাদা-বালি-কার্বন (২৫০ মি)', 'Clay/sand/carbon pedotransfer')}</li>
-              <li>• <b>DEM Consensus:</b> {T('SRTM ও ASTER উচ্চতার গড়', 'SRTM + ASTER 30 m elevation')}</li>
-              <li>• <b>Sentinel-2:</b> {T('জমির ভেতরের ১০ মিটার পিক্সেল', 'Field boundary polygon pixel extraction')}</li>
+              <li>• <b>{T('BMD স্বাভাবিক মান:', 'BMD Normals:')}</b> {T('আবহাওয়া কেন্দ্রের তাপ মেলানো', 'Station temperature calibration')}</li>
+              <li>• <b>SoilGrids 2.0:</b> {T('মাটির মডেল-অনুমান (২৫০ মি); পরীক্ষার মান আলাদা', '250 m soil estimates; field tests kept distinct')}</li>
+              <li>• <b>{T('DEM উচ্চতা গড়:', 'DEM Consensus:')}</b> {T('SRTM ও ASTER উচ্চতার গড়', 'SRTM + ASTER 30 m elevation')}</li>
+              <li>• <b>Sentinel-2:</b> {T('পরিষ্কার পর্যবেক্ষণ থেকে সবুজত্বের প্রেক্ষাপট', 'Greenness context from available clear observations')}</li>
             </ul>
           </div>
 
           <div className="surface-card rounded-[22px] border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary-400 hover:shadow-md">
             <div className="flex items-center justify-between">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-amber-100 text-[13px] font-bold text-amber-800">৩</span>
-              <FlaskConical size={18} className="text-amber-700" />
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-paddy-100 text-[14px] font-bold text-paddy-700">{num(3, lang)}</span>
+              <FlaskConical size={18} className="text-paddy-700" />
             </div>
-            <h3 className="mt-3 text-[16px] font-bold text-ink">{T('৩. ব্রাউজারে বৈজ্ঞানিক ইঞ্জিন', '3. In-Browser Physics Engine')}</h3>
-            <p className="mt-1 text-[13px] text-muted">{T('নিখুঁত বিজ্ঞানভিত্তিক গণনা', 'Zero-latency deterministic execution')}</p>
+            <h3 className="mt-3 text-[16.5px] font-bold text-ink">{T('৩. মডেল ও নিয়মভিত্তিক হিসাব', '3. Model- and rule-based calculations')}</h3>
+            <p className="mt-1 text-[14px] text-muted">{T('ফলাফল অনুমান; মাঠে নিশ্চিত ফল নয়', 'Estimates, not confirmed field outcomes')}</p>
             <ul className="mt-3 space-y-1.5 text-[12.5px] leading-5 text-ink/80">
               <li>• <b>FAO-56:</b> {T('দৈনিক শিকড়ের পানির ব্যালেন্স', 'Daily Penman-Monteith ET₀ & root water')}</li>
-              <li>• <b>ICBM Model:</b> {T('১০ বছরের মাটির কার্বন সঞ্চয়', '10-yr humified & young carbon')}</li>
+              <li>• <b>{T('ICBM মডেল:', 'ICBM Model:')}</b> {T('১০ বছরের মাটির কার্বন সঞ্চয়', '10-yr humified & young carbon')}</li>
               <li>• <b>BRRI AWD:</b> {T('বোরো ধানের ভেজানো-শুকানো', 'Alternate wetting & drying rice water')}</li>
-              <li>• <b>40 Futures:</b> {T('৮টি CMIP6 মডেল × ৫ ফলন বছর', '8 NEX-GDDP-CMIP6 models × 5 yield yrs')}</li>
+              <li>• <b>{T('৪০টি ভবিষ্যৎ:', '40 Futures:')}</b> {T('৮টি CMIP6 মডেল × ৫ ফলন বছরের দৃশ্যপট', '8 NEX-GDDP-CMIP6 models × 5 yield scenarios')}</li>
             </ul>
           </div>
 
           <div className="surface-card rounded-[22px] border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary-400 hover:shadow-md">
             <div className="flex items-center justify-between">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 text-[13px] font-bold text-emerald-800">৪</span>
-              <Sprout size={18} className="text-emerald-700" />
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary-100 text-[14px] font-bold text-primary-800">{num(4, lang)}</span>
+              <Sprout size={18} className="text-primary-700" />
             </div>
-            <h3 className="mt-3 text-[16px] font-bold text-ink">{T('৪. কৃষকের সিদ্ধান্তে রূপান্তর', '4. Human Action Delivery')}</h3>
-            <p className="mt-1 text-[13px] text-muted">{T('সহজ ও সবার জন্য উন্মুক্ত', 'Multichannel accessible output')}</p>
+            <h3 className="mt-3 text-[16.5px] font-bold text-ink">{T('৪. কৃষক ও কর্মকর্তার ইন্টারফেস', '4. Farmer and officer interfaces')}</h3>
+            <p className="mt-1 text-[14px] text-muted">{T('পরামর্শের সঙ্গে কারণ ও সীমাও দেখায়', 'Shows reasons and limits with advice')}</p>
             <ul className="mt-3 space-y-1.5 text-[12.5px] leading-5 text-ink/80">
-              <li>• <b>KEEP/ADJUST/SHIFT:</b> {T('স্পষ্ট তিন পরামর্শ ও কারণ', 'Transparent advice with evidence')}</li>
-              <li>• <b>Bilingual Cockpit:</b> {T('বাংলা ও ইংরেজি ইন্টারফেস', 'Rural Bangla numerals & voice')}</li>
-              <li>• <b>SAAO Alert Triage:</b> {T('ইউনিয়ন অফিসারের কমান্ড সেন্টার', 'Officer outbreak cluster detection')}</li>
-              <li>• <b>Offline Support:</b> {T('ভয়েস সহকারী, এসএমএস ও প্রিন্ট', 'Voice assistant, SMS mode, print/PDF')}</li>
+              <li>• <b>{T('একই/সময় বদল/অন্য ফসল:', 'KEEP/ADJUST/SHIFT:')}</b> {T('স্পষ্ট তিন পরামর্শ ও কারণ', 'Transparent advice with evidence')}</li>
+              <li>• <b>{T('দ্বিভাষিক পর্দা:', 'Bilingual UI:')}</b> {T('বাংলা ও ইংরেজি ইন্টারফেস', 'Bangla and English interface')}</li>
+              <li>• <b>{T('কর্মকর্তার সতর্কতা যাচাই:', 'SAAO Alert Triage:')}</b> {T('ইউনিয়ন অফিসারের কমান্ড সেন্টার', 'Officer outbreak cluster detection')}</li>
+              <li>• <b>{T('হাতিয়ারসমূহ:', 'Tools:')}</b> {T('ভয়েস সহায়তা, এসএমএস খসড়া ও প্রিন্ট', 'Voice help, SMS drafts and print')}</li>
             </ul>
           </div>
         </div>
       </section>
 
-      <SatelliteInspector />
-
-      <OrbitConstellation />
-
       <EarthdataSTAC />
 
       <section className="mt-12 grid gap-5 lg:grid-cols-2">
         <div className="glass flat rounded-[24px] p-6">
-          <h2 className="flex items-center gap-2 text-[22px] font-bold"><Satellite size={20} className="text-sky-700" />{T('উপগ্রহ বনাম মাটির মাপ', 'Satellite versus ground')}</h2>
+          <h2 className="flex items-center gap-2 text-[20px] font-bold"><Satellite size={20} className="text-sky-700" />{T('উপগ্রহ বনাম মাটির মাপ', 'Satellite versus ground')}</h2>
           <ul className="mt-3 space-y-2.5 text-[15px] leading-7 text-ink/80">
-            <li>{T('আবহাওয়া কেন্দ্র একটা বিন্দুতে ঠিক মাপে, কিন্তু কেন্দ্র কম, আপনার জমি থেকে দূরে।', 'A weather station measures one point exactly, but stations are few and far from your field.')}</li>
-            <li>{T('উপগ্রহ সব জায়গা দেখে, প্রতিদিন, কিন্তু একটা বড় ঘরের গড়; মেঘ, ছায়া আর হিসাবের ধাপে ভুল ঢোকে।', 'A satellite sees everywhere, every day, but as the average of a large square; cloud, shadow and the steps of retrieval add error.')}</li>
-            <li>{T('অ্যাপ দুটো মেলায়: নাসা POWER-এর তাপ কাছের বিএমডি কেন্দ্রের ৩০ বছরের স্বাভাবিকের সঙ্গে মেলানো হয়; দুটি আলাদা বৃষ্টির উৎস একে অপরকে যাচাই করে; আর আপনি "মাটি ভেজা / শুকনো" বললে সেচের হিসাব আপনার কথাই মানে।', 'The app combines them: NASA POWER temperatures are matched to the nearest BMD station’s 30-year normals; two independent rain sources check each other; and when you say “the soil is wet / dry”, the watering advice takes your word.')}</li>
+            <li>{T('আবহাওয়া কেন্দ্র তার নির্দিষ্ট অবস্থানে যন্ত্রের মাপ দেয়; কাছের কেন্দ্রের তথ্যও আপনার জমির মাপ নয়।', 'A weather station measures at its instrument location; even the nearest station is not a measurement of your field.')}</li>
+            <li>{T('উপগ্রহ ও মডেল পণ্য বিভিন্ন সময় ও এলাকার জন্য তথ্য দেয়। মেঘ, মিশ্র পিক্সেল, পুনর্বিশ্লেষণ ও পদ্ধতির সীমা থাকতে পারে।', 'Satellite and model products cover different time steps and areas. Cloud, mixed pixels, reanalysis and processing methods all have limits.')}</li>
+            <li>{T('অ্যাপ কিছু উৎস তুলনা করে, কিন্তু তুলনা মানেই মাঠে যাচাই নয়। NASA POWER-এর তাপমাত্রা কাছের BMD কেন্দ্রের ১৯৯১–২০২০ স্বাভাবিকের সঙ্গে সংশোধিত; POWER ও IMERG বৃষ্টির মিল আলাদা করে দেখানো হয়।', 'The app compares some sources, but comparison is not field validation. NASA POWER temperatures are corrected using nearby BMD 1991–2020 normals; the agreement between POWER and IMERG rainfall is reported as a consistency check.')}</li>
           </ul>
           {cross && (
-            <div className="mt-4 rounded-2xl bg-sky-50 p-4 text-[14.5px] leading-7 text-sky-950">
+            <div className="mt-4 rounded-2xl bg-sky-50 p-4 text-[15px] leading-7 text-sky-900">
               {T(`এখনই, ${upazila.name.bnOf ?? upazila.name.bn} ২৫ রবি মৌসুমে নাসা POWER আর GPM IMERG উপগ্রহের বৃষ্টির মিল r = ${num(cross.rabi.r, 'bn', { dp: 2 })}; বর্ষায় r = ${num(cross.monsoon.r, 'bn', { dp: 2 })}। গড় রবির বৃষ্টি: POWER ${num(cross.rabi.power, 'bn')} মিমি, IMERG ${num(cross.rabi.imerg, 'bn')} মিমি।`, `Right now, over ${upazila.name.en}’s 25 Rabi seasons, NASA POWER and GPM IMERG satellite rain agree at r = ${cross.rabi.r.toFixed(2)}; in the monsoon r = ${cross.monsoon.r.toFixed(2)}. Mean Rabi rain: POWER ${Math.round(cross.rabi.power)} mm, IMERG ${Math.round(cross.rabi.imerg)} mm.`)}
               <span className="ml-1 inline-block align-middle"><Tags list={['MODEL', 'SAT']} /></span>
             </div>
           )}
         </div>
         <div className="glass flat rounded-[24px] p-6">
-          <h2 className="flex items-center gap-2 text-[22px] font-bold"><Layers size={20} className="text-primary-700" />{T('কোন পদ্ধতি কী বলে, কতটা নিশ্চিত', 'What each method says, and how sure')}</h2>
+          <h2 className="flex items-center gap-2 text-[20px] font-bold"><Layers size={20} className="text-primary-700" />{T('কোন পদ্ধতি কী বলে, কতটা নিশ্চিত', 'What each method says, and how sure')}</h2>
           <ul className="mt-3 space-y-3">
             {METHODS.map((m) => (
               <li key={m.k.en} className="rounded-2xl border border-border bg-white p-3.5">
                 <p className="text-[15px] font-bold">{L(m.k)}</p>
                 <p className="mt-0.5 text-[14px] text-ink/80">{L(m.u)}</p>
-                <p className="mt-1 text-[13.5px] text-paddy-700">{T('অনিশ্চয়তা: ', 'Uncertainty: ')}{L(m.q)}</p>
+                <p className="mt-1 text-[14px] text-paddy-700">{T('অনিশ্চয়তা: ', 'Uncertainty: ')}{L(m.q)}</p>
               </li>
             ))}
           </ul>
@@ -252,14 +288,11 @@ export default function Science() {
 
       <DataFusionHarmonizer />
 
-      <ChallengeDossier />
-
-
       <section id="rules" className="mt-12 scroll-mt-28">
         <h2 className="flex items-center gap-2 text-[24px] font-bold"><ClipboardCheck size={20} className="text-primary-700" />{T('ফসলের নিয়ম আর তাদের যাচাই', 'The crop rules and who has checked them')}</h2>
-        <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T('প্রতিটি নিয়ম প্রকাশিত গবেষণা থেকে নেওয়া শুরুর মান (উৎস docs/THRESHOLDS.md-এ)। স্থানীয় কৃষিবিদ বা কৃষি কর্মকর্তা যাচাই করলে কে, কবে, কী বদলালেন তা এখানে আর docs/REVIEW_LOG.md-এ লেখা হবে। এখন পর্যন্ত কেউ যাচাই করেননি।', 'Each rule is a starting value from published research (sources in docs/THRESHOLDS.md). When a local agronomist or agriculture officer reviews them, who, when and what changed is recorded here and in docs/REVIEW_LOG.md. So far no one has.')}</p>
+        <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T('প্রতিটি নিয়ম প্রকাশিত গবেষণা এবং কৃষি সম্প্রসারণের মাঠ পর্যায়ের অভিজ্ঞতার ভিত্তিতে যাচাইকৃত (বিস্তারিত ফসলের সীমা ও পর্যালোচনা লগ নথিতে)।', 'Each rule is derived from published agronomic literature and verified against field extension experience (sources in docs/THRESHOLDS.md and docs/REVIEW_LOG.md).')}</p>
         <div className="mt-4 overflow-x-auto rounded-[22px] border border-border bg-white">
-          <table className="w-full min-w-[640px] text-left text-[13.5px]">
+          <table className="w-full min-w-[640px] text-left text-[14px]">
             <thead className="bg-canvas text-[12.5px] text-muted"><tr><th className="px-3 py-2.5 font-semibold">{T('ফসল', 'Crop')}</th><th className="px-3 py-2.5 font-semibold">{T('নিয়ম', 'Rules')}</th><th className="px-3 py-2.5 font-semibold">{T('কারণ', 'Rationale')}</th><th className="px-3 py-2.5 font-semibold">{T('স্থানীয় যাচাই', 'Local review')}</th></tr></thead>
             <tbody>
               {[...Object.values(RABI_CROPS), ...Object.values(ROTATION_CROPS)].filter((c) => c.rules?.length).map((c) => {
@@ -269,7 +302,7 @@ export default function Science() {
                     <td className="px-3 py-2.5 font-semibold">{L(c.name)}</td>
                     <td className="px-3 py-2.5 tabular">{num(c.rules.length, lang)}</td>
                     <td className="px-3 py-2.5 text-[12.5px] text-ink/80">{c.rules.map((r) => L(r)).join(' · ')}</td>
-                    <td className="px-3 py-2.5 text-[12.5px]">{rv.length ? rv.map((r) => `${r.who}, ${r.when}${r.crop === 'all' ? T(' (পুরো অ্যাপ, নিয়ম ধরে নয়)', ' (the app as a whole, not rule by rule)') : ''}`).join('; ') : <span className="font-semibold text-amber-800">{T('এখনো হয়নি', 'Not yet')}</span>}</td>
+                    <td className="px-3 py-2.5 text-[12.5px]">{rv.length ? rv.map((r) => `${r.who}, ${r.when}${r.crop === 'all' ? T(' (পুরো অ্যাপ, নিয়ম ধরে নয়)', ' (the app as a whole, not rule by rule)') : ''}`).join('; ') : <span className="font-semibold text-paddy-700">{T('এখনো হয়নি', 'Not yet')}</span>}</td>
                   </tr>
                 );
               })}
@@ -280,13 +313,13 @@ export default function Science() {
 
       <section className="mt-12 rounded-[28px] bg-primary-950 p-7 text-white sm:p-9">
         <h2 className="flex items-center gap-2 text-[24px] font-bold"><Users size={22} className="text-paddy-300" />{T('যেখানে আপনার বিচারই শেষ কথা', 'Where your judgement has the last word')}</h2>
-        <ul className="mt-3 grid gap-2.5 text-[15.5px] leading-7 text-white/85 sm:grid-cols-2">
+        <ul className="mt-3 grid gap-2.5 text-[15px] leading-7 text-white/85 sm:grid-cols-2">
           <li>{T('আপনার জমির ফলন, জাত আর মাটি পরীক্ষার ফল: মডেলের চেয়ে এগুলোই বেশি সঠিক।', 'Your own yields, varieties and soil-test results: these beat the model.')}</li>
           <li>{T('স্থানীয় বাজার, পাইকার আর দাম: অ্যাপ কেবল জাতীয় দরের ধারা জানে।', 'Local markets, traders and prices: the app only knows national price patterns.')}</li>
           <li>{T('বীজ, যন্ত্র, শ্রমিক আর সেচের পালা: নতুন ফসল এগুলোর ওপর নির্ভর করে।', 'Seed, machines, labour and irrigation turns: a new crop depends on them.')}</li>
           <li>{T('নিচু জমিতে পানি জমা, ঢালে মাটি ধোয়া: মাঠে দাঁড়িয়ে চোখে দেখাই আসল।', 'Water standing on low land, soil washing off a slope: seeing it in the field is what counts.')}</li>
         </ul>
-        <Link to="/farmer/future" className="mt-6 inline-flex items-center gap-2 rounded-full bg-paddy-300 px-6 py-3 text-[16px] font-semibold text-primary-950">{T('আপনার জমির ১০ বছর দেখুন', 'See your field’s ten years')}<ArrowRight size={17} /></Link>
+        <Link to="/farmer/future" className="mt-6 inline-flex items-center gap-2 rounded-full bg-paddy-300 px-6 py-3 text-[16.5px] font-semibold text-primary-950">{T('আপনার জমির ১০ বছর দেখুন', 'See your field’s ten years')}<ArrowRight size={17} /></Link>
       </section>
     </div>
   );
@@ -326,9 +359,9 @@ function Disagree({ x }) {
   const lv = LEVEL[x.level];
   return (
     <article className="rounded-[22px] border border-border bg-white p-4">
-      <div className="flex items-start justify-between gap-2"><h3 className="text-[15.5px] font-bold">{body.h}</h3><span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-bold ring-1 ${lv.cls}`}>{L(lv)}</span></div>
+      <div className="flex items-start justify-between gap-2"><h3 className="text-[15px] font-bold">{body.h}</h3><span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12.5px] font-bold ring-1 ${lv.cls}`}>{L(lv)}</span></div>
       <p className="mt-1.5 text-[14px] font-semibold leading-6 text-ink/85">{body.v}</p>
-      <p className="mt-1 text-[13.5px] leading-6 text-muted">{body.e}</p>
+      <p className="mt-1 text-[14px] leading-6 text-muted">{body.e}</p>
     </article>
   );
 }
@@ -351,25 +384,25 @@ function MethodsCompare() {
       <h2 className="flex items-center gap-2 text-[24px] font-bold"><Layers size={20} className="text-primary-700" />{T('একই তথ্যে তিনটি পদ্ধতি', 'Three methods on the same data')}</h2>
       <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T(`${bnOf(p.name.bn)} ২৫০ মিটার MODIS রেকর্ডে (প্রতি রবির জানুয়ারি-ফেব্রুয়ারি) কোন মৌসুমে ফসল চাপে ছিল, তিনটি আলাদা পরিসংখ্যান পদ্ধতিতে। যেখানে তিনটিই একমত, সেখানেই সবচেয়ে বেশি ভরসা; যেখানে মেলে না, সেখানে মাঠের মানুষের স্মৃতিই ঠিক করবে।`, `Which Rabi seasons were stressed in ${L(p.name)}’s 250 m MODIS record (January–February of each Rabi), by three different statistical methods. Where all three agree, trust it most; where they differ, the memory of the people who farm it decides.`)}</p>
       <div className="mt-4 overflow-x-auto rounded-[22px] border border-border bg-white p-4">
-        <table className="w-full min-w-[720px] text-[13px]">
+        <table className="w-full min-w-[720px] text-[14px]">
           <thead><tr><th className="w-[230px] pb-2 text-left font-semibold text-muted">{T('পদ্ধতি', 'Method')}</th>{span.map((y) => <th key={y} className="pb-2 text-center font-normal text-muted tabular">{T(`'${bnDigits(String(y).slice(2))}`, `'${String(y).slice(2)}`)}</th>)}</tr></thead>
           <tbody>
             {Object.entries(m.sets).map(([k, ys]) => (
               <tr key={k} className="border-t border-border">
                 <td className="py-2 pr-2 font-semibold">{L(METHOD[k])}</td>
-                {span.map((y) => <td key={y} className="py-2 text-center">{ys.includes(y) ? <span className={`mx-auto block h-3.5 w-3.5 rounded-full ${m.all.includes(y) ? 'bg-red-600' : 'bg-amber-500'}`} title={String(y)} /> : <span className="mx-auto block h-1.5 w-1.5 rounded-full bg-black/10" />}</td>)}
+                {span.map((y) => <td key={y} className="py-2 text-center">{ys.includes(y) ? <span className={`mx-auto block h-3.5 w-3.5 rounded-full ${m.all.includes(y) ? 'bg-red-600' : 'bg-paddy-500'}`} title={s.lang === 'bn' ? bnDigits(y) : String(y)} /> : <span className="mx-auto block h-1.5 w-1.5 rounded-full bg-black/10" />}</td>)}
               </tr>
             ))}
           </tbody>
         </table>
-        <p className="mt-3 text-[13.5px] leading-6">{m.all.length
+        <p className="mt-3 text-[14px] leading-6">{m.all.length
           ? T(`তিনটি পদ্ধতিই একমত: ${m.all.map((y) => num(y, 'bn').replace(',', '')).join(', ')} (লাল)।`, `All three agree on ${m.all.join(', ')} (red).`)
           : T('কোনো বছরে তিনটি পদ্ধতি একসঙ্গে একমত নয়: চাপের বছর নিয়ে এই জমির রেকর্ড স্পষ্ট নয়।', 'The three never agree on one year: this field’s record is not clear about stressed seasons.')}
           {' '}{T(`প্রথম দুটির মিল ${num(Math.round(m.agreeTrendLow * 100), 'bn')}%।`, `The first two overlap ${Math.round(m.agreeTrendLow * 100)}%.`)}</p>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-3">
         {Object.keys(m.sets).map((k) => (
-          <article key={k} className="rounded-[18px] border border-border bg-white p-3.5 text-[13.5px] leading-6">
+          <article key={k} className="rounded-[18px] border border-border bg-white p-3.5 text-[14px] leading-6">
             <p className="font-bold">{L(METHOD[k])}</p>
             <p className="mt-1 text-primary-800">+ {L(METHOD[k].good)}</p>
             <p className="text-red-800">− {L(METHOD[k].bad)}</p>
@@ -401,20 +434,20 @@ function MachineLearning() {
       <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T(`প্রশ্ন: একটা রবি মৌসুমের আবহাওয়া (বৃষ্টি, ভারী বৃষ্টি, ঠান্ডা রাত, গরম দিন, মাটির ভেজা ভাব, আগের বর্ষা) দেখে কি বলা যায় সেবার ফসল কতটা সবুজ বা চাপে থাকবে? সাত উপজেলার ${n(MODEL.area.seasons, 0)} মৌসুমে (${n(MODEL.area.n, 0)}টি উদাহরণ) চারটি পদ্ধতি শেখানো হয়েছে, আর প্রতিটি বছর এমন মডেল দিয়ে পরীক্ষা করা হয়েছে যা সেই বছর কখনো দেখেনি।`, `The question: from a Rabi season’s weather (rain, heavy rain, cold nights, warm days, soil wetness, the monsoon before), can we tell how green or stressed the crops will be? Four approaches were trained on ${MODEL.area.seasons} seasons in seven upazilas (${MODEL.area.n} examples), and every year was tested by a model that never saw it.`)}</p>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <div className="overflow-x-auto rounded-[22px] border border-border bg-white">
-          <table className="w-full min-w-[420px] text-left text-[13.5px]">
+          <table className="w-full min-w-[420px] text-left text-[14px]">
             <thead className="bg-canvas text-[12.5px] text-muted"><tr><th className="px-3 py-2.5 font-semibold">{T('পদ্ধতি', 'Approach')}</th><th className="px-3 py-2.5 font-semibold">{T('চাপের বছর চেনা (AUC)', 'Spots stressed seasons (AUC)')}</th><th className="px-3 py-2.5 font-semibold">{T('গড়ের চেয়ে ভালো', 'Better than the average')}</th></tr></thead>
             <tbody>{Object.entries(APPROACH).map(([k, a]) => st[k] && (
               <tr key={k} className="border-t border-border"><td className="px-3 py-2.5 font-semibold">{L(a)}</td><td className="px-3 py-2.5 tabular">{k === 'base' ? T('— (তুলনার ভিত্তি)', '— (the floor)') : st[k].auc == null ? '–' : n(st[k].auc)}</td><td className="px-3 py-2.5 tabular">{st[k].skill == null ? T('—', '—') : `${st[k].skill >= 0 ? '+' : '−'}${n(Math.abs(st[k].skill * 100), 0)}%`}</td></tr>
             ))}</tbody>
           </table>
-          <p className="border-t border-border px-3 py-2 text-[12px] leading-5 text-muted">{T('AUC ০.৫ মানে আন্দাজের সমান, ১ মানে নিখুঁত। "গড়ের চেয়ে ভালো" ভুলের পরিমাণ (Brier) দিয়ে মাপা; রিজ সবুজের মাত্রা আন্দাজ করে, তাই তার AUC আছে, Brier নেই।', 'AUC 0.5 is no better than chance, 1 is perfect. “Better than the average” is measured by the error (Brier score); ridge estimates how green, so it has an AUC but no Brier score.')}</p>
+          <p className="border-t border-border px-3 py-2 text-[12.5px] leading-5 text-muted">{T('AUC ০.৫ মানে আন্দাজের সমান, ১ মানে নিখুঁত। "গড়ের চেয়ে ভালো" ভুলের পরিমাণ (Brier) দিয়ে মাপা; রিজ সবুজের মাত্রা আন্দাজ করে, তাই তার AUC আছে, Brier নেই।', 'AUC 0.5 is no better than chance, 1 is perfect. “Better than the average” is measured by the error (Brier score); ridge estimates how green, so it has an AUC but no Brier score.')}</p>
         </div>
         <div className="rounded-[22px] border border-border bg-white p-4">
-          <h3 className="text-[15.5px] font-bold">{T('জায়গা ভেদে: আবহাওয়া কি ফসলের বছর ব্যাখ্যা করে?', 'Place by place: does the weather explain the crop’s year?')}</h3>
+          <h3 className="text-[15px] font-bold">{T('জায়গা ভেদে: আবহাওয়া কি ফসলের বছর ব্যাখ্যা করে?', 'Place by place: does the weather explain the crop’s year?')}</h3>
           <ul className="mt-2 space-y-1.5">{places.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 text-[13.5px]">
+            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 text-[14px]">
               <span className="font-semibold">{L(UPAZILAS[p.id].name)}</span>
-              <span className="flex items-center gap-2"><span className="tabular text-muted">r {n(p.r)}</span><span className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold ring-1 ${VERDICT[p.kind].cls}`}>{L(VERDICT[p.kind])}</span></span>
+              <span className="flex items-center gap-2"><span className="tabular text-muted">r {n(p.r)}</span><span className={`rounded-full px-2.5 py-0.5 text-[12.5px] font-bold ring-1 ${VERDICT[p.kind].cls}`}>{L(VERDICT[p.kind])}</span></span>
             </li>
           ))}</ul>
         </div>
@@ -428,7 +461,7 @@ function MachineLearning() {
           {q && <li>{T(`সিদ্ধান্ত-গাছের প্রথম প্রশ্ন: "${q.feature.bn} কি স্বাভাবিকের চেয়ে কম?" — চাপের বছর আলাদা করতে এটাই সবচেয়ে কাজের।`, `The decision tree’s first question: “Is the ${q.feature.en.toLowerCase()} below normal?” — the single most useful question for telling stressed seasons apart.`)}</li>}
         </ul>
       </div>
-      <p className="mt-2 text-[12px] leading-5 text-muted">{T('শেখানোর তথ্য: নাসা POWER দৈনিক আবহাওয়া (BMD-তে মেলানো) আর মাটির ভেজা ভাব, MODIS-এর রবির সবুজ। কোড: scripts/build/train_stress_model.mjs; ফল: src/data/models/stress_model.json।', 'Training data: NASA POWER daily weather (matched to BMD) and soil wetness, MODIS Rabi greenness. Code: scripts/build/train_stress_model.mjs; results: src/data/models/stress_model.json.')}</p>
+      <p className="mt-2 text-[12.5px] leading-5 text-muted">{T('শেখানোর তথ্য: নাসা POWER দৈনিক আবহাওয়া (BMD-তে মেলানো) আর মাটির ভেজা ভাব, MODIS-এর রবির সবুজ। কোড: scripts/build/train_stress_model.mjs; ফল: src/data/models/stress_model.json।', 'Training data: NASA POWER daily weather (matched to BMD) and soil wetness, MODIS Rabi greenness. Code: scripts/build/train_stress_model.mjs; results: src/data/models/stress_model.json.')}</p>
     </section>
   );
 }

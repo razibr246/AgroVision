@@ -4,6 +4,7 @@
 // Without keys the app keeps using the free Esri imagery.
 import { useEffect, useRef, useState } from 'react';
 import { TileLayer, useMap } from 'react-leaflet';
+import { useStore } from '../../store';
 
 export const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY || '';
 export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
@@ -17,13 +18,14 @@ export const mapboxLayer = () => ({
 
 // ---- Google Map Tiles API: a session token is created once and reused until it expires (about two weeks). ----
 const SESSION_KEY = 'fs360.gmapSession.v1';
-async function googleSession(labels) {
-  const id = labels ? 'hybrid' : 'satellite';
+async function googleSession(labels, lang = 'en') {
+  const locale = lang === 'bn' ? 'bn-BD' : 'en-US';
+  const id = `${labels ? 'hybrid' : 'satellite'}:${locale}`;
   try {
     const cached = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')[id];
     if (cached && cached.expiry * 1000 > Date.now() + 3600e3) return cached.session;
   } catch { /* storage unavailable */ }
-  const body = { mapType: 'satellite', language: 'bn-BD', region: 'BD', scale: 'scaleFactor2x', highDpi: true, ...(labels ? { layerTypes: ['layerRoadmap'] } : {}) };
+  const body = { mapType: 'satellite', language: locale, region: 'BD', scale: 'scaleFactor2x', highDpi: true, ...(labels ? { layerTypes: ['layerRoadmap'] } : {}) };
   const r = await fetch(`https://tile.googleapis.com/v1/createSession?key=${GOOGLE_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!r.ok) throw new Error(`Google session ${r.status}`);
   const j = await r.json();
@@ -37,16 +39,18 @@ async function googleSession(labels) {
 
 // Google satellite (with Google's own road/place labels when `labels` is on). Shows the copyright Google
 // returns for the current view, and reports how far the imagery really goes here through onMaxZoom.
-export function GoogleSatelliteLayer({ labels, maxZoom, nativeZoom = 22, onMaxZoom, onError }) {
+export function GoogleSatelliteLayer({ labels, lang: langProp, maxZoom, nativeZoom = 22, onMaxZoom, onError }) {
   const map = useMap();
+  const store = useStore();
+  const lang = langProp || store?.s?.lang || 'en';
   const [session, setSession] = useState(null);
   const shown = useRef('');
   useEffect(() => {
     let alive = true;
     setSession(null);
-    googleSession(labels).then((s) => alive && setSession(s)).catch(() => alive && onError?.());
+    googleSession(labels, lang).then((s) => alive && setSession(s)).catch(() => alive && onError?.());
     return () => { alive = false; };
-  }, [labels]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [labels, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!session) return undefined;

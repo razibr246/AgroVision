@@ -1,7 +1,7 @@
 // Season planner: field → weather → soil → priorities → recommendation → next crop → price-drop check.
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, MapPin, LineChart, Layers, SlidersHorizontal, Sprout, RefreshCw, TrendingDown, Droplets, Wheat, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, LineChart, Layers, SlidersHorizontal, Sprout, RefreshCw, TrendingDown, Droplets, Wheat, Check, Sparkles } from 'lucide-react';
 import { useStore } from '../../store';
 import { StepField, StepClimate, StepSoil, StepPriorities } from './steps/StepsA';
 import { StepDecision, StepRotation, StepGlut } from './steps/StepsB';
@@ -42,6 +42,23 @@ export default function Plan() {
           </div>
           <span className="shrink-0 text-[14px] text-muted">{T(`${num(steps.length, 'bn')} ধাপের ${num(i + 1, 'bn')} নম্বর`, `Step ${i + 1} of ${steps.length}`)}</span>
         </div>
+        {s.farmerMode === 'simple' && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-emerald-400/50 bg-emerald-50/80 p-3.5 text-emerald-950 shadow-xs">
+            <div className="flex items-center gap-2">
+              <Sparkles size={18} className="text-emerald-700 shrink-0 animate-pulse" />
+              <span className="text-[14px] font-bold">
+                {T('সহজ মোড: ধাপ ৫-এ আপনার জমির জন্য সেরা ফসলের সুপারিশ সরাসরি দেখে নিন।', 'Simple mode: jump straight to Step 5 to view your direct crop recommendation.')}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => go(4)}
+              className="rounded-xl bg-emerald-800 text-white px-3.5 py-1.5 text-[13px] font-bold shadow-2xs hover:bg-emerald-900 cursor-pointer"
+            >
+              {T('সুপারিশে যান', 'Go to recommendation')} →
+            </button>
+          </div>
+        )}
         {/* Gold progress: a glowing fill that glides on a spring, a light sweeping across it and a bright bead at its tip. */}
         <div className="gold-track relative mb-1 h-2.5 rounded-full" aria-hidden="true">
           <div className="gold-fill progress-sheen h-full rounded-full" style={{ width: `${((i + 1) / steps.length) * 100}%` }} />

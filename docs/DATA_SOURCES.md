@@ -32,6 +32,8 @@ a tag: **NASA/real data**, **rule** (our calculation or threshold), **AI**, or *
 | `src/data/climate/station_normals.json` | Real | NOAA NCEI / WMO Climate Normals 1991–2020 for the nearest BMD stations | https://www.ncei.noaa.gov/products/wmo-climate-normals | 2026-10 | Corrects POWER temperatures to the nearest station before use (`stationCorrect` in `src/engine/climate.js`) |
 | Last ~80 days of weather (not stored) | Real | NASA POWER, called live from the browser; falls back to the files above | as above | live | "This season so far" |
 | HLS 30 m satellite photos (not stored) | Real | NASA GIBS WMTS, `HLS_S30_Nadir_BRDF_Adjusted_Reflectance` | https://nasa-gibs.github.io/gibs-api-docs/ | live | Field map photos |
+| `public/trends/{grace,smap,green}/<year>.png` and `meta.json`: the Trends map's yearly fields over 19.2–31.8° N, 66.5–97.5° E (GRACE 2003–2022 at 0.25°, SMAP 2016–2026 at 0.1°, MODIS Rabi 2001–2026 at 0.05°), Web Mercator | Real | NASA GIBS WMS `GRACE_Tellus_Liquid_Water_Equivalent_Thickness_Mascon_CRI` (monthly; yearly mean, 8+ months, cm against 2004–2009), `SMAP_L4_Analyzed_Root_Zone_Soil_Moisture` (8th and 22nd of each month; yearly mean with 10+ months against each pixel's own mean, %), `MODIS_Terra_L3_NDVI_Monthly` (December–March mean against each pixel's own linear trend, z; Rabi NDVI under 0.15 left blank); pixels turned back into values with each layer's GIBS colour map, as for the points | https://nasa-gibs.github.io/gibs-api-docs/ (`npm run fetch:trend-fields`) | 2026-11-11 | Science "Trends" map, under the points. GRACE mascons are about 3° (300 km) blocks: the field shows regions, not fields |
+| `public/textures/earth/{day,night,clouds}.jpg`: whole-Earth pictures, 4096×2048 (clouds 2048×1024), and `meta.json` (cloud day) | Real | NASA GIBS WMS global images: `BlueMarble_NextGeneration` (day), `VIIRS_Black_Marble` (2016 night lights), `VIIRS_NOAA20_CorrectedReflectance_TrueColor` for one day (clouds; the globe shader keeps only bright colourless pixels, and drops Blue Marble ice) | https://nasa-gibs.github.io/gibs-api-docs/ (`npm run fetch:earth`) | 2026-11-11 (clouds of 2026-11-09) | Science page satellite simulator globe. A picture, not data the engine reads |
 
 ## Radar, satellites and land
 
@@ -91,3 +93,14 @@ a tag: **NASA/real data**, **rule** (our calculation or threshold), **AI**, or *
   Rajshahi, Barishal and Dinajpur (`scripts/onset/compare_bmd.mjs`); Sylhet and Chattogram are not yet checked.
 - **Giovanni rain check** (`scripts/fetch/giovanni.mjs`) is written but needs an Earthdata token to run.
 - **Farmers and requests** are sample people.
+- **Field boundaries**: no field in `parcels.json` has a real (measured) boundary. For the demo each sample field is drawn
+  with a **sample outline** (`src/data/fields/sample_shapes.json`, `npm run data:field-shapes`): the edge of a real field
+  seen in the Esri photo near its pin, found by `src/engine/fielddetect.js` or hand-traced along visible edges where the
+  finder picked a bad patch (`scripts/build/sample_field_traces.json`). The app labels it "নমুনা সীমানা (ডেমো)" and never
+  calls it measured; the satellite reading still covers the window round the pin. A boundary enters only through the field's "real boundary and size" card (walked with phone
+  GPS, traced on the satellite photo (tapping the field finds its edge in the Esri photo for the person to check, `src/engine/fielddetect.js`),
+  a surveyor's coordinates, or a GeoJSON/KML file), is stored with its source and
+  position error, and is "verified" only when surveyed and checked by the office (`src/engine/landgeom.js`). No
+  cadastral (mouza / dag) GIS data is bundled: DLRS mouza maps are not openly available as GIS files, so surveyed
+  boundaries need the land office or a surveyor. Boundaries live in this browser's demo state until a database is
+  connected (schema in `db/postgis/parcels.sql`).

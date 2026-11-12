@@ -4,8 +4,9 @@
 // warnings on the phone. The 3D world lives in src/game/three; the rules in src/game/sim.js.
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Music, Gauge, Coins, Droplets, ShoppingBasket, Satellite, Smartphone, Volume2, VolumeX, Hand, Sun, Moon, CloudLightning, Bug, TrendingDown, Star, RotateCcw, Users, Sprout, Check, X, ArrowRight, Sparkles, Info, Pause, Play, LogOut, MapPin, ShieldAlert, Footprints, Keyboard, Globe2, Glasses, View, Camera, SlidersHorizontal } from 'lucide-react';
+import { Music, Gauge, Coins, Droplets, ShoppingBasket, Satellite, Smartphone, Volume2, VolumeX, Hand, Sun, Moon, CloudLightning, Bug, TrendingDown, Star, RotateCcw, Users, Sprout, Check, X, ArrowRight, Sparkles, Info, Pause, Play, LogOut, MapPin, ShieldAlert, Footprints, Keyboard, Globe2, Glasses, View, Camera, SlidersHorizontal, Languages } from 'lucide-react';
 import { useStore } from '../../store';
+import { LangToggle } from '../../components/chrome.jsx';
 import { scrollToTop } from '../../components/Motion';
 import { num } from '../../engine/dates';
 import { bnOf } from '../../engine/text';
@@ -13,6 +14,9 @@ import { REGIONS, FARMER_IDS, BD_IDS, ABROAD_IDS, QUESTS, SAT_LAYERS, STEP_LABEL
 import { sliderMods, seasonReport, nextTry } from '../../game/fieldshift';
 import { FERT, buyFertilizer, fertilize, priceTrend } from '../../game/village';
 import { SAVE_KEY, saveState, restoreState } from '../../game/savegame';
+import GameHelper from '../../components/chakra/GameHelper';
+import ChakraLogo from '../../components/chakra/ChakraLogo';
+import { JOBS } from '../../game/helper';
 import { SETTINGS_KEY, SETTING_RANGES, DEFAULT_SETTINGS, parseSettings, cleanSetting, isDefault } from '../../game/settings';
 import { CAREER_KEY, emptyCareer, recordSeason, rankOf, startPerks, ACHIEVEMENTS, UNLOCKS, RANKS } from '../../game/career';
 // the FieldShift station brings the place's NASA records and the rotation engine: loaded when it is first opened
@@ -23,6 +27,7 @@ import { createStage, createPreview, portraits, xrModes, lightGraphics, QUALITY_
 import { play, setMuted, startAmbience, stopAmbience, setScene, setMusic } from '../../game/sound';
 import { GAMES } from '../../data/games';
 import usePageMeta from '../../components/usePageMeta';
+import OfficePanel from '../../components/game/OfficePanel';
 
 const MUTE_KEY = 'fs360.game.muted';
 const MUSIC_KEY = 'fs360.game.music';
@@ -91,10 +96,16 @@ function usePortraits() {
   const [pics, setPics] = useState(portraitCache);
   useEffect(() => {
     if (portraitCache) return;
+    let alive = true;
     // drawn when the browser is idle, so the picker opens first
     const ric = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 60));
-    const t = ric(() => { try { portraitCache = portraits(FARMER_IDS.map((id) => REGIONS[id].farmer.look)); setPics(portraitCache); } catch { /* no WebGL */ } }, { timeout: 1200 });
-    return () => (window.cancelIdleCallback ?? clearTimeout)(t);
+    const t = ric(() => {
+      portraits(FARMER_IDS.map((id) => REGIONS[id].farmer.look)).then((pictures) => {
+        portraitCache = pictures;
+        if (alive) setPics(pictures);
+      }).catch(() => { /* no WebGL */ });
+    }, { timeout: 1200 });
+    return () => { alive = false; (window.cancelIdleCallback ?? clearTimeout)(t); };
   }, []);
   return pics;
 }
@@ -103,23 +114,27 @@ const stage = (cc) => `radial-gradient(110% 80% at 50% 85%, ${TONE[cc][0]}55, tr
 
 function SelectScreen({ who, setWho, onGo, onResume }) {
   const { T, L } = useStore();
-  usePageMeta(L(GAMES.farm.name), GAMES.farm.seo.en);
+  usePageMeta(L(GAMES.farm.name), T('ফসলের দিগন্ত: একটি ৩ডি জলবায়ু-স্মার্ট কৃষি খেলা। দক্ষিণ এশিয়া, যুক্তরাষ্ট্র, ব্রাজিল ও স্পেনের ১৫ জন কৃষকের একজন হয়ে খেলুন; আসল নাসা আবহাওয়ায় বীজ বপন করুন, সেচ দিন, পোকামাকড় ও ঝড় সামলান এবং বাজারে বিক্রি করুন।', GAMES.farm.seo.en));
   const pics = usePortraits();
   const best = readBest();
   const won = FARMER_IDS.filter((id) => best[id]).length;
   const [light, setLight] = useState(lightGraphics); // a weak phone starts on light graphics
+  const [previewMood, setPreviewMood] = useState('idle'); // idle | walk
   const setQuality = (v) => { setLight(v); try { localStorage.setItem(QUALITY_KEY, v ? 'light' : 'full'); } catch { /* storage unavailable */ } };
   const R = REGIONS[who], F = R.farmer;
   return (
     <section className="scene-in field-folk-select">
-      <div className="max-w-3xl">
+      <div className="flex flex-wrap items-center justify-between gap-3 max-w-3xl">
         <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Globe2 size={15} />{T('খামারের খেলা · ১৫টি নমুনা চরিত্র, ৯ দেশ', 'The farm game · 15 sample characters, 9 countries')}</p>
+        <LangToggle glass />
+      </div>
+      <div className="max-w-3xl">
         <h1 className="mt-4 text-[40px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[56px]">{L(GAMES.farm.name)} <span className="bg-[linear-gradient(100deg,#1e5c22_0%,#3d8c34_40%,#1d717a_100%)] bg-clip-text text-transparent">3D</span></h1>
         <p className="mt-3 max-w-2xl text-[17px] leading-[1.65] text-ink/70">{T('বাংলাদেশ, প্রতিবেশী পাঁচ দেশ, যুক্তরাষ্ট্র, ব্রাজিল আর স্পেনের বাস্তব এলাকার পোশাক, ফসল আর বিপদের অনুপ্রেরণায় তৈরি ১৫টি নমুনা কৃষক-চরিত্র। একজনকে বেছে নিন, সিমুলেটেড মাঠে নামুন, আর একটি মৌসুম পার করুন।', 'Fifteen sample farmer characters inspired by real regions across Bangladesh, five neighbouring countries, the USA, Brazil and Spain. Choose one, land in a simulated field, and play through a season.')}</p>
       </div>
       <Link to="/saga" className="mt-5 flex items-center gap-3 rounded-2xl border border-paddy-300/70 bg-paddy-50 p-4 text-[15px] font-semibold text-primary-950 transition hover:-translate-y-0.5 hover:shadow-md">
         <Sparkles size={20} className="shrink-0 text-paddy-600" />
-        <span className="min-w-0 flex-1">{T('গল্পের অভিযান: রাজিবের "দশ বছরের উত্তরাধিকার", ধামরাইয়ের আসল তিন মৌসুমে', 'Story campaign: Razib’s “Ten-Year Inheritance”, in three real Dhamrai seasons')}</span>
+        <span className="min-w-0 flex-1">{T('গল্পের অভিযান খেলুন: আসল আবহাওয়ার তিন মৌসুমে জমি সামলান', 'Play the story campaign: three seasons of real weather')}</span>
         <ArrowRight size={18} className="shrink-0" />
       </Link>
       <div className="mt-7 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
@@ -127,14 +142,35 @@ function SelectScreen({ who, setWho, onGo, onResume }) {
         <div className="field-folk-portrait relative min-h-[500px] overflow-hidden rounded-[30px] text-white shadow-[var(--shadow-lift)] lg:sticky lg:top-24 lg:self-start lg:h-[min(680px,calc(100svh-120px))]" style={{ background: stage(R.country) }}>
           {/* subtle animated radial glow behind the character */}
           <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(55% 55% at 50% 90%, ${TONE[R.country][0]}55 0%, transparent 70%)`, animation: 'fade-in 1.2s ease both' }} />
-          <div className="absolute inset-x-0 bottom-0 top-8"><Preview id={who} mood="idle" /></div>
-          <div className="relative p-5 sm:p-6">
+          <div className="absolute top-4 right-4 z-10 flex gap-1 rounded-full bg-black/45 p-1 backdrop-blur-md ring-1 ring-white/20">
+            {[['idle', T('শান্ত', 'Idle')], ['walk', T('হাঁটা', 'Walk')]].map(([m, label]) => (
+              <button
+                key={m}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setPreviewMood(m); play('tap'); }}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all cursor-pointer ${previewMood === m ? 'bg-white text-ink shadow-sm' : 'text-white/80 hover:text-white'}`}
+                title={T(`চরিত্রের ${label} অঙ্গভঙ্গি দেখুন`, `Preview character in ${label} animation`)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="absolute inset-x-0 bottom-0 top-8"><Preview id={who} mood={previewMood} /></div>
+          <div className="pointer-events-none absolute inset-0 z-[1] [background:radial-gradient(70%_45%_at_0%_0%,rgba(0,0,0,.5),rgba(0,0,0,.18)_55%,transparent_100%)]" />
+          {/* the name and tags over a soft shadow from the corner: no box edge across the farmer */}
+          <div className="relative z-[1] max-w-[62%] p-5 pb-10 [text-shadow:0_1px_8px_rgba(0,0,0,.55)] sm:p-6 sm:pb-12">
             <p className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[.12em] text-white/70"><span className="text-[20px]">{R.flag}</span>{L(R.place)}</p>
             <p className="font-display mt-1 text-[34px] font-bold leading-tight sm:text-[40px]">{L(F)}</p>
             <p className="text-[15px] text-white/75 mt-0.5">{F.local ? `${F.local} · ` : ''}{L(F.trait)}</p>
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+              <span className="rounded-full bg-emerald-500/30 px-2 py-0.5 font-bold text-emerald-200 ring-1 ring-emerald-400/40">{T('MakeHuman 3D রিগ', 'MakeHuman 3D Rig')}</span>
+              <span className="rounded-full bg-white/15 px-2 py-0.5 font-semibold text-white/90">{T(`বয়স ${num(F.age || 40, 'bn')} বছর`, `Age ${F.age || 40}y`)}</span>
+              <span className="rounded-full bg-white/15 px-2 py-0.5 font-semibold text-white/90">{T(`গতি ${num(F.speed || 3.8, 'bn', { dp: 1 })} মি/সে`, `Speed ${F.speed || 3.8} m/s`)}</span>
+              {F.skill && <span className="rounded-full bg-amber-400/20 px-2 py-0.5 font-semibold text-amber-200 ring-1 ring-amber-300/30">{L(F.skill)}</span>}
+            </div>
           </div>
           {/* bottom info strip */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-5 pt-20 sm:p-6 sm:pt-24">
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent p-5 pt-20 sm:p-6 sm:pt-24">
             <div className="flex flex-wrap gap-1.5">{F.dress.map((d) => <span key={d.en} className="rounded-full bg-white/15 px-2.5 py-1 text-[12.5px] font-semibold ring-1 ring-white/20 backdrop-blur">{L(d)}</span>)}</div>
             <p className="mt-2.5 flex items-start gap-2 text-[14px] leading-6 text-white/85"><ShieldAlert size={16} className="mt-0.5 shrink-0 text-amber-300" />{L(R.place.hazard)}</p>
           </div>
@@ -148,9 +184,9 @@ function SelectScreen({ who, setWho, onGo, onResume }) {
                   const r = REGIONS[id], on = id === who, n = FARMER_IDS.indexOf(id);
                   return (
                     <button key={id} type="button" onClick={() => { setWho(id); play('tap'); }} aria-pressed={on} style={{ '--n': n }}
-                      className={`field-folk-choice surface-card lift group flex items-center gap-2.5 rounded-[20px] p-2.5 pr-3 text-left transition-all duration-200 active:scale-[0.97] ${on ? 'is-selected ring-2 ring-primary-600 !bg-white shadow-lg' : 'border border-border/70 bg-white/75 hover:bg-white hover:border-primary-300 hover:shadow-sm'}`}>
-                      <span className="relative grid h-[64px] w-[56px] shrink-0 place-items-end overflow-hidden rounded-[14px] shadow-sm" style={{ background: stage(r.country) }}>
-                        {pics ? <img src={pics[n]} alt="" className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-110" /> : <span className="m-auto text-[26px]">{r.flag}</span>}
+                      className={`field-folk-choice surface-card cv-auto lift group flex items-center gap-2.5 rounded-[20px] p-2.5 pr-3 text-left transition-all duration-200 active:scale-[0.97] ${on ? 'is-selected ring-2 ring-primary-600 !bg-white shadow-lg' : 'border border-border/70 bg-white/75 hover:bg-white hover:border-primary-300 hover:shadow-sm'}`}>
+                      <span className="relative grid h-[82px] w-[68px] shrink-0 place-items-end overflow-hidden rounded-[14px] shadow-sm" style={{ background: stage(r.country) }}>
+                        {pics ? <img src={pics[n]} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-110" /> : <span className="m-auto text-[26px]">{r.flag}</span>}
                         {on && <span className="absolute inset-0 rounded-[14px] ring-2 ring-primary-500" />}
                       </span>
                       <span className="min-w-0 flex-1">
@@ -191,7 +227,7 @@ function Words({ text, step = 45 }) {
 }
 
 function BriefScreen({ who, onDone, onBack }) {
-  const { T, L, s } = useStore();
+  const { T, L, s, dispatch } = useStore();
   const [i, setI] = useState(0);
   const R = REGIONS[who], F = R.farmer;
   const line = L(R.intro[i]).replace('{name}', s.lang === 'bn' ? F.bn : F.en);
@@ -200,14 +236,25 @@ function BriefScreen({ who, onDone, onBack }) {
     <section className="scene-in mx-auto max-w-5xl">
       <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[400px] overflow-hidden rounded-[30px] shadow-[var(--shadow-lift)]" style={{ background: stage(R.country) }}>
-          <div className="absolute inset-0"><Preview id={who} mood={last ? 'cheer' : 'idle'} /></div>
+          <div className="absolute inset-0"><Preview id={who} mood="idle" /></div>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 50%)' }} />
           <p className="absolute left-5 top-4 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[.14em] text-white/80"><span className="text-[18px]">{R.flag}</span>{L(R.place.area)}</p>
           <p className="absolute bottom-4 left-5 right-5 text-[22px] font-bold text-white leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,.5)]">{L(R.farmer)}</p>
         </div>
         <div className="flex flex-col gap-3">
           <div className="glass rounded-[26px] !bg-white/90 p-5 sm:p-6" aria-live="polite">
-            <p className="text-[13px] font-semibold uppercase tracking-wide text-primary-700">{L(F)} · {T(`${num(i + 1, 'bn')}/${num(R.intro.length, 'bn')}`, `${i + 1}/${R.intro.length}`)}</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[13px] font-semibold uppercase tracking-wide text-primary-700">{L(F)} · {T(`${num(i + 1, 'bn')}/${num(R.intro.length, 'bn')}`, `${i + 1}/${R.intro.length}`)}</p>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: 'set', patch: { lang: s.lang === 'bn' ? 'en' : 'bn' } })}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 text-[12px] font-bold text-ink shadow-xs hover:bg-slate-50 transition cursor-pointer"
+                title={s.lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}
+              >
+                <Languages size={13} className="text-primary-700" />
+                <span>{s.lang === 'bn' ? 'English' : 'বাংলা'}</span>
+              </button>
+            </div>
             <p key={`${who}${i}`} className="mt-2 min-h-[100px] text-[20px] leading-[1.7] text-ink sm:text-[22px]"><Words text={line} /></p>
             <div className="mt-3 flex gap-1.5">{R.intro.map((_, k) => <span key={k} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${k <= i ? 'bg-primary-600' : 'bg-black/10'}`} />)}</div>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
@@ -224,13 +271,13 @@ function BriefScreen({ who, onDone, onBack }) {
             </div>
             <div className="glass rounded-[22px] p-4">
               <p className="flex items-center gap-1.5 text-[13px] font-semibold text-primary-700"><Sprout size={14} />{T('ফসল', 'Crops')}</p>
-              <ul className="mt-2 space-y-1 text-[14px] text-ink/80">{Object.values(R.crops).map((c) => <li key={c.en}>· {L(c)} <span className="text-muted">— {R.cur}{c.cost} → {R.cur}{c.price}</span></li>)}</ul>
+              <ul className="mt-2 space-y-1 text-[14px] text-ink/80">{Object.values(R.crops).map((c) => <li key={c.en}>· {L(c)} <span className="text-muted">— {R.cur}{num(c.cost, s.lang)} → {R.cur}{num(c.price, s.lang)}</span></li>)}</ul>
               <p className="mt-2 flex items-start gap-1.5 text-[13px] text-red-700"><ShieldAlert size={14} className="mt-0.5 shrink-0" />{L(R.storm)}</p>
             </div>
           </div>
           <div className="glass flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[22px] px-4 py-3 text-[13px] text-ink/75">
             <span className="flex items-center gap-1.5 font-semibold text-ink"><Keyboard size={14} />{T('নিয়ন্ত্রণ', 'Controls')}</span>
-            <span>WASD / ↑↓←→ {T('হাঁটা', 'walk')}</span><span>Shift / R {T('ধরে দৌড় / টগল', 'hold to run / toggle')}</span><span>E / F / Space {T('কাজ', 'act')}</span><span>{T('মাউস টেনে চারপাশ দেখা', 'drag to look')}</span><span>1–4 {T('বীজ', 'seed')}</span><span>N {T('উপগ্রহ', 'satellite')}</span><span>Esc {T('বিরতি', 'pause')}</span><span>{T('গেমপ্যাড: A কাজ · B পেছনে · X উপগ্রহ · Y FieldShift · LB/RB বীজ · Start বিরতি', 'Gamepad: A act · B back · X satellite · Y FieldShift · LB/RB seed · Start pause')}</span>
+            <span>WASD / ↑↓←→ {T('হাঁটা', 'walk')}</span><span>Shift / R {T('ধরে দৌড় / টগল', 'hold to run / toggle')}</span><span>E / F / Space {T('কাজ', 'act')}</span><span>G {T('অভিবাদন', 'greet')}</span><span>T {T('দম নেওয়া (+৩৫%)', 'rest (+35%)')}</span><span>H {T('মাটি পরখ', 'check soil')}</span><span>{T('মাউস টেনে চারপাশ দেখা', 'drag to look')}</span><span>{T('১–৪ বীজ', '1–4 seed')}</span><span>N {T('উপগ্রহ', 'satellite')}</span><span>Esc {T('বিরতি', 'pause')}</span><span>C {T('চক্র এজেন্ট (সহকারী)', 'Chakra Agent (helper)')}</span><span>{T('গেমপ্যাড: A কাজ · B পেছনে · X উপগ্রহ · Y FieldShift · LB/RB বীজ · Start বিরতি', 'Gamepad: A act · B back · X satellite · Y FieldShift · LB/RB seed · Start pause')}</span>
           </div>
         </div>
       </div>
@@ -244,13 +291,13 @@ const snapshot = (g) => ({
   xp: g.xp ?? 0, level: g.level ?? 1, soilHealth: g.soilHealth ?? 50, carbonScore: g.carbonScore ?? 25,
   quest: g.quest, count: { ...g.count }, ev: { heat: g.ev.heat, storm: g.ev.storm, glut: g.ev.glut, zone: g.ev.zone && { ...g.ev.zone }, flood: g.ev.flood }, day: dayOf(g), night: isNight(g), clock: clock(g), perks: { ...g.perks },
   order: g.order && { ...g.order }, fertilizer: { ...(g.fertilizer ?? {}) }, shower: g.ev.shower ?? 0, showerSoon: g.ev.showerSoon ?? 0, surge: g.market?.surge ?? null,
-  pests: g.plots.filter((p) => p.pests).length, stamina: g.me.stamina, down: g.me.down, target: target(g), won: g.won, ripe: ripeAt(g),
+  pests: g.plots.filter((p) => p.pests).length, stamina: g.me.stamina, running: !!g.me.run, down: g.me.down, target: target(g), won: g.won, ripe: ripeAt(g),
   inZone: g.ev.zone ? Math.hypot(g.me.x - g.ev.zone.x, g.me.z - g.ev.zone.z) <= g.ev.zone.r : false,
 });
 
 export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, resume = false, onEnd, onRestart, onQuit }) {
   const mods = whatIf ? sliderMods(whatIf.dT, whatIf.rain) : modsIn;
-  const { T, L, s } = useStore();
+  const { T, L, s, dispatch } = useStore();
   const lang = s.lang;
   const R = REGIONS[who];
   const cv = useRef(null), overlay = useRef(null), mapRef = useRef(null), compassRef = useRef(null), rootRef = useRef(null);
@@ -282,6 +329,32 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   const [prefs, setPrefs] = useState(() => { try { return parseSettings(localStorage.getItem(SETTINGS_KEY)); } catch { return { ...DEFAULT_SETTINGS }; } });
   const [showSettings, setShowSettings] = useState(false);
   const setPref = (k, v) => setPrefs((p) => ({ ...p, [k]: cleanSetting(k, v) }));
+  // চক্র এজেন্ট on the phone: open or not, the job it is doing, and the conversation
+  const [helperOpen, setHelperOpen] = useState(false);
+  const [helperRun, setHelperRun] = useState(null);
+  const [helperChat, setHelperChat] = useState([]);
+  const say = (m) => setHelperChat((c) => [...c, m].slice(-30));
+  const helperEvent = useRef(null);
+  helperEvent.current = (e) => {
+    if (e.state === 'going') setHelperRun((r) => (r ? { ...r, going: e.step } : r));
+    else if (e.state === 'step') { setHelperRun((r) => (r ? { ...r, steps: e.steps } : r)); say({ text: e.line }); }
+    else if (e.state === 'replaced') return;
+    else {
+      setHelperRun(null);
+      const text = e.state === 'done' ? (e.log.length ? JOBS[e.id].done : { bn: 'এখন এই কাজের দরকার নেই।', en: 'There is nothing to do for that right now.' })
+        : e.state === 'blocked' ? { bn: 'ওখানে পৌঁছাতে পারছি না — পথ আটকে আছে। আপনি একটু কাছে নিয়ে যান।', en: 'I can’t reach it — the way is blocked. Bring me a little closer.' }
+        : e.state === 'taken' ? { bn: 'ঠিক আছে, আপনি নিজে চালাচ্ছেন। দরকার হলে ডাকবেন।', en: 'All right, you’re in control. Call me when you need me.' }
+        : { bn: 'থামলাম।', en: 'Stopped.' };
+      say({ text, ok: e.state === 'done' });
+      if (e.state === 'done' && e.log.length) setToast({ text: { bn: `চক্র: ${JOBS[e.id].done.bn}`, en: `Chakra: ${JOBS[e.id].done.en}` }, k: Math.random() });
+    }
+  };
+  const askHelper = (j, approved) => {
+    say({ me: true, text: j.title });
+    if (!st.current?.runJob(j.id, { approved })) { say({ text: { bn: 'এক মুহূর্ত — মাঠের পথ চিনে নিচ্ছি। আবার বলুন।', en: 'One moment — I’m still learning the paths. Ask again.' } }); return; }
+    setHelperRun({ id: j.id, steps: 0 });
+    say({ text: j.cost > 0 ? { bn: 'অনুমতির জন্য ধন্যবাদ। দোকান থেকে বীজ কিনে বুনে দিচ্ছি।', en: 'Thanks for the OK. I’ll buy the seed and sow it.' } : { bn: 'ঠিক আছে, করে দিচ্ছি। হাঁটলেই আপনি নিয়ন্ত্রণ ফিরে পাবেন।', en: 'On it. Move at any time to take back control.' } });
+  };
   const [photo, setPhoto] = useState(false); // photo mode: the season holds still, the HUD goes, the player frames a picture
   const [flash, setFlash] = useState(0);
   const [idle, setIdle] = useState(false); // desktop: the cursor hides after 1.5 s without moving
@@ -309,7 +382,9 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
           else if (e.type === 'open') { setPanel(e.panel); g.paused = true; }
           else if (e.type === 'introDone') { setIntro(false); if (kit.current?.length) setToast({ text: { bn: `সঙ্গে আছে: ${kit.current.map((u) => u.title.bn).join(' · ')}`, en: `Your kit: ${kit.current.map((u) => u.title.en).join(' · ')}` }, k: Math.random() }); }
           else if (e.type === 'xr') setXr(e.mode);
+          else if (e.type === 'lang') dispatch({ type: 'set', patch: { lang: e.lang } }); // the language button in VR
           else if (e.type === 'pad') padRef.current?.(e.action);
+          else if (e.type === 'helper') helperEvent.current?.(e);
           else if (e.type === 'quest') setBanner({ kind: 'quest', i: e.index, k: Math.random() });
           else if (e.type === 'questDone') setBanner({ kind: 'done', i: e.index, k: Math.random() });
           else if (e.type === 'hurt') setBanner({ kind: 'hurt', fine: e.fine, k: Math.random() });
@@ -334,7 +409,8 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
   useEffect(() => { st.current?.setPrefs(prefs); try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(prefs)); } catch { /* storage unavailable */ } }, [prefs]);
   useEffect(() => { if (!paused) setShowSettings(false); }, [paused]);
   useEffect(() => { setWhy(false); }, [hud.quest]);
-  useEffect(() => { let on = true; xrModes().then((m) => on && setModes(m)); return () => { on = false; }; }, []);
+  // in development, ?xremu=quest3 stands Meta's WebXR emulator in for a headset (game/three/xremu.js; never in the build)
+  useEffect(() => { let on = true; (import.meta.env.DEV ? import('../../game/three/xremu.js').then((m) => m.maybeEmulate()).catch(() => {}) : Promise.resolve()).then(() => xrModes()).then((m) => on && setModes(m)); return () => { on = false; }; }, []);
   const goXR = (mode) => st.current?.enterXR(mode, rootRef.current).catch(() => setToast({ text: { bn: 'এই যন্ত্রে AR/VR চালু করা গেল না', en: 'AR/VR could not start on this device' }, k: Math.random() }));
   const xrBtns = (size) => modes.map((m) => <RoundBtn key={m} onClick={() => goXR(m)} label={m === 'ar' ? T('AR: ঘরের মেঝেতে বা টেবিলে খামার', 'AR: the farm on your table') : T('VR: হেডসেটে নিজের মাঠে দাঁড়ান', 'VR: stand in the field in a headset')}>{m === 'ar' ? <View size={size} /> : <Glasses size={size} />}</RoundBtn>);
   useEffect(() => { const hold = paused || !!panel || photo; st.current?.setPaused(hold); g.paused = hold; }, [paused, panel, photo, g]);
@@ -373,7 +449,11 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       if (/^Digit[1-4]$/.test(e.code)) { g.sel = Object.keys(R.crops)[+e.code.slice(5) - 1]; play('tap'); }
       else if (e.code === 'KeyN') setSat(st.current?.toggleSat() ?? false);
       else if (e.code === 'KeyP') setPhoto(true);
+      else if (e.code === 'KeyC') setHelperOpen((o) => !o);
       else if (e.code === 'KeyR') setRunning((r) => { st.current?.setRun(!r); return !r; });
+      else if (e.code === 'KeyG') { st.current?.emote?.('greet'); }
+      else if (e.code === 'KeyT') { st.current?.emote?.('wipe'); }
+      else if (e.code === 'KeyH') { st.current?.emote?.('soilcheck'); }
     };
     window.addEventListener('keydown', down);
     return () => window.removeEventListener('keydown', down);
@@ -389,11 +469,12 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       const grad = x.createLinearGradient(0, c.height - 120 * u, 0, c.height); grad.addColorStop(0, 'rgba(0,0,0,0)'); grad.addColorStop(1, 'rgba(0,0,0,.55)');
       x.fillStyle = grad; x.fillRect(0, c.height - 120 * u, c.width, 120 * u);
       x.fillStyle = '#fff'; x.textBaseline = 'alphabetic';
-      x.font = `700 ${26 * u}px "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif`;
+      x.font = `700 ${26 * u}px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif`;
       x.fillText(`${L(R.farmer)} · ${L(R.place)}`, pad, c.height - pad - 26 * u);
-      x.font = `500 ${16 * u}px "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif`; x.fillStyle = 'rgba(255,255,255,.8)';
+      x.font = `500 ${16 * u}px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif`; x.fillStyle = 'rgba(255,255,255,.8)';
       x.fillText(`${L(GAMES.farm.name)} · ${T(`দিন ${num(dayOf(g), 'bn')}`, `Day ${dayOf(g)}`)} · FieldShift 360`, pad, c.height - pad);
       const out = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.92));
+      if (!out) throw new Error('Blob creation failed');
       const name = `fieldshift-${(R.farmer.en || 'farm').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-day${dayOf(g)}.jpg`;
       const file = typeof File === 'function' ? new File([out], name, { type: 'image/jpeg' }) : null;
       if (touch && file && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: L(GAMES.farm.name) }).catch(() => {}); return; }
@@ -446,9 +527,11 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       {/* in AR this whole layer is the dom-overlay over the camera; the canvas's last flat frame must not cover it */}
       <canvas ref={cv} className={`g3-unzoom absolute inset-0 h-full w-full touch-none ${xr === 'ar' ? 'invisible' : ''}`} aria-label={T(`${R.farmer.bn}-এর মাঠ — ত্রিমাত্রিক খেলা`, `${R.farmer.en}’s field — 3D game`)} />
       <div ref={overlay} className="g3-unzoom pointer-events-none absolute inset-0 overflow-hidden" />
-      {/* vignettes for heat, storm and being caught out */}
+      {/* vignettes for heat, storm, rain and ripe harvest ready */}
       <div className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${hud.ev.heat > 0 ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(255,120,30,.35))' }} />
       <div className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${hud.down > 0 ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(100% 80% at 50% 50%, rgba(120,0,0,.1), rgba(150,0,0,.55))' }} />
+      <div className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${tg?.what === 'harvest' ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 62%, rgba(245,158,11,.22))' }} />
+      <div className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${hud.ev.rain > 0 ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 68%, rgba(56,189,248,.18))' }} />
 
       {/* top left: the farmer, the day, the money */}
       <div className={`g3-hud absolute left-3 top-3 flex max-w-[calc(58vw-22px)] items-center gap-2.5 rounded-2xl py-1.5 pl-1.5 pr-3.5 transition-opacity sm:max-w-none ${intro ? 'opacity-0' : ''}`}>
@@ -469,6 +552,9 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         </div>
       </div>
 
+      {/* a headset's browser: play the whole game in VR */}
+      {modes.includes('vr') && !xr && !intro && <PlayVR T={T} onPlay={() => goXR('vr')} />}
+
       {/* top right: minimap, the zone timer, FieldShift alerts */}
       <div className={`absolute right-3 top-3 flex flex-col items-end gap-2 transition-opacity sm:w-[200px] ${touch ? 'w-[min(32vw,150px)]' : 'w-[min(42vw,184px)]'} ${intro ? 'opacity-0' : ''}`}>
         <div className="g3-hud relative w-full overflow-hidden rounded-2xl p-1">
@@ -478,9 +564,11 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         {/* on a touch screen the round buttons sit under the map, clear of the mission card and the joystick */}
         {touch && !intro && (
           <div className="flex flex-col gap-1.5">
+            <RoundBtn wide onClick={() => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } })} label={lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}><span className="text-[11.5px] font-bold">{lang === 'bn' ? 'English' : 'বাংলা'}</span></RoundBtn>
             <RoundBtn onClick={() => setPaused(true)} label={T('বিরতি', 'Pause')}><Pause size={17} /></RoundBtn>
             <RoundBtn onClick={() => setSat(st.current?.toggleSat() ?? false)} on={sat} label={T('উপগ্রহ', 'Satellite')}><Satellite size={17} /></RoundBtn>
             <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="FieldShift"><Smartphone size={17} /></RoundBtn>
+            <RoundBtn onClick={() => setHelperOpen((o) => !o)} on={helperOpen || !!helperRun} label={T('চক্র এজেন্ট', 'Chakra Agent')}><ChakraLogo size={21} spin={!!helperRun} /></RoundBtn>
             <RoundBtn onClick={() => setPhoto(true)} label={T('ছবি তোলা', 'Photo mode')}><Camera size={17} /></RoundBtn>
             {xrBtns(17)}
           </div>
@@ -618,11 +706,45 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
               {hud.stamina > 0.05 && hud.running ? (lang === 'bn' ? 'দৌড়' : 'Run') : (lang === 'bn' ? 'হাঁটা' : 'Walk')}
             </span>
           </div>
+          <div className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-[11.5px] shadow-lg backdrop-blur-md ring-1 ring-white/20">
+            <button
+              type="button"
+              onClick={() => st.current?.emote?.('greet')}
+              className="flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold text-white/90 hover:bg-white/20 transition-all active:scale-95 cursor-pointer"
+              title={T('অভিবাদন / সালাম [G]', 'Greet / Wave [G]')}
+            >
+              <span>👋</span>
+              <span className="hidden sm:inline">{T('অভিবাদন', 'Greet')}</span>
+              <kbd className="hidden sm:inline-block rounded bg-white/20 px-1 text-[9.5px]">G</kbd>
+            </button>
+            <span className="h-3 w-px bg-white/20" />
+            <button
+              type="button"
+              onClick={() => st.current?.emote?.('wipe')}
+              className="flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold text-white/90 hover:bg-white/20 transition-all active:scale-95 cursor-pointer"
+              title={T('ঘাম মোছা ও দম নেওয়া (+৩৫% শক্তি) [T]', 'Wipe Brow & Rest (+35% Stamina) [T]')}
+            >
+              <span>💧</span>
+              <span className="hidden sm:inline">{T('দম নেওয়া', 'Rest')}</span>
+              <kbd className="hidden sm:inline-block rounded bg-white/20 px-1 text-[9.5px]">T</kbd>
+            </button>
+            <span className="h-3 w-px bg-white/20" />
+            <button
+              type="button"
+              onClick={() => st.current?.emote?.('soilcheck')}
+              className="flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold text-white/90 hover:bg-white/20 transition-all active:scale-95 cursor-pointer"
+              title={T('মাটি পরীক্ষা [H]', 'Check Soil [H]')}
+            >
+              <span>🌱</span>
+              <span className="hidden sm:inline">{T('মাটি পরখ', 'Check Soil')}</span>
+              <kbd className="hidden sm:inline-block rounded bg-white/20 px-1 text-[9.5px]">H</kbd>
+            </button>
+          </div>
           <div className={`g3-hud g3-inventory flex max-w-full items-stretch gap-1.5 overflow-x-auto overscroll-x-contain rounded-2xl p-2 shadow-2xl backdrop-blur-2xl ${touch ? 'mb-[150px] sm:mb-0' : ''}`}>
             {Object.entries(R.crops).map(([k, c], n) => (
-              <button key={k} type="button" onClick={() => { g.sel = k; play('tap'); }} aria-pressed={hud.sel === k} title={`${L(c)} (${n + 1})`}
+              <button key={k} type="button" onClick={() => { g.sel = k; play('tap'); }} aria-pressed={hud.sel === k} title={`${L(c)} (${num(n + 1, lang)})`}
                 className={`relative flex min-w-[50px] shrink-0 flex-col items-center rounded-xl px-1.5 pb-1.5 pt-2 text-[11px] font-semibold transition-all duration-200 sm:min-w-[76px] sm:px-2.5 ${hud.sel === k ? 'scale-105 bg-white/95 text-ink shadow-[0_0_0_2px_#ffd24a,0_8px_20px_rgba(255,210,74,0.35)]' : 'bg-white/[.08] text-white/90 hover:bg-white/20 active:scale-95'}`}>
-                <span className="absolute left-1.5 top-0.5 text-[9.5px] font-bold opacity-60">{n + 1}</span>
+                <span className="absolute left-1.5 top-0.5 text-[9.5px] font-bold opacity-60">{num(n + 1, lang)}</span>
                 {c.soil && <span className="absolute right-1 top-0.5 rounded bg-emerald-400/90 px-1 text-[8.5px] font-bold leading-[13px] text-emerald-950">{T('ডাল', 'Pulse')}</span>}
                 {tg?.kind === 'plot' && tg.what === 'plant' && tg.last === k && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-red-600 px-1.5 text-[9.5px] font-bold leading-4 text-white shadow">{T('আগে এটাই ছিল', 'Grown here last')}</span>}
                 <Sprout size={17} className={hud.sel === k ? 'text-primary-700' : 'text-lime-200'} />
@@ -632,7 +754,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
             ))}
             <span className="mx-0.5 w-px bg-white/20" />
             {Object.entries(FERT).map(([k, f]) => (
-              <button key={k} type="button" onClick={() => { const t = target(g); fertilize(g, k, t?.kind === 'plot' ? t.p : null); }} title={`${L(f.name)}: ${L(f.why)}`} aria-label={`${L(f.name)} × ${hud.fertilizer[k] ?? 0}`}
+              <button key={k} type="button" onClick={() => { const t = target(g); fertilize(g, k, t?.kind === 'plot' ? t.p : null); }} title={`${L(f.name)}: ${L(f.why)}`} aria-label={`${L(f.name)} × ${num(hud.fertilizer[k] ?? 0, lang)}`}
                 className={`flex min-w-[40px] shrink-0 flex-col items-center justify-center rounded-xl px-1.5 text-[11px] font-semibold transition sm:min-w-[58px] ${k === 'urea' ? 'bg-sky-400/15' : 'bg-amber-700/30'} hover:bg-white/20 active:scale-95`}>
                 <span aria-hidden="true">{k === 'urea' ? '⚗️' : '🍂'}</span><span className="hidden max-w-[56px] truncate sm:block">{k === 'urea' ? T('ইউরিয়া', 'Urea') : T('কম্পোস্ট', 'Compost')}</span><span className="font-display text-[13px] font-bold tabular">×{num(hud.fertilizer[k] ?? 0, lang)}</span>
               </button>
@@ -654,10 +776,12 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
 
       <div className={`absolute bottom-3 right-3 hidden flex-col gap-1.5 sm:flex ${intro ? 'opacity-0' : ''} ${touch ? '!hidden' : ''}`}>
         {xrBtns(18)}
+        <RoundBtn wide onClick={() => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } })} label={lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}><span className="text-[11.5px] font-bold">{lang === 'bn' ? 'English' : 'বাংলা'}</span></RoundBtn>
         <RoundBtn onClick={() => setSat(st.current?.toggleSat() ?? false)} on={sat} label={T('উপগ্রহের চোখ (N)', 'Satellite view (N)')}><Satellite size={18} /></RoundBtn>
         <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="FieldShift"><Smartphone size={18} /></RoundBtn>
         <RoundBtn onClick={() => setMute(!muted)} label={muted ? T('শব্দ চালু', 'Sound on') : T('শব্দ বন্ধ', 'Sound off')}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</RoundBtn>
         <RoundBtn onClick={() => setMusicOn(!music)} on={music} label={music ? T('সুর বন্ধ', 'Music off') : T('সুর চালু', 'Music on')}><Music size={18} /></RoundBtn>
+        <RoundBtn onClick={() => setHelperOpen((o) => !o)} on={helperOpen || !!helperRun} label={T('চক্র এজেন্ট — সহকারী (C)', 'Chakra Agent — helper (C)')}><ChakraLogo size={22} spin={!!helperRun} /></RoundBtn>
         <RoundBtn onClick={() => setPhoto(true)} label={T('ছবি তোলা (P)', 'Photo mode (P)')}><Camera size={18} /></RoundBtn>
         <RoundBtn onClick={() => setPaused(true)} label={T('বিরতি (Esc)', 'Pause (Esc)')}><Pause size={18} /></RoundBtn>
       </div>
@@ -697,6 +821,16 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
 
       {toast && <div key={toast.k} className="g3-toast hint-in g3-hud absolute bottom-[150px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium">{L(toast.text)}</div>}
 
+      {/* চক্র এজেন্ট: the phone, or a slim line while it works with the phone put away */}
+      {helperOpen && !intro && !photo && <GameHelper g={g} stage={st} R={R} T={T} L={L} lang={lang} tick={hud} run={helperRun} chat={helperChat} onAsk={askHelper} onClose={() => setHelperOpen(false)} />}
+      {!helperOpen && helperRun && !photo && (
+        <div className="pointer-events-auto absolute left-1/2 top-[58px] z-20 flex -translate-x-1/2 items-center gap-2 rounded-full g3-hud py-1.5 pl-2 pr-1.5 text-[12.5px]">
+          <ChakraLogo size={22} spin />
+          <button type="button" onClick={() => setHelperOpen(true)} className="max-w-[52vw] truncate">{T('চক্র কাজ করছে', 'Chakra is working')}: {L(JOBS[helperRun.id].title)}</button>
+          <button type="button" onClick={() => st.current?.stopJob()} className="rounded-full bg-white/15 px-2.5 py-1 font-semibold hover:bg-white/25">{T('থামো', 'Stop')}</button>
+        </div>
+      )}
+
       {/* photo mode: only the picture and this bar */}
       {photo && (
         <div className="g3-photo-bar absolute inset-x-0 bottom-0 flex flex-col items-center gap-2 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-10">
@@ -724,7 +858,8 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         </div>
       )}
 
-      {panel && <Panel kind={panel} g={g} hud={hud} R={R} onClose={closePanel} onWhatIf={onWhatIf} onQuizDone={(ok) => { answerQuiz(g, ok); setPanel(null); }} />}
+      {panel === 'office' && <OfficePanel g={g} R={R} T={T} L={L} onClose={closePanel} onDone={() => { play('coin'); setHud(snapshot(g)); }} />}
+      {panel && panel !== 'office' && <Panel kind={panel} g={g} hud={hud} R={R} onClose={closePanel} onWhatIf={onWhatIf} onQuizDone={(ok) => { answerQuiz(g, ok); setPanel(null); }} />}
       {paused && !panel && (
         <div className="absolute inset-0 grid place-items-center bg-black/55 p-4 backdrop-blur-sm">
           <div role="dialog" aria-modal="true" aria-labelledby="game-pause-title" tabIndex={-1} className="g3-panel max-h-full w-full max-w-sm overflow-y-auto overscroll-contain rounded-[26px] p-6 text-center">
@@ -738,13 +873,21 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
               </div>
             </div>
             <div className="mt-4 flex flex-col gap-2">
-              <button type="button" onClick={() => setPaused(false)} className="btn-gloss inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white"><Play size={17} />{T('চালিয়ে যান', 'Resume')}</button>
-              <button type="button" onClick={onRestart} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15"><RotateCcw size={16} />{T('আবার শুরু', 'Restart')}</button>
-              <button type="button" onClick={() => setMute(!muted)} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15">{muted ? <VolumeX size={16} /> : <Volume2 size={16} />}{muted ? T('শব্দ চালু করুন', 'Turn sound on') : T('শব্দ বন্ধ করুন', 'Turn sound off')}</button>
-              <button type="button" onClick={() => setMusicOn(!music)} aria-pressed={music} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15"><Music size={16} />{music ? T('সুর বন্ধ করুন', 'Turn music off') : T('সুর চালু করুন', 'Turn music on')}</button>
-              <button type="button" onClick={() => setShowSettings((v) => !v)} aria-expanded={showSettings} aria-controls="game-settings" className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15"><SlidersHorizontal size={16} />{T('সেটিংস', 'Settings')}</button>
-              {showSettings && <GameSettings id="game-settings" prefs={prefs} setPref={setPref} reset={() => setPrefs({ ...DEFAULT_SETTINGS })} T={T} lang={lang} />}
-              <button type="button" onClick={onQuit} className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white/70 hover:text-white"><LogOut size={16} />{T('খেলা ছেড়ে বের হন', 'Quit the game')}</button>
+              <button type="button" onClick={() => setPaused(false)} className="btn-gloss inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white cursor-pointer"><Play size={17} />{T('চালিয়ে যান', 'Resume')}</button>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } })}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15 text-white cursor-pointer"
+              >
+                <Languages size={16} />
+                {lang === 'bn' ? 'English' : 'বাংলা'}
+              </button>
+              <button type="button" onClick={onRestart} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15 cursor-pointer"><RotateCcw size={16} />{T('আবার শুরু', 'Restart')}</button>
+              <button type="button" onClick={() => setMute(!muted)} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15 cursor-pointer">{muted ? <VolumeX size={16} /> : <Volume2 size={16} />}{muted ? T('শব্দ চালু করুন', 'Turn sound on') : T('শব্দ বন্ধ করুন', 'Turn sound off')}</button>
+              <button type="button" onClick={() => setMusicOn(!music)} aria-pressed={music} className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15 cursor-pointer"><Music size={16} />{music ? T('সুর বন্ধ করুন', 'Turn music off') : T('সুর চালু করুন', 'Turn music on')}</button>
+              <button type="button" onClick={() => setShowSettings((v) => !v)} aria-expanded={showSettings} aria-controls="game-settings" className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3 font-semibold ring-1 ring-white/15 hover:bg-white/15 cursor-pointer"><SlidersHorizontal size={16} />{T('সেটিংস', 'Settings')}</button>
+              {showSettings && <GameSettings id="game-settings" prefs={prefs} setPref={setPref} reset={() => setPrefs({ ...DEFAULT_SETTINGS })} T={T} lang={lang} dispatch={dispatch} />}
+              <button type="button" onClick={onQuit} className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white/70 hover:text-white cursor-pointer"><LogOut size={16} />{T('খেলা ছেড়ে বের হন', 'Quit the game')}</button>
             </div>
             <p className="mt-4 text-[12.5px] leading-5 text-white/60">{touch ? T('বাঁয়ের চাকা দিয়ে হাঁটুন, ডানে টেনে চারপাশ দেখুন, দুই আঙুলে জুম।', 'Walk with the left stick, drag on the right to look, pinch to zoom.') : T('WASD হাঁটা · Shift ধরে দৌড় / R টগল · E/F/Space কাজ · মাউস টেনে দেখা · চাকা জুম · 1–4 বীজ · N উপগ্রহ', 'WASD walk · hold Shift / press R to run · E/F/Space act · drag to look · wheel zoom · 1–4 seed · N satellite')}</p>
           </div>
@@ -777,13 +920,34 @@ function promptText(tg, R, T, L, hud) {
 function Chip({ icon: Icon, cls, text }) {
   return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-semibold text-white ${cls}`}><Icon size={12} className="animate-pulse" />{text}</span>;
 }
-function RoundBtn({ children, onClick, label, on }) {
-  return <button type="button" onClick={onClick} aria-label={label} title={label} aria-pressed={on} className={`g3-hud grid h-11 w-11 place-items-center rounded-full transition active:scale-90 ${on ? '!bg-emerald-500/90' : 'hover:!bg-white/20'}`}>{children}</button>;
+// The VR door, shown when the browser can open an immersive VR session (a Quest, or a PC headset), with the controls.
+function PlayVR({ T, onPlay }) {
+  const [help, setHelp] = useState(false);
+  return (
+    <div className="absolute left-1/2 top-[64px] z-10 flex w-[min(92vw,420px)] -translate-x-1/2 flex-col items-center gap-1.5">
+      <div className="flex items-center gap-1.5">
+        <button type="button" onClick={onPlay} className="btn-gloss inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold text-white shadow-lg"><Glasses size={18} />{T('VR-তে খেলুন', 'Play in VR')}</button>
+        <button type="button" onClick={() => setHelp((h) => !h)} aria-expanded={help} className="g3-hud rounded-full px-3 py-2 text-[13px] font-semibold">{T('নিয়ম', 'Controls')}</button>
+      </div>
+      {help && (
+        <div className="g3-hud rounded-2xl px-4 py-3 text-[12.5px] leading-5 text-white/85">
+          <p>{T('আপনিই কৃষক: ঘরে হাঁটলে কৃষকও হাঁটে।', 'You are the farmer: walk in your room and the farmer walks.')}</p>
+          <p>{T('বাঁ স্টিক: হাঁটা (গ্রিপ ধরে দৌড়) · ডান স্টিক: পাশে ঠেললে ঘোরা, সামনে ঠেলে ছাড়লে লাফ (টেলিপোর্ট)', 'Left stick: walk (hold grip to run) · Right stick: sideways turns, push forward and release to teleport')}</p>
+          <p>{T('জমি, দোকান, পাম্প, হাট বা মানুষের দিকে তাক করে ট্রিগার: কাজ · A: যেখানে দাঁড়িয়ে সেখানে কাজ · B: বন্ধ', 'Point at a plot, the shop, the pump, the market or a person and pull the trigger to act · A: act where you stand · B: close')}</p>
+          <p>{T('X: মেনু (দৃষ্টি, আরাম, বীজ, উপগ্রহ, চক্র এজেন্ট) · Y: পরের বীজ · বাঁ কবজির দিকে তাকান: টাকা, সময়, পানি, মিশন', 'X: menu (view, comfort, seed, satellite, Chakra Agent) · Y: next seed · look at your left wrist: money, time, water, mission')}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RoundBtn({ children, onClick, label, on, wide }) {
+  return <button type="button" onClick={onClick} aria-label={label} title={label} aria-pressed={on} className={`g3-hud grid h-11 ${wide ? 'min-w-11 px-3 whitespace-nowrap' : 'w-11'} place-items-center rounded-full transition active:scale-90 ${on ? '!bg-emerald-500/90' : 'hover:!bg-white/20'}`}>{children}</button>;
 }
 
 // A thumb stick on the left half; the action and run buttons on the right, like a mobile shooter.
 // the pause menu's settings: camera turn speed, invert up/down, view width and HUD text size, kept on this device
-function GameSettings({ id, prefs, setPref, reset, T, lang }) {
+function GameSettings({ id, prefs, setPref, reset, T, lang, dispatch }) {
   const row = (k, label, fmt) => {
     const r = SETTING_RANGES[k];
     return (
@@ -796,12 +960,29 @@ function GameSettings({ id, prefs, setPref, reset, T, lang }) {
   const x = (v) => `${num(v, lang, { dp: 1 })}×`;
   return (
     <div id={id} className="space-y-3 rounded-2xl bg-white/10 p-4 text-left ring-1 ring-white/15">
+      {dispatch && (
+        <div className="flex items-center justify-between text-[13px]">
+          <span>{T('ভাষা', 'Language')}</span>
+          <button
+            type="button"
+            onClick={() => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } })}
+            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 font-bold text-emerald-200 ring-1 ring-emerald-400/40 hover:bg-emerald-500/30 transition cursor-pointer"
+          >
+            <Languages size={13} />
+            <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
+          </button>
+        </div>
+      )}
       {row('look', T('ক্যামেরা ঘোরার গতি', 'Camera turn speed'), x)}
       {row('fov', T('দৃষ্টির প্রস্থ', 'Field of view'), (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${num(Math.abs(v), lang)}°`)}
       {row('text', T('লেখার আকার', 'Text size'), x)}
       <label className="flex items-center justify-between text-[13px]">
         <span>{T('উপর-নিচ উল্টো দেখা', 'Invert look up/down')}</span>
         <input type="checkbox" checked={prefs.invertY} onChange={(e) => setPref('invertY', e.target.checked)} className="h-4 w-4 accent-emerald-400" />
+      </label>
+      <label className="flex items-center justify-between text-[13px]">
+        <span>{T('দ্রুত হাঁটা (Shift দিলে দৌড়)', 'Fast walk (Shift still runs)')}</span>
+        <input type="checkbox" checked={!!prefs.fastWalk} onChange={(e) => setPref('fastWalk', e.target.checked)} className="h-4 w-4 accent-emerald-400" />
       </label>
       <button type="button" onClick={reset} disabled={isDefault(prefs)} className="text-[12.5px] font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline disabled:opacity-40 disabled:no-underline">{T('আগের মতো করুন', 'Reset to defaults')}</button>
     </div>
@@ -848,12 +1029,12 @@ function TouchControls({ stage, prompt, running, setRunning }) {
         </span>
       </div>
       <div className="g3-touch-actions absolute bottom-6 right-5 flex items-end gap-3 select-none">
-        <button type="button" onClick={() => setRunning((r) => { stage.current?.setRun(!r); return !r; })} aria-pressed={running}
+        <button type="button" onClick={() => { if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(8); setRunning((r) => { stage.current?.setRun(!r); return !r; }); }} aria-pressed={running}
           className={`g3-hud relative grid h-14 w-14 place-items-center rounded-full transition-transform active:scale-90 ${running ? '!bg-emerald-500/90 shadow-[0_0_16px_rgba(34,197,94,0.6)]' : ''}`} aria-label={T('দৌড়', 'Run')}>
           <Footprints size={22} className={running ? 'animate-bounce' : ''} />
           {running && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>}
         </button>
-        <button type="button" onClick={() => stage.current?.act()}
+        <button type="button" onClick={() => { if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(12); stage.current?.act(); }}
           className={`g3-act grid h-[88px] w-[88px] place-items-center rounded-full text-center transition-all ${hasPrompt ? 'has-prompt' : ''}`} aria-label={prompt ?? T('কাজ', 'Act')}>
           <span className="flex flex-col items-center gap-0.5 px-1 text-[10.5px] font-bold leading-tight">
             {prompt?.includes('তুলুন') || prompt?.includes('Harvest') ? <Sprout size={26} /> :
@@ -879,11 +1060,35 @@ function Panel({ kind, g, hud, R, onClose, onQuizDone, onWhatIf }) {
     <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/45 p-3 backdrop-blur-[3px]">
       <div role="dialog" aria-modal="true" aria-label={kind === 'shop' ? L(R.names.shed) : kind === 'kiosk' ? `FieldShift · ${L(R.names.kiosk)}` : T('FieldShift-এর প্রশ্ন', 'FieldShift question')} tabIndex={-1} className={`outcome-in g3-panel w-full rounded-[26px] p-5 sm:p-6 ${kind === 'kiosk' ? 'max-w-3xl' : 'max-w-xl'}`}>
         {kind === 'shop' && (<>
-          <div className="flex items-center justify-between"><p className="font-display text-[22px] font-semibold">{L(R.names.shed)}</p><span className="text-[15px] font-semibold text-amber-200">{R.cur}{num(hud.money, lang)}</span></div>
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-400/20 text-[22px] ring-1 ring-amber-400/40">🏪</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-display text-[21px] font-semibold">{L(R.names.shed)}</p>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">✓ {T('অনুমোদিত ডিলার', 'Certified Dealer')}</span>
+                </div>
+                <p className="text-[12.5px] font-medium text-emerald-300">
+                  {T('দোকানদার রফিক ভাই: "আসসালামু আলাইকুম! খাঁটি বীজ আর সার মজুত আছে — কোনটা লাগবে?"', 'Shopkeeper Rafiq: "Greetings! Fresh certified seeds & fertilisers in stock — what do you need?"')}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-[11.5px] uppercase tracking-wider text-white/50">{T('হাতে নগদ', 'Cash in hand')}</span>
+              <p className="text-[17px] font-bold tabular text-amber-300">{R.cur}{num(hud.money, lang)}</p>
+            </div>
+          </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {Object.entries(R.crops).map(([k, c]) => (
               <div key={k} className="rounded-2xl bg-white/[.07] p-3 ring-1 ring-white/10">
-                <p className="flex items-center gap-2 text-[16px] font-semibold"><Sprout size={17} className="text-lime-300" />{L(c)}</p>
+                <div className="flex items-center justify-between">
+                  <p className="flex items-center gap-2 text-[16px] font-semibold"><Sprout size={17} className="text-lime-300" />{L(c)}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {c.soil && <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-200">🌱 {T('লিগিউম', 'N₂-fixing')}</span>}
+                    {c.thirst <= 1 && <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10.5px] font-semibold text-sky-200">💧 {T('স্বল্প পানি', 'Low water')}</span>}
+                    {hud.surge === k && <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-[10.5px] font-semibold text-rose-200 animate-pulse">🔥 {T('উচ্চ চাহিদা', 'Surge')}</span>}
+                  </div>
+                </div>
                 <p className="mt-1 text-[12.5px] leading-5 text-white/65">{T(`বীজ ${R.cur}${num(c.cost, 'bn')} · বিক্রি ${R.cur}${num(priceOf(g, k), 'bn')} · পাকে ~${num(c.grow, 'bn')} সে.`, `Seed ${R.cur}${c.cost} · sells ${R.cur}${priceOf(g, k)} · ripens ~${c.grow}s`)}</p>
                 <p className="flex items-center gap-0.5 text-[12.5px] text-white/65">{T('পানি', 'Water')}: {Array.from({ length: Math.max(1, Math.round(c.thirst * 2)) }, (_, i) => <Droplets key={i} size={12} className="text-sky-300" />)}{c.soil ? T(' · মাটি উর্বর করে', ' · enriches soil') : ''}{k === R.glut ? T(' · দাম ওঠানামা করে', ' · price swings') : ''}</p>
                 <div className="mt-2 flex gap-1.5">{[3, 6].map((n) => <button key={n} type="button" disabled={hud.money < c.cost * n} onClick={() => buy(g, k, n)} className="rounded-full bg-emerald-500 px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-35">{T(`${num(n, 'bn')}টি · ${R.cur}${num(c.cost * n, 'bn')}`, `${n} · ${R.cur}${c.cost * n}`)}</button>)}</div>
@@ -904,7 +1109,20 @@ function Panel({ kind, g, hud, R, onClose, onQuizDone, onWhatIf }) {
           <button type="button" onClick={onClose} className="btn-gloss mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-white">{T('মাঠে ফিরি', 'Back to the field')}<ArrowRight size={16} /></button>
         </>)}
         {kind === 'kiosk' && (<>
-          <p className="flex items-center gap-2 font-display text-[22px] font-semibold"><Smartphone size={20} className="text-emerald-300" />FieldShift · {L(R.names.kiosk)}</p>
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-sky-400/20 text-[22px] ring-1 ring-sky-400/40">🏛️</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-display text-[21px] font-semibold">FieldShift · {L(R.names.kiosk)}</p>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/20 px-2 py-0.5 text-[11px] font-semibold text-sky-300 ring-1 ring-sky-500/30">🏛️ {T('উপসহকারী কৃষি কর্মকর্তা', 'SAAO Officer')}</span>
+                </div>
+                <p className="text-[12.5px] font-medium text-sky-300">
+                  {T('উপসহকারী কৃষি কর্মকর্তা: "স্বাগতম! নাসা উপগ্রহ ও আবহাওয়ার লাইভ রেকর্ড দেখে পরামর্শ নিন।"', 'Extension Officer: "Welcome! Get advice from NASA satellite records & live ground forecasts."')}
+                </p>
+              </div>
+            </div>
+          </div>
           <Suspense fallback={<p className="mt-3 text-[14px] text-white/70">{T('খুলছে…', 'Opening…')}</p>}>
             <div className="mt-3"><FieldStation g={g} hud={hud} R={R} onWhatIf={onWhatIf && ((w) => { onClose(); onWhatIf(w); })}>
               <div className="mt-3 rounded-2xl bg-white/[.07] p-3 ring-1 ring-white/10">
@@ -1010,7 +1228,7 @@ function CareerPanel() {
 }
 
 function EndScreen({ who, r, onReplay, onPick, onWhatIf }) {
-  const { T, L, s } = useStore();
+  const { T, L, s, dispatch } = useStore();
   const lang = s.lang;
   const R = REGIONS[who];
   const lost = r?.count.lost ?? 0, hurt = r?.count.hurt ?? 0;
@@ -1042,6 +1260,7 @@ function EndScreen({ who, r, onReplay, onPick, onWhatIf }) {
     { icon: Star, earned: totalAnswers > 0 && correctAnswers === totalAnswers, name: T('জ্ঞানী চাষি', 'Knowledge grower'), why: T('সব কৃষি প্রশ্নের সঠিক উত্তর দিন', 'Answer every farm question correctly') },
   ];
   useEffect(() => {
+    play('levelUp');
     const b = readBest(), was = b[who];
     if (!was || betterThanPrev(was)) { b[who] = { stars, score: seasonScore, correct: correctAnswers, total: totalAnswers, earned }; try { localStorage.setItem(BEST_KEY, JSON.stringify(b)); } catch { /* storage unavailable */ } }
   }, [who, stars, seasonScore, correctAnswers, totalAnswers, earned]);
@@ -1052,9 +1271,20 @@ function EndScreen({ who, r, onReplay, onPick, onWhatIf }) {
         {/* decorative ambient overlay */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,.2) 0%, transparent 40%, rgba(0,0,0,.5) 100%)' }} />
         <div className="relative grid items-center sm:grid-cols-[0.8fr_1.2fr]">
-          <div className="h-[320px] sm:h-[360px]"><Preview id={who} mood="cheer" /></div>
+          <div className="h-[320px] sm:h-[360px]"><Preview id={who} mood="idle" /></div>
           <div className="p-6 text-center sm:text-left">
-            <div className="flex justify-center gap-2 sm:justify-start" role="img" aria-label={T(`${num(stars, 'bn')}/৩ তারা`, `${stars} of 3 stars`)}>{[0, 1, 2].map((k) => <Star key={k} size={44} className={`star-pop ${k < stars ? 'fill-amber-300 text-amber-300' : 'text-white/20'}`} style={{ animationDelay: `${220 + k * 240}ms` }} />)}</div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex justify-center gap-2 sm:justify-start" role="img" aria-label={T(`${num(stars, 'bn')}/৩ তারা`, `${stars} of 3 stars`)}>{[0, 1, 2].map((k) => <Star key={k} size={44} className={`star-pop ${k < stars ? 'fill-amber-300 text-amber-300' : 'text-white/20'}`} style={{ animationDelay: `${220 + k * 240}ms` }} />)}</div>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } })}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1.5 text-[12.5px] font-bold text-white shadow-sm ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/30 active:scale-95 cursor-pointer"
+                title={lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}
+              >
+                <Languages size={15} />
+                <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
+              </button>
+            </div>
             <p className="mt-3 text-[12px] font-bold uppercase tracking-[.3em] text-amber-200">{T('মৌসুম জয়', 'Season won')}</p>
             <h1 className="font-display mt-1 text-[32px] font-extrabold leading-tight sm:text-[42px]"><Words text={T(`জয় জয়! আজ রাতে ${R.dinner.bn}!`, `Winner winner, ${R.dinner.en} dinner!`)} /></h1>
             <p className="mt-2 text-[16px] text-white/80">{L(R.lines.win)} — {L(R.farmer)}</p>
@@ -1073,11 +1303,11 @@ function EndScreen({ who, r, onReplay, onPick, onWhatIf }) {
       {scorecard && <section className="glass mt-5 rounded-[24px] p-5" aria-labelledby="season-score-title">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div><h2 id="season-score-title" className="font-display text-[19px] font-semibold">{T('মৌসুমের কৌশল স্কোর', 'Season strategy score')}</h2><p className="mt-1 text-[12.5px] text-muted">{T(`${L(R.farmer)}-এর খেলার ফল`, `${R.farmer.en}’s game results`)}</p></div>
-          <p className="font-display text-[30px] font-bold leading-none text-primary-800 tabular">{num(scorecard.overall, lang)}<span className="text-[15px] font-semibold text-muted">/100</span></p>
+          <p className="font-display text-[30px] font-bold leading-none text-primary-800 tabular">{num(scorecard.overall, lang)}<span className="text-[15px] font-semibold text-muted">/{num(100, lang)}</span></p>
         </div>
         <div className="mt-4 grid gap-x-5 gap-y-3 sm:grid-cols-2">
           {scoreRows.map(([label, value]) => <div key={label}>
-            <div className="mb-1 flex items-center justify-between gap-2 text-[13px]"><span className="font-semibold text-ink/80">{label}</span><span className="tabular text-muted">{num(value, lang)}/100</span></div>
+            <div className="mb-1 flex items-center justify-between gap-2 text-[13px]"><span className="font-semibold text-ink/80">{label}</span><span className="tabular text-muted">{num(value, lang)}/{num(100, lang)}</span></div>
             <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value} className="h-2 overflow-hidden rounded-full bg-primary-100"><span className="block h-full rounded-full bg-gradient-to-r from-primary-600 to-paddy-500" style={{ width: `${value}%` }} /></div>
           </div>)}
         </div>

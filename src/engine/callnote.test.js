@@ -96,3 +96,13 @@ test('a sealed note verifies, and any edit to it breaks the seal', async () => {
   assert.equal(req.text.bn, 'টমেটোর পাতায় দাগ');
   assert.equal(req.created, Date.UTC(2026, 10, 5));
 });
+
+test('makeConsent defaults to English when lang is omitted and supports explicit Bangla', () => {
+  const enConsent = makeConsent({ given: true });
+  assert.equal(enConsent.lang, 'en');
+  assert.ok(!/[\u0980-\u09ff]/.test(enConsent.notice));
+
+  const bnConsent = makeConsent({ given: true, lang: 'bn' });
+  assert.equal(bnConsent.lang, 'bn');
+  assert.ok(/[\u0980-\u09ff]/.test(bnConsent.notice));
+});

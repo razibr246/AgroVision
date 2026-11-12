@@ -3,17 +3,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
-import { X, Maximize2, Minimize2, Volume2, VolumeX, Keyboard, SendHorizontal, ShieldCheck, ShieldAlert, ListChecks, MessageCircle, CheckCircle2, ChevronRight, Smartphone, Gavel, UsersRound, Route, Target, Brain } from 'lucide-react';
+import { Volume2, VolumeX, Keyboard, SendHorizontal, ShieldCheck, ShieldAlert, ListChecks, MessageCircle, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Smartphone, Gavel, UsersRound, Route, Target, Brain, Layers } from 'lucide-react';
 import { useStore } from '../../store';
 import { Tags } from '../ui';
 import { num, bnDigits } from '../../engine/dates';
 import { smsSplit } from '../../engine/text';
-import { AGENT_NAME, POLICY, DAILY_AUTO_LIMIT, autoCountToday } from '../../engine/chakra';
+import { AGENT_NAME, POLICY, DAILY_AUTO_LIMIT, autoCountToday, nextAutoVerdict, dismissAllVerdicts, verdictQueueNav } from '../../engine/chakra';
 import { useChakra } from './useChakra';
 import { PROBLEM_PATH } from '../../engine/path';
 import { cropName } from '../../engine/crops';
 import { fmtDate } from '../../engine/dates';
 import ChakraLogo from './ChakraLogo';
+import AbroadChakraAgent from './AbroadChakraAgent';
+import { MacTrafficLights, MinimizedWindowPill, publishChakraDockState } from '../MacOSPortalChrome';
 import './chakra.css';
 
 export function ChakraOrb({ phase = 'idle', size = 64, onClick, label }) {
@@ -29,7 +31,7 @@ const GATE = {
   confirm: { bn: 'আপনার হ্যাঁ লাগবে', en: 'Needs your yes' },
   verdict: { bn: 'কর্মকর্তার অনুমোদন লাগবে', en: 'Needs officer approval' },
 };
-const ACTION = { notify: ['জানানো', 'Told you'], addRequest: ['অফিসে সমস্যা পাঠানো', 'Problem sent to office'], followUp: ['অফিসকে মনে করানো', 'Office reminded'], addAdvisory: ['কৃষককে বার্তা', 'Message to farmer'], updateRequest: ['অনুরোধের অবস্থা', 'Request status'], escalate: ['উপজেলায় জানানো', 'Raised to upazila'], reject: ['বাতিল', 'Rejected'], dismiss: ['দেখা হয়েছে', 'Seen'], decline: ['পাঠানো হয়নি', 'Not sent'] };
+const ACTION = { notify: ['জানানো', 'Shown in demo'], addRequest: ['ডেমোতে অনুরোধ রাখা', 'Request saved in demo'], followUp: ['ডেমোতে মনে করানো', 'Demo follow-up saved'], addAdvisory: ['ডেমো বার্তা রাখা', 'Demo message saved'], updateRequest: ['অনুরোধের অবস্থা', 'Request status'], escalate: ['ডেমোতে নথিভুক্ত', 'Recorded in demo'], reject: ['বাতিল', 'Rejected'], dismiss: ['দেখা হয়েছে', 'Seen'], decline: ['পাঠানো হয়নি', 'Not sent'] };
 
 // No SMS gateway is connected, so the message opens in the phone's own SMS app, filled in, for one tap on Send.
 const smsHref = (mobile, text) => `sms:+88${mobile}?&body=${encodeURIComponent(text)}`;
@@ -59,7 +61,7 @@ function TaskCard({ c, task, compact }) {
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {task.gate === 'verdict' && <button type="button" onClick={() => c.openVerdict(task)} className="inline-flex items-center gap-1.5 rounded-full bg-paddy-300 px-3.5 py-1.5 text-[13px] font-bold text-primary-950"><Gavel size={14} />{T('দেখে অনুমোদন দিন', 'Review & approve')}</button>}
-        {task.gate === 'confirm' && task.effects.some((e) => e.type !== 'notify') && <button type="button" onClick={() => c.act(task)} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[13px] font-bold text-primary-950"><SendHorizontal size={14} />{T('হ্যাঁ, পাঠান', 'Yes, send')}</button>}
+        {task.gate === 'confirm' && task.effects.some((e) => e.type !== 'notify') && <button type="button" onClick={() => c.act(task)} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[13px] font-bold text-primary-950"><SendHorizontal size={14} />{T('হ্যাঁ, ডেমোতে রাখুন', 'Yes, save in demo')}</button>}
         {task.nav && <Link to={task.nav} onClick={c.close} className="chakra-chip inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-semibold">{T('দেখুন', 'Open')}<ChevronRight size={14} /></Link>}
         {!s.chakra.handled.includes(task.id) && <button type="button" onClick={() => (task.gate === 'verdict' ? c.reject(task) : c.dismiss(task))} className="chakra-chip rounded-full px-3 py-1.5 text-[13px] font-semibold text-white/75">{task.gate === 'verdict' ? T('বাতিল', 'Reject') : T('দেখেছি', 'Got it')}</button>}
       </div>
@@ -134,7 +136,7 @@ function GoalRun({ goal }) {
   );
 }
 
-function Panel({ c, onClose }) {
+function Panel({ c, onClose, onMinimize }) {
   const { s, T, L, today } = useStore();
   const [tab, setTab] = useState('talk');
   const [big, setBig] = useState(false);
@@ -150,18 +152,28 @@ function Panel({ c, onClose }) {
   const tabs = [['talk', MessageCircle, T('কথা', 'Talk')], ['tasks', ListChecks, T(`কাজ ${c.tasks.length ? num(c.tasks.length, s.lang) : ''}`, `Tasks ${c.tasks.length || ''}`)], ['crew', UsersRound, T('দল', 'Crew')], ['path', Route, T('পথ', 'Path')], ['safe', ShieldCheck, T('নিরাপত্তা', 'Security')]];
   return (
     <div className="fixed inset-0 z-[1700]" role="dialog" aria-modal="true" aria-label={L(AGENT_NAME)} onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-      <div className="sheet-fade absolute inset-0 bg-black/30" onClick={onClose} />
-      <div ref={box} tabIndex={-1} className={`chakra-panel chakra-pop absolute inset-x-2 bottom-2 top-[6vh] flex flex-col overflow-hidden rounded-[34px] outline-none sm:inset-x-auto sm:right-5 sm:bottom-5 sm:top-auto sm:h-[min(760px,88vh)] ${big ? 'sm:w-[min(820px,94vw)]' : 'sm:w-[430px]'}`}>
-        <div className="flex items-center gap-2 px-4 pt-4">
-          <button type="button" onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20" aria-label={T('বন্ধ করুন', 'Close')}><X size={20} /></button>
+      <div className="sheet-fade absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={onMinimize || onClose} />
+      <div ref={box} tabIndex={-1} className={`chakra-panel chakra-pop absolute inset-x-2 bottom-2 top-[6vh] flex flex-col overflow-hidden rounded-[28px] outline-none sm:inset-x-auto sm:right-5 sm:bottom-5 sm:top-auto sm:h-[min(760px,88vh)] ${big ? 'sm:w-[min(820px,94vw)]' : 'sm:w-[430px]'}`}>
+        <div className="flex items-center gap-3 border-b border-white/10 bg-white/[.04] px-4 py-3.5">
+          <MacTrafficLights
+            onClose={onClose}
+            onMinimize={onMinimize}
+            onExpand={() => setBig((v) => !v)}
+            expanded={big}
+            closeLabel={T('বন্ধ করুন', 'Close Chakra')}
+            minimizeLabel={T('ডকে মিনিমাইজ করুন', 'Minimize to Dock')}
+            expandLabel={big ? T('ছোট করুন', 'Smaller') : T('বড় করুন', 'Larger')}
+          />
           <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
-            <ChakraLogo size={30} spin={c.phase === 'thinking'} />
+            <ChakraLogo size={28} spin={c.phase === 'thinking'} />
             <div className="min-w-0 leading-tight">
-              <div className="truncate text-[16px] font-bold">{L(AGENT_NAME)}</div>
-              <div className="truncate text-[11.5px] text-white/55">{c.role === 'farmer' ? T('আপনার জমির সহকারী', 'Your field assistant') : T('অফিসের সহকারী', 'Office assistant')}{c.ai === 'on' ? ' · AI' : ''}</div>
+              <div className="truncate text-[15.5px] font-bold">{L(AGENT_NAME)}</div>
+              <div className="truncate text-[11px] text-white/60">{c.role === 'farmer' ? T('আপনার জমির সহকারী', 'Your field assistant') : T('অফিসের সহকারী', 'Office assistant')}{c.ai === 'on' ? ' · AI' : ''}</div>
             </div>
           </div>
-          <button type="button" onClick={() => setBig(!big)} className="hidden h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20 sm:grid" aria-label={big ? T('ছোট করুন', 'Smaller') : T('বড় করুন', 'Larger')}>{big ? <Minimize2 size={18} /> : <Maximize2 size={18} />}</button>
+          <span className="hidden sm:inline-flex items-center rounded-full border border-white/15 bg-white/[.07] px-2 py-0.5 text-[10.5px] font-semibold text-white/75">
+            {c.mode === 'agent' ? T('এজেন্ট', 'Agent') : T('ম্যানুয়াল', 'Manual')}
+          </span>
         </div>
 
         {/* Manual or agent: who acts. */}
@@ -275,99 +287,402 @@ function Panel({ c, onClose }) {
 
 // The officer's verdict: what the agent drafted, the request and the crop doctor's first look, editable, then approve
 // or reject. Nothing is sent in the office's name without this.
-function Verdict({ c, task, onClose }) {
+function Verdict({
+  c,
+  task,
+  expanded,
+  onToggleExpand,
+  onMinimize,
+  onDismissAll,
+  onSelectTask,
+  onClose,
+}) {
   const { s, T, L, farmerOf } = useStore();
   const adv = task.effects.find((e) => e.type === 'addAdvisory')?.adv;
   const one = adv?.to.length === 1 ? farmerOf(adv.to[0]) : null; // a reply to one farmer can also go to their phone
   const oneMobile = one && (s.profiles[one.id]?.mobile || one.mobile);
   const [text, setText] = useState(adv?.text ?? '');
+  const [queueMenu, setQueueMenu] = useState(false);
+  const activeRowRef = useRef(null);
+  useEffect(() => { setText(adv?.text ?? ''); setQueueMenu(false); }, [task.id, adv?.text]);
+  useEffect(() => {
+    if (expanded) activeRowRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [expanded, task.id]);
   const req = task.request ? s.requests.find((r) => r.id === task.request) : null;
   const top = task.look?.findings?.[0];
+  const q = verdictQueueNav(c.verdicts, task.id);
   return (
-    <div className="fixed inset-0 z-[1750] flex items-end justify-center p-3 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="chakra-verdict" onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-      <div className="sheet-fade absolute inset-0 bg-primary-950/55 backdrop-blur-[4px]" onClick={() => onClose()} />
-      <div className="sheet-up relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[26px] bg-white shadow-[0_24px_64px_-16px_rgba(13,38,20,0.5)]">
-        <div className="flex items-center gap-3 bg-primary-950 px-5 py-4 text-white">
-          <ChakraLogo size={40} />
-          <div className="min-w-0 flex-1">
-            <h2 id="chakra-verdict" className="text-[17px] font-bold leading-tight">{T('চক্র এজেন্ট আপনার অনুমোদন চাইছে', 'Chakra Agent needs your approval')}</h2>
-            <p className="text-[12.5px] text-white/70">{L(task.title)}{c.verdicts.length > 1 ? T(` · আরও ${num(c.verdicts.length - 1, 'bn')}টি`, ` · ${c.verdicts.length - 1} more`) : ''}</p>
+    <div
+      className="fixed inset-0 z-[1750] flex items-end justify-center p-2.5 sm:items-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="chakra-verdict"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          if (queueMenu) { setQueueMenu(false); return; }
+          (q.total > 1 ? onMinimize(task) : onDismissAll(task));
+          return;
+        }
+        if (e.target.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+        if (e.key === 'ArrowLeft' && q.prev) { e.preventDefault(); onSelectTask(q.prev); }
+        if (e.key === 'ArrowRight' && q.next) { e.preventDefault(); onSelectTask(q.next); }
+      }}
+    >
+      <div className="sheet-fade absolute inset-0 bg-primary-950/50 backdrop-blur-[5px]" onClick={() => (q.total > 1 ? onMinimize(task) : onDismissAll(task))} />
+      <div className={`macos-glass-window sheet-up relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[24px] transition-[max-width] duration-250 ${expanded ? 'max-w-4xl' : 'max-w-lg'}`}>
+        {/* macOS Liquid Glass Titlebar */}
+        <div className="macos-verdict-titlebar text-white">
+          <div className="flex items-center gap-2.5 px-4 pt-3 pb-2.5 sm:px-5">
+            <MacTrafficLights
+              onClose={() => onDismissAll(task)}
+              onMinimize={() => onMinimize(task)}
+              onExpand={onToggleExpand}
+              expanded={expanded}
+              closeLabel={q.total > 1 ? T('সব পপআপ একবারে বন্ধ করুন (পরে দেখুন)', 'Close all remaining popups (snooze)') : T('বন্ধ করুন', 'Close')}
+              minimizeLabel={T('ডকে মিনিমাইজ করুন', 'Minimize to Dock')}
+              expandLabel={expanded ? T('ছোট মাপ', 'Compact view') : T('বড় করে সবগুলো দেখুন', 'Expand queue view')}
+            />
+            <div className="flex min-w-0 flex-1 items-center gap-2.5 pl-1">
+              <ChakraLogo size={30} />
+              <div className="min-w-0 flex-1">
+                <h2 id="chakra-verdict" className="truncate text-[15px] font-bold leading-tight sm:text-[16.5px]">{T('চক্র এজেন্ট আপনার অনুমোদন চাইছে', 'Chakra Agent needs your approval')}</h2>
+                {q.total <= 1 && <p className="truncate text-[12px] text-white/75">{L(task.title)}</p>}
+              </div>
+            </div>
+            {q.total > 1 && (
+              <button
+                type="button"
+                onClick={() => onDismissAll(task)}
+                title={T('বাকি সব পপআপ একবারে বন্ধ করে পরে দেখুন', 'Dismiss all remaining popups for now')}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/22 bg-white/12 px-2.5 py-1 text-[11.5px] font-semibold text-white/90 transition hover:bg-white/22 active:scale-95 cursor-pointer"
+              >
+                <Layers size={12} />
+                <span className="hidden sm:inline">{T('সব পরে', 'Later')}</span>
+                <span>({T(num(q.total, 'bn'), String(q.total))})</span>
+              </button>
+            )}
           </div>
-          <button type="button" onClick={() => onClose()} className="grid h-9 w-9 place-items-center rounded-full bg-white/10" aria-label={T('পরে দেখব', 'Later')}><X size={18} /></button>
-        </div>
-        <div className="space-y-3 p-5 text-[14px]">
-          <p className="text-muted">{T('কেন: ', 'Why: ')}{L(task.why)} <Tags list={task.tags} /></p>
-          {req && <div className="rounded-xl bg-primary-50 p-3"><div className="text-[12px] font-semibold text-primary-800">{T('কৃষকের কথা', 'The farmer wrote')}</div><p className="mt-0.5">{L(req.text)}</p></div>}
-          {top && <div className="rounded-xl border border-border p-3"><div className="text-[12px] font-semibold text-muted">{T('কৃষকের কথার সঙ্গে ফসলের সমস্যা-তালিকার মিল (ছবির পরীক্ষা নয়)', 'Match from the farmer’s words to the crop problem list (no photo checked)')}</div><p className="mt-0.5 font-semibold">{T(top.name_bn, top.name_en)}</p><p className="text-muted">{task.look.actions_now?.[0]}</p></div>}
-          {adv ? (
-            <label className="block">
-              <span className="text-[12.5px] font-semibold">{T(`যা পাঠানো হবে (${num(adv.to.length, 'bn')} জন কৃষককে)`, `What will be sent (to ${adv.to.length} farmer(s))`)}</span>
-              <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} maxLength={600} className="mt-1 w-full rounded-xl border border-border p-3 text-[14.5px] leading-6 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20" />
-            </label>
-          ) : <p className="rounded-xl bg-amber-50 p-3">{L(task.body)}</p>}
-          <div className="flex flex-wrap gap-2 pt-1">
-            <button type="button" onClick={() => { c.approve(task, adv ? text.trim() : undefined); onClose(true); }} disabled={adv && !text.trim()} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-3 font-bold text-white hover:bg-primary-800 disabled:opacity-40"><CheckCircle2 size={18} />{T('অনুমোদন দিয়ে পাঠান', 'Approve and send')}</button>
-            <button type="button" onClick={() => { c.reject(task); onClose(true); }} className="rounded-xl border border-border px-4 py-3 font-semibold text-ink hover:bg-red-50 hover:text-red-700">{T('বাতিল', 'Reject')}</button>
-          </div>
-          {oneMobile && adv && (
-            <a href={smsHref(oneMobile, text.trim())} onClick={() => { c.approve(task, text.trim()); setTimeout(() => onClose(true), 300); }}
-              className="flex items-center justify-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-[14px] font-semibold text-primary-800 hover:bg-primary-100">
-              <Smartphone size={17} />{T(`অনুমোদন দিন ও ${L(one.name)}-এর ফোনে এসএমএস করুন (${bnDigits(oneMobile)})`, `Approve and SMS ${L(one.name)}’s phone (${oneMobile})`)}
-            </a>
+
+          {q.total > 1 && (
+            <div className="relative flex flex-wrap items-center justify-between gap-2 border-t border-white/12 bg-white/[0.06] px-4 py-2 sm:px-5">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${task.risk === 'high' ? 'bg-red-400' : 'bg-amber-300'}`} />
+                <span className="shrink-0 rounded-md bg-white/15 px-1.5 py-0.5 text-[11px] font-bold tabular text-emerald-100">
+                  #{T(num(q.position, 'bn'), String(q.position))}
+                </span>
+                <span className="truncate text-[12.5px] font-semibold text-white/95">{L(task.title)}</span>
+              </div>
+
+              <div className="relative shrink-0">
+                <div className="macos-queue-capsule" role="group" aria-label={T('অনুরোধের তালিকা আগে-পরে দেখুন', 'Navigate queued requests')}>
+                  <button
+                    type="button"
+                    data-verdict-nav="prev"
+                    disabled={!q.prev}
+                    onClick={() => q.prev && onSelectTask(q.prev)}
+                    title={T(`আগে যান · বামে ${num(q.left, 'bn')}টি`, `Previous request · ${q.left} on left`)}
+                    aria-label={T(`আগের অনুরোধ, বামে ${num(q.left, 'bn')}টি`, `Previous request, ${q.left} on left`)}
+                    className="macos-queue-btn"
+                  >
+                    <ChevronLeft size={14} className="shrink-0" />
+                    <span>{T(num(q.left, 'bn'), String(q.left))}</span>
+                  </button>
+                  <span className="h-3.5 w-px bg-white/20" aria-hidden="true" />
+                  <button
+                    type="button"
+                    data-verdict-nav="index"
+                    aria-expanded={queueMenu}
+                    aria-label={T(`মোট ${num(q.total, 'bn')}টির মধ্যে ${num(q.position, 'bn')} নম্বর অনুরোধ, তালিকা খুলতে চাপুন`, `Request ${q.position} of ${q.total}, click to pick from queue`)}
+                    onClick={() => setQueueMenu((v) => !v)}
+                    className="macos-queue-btn !px-2 text-emerald-100"
+                  >
+                    <span>{T(`${num(q.position, 'bn')} / ${num(q.total, 'bn')}`, `${q.position} / ${q.total}`)}</span>
+                    <ChevronDown size={12} className={`transition-transform duration-150 ${queueMenu ? 'rotate-180' : ''}`} />
+                  </button>
+                  <span className="h-3.5 w-px bg-white/20" aria-hidden="true" />
+                  <button
+                    type="button"
+                    data-verdict-nav="next"
+                    disabled={!q.next}
+                    onClick={() => q.next && onSelectTask(q.next)}
+                    title={T(`পরে যান · ডানে ${num(q.right, 'bn')}টি`, `Next request · ${q.right} on right`)}
+                    aria-label={T(`পরের অনুরোধ, ডানে ${num(q.right, 'bn')}টি`, `Next request, ${q.right} on right`)}
+                    className="macos-queue-btn"
+                  >
+                    <span>{T(num(q.right, 'bn'), String(q.right))}</span>
+                    <ChevronRight size={14} className="shrink-0" />
+                  </button>
+                </div>
+
+                {queueMenu && (
+                  <div className="macos-queue-menu absolute right-0 top-[calc(100%+8px)] z-30 w-72 overflow-hidden rounded-2xl p-2 text-white">
+                    <div className="mb-1.5 flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-emerald-200/85">
+                      <span>{T(`অপেক্ষমাণ অনুরোধ (${num(q.total, 'bn')}টি)`, `Pending drafts (${q.total})`)}</span>
+                      <span className="tabular text-white/65">{T(`বামে ${num(q.left, 'bn')} · ডানে ${num(q.right, 'bn')}`, `Left ${q.left} · Right ${q.right}`)}</span>
+                    </div>
+                    <div className="max-h-56 space-y-1 overflow-y-auto pr-0.5">
+                      {c.verdicts.map((v, i) => {
+                        const active = v.id === task.id;
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => { onSelectTask(v); setQueueMenu(false); }}
+                            className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[12px] transition cursor-pointer ${
+                              active ? 'bg-white/20 font-bold text-white' : 'text-white/80 hover:bg-white/10'
+                            }`}
+                          >
+                            <span className={`h-2 w-2 shrink-0 rounded-full ${v.risk === 'high' ? 'bg-red-400' : 'bg-amber-300'}`} />
+                            <span className="shrink-0 tabular text-emerald-200">#{num(i + 1, s.lang)}</span>
+                            <span className="min-w-0 flex-1 truncate">{L(v.title)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
-          <p className="text-[12px] text-muted">{T('সিদ্ধান্তটি আপনার নামে কাজের খাতায় লেখা থাকবে।', 'Your decision is recorded in the activity log under your name.')}</p>
+        </div>
+
+        {/* Body: either single frosted pane or macOS System Settings dual-pane split when expanded */}
+        <div className={`min-h-0 flex-1 overflow-y-auto ${expanded && q.total > 1 ? 'md:grid md:grid-cols-[260px_1fr] md:overflow-hidden' : ''}`}>
+          {expanded && q.total > 1 && (
+            <aside className="macos-verdict-sidebar flex max-h-48 flex-col overflow-y-auto p-3 text-white md:max-h-full">
+              <div className="mb-2 flex items-center justify-between px-2 text-[11.5px] font-bold uppercase tracking-wide text-emerald-200/80">
+                <span>{T(`অপেক্ষমাণ তালিকা (${num(q.total, 'bn')})`, `Pending Queue (${q.total})`)}</span>
+              </div>
+              <div className="space-y-1 flex-1 overflow-y-auto pr-0.5">
+                {c.verdicts.map((v, i) => {
+                  const active = v.id === task.id;
+                  return (
+                    <button
+                      key={v.id}
+                      ref={active ? activeRowRef : null}
+                      type="button"
+                      onClick={() => onSelectTask(v)}
+                      className={`w-full rounded-xl px-2.5 py-2 text-left transition cursor-pointer ${
+                        active
+                          ? 'border border-white/25 bg-white/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)]'
+                          : 'text-white/75 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 text-[12.5px] font-bold">
+                        <span className={`h-2 w-2 shrink-0 rounded-full ${v.risk === 'high' ? 'bg-red-400' : 'bg-amber-300'}`} />
+                        <span className="truncate">{L(v.title)}</span>
+                      </div>
+                      <div className="mt-0.5 truncate pl-3.5 text-[11px] text-white/55">#{num(i + 1, s.lang)} · {L(v.why)}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                onClick={() => onDismissAll(task)}
+                className="mt-2 w-full rounded-xl border border-white/18 bg-white/10 px-3 py-2 text-center text-[12.5px] font-semibold text-white/90 hover:bg-white/20 cursor-pointer"
+              >
+                {T('সবগুলো পরে দেখব', 'Close all popups for now')}
+              </button>
+            </aside>
+          )}
+          <div className="space-y-3 overflow-y-auto p-4 text-[14px] sm:p-5">
+            <p className="text-muted">{T('কেন: ', 'Why: ')}{L(task.why)} <Tags list={task.tags} /></p>
+            {req && <div className="macos-verdict-card rounded-2xl !bg-primary-50/80 p-3.5"><div className="text-[12px] font-semibold text-primary-800">{T('কৃষকের কথা', 'The farmer wrote')}</div><p className="mt-0.5">{L(req.text)}</p></div>}
+            {top && <div className="macos-verdict-card rounded-2xl p-3.5"><div className="text-[12px] font-semibold text-muted">{T('কৃষকের কথার সঙ্গে ফসলের সমস্যা-তালিকার মিল (ছবির পরীক্ষা নয়)', 'Match from the farmer’s words to the crop problem list (no photo checked)')}</div><p className="mt-0.5 font-semibold">{T(top.name_bn, top.name_en)}</p><p className="text-muted">{task.look.actions_now?.[0]}</p></div>}
+            {adv ? (
+              <label className="block">
+                <span className="text-[12.5px] font-semibold">{T(`যা পাঠানো হবে (${num(adv.to.length, 'bn')} জন কৃষককে)`, `What will be sent (to ${adv.to.length} farmer(s))`)}</span>
+                <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} maxLength={600} className="mt-1 w-full rounded-2xl border border-border bg-white/90 p-3 text-[14.5px] leading-6 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20" />
+              </label>
+            ) : <p className="macos-verdict-card rounded-2xl !bg-amber-50/90 p-3.5">{L(task.body)}</p>}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button type="button" onClick={() => { c.approve(task, adv ? text.trim() : undefined); onClose(true, q.next); }} disabled={adv && !text.trim()} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-3 font-bold text-white shadow-sm hover:bg-primary-800 disabled:opacity-40 cursor-pointer"><CheckCircle2 size={18} />{T('অনুমোদন দিয়ে পাঠান', 'Approve and send')}</button>
+              <button type="button" onClick={() => { c.reject(task); onClose(true, q.next); }} className="rounded-xl border border-border bg-white/80 px-4 py-3 font-semibold text-ink hover:bg-red-50 hover:text-red-700 cursor-pointer">{T('বাতিল', 'Reject')}</button>
+            </div>
+            {oneMobile && adv && (
+              <a href={smsHref(oneMobile, text.trim())} onClick={() => { c.approve(task, text.trim()); setTimeout(() => onClose(true, q.next), 300); }}
+                className="flex items-center justify-center gap-2 rounded-xl border border-primary-200 bg-primary-50/85 px-4 py-2.5 text-[14px] font-semibold text-primary-800 hover:bg-primary-100">
+                <Smartphone size={17} />{T(`অনুমোদন দিন ও ${L(one.name)}-এর ফোনে এসএমএস করুন (${bnDigits(oneMobile)})`, `Approve and SMS ${L(one.name)}’s phone (${oneMobile})`)}
+              </a>
+            )}
+            <p className="text-[12px] text-muted">{T('সিদ্ধান্তটি আপনার নামে কাজের খাতায় লেখা থাকবে।', 'Your decision is recorded in the activity log under your name.')}</p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default function ChakraAgent({ role }) {
-  const { T, L } = useStore();
+function BangladeshChakraAgent({ role }) {
+  const { T, L, macosPortal, toast } = useStore();
   const c = useChakra(role);
   const [open, setOpen] = useState(false);
+  const [panelMinimized, setPanelMinimized] = useState(false);
   const [verdict, setVerdict] = useState(null);
   const [later, setLater] = useState(() => new Set()); // verdicts the officer put off this visit
+  const [snoozedAll, setSnoozedAll] = useState(false);
+  const [verdictMinimized, setVerdictMinimized] = useState(false);
+  const [verdictExpanded, setVerdictExpanded] = useState(false);
   // A link elsewhere in the app (the home page's quick jump) can arrive with { chakra: true } to open the agent.
   const loc = useLocation();
-  useEffect(() => { if (loc.state?.chakra) setOpen(true); }, [loc.key, loc.state]);
-  c.openVerdict = (t) => setVerdict(t);
-  c.close = () => setOpen(false);
-  // Agent mode on the officer side: the next draft pops up for a verdict by itself.
-  const next = c.mode === 'agent' && !open ? c.verdicts.find((t) => !later.has(t.id)) : null;
-  const shown = verdict ?? next;
-  const closeVerdict = (decided) => { if (!decided && shown) setLater((x) => new Set([...x, shown.id])); setVerdict(null); };
+  useEffect(() => { if (loc.state?.chakra) { setPanelMinimized(false); setOpen(true); } }, [loc.key, loc.state]);
+  c.openVerdict = (t) => { setVerdictMinimized(false); setVerdict(t); };
+  c.close = () => { c.stopAll(); setPanelMinimized(false); setOpen(false); };
+
+  // Agent mode on the officer side: the next draft pops up for a verdict unless snoozed or minimized.
+  const next = nextAutoVerdict(c.verdicts, {
+    mode: c.mode,
+    panelOpen: open,
+    snoozedAll,
+    minimized: verdictMinimized,
+    later,
+  });
+  const activeVerdict = verdict ? (c.verdicts.find((v) => v.id === verdict.id) ?? null) : null;
+  const shown = verdictMinimized ? null : (activeVerdict ?? next);
+  const minimizedTarget = verdictMinimized ? (activeVerdict ?? c.verdicts.find((t) => !later.has(t.id)) ?? c.verdicts[0] ?? null) : null;
+
+  const closeVerdict = (decided, nextTask = null) => {
+    if (!decided && shown) setLater((x) => new Set([...x, shown.id]));
+    setVerdict(decided && nextTask ? nextTask : null);
+    setVerdictMinimized(false);
+  };
+  const dismissAll = (taskObj) => {
+    const res = dismissAllVerdicts(later, taskObj?.id ?? minimizedTarget?.id);
+    setLater(res.later);
+    setSnoozedAll(true);
+    setVerdictMinimized(false);
+    setVerdict(null);
+    toast('সবগুলো অনুমোদন পরে দেখার জন্য রাখা হয়েছে — ডক বা চক্র বোতাম থেকে খুলতে পারবেন', 'All remaining popups snoozed — reopen anytime from Dock or Chakra');
+  };
+  const minimizeVerdict = (taskObj) => {
+    if (taskObj) setVerdict(taskObj);
+    setVerdictMinimized(true);
+  };
+  const restoreVerdict = () => {
+    setVerdictMinimized(false);
+    setSnoozedAll(false);
+    setOpen(false);
+    setVerdict((prev) => {
+      if (prev && c.verdicts.some((v) => v.id === prev.id)) return prev;
+      const candidate = c.verdicts.find((v) => !later.has(v.id)) ?? c.verdicts[0] ?? null;
+      if (!candidate && c.verdicts.length) setLater(new Set());
+      return candidate;
+    });
+  };
+  const openPanel = () => { setPanelMinimized(false); setOpen(true); };
+  const closePanel = () => { c.stopAll(); setPanelMinimized(false); setOpen(false); };
+  const minimizePanel = () => { c.stopAll(); setOpen(false); setPanelMinimized(true); };
+
   const badge = role === 'officer' ? c.verdicts.length : c.tasks.filter((t) => t.gate !== 'auto' || t.kind === 'water' || t.kind === 'weather').length;
-  // Ctrl/⌘ + K opens the agent from anywhere.
+
+  useEffect(() => {
+    publishChakraDockState({
+      role,
+      mode: c.mode,
+      verdictsCount: c.verdicts.length,
+      snoozedAll,
+      minimizedVerdict: minimizedTarget,
+      minimizedPanel: panelMinimized,
+      panelOpen: open,
+    });
+  }, [role, c.mode, c.verdicts.length, snoozedAll, minimizedTarget, panelMinimized, open]);
+
+  useEffect(() => () => publishChakraDockState({
+    role: null,
+    verdictsCount: 0,
+    snoozedAll: false,
+    minimizedVerdict: null,
+    minimizedPanel: false,
+    panelOpen: false,
+  }), []);
+
+  // Ctrl/⌘ + K opens the agent, and macOS Dock icons restore minimized/snoozed windows.
   useEffect(() => {
     const k = (e) => {
       if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'k' || e.target.closest?.('input, textarea, select, [contenteditable="true"]')) return;
       e.preventDefault();
+      setPanelMinimized(false);
       setOpen((o) => !o);
     };
+    const onOpen = () => { setPanelMinimized(false); setOpen(true); };
+    const onRestorePanel = () => { setPanelMinimized(false); setOpen(true); };
+    const onRestoreVerdict = () => restoreVerdict();
     window.addEventListener('keydown', k);
-    return () => window.removeEventListener('keydown', k);
-  }, []);
+    window.addEventListener('open-chakra', onOpen);
+    window.addEventListener('chakra-dock-restore-panel', onRestorePanel);
+    window.addEventListener('chakra-dock-restore-verdict', onRestoreVerdict);
+    return () => {
+      window.removeEventListener('keydown', k);
+      window.removeEventListener('open-chakra', onOpen);
+      window.removeEventListener('chakra-dock-restore-panel', onRestorePanel);
+      window.removeEventListener('chakra-dock-restore-verdict', onRestoreVerdict);
+    };
+  }); // latest restoreVerdict closure avoids stale verdicts list
+
+  const headerVerdictAction = role === 'officer' && (snoozedAll || verdictMinimized) && c.verdicts.length > 0;
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} data-tour="chakra"
-        className={`relative hidden h-10 items-center gap-1.5 rounded-xl border px-1.5 text-[14px] font-semibold shadow-2xs transition-all duration-200 hover:scale-105 active:scale-95 sm:inline-flex sm:px-2.5 ${c.mode === 'agent' ? 'border-primary-700 bg-primary-950 text-white' : 'border-border bg-white text-ink hover:bg-primary-50'}`}
-        aria-label={`${L(AGENT_NAME)}, ${c.mode === 'agent' ? T('এজেন্ট চালু', 'agent on') : T('ম্যানুয়াল', 'manual')}`} title={`${L(AGENT_NAME)} (Ctrl+K)`}>
+      <button type="button" onClick={headerVerdictAction ? restoreVerdict : openPanel} data-tour="chakra"
+        className={`relative hidden h-9 sm:h-10 items-center gap-1.5 rounded-xl border px-2 text-[14px] font-semibold shadow-2xs transition-all duration-200 hover:scale-105 active:scale-95 sm:inline-flex sm:px-2.5 shrink-0 ${c.mode === 'agent' ? 'border-primary-700 bg-primary-950 text-white' : 'border-border bg-white text-ink hover:bg-primary-50'}`}
+        aria-label={headerVerdictAction ? T(`অপেক্ষমাণ ${num(c.verdicts.length, 'bn')}টি অনুমোদন খুলুন`, `Open ${c.verdicts.length} pending approvals`) : `${L(AGENT_NAME)}, ${c.mode === 'agent' ? T('এজেন্ট চালু', 'agent on') : T('ম্যানুয়াল', 'manual')}`}
+        title={headerVerdictAction ? T('অপেক্ষমাণ অনুমোদন পপআপ খুলুন', 'Restore queued approval popups') : `${L(AGENT_NAME)} (Ctrl+K)`}>
         <ChakraLogo size={26} spin={c.phase === 'thinking'} />
         <span className="hidden md:inline">{T('চক্র', 'Chakra')}</span>
         {c.mode === 'agent' && <span className="hidden rounded-md bg-paddy-300 px-1 text-[10.5px] font-bold uppercase text-primary-950 md:inline">{T('চালু', 'on')}</span>}
-        {badge > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-amber-500 px-1 text-[11px] font-bold text-white">{T(num(badge, 'bn'), String(badge))}</span>}
+        {badge > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-extrabold text-white shadow-xs ml-1 shrink-0">{T(num(badge, 'bn'), String(badge))}</span>}
       </button>
       {/* In a portal: the header's backdrop-filter would otherwise make it the box these fixed layers sit in. */}
       {createPortal(<>
       {!open && (
-        <div className={`fixed right-4 z-40 ${role === 'farmer' ? 'bottom-[6.6rem] lg:bottom-6' : 'bottom-6 lg:right-20'}`}>
-          <ChakraOrb phase={c.phase} size={58} onClick={() => setOpen(true)} label={`${L(AGENT_NAME)}: ${T('কথা বলুন', 'talk')}`} />
+        <div className={`fixed right-4 sm:right-6 z-40 ${role === 'farmer' ? 'bottom-[6.6rem] lg:bottom-6' : 'bottom-6'}`}>
+          <ChakraOrb phase={c.phase} size={58} onClick={openPanel} label={`${L(AGENT_NAME)}: ${T('কথা বলুন', 'talk')}`} />
         </div>
       )}
-      {open && <Panel c={c} onClose={() => { c.stopAll(); setOpen(false); }} />}
-      {shown && <Verdict key={shown.id} c={c} task={shown} onClose={closeVerdict} />}
+      {open && <Panel c={c} onClose={closePanel} onMinimize={minimizePanel} />}
+      {shown && (
+        <Verdict
+          key={shown.id}
+          c={c}
+          task={shown}
+          expanded={verdictExpanded}
+          onToggleExpand={() => setVerdictExpanded((v) => !v)}
+          onMinimize={minimizeVerdict}
+          onDismissAll={dismissAll}
+          onSelectTask={(t) => setVerdict(t)}
+          onClose={closeVerdict}
+        />
+      )}
+      {!shown && verdictMinimized && c.verdicts.length > 0 && (
+        <MinimizedWindowPill
+          kind="verdict"
+          title={T('অনুমোদন পপআপ', 'Approval queue')}
+          count={c.verdicts.length}
+          onRestore={restoreVerdict}
+          onDismissAll={() => dismissAll(minimizedTarget)}
+          portalDockVisible={macosPortal}
+          role={role}
+        />
+      )}
+      {!open && !verdictMinimized && panelMinimized && (
+        <MinimizedWindowPill
+          kind="panel"
+          title={L(AGENT_NAME)}
+          count={badge}
+          onRestore={openPanel}
+          onDismissAll={closePanel}
+          portalDockVisible={macosPortal}
+          role={role}
+        />
+      )}
       </>, document.body)}
     </>
   );
+}
+
+export default function ChakraAgent(props) {
+  if (props.abroad) {
+    return <AbroadChakraAgent role={props.role} context={props.abroad} />;
+  }
+  return <BangladeshChakraAgent role={props.role} />;
 }

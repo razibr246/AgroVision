@@ -14,6 +14,7 @@ const ORBITAL_FLEET = [
     agency: 'NASA / JAXA',
     altitudeKm: 407,
     payload: 'DPR & GMI (Microwave Imager)',
+    payloadBn: 'ডিপিআর ও জিএমআই (মাইক্রোওয়েভ ইমেজার)',
     swathKm: 885,
     azimuthDeg: 142,
     elevationDeg: 68,
@@ -30,6 +31,7 @@ const ORBITAL_FLEET = [
     agency: 'ESA / Copernicus',
     altitudeKm: 693,
     payload: 'C-SAR (5.405 GHz Radar)',
+    payloadBn: 'সি-এসএআর (৫.৪০৫ গিগাহার্জ রাডার)',
     swathKm: 250,
     azimuthDeg: 320,
     elevationDeg: 42,
@@ -46,6 +48,7 @@ const ORBITAL_FLEET = [
     agency: 'ESA / Copernicus',
     altitudeKm: 786,
     payload: 'MultiSpectral Instrument (13 Bands)',
+    payloadBn: 'মাল্টিস্পেক্ট্রাল ইন্সট্রুমেন্ট (১৩ ব্যান্ড)',
     swathKm: 290,
     azimuthDeg: 210,
     elevationDeg: 55,
@@ -62,6 +65,7 @@ const ORBITAL_FLEET = [
     agency: 'NASA JPL',
     altitudeKm: 685,
     payload: 'L-band Radiometer (1.4 GHz)',
+    payloadBn: 'এল-ব্যান্ড রেডিওমিটার (১.৪ গিগাহার্জ)',
     swathKm: 1000,
     azimuthDeg: 45,
     elevationDeg: 74,
@@ -78,6 +82,7 @@ const ORBITAL_FLEET = [
     agency: 'NASA / USGS',
     altitudeKm: 705,
     payload: 'OLI-2 & TIRS-2 (Thermal Infrared)',
+    payloadBn: 'ওএলআই-২ ও টিআইআরএস-২ (তাপীয় অবলোহিত)',
     swathKm: 185,
     azimuthDeg: 195,
     elevationDeg: 35,
@@ -143,7 +148,7 @@ export default function LiveSatellitePassTracker() {
         {/* Celestial Sky-Dome Radar SVG */}
         <div className="relative mx-auto flex flex-col items-center">
           <div className="relative h-[220px] w-[220px] rounded-full border border-sky-950/20 bg-gradient-to-b from-primary-950 via-sky-950 to-primary-950 p-2 shadow-inner">
-            <svg viewBox="0 0 220 220" className="h-full w-full" aria-label="Celestial Sky Radar Dome">
+            <svg viewBox="0 0 220 220" className="h-full w-full" aria-label={T('আকাশ-রাডার গম্বুজ', 'Celestial Sky Radar Dome')}>
               <defs>
                 {/* Radar Sweep Gradient */}
                 <radialGradient id="radarSweepGlow" cx="50%" cy="50%" r="50%">
@@ -163,14 +168,14 @@ export default function LiveSatellitePassTracker() {
               <line x1={CX - MAX_R} y1={CY} x2={CX + MAX_R} y2={CY} stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
 
               {/* Cardinal Compass Labels */}
-              <text x={CX} y={CY - MAX_R + 10} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">N</text>
-              <text x={CX + MAX_R - 8} y={CY + 3} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">E</text>
-              <text x={CX} y={CY + MAX_R - 4} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">S</text>
-              <text x={CX - MAX_R + 8} y={CY + 3} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">W</text>
+              <text x={CX} y={CY - MAX_R + 10} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">{T('উ', 'N')}</text>
+              <text x={CX + MAX_R - 8} y={CY + 3} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">{T('পূ', 'E')}</text>
+              <text x={CX} y={CY + MAX_R - 4} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">{T('দ', 'S')}</text>
+              <text x={CX - MAX_R + 8} y={CY + 3} fill="rgba(255,255,255,0.7)" fontSize="9" textAnchor="middle" fontWeight="bold">{T('প', 'W')}</text>
 
               {/* Elevation Markings */}
-              <text x={CX + 3} y={CY - MAX_R * 0.33 + 3} fill="rgba(255,255,255,0.35)" fontSize="7">60°</text>
-              <text x={CX + 3} y={CY - MAX_R * 0.66 + 3} fill="rgba(255,255,255,0.35)" fontSize="7">30°</text>
+              <text x={CX + 3} y={CY - MAX_R * 0.33 + 3} fill="rgba(255,255,255,0.35)" fontSize="7">{num(60, lang)}°</text>
+              <text x={CX + 3} y={CY - MAX_R * 0.66 + 3} fill="rgba(255,255,255,0.35)" fontSize="7">{num(30, lang)}°</text>
 
               {/* Sweeping Radar Beam */}
               <g style={{ transformOrigin: `${CX}px ${CY}px`, animation: 'radar-sweep-spin 6s linear infinite' }}>
@@ -277,10 +282,10 @@ export default function LiveSatellitePassTracker() {
 
             <div>
               <span className="text-[11.5px] font-semibold uppercase tracking-wider text-muted">
-                {T('সেন্সর ও সোয়াথ (Swath)', 'Payload & Swath')}
+                {T('সেন্সর ও সোয়াথ', 'Payload & Swath')}
               </span>
               <div className="mt-0.5 font-display text-[14.5px] font-bold text-ink truncate">
-                {selectedSat.payload}
+                {T(selectedSat.payloadBn, selectedSat.payload)}
               </div>
               <span className="text-[12px] text-muted">
                 {T('প্রস্থ: ', 'Width: ')}{num(selectedSat.swathKm, lang)} {T('কিমি', 'km')}
@@ -292,7 +297,7 @@ export default function LiveSatellitePassTracker() {
                 {T('দিগংশ ও উন্নতি কোণ', 'Azimuth & Elevation')}
               </span>
               <div className="mt-0.5 font-display text-[15px] font-bold" style={{ color: selectedSat.accent }}>
-                Az {num(selectedSat.azimuthDeg, lang)}° · El {num(selectedSat.elevationDeg, lang)}°
+                {T('দিগংশ', 'Az')} {num(selectedSat.azimuthDeg, lang)}° · {T('উন্নতি', 'El')} {num(selectedSat.elevationDeg, lang)}°
               </div>
               <span className="text-[12px] text-muted">
                 {L({ bn: selectedSat.statusBn, en: selectedSat.statusEn })}

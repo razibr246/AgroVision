@@ -17,6 +17,8 @@
 //   R4_CONFIDENCE_CEILING not a problem with the answer: the evidence itself is sample, saved or missing, so the
 //                         answer's confidence is capped and the reason is shown
 
+import { ABROAD_ORDER } from '../data/abroad.js';
+
 export const RAIN_OFFSET_MM = 5; // the same 5 mm the field water card uses for "rain may make up the shortfall"
 export const MAX_ATTEMPTS = 2; // first answer plus one retry, as in the original validator loop
 
@@ -25,7 +27,7 @@ export const latinDigits = (s) => String(s ?? '').replace(/[০-৯]/g, (d) => S
 
 // Numbers with a unit worth checking. Dates, counts of days and request numbers are left alone: they are too
 // easy to say correctly in many ways and too rarely the cause of harm.
-const UNIT = String.raw`(মিমি|মিলিমিটার|mm|millimet(?:er|re)s?|%|শতাংশ|percent|°\s*C|°|ডিগ্রি|degrees?|টাকা|tk\b|taka|৳|মণ|maunds?|কেজি|kg)`;
+const UNIT = String.raw`(মিমি|মিলিমিটার|mm|millimet(?:er|re)s?|hectares?|hectare|ha\b|acres?|acre|%|শতাংশ|percent|°\s*C|°|ডিগ্রি|degrees?|টাকা|tk\b|taka|৳|মণ|maunds?|কেজি|kg)`;
 const NUM_UNIT = new RegExp(String.raw`(\d+(?:\.\d+)?)\s*` + UNIT, 'gi');
 const TAKA_FIRST = /(?:৳|tk\.?|taka)\s*(\d+(?:\.\d+)?)/gi;
 
@@ -94,8 +96,26 @@ const problem = (id, level, bn, en) => ({ id, level, bn, en });
 // reply: the model's words; proposals: [{action, text, target}]; data: the app sections sent to the model;
 // message: the person's question (numbers they said are fair to repeat); sources: web results the model used.
 // → { ok, problems, proposals (bad targets removed), ceiling, limits }
-export function checkReply({ reply = '', proposals = [], data = {}, role = 'farmer', message = '', sources = [] } = {}) {
+// R7: the answer must be in the language the person's app is set to. Counted in words (a Bangla word has a Bangla
+// letter, an English word a Latin one), so an English answer may carry a Bangla name and a Bangla one an English name
+// ("FieldShift 360", "Landsat"), but not whole sentences of the other language.
+export function replyLanguage(text) {
+  const words = String(text ?? '').split(/\s+/);
+  const bn = words.filter((w) => /[\u0980-\u09E5\u09F0-\u09FF]/.test(w)).length;
+  const en = words.filter((w) => /[A-Za-z]{2,}/.test(w) && !/[\u0980-\u09FF]/.test(w)).length;
+  return { bn, en, share: bn + en ? bn / (bn + en) : 0 };
+}
+export function wrongLanguage(text, lang) {
+  const { bn, en, share } = replyLanguage(text);
+  if (bn + en < 4) return false; // too short to judge
+  return lang === 'en' ? share > 0.1 : en >= 4 && en > 2 * bn;
+}
+
+export function checkReply({ reply = '', proposals = [], data = {}, role = 'farmer', message = '', sources = [], lang = null } = {}) {
   const problems = [];
+  if (lang && wrongLanguage(reply, lang)) problems.push(lang === 'en'
+    ? problem('R7_LANGUAGE', 'fix', 'অ্যাপ ইংরেজিতে, অথচ উত্তর বাংলায়', "The person's app is set to English but the answer is in Bangla; answer only in English")
+    : problem('R7_LANGUAGE', 'fix', 'অ্যাপ বাংলায়, অথচ উত্তর ইংরেজিতে', "The person's app is set to Bangla but the answer is in English; answer only in Bangla (বাংলা)"));
   const today = data.today ?? null;
   const water = today?.water ?? null, weather = today?.weather ?? null;
 
@@ -125,9 +145,15 @@ export function checkReply({ reply = '', proposals = [], data = {}, role = 'farm
   // P1: what each proposal points at must exist. Bad ones are dropped here, before the app's policy sees them.
   const ids = idsIn(data);
   const kept = [];
+  const abroad = data.place_context?.kind === 'abroad' && ABROAD_ORDER.includes(data.place_context.country);
   for (const p of proposals) {
     const t = String(p?.target ?? '');
-    const bad = p?.action === 'navigate' ? !new RegExp(`^/${role}(/[a-z0-9-]+)*(#[a-z0-9-]+)?$`).test(t)
+    if (abroad && p?.action !== 'navigate') {
+      problems.push(problem('P2_ABROAD_ACTION', 'note', 'বিদেশি এজেন্ট কোনো কাজ পাঠাতে বা বদলাতে পারবে না; শুধু পাতা খোলার প্রস্তাব রাখা হয়েছে', 'Foreign agent actions cannot send or change records; only navigation proposals are allowed'));
+      continue;
+    }
+    const route = abroad ? new RegExp(`^/abroad/${data.place_context.country}(/[a-z0-9-]+)*(#[a-z0-9-]+)?$`) : new RegExp(`^/${role}(/[a-z0-9-]+)*(#[a-z0-9-]+)?$`);
+    const bad = p?.action === 'navigate' ? !route.test(t)
       : p?.action === 'follow_up' || p?.action === 'reply_farmer' || p?.action === 'area_advice' ? !ids.has(t) : false;
     if (bad) problems.push(problem('P1_BAD_TARGET', 'note', `"${t || '—'}" খুঁজে পাওয়া যায়নি, প্রস্তাবটি বাদ দেওয়া হলো`, `"${t || '—'}" was not found; the proposal was dropped`));
     else kept.push(p);
@@ -148,12 +174,13 @@ export function checkReply({ reply = '', proposals = [], data = {}, role = 'farm
 // The note that goes back to the model for its second try (in English: it is an instruction, not for the person).
 export function retryNote(problems) {
   const fix = problems.filter((p) => p.level === 'fix');
+  const lang = fix.some((p) => p.id === 'R7_LANGUAGE') ? "Answer again only in the language named in [R7_LANGUAGE], in the same style." : 'Answer again in the same language and style.';
   return `Your answer failed the app's checks against its own data:\n${fix.map((p) => `[${p.id}] ${p.en}`).join('\n')}\n`
-    + 'Answer again in the same language and style. Use only numbers that are in the app data, follow the field water balance and the rain forecast, and never give a chemical dose. Do not mention these checks.';
+    + `${lang} Use only numbers that are in the app data, follow the field water balance and the rain forecast, and never give a chemical dose. Do not mention these checks.`;
 }
 
 // After the last try: take out what is still wrong and say what the app's own numbers say instead.
-export function repairReply(reply, problems, data, lang = 'bn') {
+export function repairReply(reply, problems, data, lang = 'en') {
   const ids = new Set(problems.filter((p) => p.level === 'fix').map((p) => p.id));
   let out = String(reply ?? '');
   if (ids.has('R3_OWN_DOSE')) {

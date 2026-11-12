@@ -12,7 +12,14 @@ import { STORAGE_PREFIX } from '../../config/brand';
 
 const KEY = `${STORAGE_PREFIX}.testkit.sessions`;
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
-const save = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* storage blocked: export before leaving */ } };
+const save = (v) => {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(v));
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export default function TestKit() {
   const { T, L, s: st, toast } = useStore();
@@ -27,21 +34,26 @@ export default function TestKit() {
     if (timer?.k === k) { task(k, { done: true, secs: Math.round((Date.now() - timer.t0) / 1000) }); setTimer(null); }
     else setTimer({ k, t0: Date.now() });
   };
-  const finish = () => { const next = [...sessions, cur]; setSessions(next); save(next); setCur(null); setTimer(null); toast('সেশন রাখা হলো', 'Session saved'); };
+  const finish = () => {
+    if (!cur?.consented) return;
+    const next = [...sessions, cur];
+    if (!save(next)) { toast('এই যন্ত্রে সেশন রাখা যায়নি। স্থান খালি করে আবার চেষ্টা করুন।', 'Could not save this session on the device. Free storage and try again.'); return; }
+    setSessions(next); setCur(null); setTimer(null); toast('সেশন রাখা হলো', 'Session saved');
+  };
   const download = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCsv(sessions)], { type: 'text/csv' })); a.download = `fieldshift-user-tests-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); };
-  const copyRows = async () => { try { await navigator.clipboard.writeText(toMarkdownRows(sessions)); toast('docs/USER_TESTING.md-এর জন্য সারি কপি হয়েছে', 'Rows for docs/USER_TESTING.md copied'); } catch { /* clipboard blocked */ } };
+  const copyRows = async () => { try { await navigator.clipboard.writeText(toMarkdownRows(sessions)); toast('পরীক্ষার ফলাফলের সারি কপি হয়েছে', 'Rows for docs/USER_TESTING.md copied'); } catch { /* clipboard blocked */ } };
   const pill = (on) => `rounded-full px-3.5 py-2 text-[14px] font-semibold ring-1 transition ${on ? 'bg-primary-700 text-white ring-primary-700' : 'bg-white text-ink/80 ring-border hover:ring-primary-300'}`;
 
   return (
     <div className="page-shell pb-24 pt-[110px] sm:pt-[124px]">
       <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><ClipboardCheck size={15} />{T('মাঠে পরীক্ষার কিট', 'Field-test kit')}</p>
       <h1 className="mt-4 text-[34px] font-semibold leading-tight sm:text-[46px]">{T('কৃষক আর কর্মকর্তার সঙ্গে পরীক্ষা', 'Testing with farmers and officers')}</h1>
-      <p className="mt-2 max-w-2xl text-[16px] leading-7 text-ink/75">{T('যিনি পরীক্ষা চালাবেন তাঁর জন্য। প্রতিটি সেশনে চারটি কাজ, তিনটি প্রশ্ন, আর কী সমস্যা হলো। কারও নাম বা ফোন নম্বর রাখা হয় না; সব এই যন্ত্রেই থাকে, পরে CSV বা docs/USER_TESTING.md-এর সারি হিসেবে বের করুন।', 'For whoever runs the test. Each session: four tasks, three questions, and what went wrong. No names or phone numbers are kept; everything stays on this device until you export it as CSV or as rows for docs/USER_TESTING.md.')}</p>
+      <p className="mt-2 max-w-2xl text-[16px] leading-7 text-ink/75">{T('যিনি পরীক্ষা চালাবেন তাঁর জন্য। প্রতিটি সেশনে চারটি কাজ, তিনটি প্রশ্ন, আর কী সমস্যা হলো। কারও নাম বা ফোন নম্বর রাখা হয় না; সব এই যন্ত্রেই থাকে, পরে CSV বা ফলাফলের সারি হিসেবে বের করুন।', 'For whoever runs the test. Each session: four tasks, three questions, and what went wrong. No names or phone numbers are kept; everything stays on this device until you export it as CSV or as rows for docs/USER_TESTING.md.')}</p>
 
       {/* so far */}
       <Card className="mt-6 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-[19px] font-bold">{T(`এ পর্যন্ত ${num(o.n, 'bn')}টি সেশন`, `${o.n} sessions so far`)}</h2>
+          <h2 className="text-[19px] font-bold">{T(`এ পর্যন্ত ${num(o.n, 'bn')}টি সম্মত সেশন`, `${o.n} consented sessions so far`)}</h2>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={download} disabled={!o.n} className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[14px] font-semibold ring-1 ring-border disabled:opacity-40"><Download size={16} />CSV</button>
             <button type="button" onClick={copyRows} disabled={!o.n} className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[14px] font-semibold ring-1 ring-border disabled:opacity-40"><Copy size={16} />{T('ফলাফলের সারি', 'Results rows')}</button>
@@ -51,16 +63,17 @@ export default function TestKit() {
         {o.n > 0 && (
           <dl className="mt-3 grid grid-cols-2 gap-2 text-[13.5px] sm:grid-cols-4">
             <div className="rounded-xl bg-canvas p-3"><dt className="text-muted">{T('তিন প্রশ্নই বুঝেছেন', 'Understood all three')}</dt><dd className="text-[20px] font-bold">{num(o.passed, lang)}/{num(o.n, lang)}</dd></div>
+            <div className="rounded-xl bg-canvas p-3"><dt className="text-muted">{T('পণ্যের কারণে কাজ আটকে গেছে', 'Tasks blocked by product')}</dt><dd className="text-[20px] font-bold">{num(o.blockedTasks, lang)}</dd></div>
             {QUESTIONS.map((q) => <div key={q.k} className="rounded-xl bg-canvas p-3"><dt className="text-muted">{L(q)}</dt><dd className="text-[20px] font-bold">{num(Math.round(o.byQuestion[q.k] * 100), lang)}%</dd></div>)}
             <div className="col-span-2 rounded-xl bg-canvas p-3 sm:col-span-4"><dt className="text-muted">{T('কারা ছিলেন', 'Who took part')}</dt><dd>{T(`${num(o.women, 'bn')} জন নারী · ${num(o.lowLiteracy, 'bn')} জন কম পড়তে পারেন · ${num(o.lowPhone, 'bn')} জনের সাধারণ বা কম দামি ফোন`, `${o.women} women · ${o.lowLiteracy} read little or no Bangla · ${o.lowPhone} on a basic or low-end phone`)}</dd></div>
           </dl>
         )}
         {sessions.length > 0 && (
           <ul className="mt-3 divide-y divide-border text-[13.5px]">
-            {sessions.map((x, i) => { const m = summarise(x); return (
+            {sessions.map((x, i) => { const m = summarise(x), reportable = x.consented === true; return (
               <li key={x.at} className="flex items-center justify-between gap-2 py-2">
-                <span>{fmtDate(x.at, lang)} · {x.place || '—'} · {x.role === 'officer' ? T('কর্মকর্তা', 'officer') : T('কৃষক', 'farmer')} · {T(`${num(m.done, 'bn')}/৪ কাজ নিজে`, `${m.done}/4 tasks unaided`)} · {m.pass ? '✅' : '⚠️'}</span>
-                <button type="button" onClick={() => { const next = sessions.filter((_, k) => k !== i); setSessions(next); save(next); }} aria-label={T('সেশন মুছুন', 'Delete session')} className="grid h-9 w-9 place-items-center rounded-full hover:bg-red-50"><Trash2 size={15} className="text-red-700" /></button>
+                <span>{fmtDate(x.at, lang)} · {x.place || '—'} · {x.role === 'officer' ? T('কর্মকর্তা', 'officer') : T('কৃষক', 'farmer')} · {reportable ? <>{T(`${num(m.done, 'bn')}/৪ কাজ নিজে`, `${m.done}/4 tasks unaided`)} · {m.blocked > 0 && T(`${num(m.blocked, 'bn')}টি পণ্যে আটকে`, `${m.blocked} product-blocked`)} · {m.pass ? '✅' : '⚠️'}</> : T('পুরোনো সেশন—সম্মতি নথিভুক্ত নয়, ফলাফলে ধরা হয়নি', 'Legacy session—consent not recorded; excluded from results')}</span>
+                <button type="button" onClick={() => { const next = sessions.filter((_, k) => k !== i); if (save(next)) setSessions(next); else toast('সেশন মোছা যায়নি।', 'Could not delete the session from this device.'); }} aria-label={T('সেশন মুছুন', 'Delete session')} className="grid h-9 w-9 place-items-center rounded-full hover:bg-red-50"><Trash2 size={15} className="text-red-700" /></button>
               </li>
             ); })}
           </ul>
@@ -70,9 +83,21 @@ export default function TestKit() {
       {cur && (
         <div className="mt-5 space-y-4">
           <Card className="p-4 sm:p-5">
-            <h2 className="text-[18px] font-bold">১. {T('সম্মতি (জোরে পড়ে শোনান)', 'Consent (read aloud)')}</h2>
-            <p className="mt-2 rounded-xl bg-paddy-50 p-3 text-[15px] leading-7">{T('আমরা একটা ফোনের অ্যাপ পরীক্ষা করছি, আপনাকে নয়। কোনো উত্তর ভুল নয়। আপনার নাম বা ফোন নম্বর লেখা হবে না। যেকোনো সময় থামতে পারেন। রাজি থাকলে শুরু করি?', 'We are testing a phone app, not you. No answer is wrong. Your name and phone number will not be written down. You may stop at any time. Shall we begin, if you agree?')}</p>
-            <h2 className="mt-4 text-[18px] font-bold">২. {T('কে পরীক্ষা করছেন (নাম নয়)', 'Who is testing (no names)')}</h2>
+            <h2 className="text-[18px] font-bold">{num(1, lang)}. {T('সম্মতি (জোরে পড়ে শোনান)', 'Consent (read aloud)')}</h2>
+            <p className="mt-2 rounded-xl bg-paddy-50 p-3 text-[15px] leading-7">{T('আমরা একটা ফোনের অ্যাপ পরীক্ষা করছি, আপনাকে নয়। কোনো উত্তর ভুল নয়। আপনার নাম বা ফোন নম্বর লেখা হবে না। যেকোনো সময় থামতে পারেন। রাজি থাকলে শুরু করি?', 'We are testing a phone app, not you. No answer is wrong. Your name or phone number will not be recorded. You may stop at any time. Do you agree to take part?')}</p>
+            {cur.consented !== true && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" onClick={() => upd({ consented: true, consentedAt: new Date().toISOString() })} className="rounded-full bg-primary-700 px-4 py-2.5 text-[14px] font-bold text-white">{T('হ্যাঁ, সম্মতি দিচ্ছি', 'Yes, I agree')}</button>
+                <button type="button" onClick={() => { setCur(null); setTimer(null); }} className="rounded-full bg-white px-4 py-2.5 text-[14px] font-semibold ring-1 ring-border">{T('না, অংশ নেব না', 'No, do not take part')}</button>
+              </div>
+            )}
+            {cur.consented === true && <p className="mt-2 text-[13px] font-semibold text-emerald-800">{T('সম্মতি নথিভুক্ত হয়েছে। অংশগ্রহণকারী চাইলে যেকোনো সময় থামাতে পারেন।', 'Consent recorded. The participant may stop at any time.')}</p>}
+          </Card>
+
+          {cur.consented === true && <>
+          <Card className="p-4 sm:p-5">
+            <h2 className="mt-4 text-[18px] font-bold">{num(2, lang)}. {T('কে পরীক্ষা করছেন (নাম নয়)', 'Who is testing (no names)')}</h2>
+            <p className="text-[12.5px] text-muted">{T('মুক্ত লেখায় কারও নাম, ফোন নম্বর বা পরিচয় বোঝা যায় এমন তথ্য লিখবেন না।', 'Do not enter names, phone numbers, or other identifying details in free-text fields.')}</p>
             <label className="mt-2 block text-[13.5px] font-semibold">{T('জায়গা (ইউনিয়ন, উপজেলা)', 'Place (union, upazila)')}
               <input value={cur.place} onChange={(e) => upd({ place: e.target.value })} className="mt-1 h-11 w-full rounded-xl border border-border px-3 text-[15px]" />
             </label>
@@ -90,23 +115,25 @@ export default function TestKit() {
           </Card>
 
           <Card className="p-4 sm:p-5">
-            <h2 className="text-[18px] font-bold">৩. {T('চারটি কাজ, সাহায্য ছাড়া', 'Four tasks, unaided')}</h2>
+            <h2 className="text-[18px] font-bold">{num(3, lang)}. {T('চারটি কাজ, সাহায্য ছাড়া', 'Four tasks, unaided')}</h2>
             <p className="text-[13.5px] text-muted">{T('কাজ শুরুতে ঘড়ি চালু করুন, শেষ হলে থামান। সাহায্য লাগলে "সাহায্য লেগেছে" চাপুন।', 'Start the clock when the task begins and stop it when it is done. Tap “needed help” if you had to step in.')}</p>
             <ul className="mt-3 space-y-2">
               {TASKS.map((t, i) => { const v = cur.tasks[t.k] ?? {}, running = timer?.k === t.k; return (
                 <li key={t.k} className="flex flex-wrap items-center gap-2 rounded-2xl border border-border p-3">
                   <span className="min-w-[160px] flex-1 text-[15px] font-bold">{num(i + 1, lang)}. {L(t)}</span>
                   <a href={`#${t.path}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary-800"><ExternalLink size={14} />{T('খুলুন', 'Open')}</a>
-                  <button type="button" onClick={() => startStop(t.k)} className={`inline-flex h-11 items-center gap-1.5 rounded-full px-4 text-[14px] font-bold ${running ? 'bg-red-600 text-white' : 'bg-primary-700 text-white'}`}>{running ? <><Square size={15} />{T('থামান', 'Stop')}</> : <><Play size={15} />{v.done ? T('আবার', 'Again') : T('শুরু', 'Start')}</>}</button>
+                  {!v.blocked && <button type="button" onClick={() => startStop(t.k)} className={`inline-flex h-11 items-center gap-1.5 rounded-full px-4 text-[14px] font-bold ${running ? 'bg-red-600 text-white' : 'bg-primary-700 text-white'}`}>{running ? <><Square size={15} />{T('থামান', 'Stop')}</> : <><Play size={15} />{v.done ? T('আবার', 'Again') : T('শুরু', 'Start')}</>}</button>}
                   {v.done && <span className="inline-flex items-center gap-1 text-[13.5px] font-semibold text-primary-800"><Check size={15} />{num(v.secs, lang)} {T('সেকেন্ড', 's')}</span>}
-                  <button type="button" aria-pressed={!!v.helped} onClick={() => task(t.k, { helped: !v.helped })} className={pill(!!v.helped)}>{T('সাহায্য লেগেছে', 'Needed help')}</button>
+                  {!v.blocked && <button type="button" aria-pressed={!!v.helped} onClick={() => task(t.k, { helped: !v.helped })} className={pill(!!v.helped)}>{T('সাহায্য লেগেছে', 'Needed help')}</button>}
+                  <button type="button" aria-pressed={!!v.blocked} onClick={() => { if (running) setTimer(null); task(t.k, v.blocked ? { blocked: false, blockReason: '' } : { blocked: true, done: false, helped: false }); }} className={pill(!!v.blocked)}>{T('অ্যাপ/সেবা আটকে দিল', 'Blocked by app/service')}</button>
+                  {v.blocked && <input aria-label={T('কেন কাজ আটকে গেল', 'Why the task was blocked')} value={v.blockReason ?? ''} onChange={(e) => task(t.k, { blockReason: e.target.value })} placeholder={T('যেমন: অনলাইন সেবা অনুপলব্ধ', 'e.g. online service unavailable')} className="h-11 w-full rounded-xl border border-border px-3 text-[14px]" />}
                 </li>
               ); })}
             </ul>
           </Card>
 
           <Card className="p-4 sm:p-5">
-            <h2 className="text-[18px] font-bold">৪. {T('তিনটি প্রশ্ন (পর্দা না দেখিয়ে)', 'Three questions (screen hidden)')}</h2>
+            <h2 className="text-[18px] font-bold">{num(4, lang)}. {T('তিনটি প্রশ্ন (পর্দা না দেখিয়ে)', 'Three questions (screen hidden)')}</h2>
             <ul className="mt-3 space-y-3">
               {QUESTIONS.map((q) => (
                 <li key={q.k} className="rounded-2xl border border-border p-3">
@@ -122,7 +149,8 @@ export default function TestKit() {
           </Card>
 
           <Card className="p-4 sm:p-5">
-            <h2 className="text-[18px] font-bold">৫. {T('কী সমস্যা দেখলেন, আর কেমন লাগল', 'What went wrong, and how it felt')}</h2>
+            <h2 className="text-[18px] font-bold">{num(5, lang)}. {T('কী সমস্যা দেখলেন, আর কেমন লাগল', 'What went wrong, and how it felt')}</h2>
+            <p className="text-[12.5px] text-muted">{T('সমস্যার নোটেও পরিচয়-তথ্য লিখবেন না।', 'Do not include identifying details in problem notes.')}</p>
             <textarea aria-label={T('দেখা সমস্যা', 'Problems seen')} rows={3} value={cur.problems} onChange={(e) => upd({ problems: e.target.value })} placeholder={T('শব্দ যা বোঝেননি, চাপতে না পারা বোতাম, ধীর পাতা…', 'Words they did not understand, buttons they could not tap, slow pages…')} className="mt-2 w-full rounded-xl border border-border p-3 text-[15px]" />
             <div className="mt-3 flex gap-2" role="radiogroup" aria-label={T('কেমন লাগল', 'How it felt')}>
               {['😟', '🙁', '😐', '🙂', '😄'].map((e, i) => <button key={e} type="button" role="radio" aria-checked={cur.rating === i + 1} onClick={() => upd({ rating: i + 1 })} className={`grid h-12 w-12 place-items-center rounded-full text-[24px] ring-2 ${cur.rating === i + 1 ? 'bg-paddy-50 ring-paddy-400' : 'ring-transparent'}`}>{e}</button>)}
@@ -132,6 +160,7 @@ export default function TestKit() {
               <button type="button" onClick={() => { setCur(null); setTimer(null); }} className="rounded-full bg-white px-5 py-3 text-[15px] font-semibold ring-1 ring-border">{T('বাতিল', 'Cancel')}</button>
             </div>
           </Card>
+          </>}
         </div>
       )}
     </div>

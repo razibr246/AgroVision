@@ -2,15 +2,17 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Swords, Search, Sparkles } from 'lucide-react';
 import BrandMark from '../components/brand/BrandMark';
+import PublicAtmosphere from '../components/brand/PublicAtmosphere';
 import { LangToggle, PlaceholderBanner, SkipToMain } from '../components/chrome';
 import { useStore } from '../store';
 import { PageOutlet, ScrollProgress, scrollToEl, scrollToTop, useScrollOnNavigate } from '../components/Motion';
+import { ScrollNavigator } from '../components/SectionNav';
 import { openCommandPalette } from '../components/CommandPalette';
 
 export const scrollToId = (id) => scrollToEl(document.getElementById(id), 0); // sections carry their own scroll margin for the header
 
 const SECTIONS = ['how', 'land', 'data', 'officer'];
-const GAME_PATHS = ['/games', '/saga', '/play', '/farm', '/stories'];
+const GAME_PATHS = ['/games', '/saga', '/play', '/farm', '/kids', '/stories'];
 const SPY_LINE = 140; // a section counts as "current" once its top passes this far below the top of the window
 
 export default function PublicLayout() {
@@ -24,19 +26,33 @@ export default function PublicLayout() {
 
   // Header tightening plus scroll-spy: which home-page section is on screen now.
   useEffect(() => {
+    let sectionEls = null;
+    const cacheSections = () => {
+      sectionEls = SECTIONS.map((id) => document.getElementById(id)).filter(Boolean);
+    };
     const f = () => {
-      setSolid(window.scrollY > 40);
+      const isSolid = window.scrollY > 40;
+      setSolid((prev) => (prev === isSolid ? prev : isSolid));
       if (loc.pathname !== '/' || Date.now() < lockUntil.current) return;
+      if (!sectionEls || !sectionEls.length) cacheSections();
       let cur = null;
-      for (const id of SECTIONS) { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top <= SPY_LINE) cur = id; }
-      setSpy(cur);
+      for (let i = 0; i < sectionEls.length; i++) {
+        const el = sectionEls[i];
+        if (el && el.getBoundingClientRect().top <= SPY_LINE) cur = el.id;
+      }
+      setSpy((prev) => (prev === cur ? prev : cur));
     };
     // At most once per frame, however fast the scroll events arrive.
     let raf = 0;
     const onScrollEvt = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; f(); }); };
     f();
     window.addEventListener('scroll', onScrollEvt, { passive: true });
-    return () => { window.removeEventListener('scroll', onScrollEvt); cancelAnimationFrame(raf); };
+    window.addEventListener('resize', cacheSections, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScrollEvt);
+      window.removeEventListener('resize', cacheSections);
+      cancelAnimationFrame(raf);
+    };
   }, [loc.pathname]);
 
   const nav = [['how', T('কীভাবে কাজ করে', 'How it works')], ['land', T('জমি বাছাই', 'Your field')], ['data', T('তথ্যের উৎস', 'Data')], ['officer', T('কৃষি কর্মকর্তা', 'Officers')]];
@@ -64,21 +80,27 @@ export default function PublicLayout() {
 
   // The highlight on the glass follows the pointer (mouse and pen only), at most once per frame.
   const barRef = useRef(null);
+  const barRect = useRef(null);
   const glideRaf = useRef(0);
   const glide = (e) => {
     if (e.pointerType === 'touch') return;
     const el = barRef.current;
+    if (!el) return;
+    if (!barRect.current) barRect.current = el.getBoundingClientRect();
     const { clientX, clientY } = e;
-    if (!el || glideRaf.current) return;
+    if (glideRaf.current) return;
     glideRaf.current = requestAnimationFrame(() => {
       glideRaf.current = 0;
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${clientX - r.left}px`);
-      el.style.setProperty('--my', `${clientY - r.top}px`);
+      if (!barRect.current) return;
+      el.style.setProperty('--mx', `${clientX - barRect.current.left}px`);
+      el.style.setProperty('--my', `${clientY - barRect.current.top}px`);
       el.style.setProperty('--glow', '1');
     });
   };
-  const unglide = () => barRef.current?.style.setProperty('--glow', '0');
+  const unglide = () => {
+    barRef.current?.style.setProperty('--glow', '0');
+    barRect.current = null;
+  };
 
   // The sliding pill: measured from the active item, it glides and stretches to the next one.
   const navRef = useRef(null);
@@ -92,11 +114,12 @@ export default function PublicLayout() {
         ? { x: item.offsetLeft, y: item.offsetTop, w: item.offsetWidth, h: item.offsetHeight, on: true, glide: !!p?.on }
         : p && { ...p, on: false }));
     };
+    let live = true;
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    document.fonts?.ready.then(measure);
-    return () => ro.disconnect();
+    document.fonts?.ready.then(() => { if (live) measure(); });
+    return () => { live = false; ro.disconnect(); };
   }, [active, T]);
 
   // The logo always lands on the top of the home page: from another page the route change scrolls up; on the home
@@ -123,7 +146,7 @@ export default function PublicLayout() {
   // In the wide bar the label is short, so the whole row fits inside the glass; the menu and tooltip keep the full name.
   const scienceLink = (cls, slide = false) => (
     <NavLink to="/science" data-nav={slide ? 'science' : undefined} onClick={() => setOpen(false)} title={T('বিজ্ঞান ও মডেল', 'Science & Models')}
-      className={`${cls} ${onScience ? (slide ? '!bg-transparent !text-white !ring-transparent' : 'bg-sky-700 !text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)]') : ''}`}>
+      className={`${cls} ${onScience ? (slide ? '!bg-transparent !text-white !ring-transparent' : 'bg-primary-700 !text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)]') : ''}`}>
       <Sparkles size={16} />{slide ? T('বিজ্ঞান', 'Science') : T('বিজ্ঞান ও মডেল', 'Science & Models')}
     </NavLink>
   );
@@ -135,7 +158,8 @@ export default function PublicLayout() {
     </NavLink>
   );
   return (
-    <div className="min-h-screen">
+    <div data-portal={onGames ? 'games' : onScience ? 'science' : 'public'} className="public-shell relative isolate min-h-screen">
+      <PublicAtmosphere portal={onGames ? 'games' : onScience ? 'science' : 'public'} route={loc.pathname} />
       <SkipToMain />
       {/* Floating Liquid Glass capsule: clear like a mirror at the top, frosted once the page scrolls. It only ever
           moves (transform), never changes size, so the shrink on scroll costs nothing. */}
@@ -147,7 +171,7 @@ export default function PublicLayout() {
             <nav ref={navRef} className="relative hidden items-center gap-0.5 whitespace-nowrap xl:flex" aria-label={T('প্রধান', 'Main')}>
               {pill && (
                 <span aria-hidden="true" className="nav-pill pointer-events-none absolute left-0 top-0 rounded-full"
-                  style={{ transform: `translate(${pill.x}px, ${pill.y}px)`, width: pill.w, height: pill.h, opacity: pill.on ? 1 : 0, transitionProperty: pill.glide ? 'transform, width, height, opacity' : 'opacity' }} />
+                  style={{ transform: `translate3d(${pill.x}px, ${pill.y}px, 0)`, width: pill.w, height: pill.h, opacity: pill.on ? 1 : 0, transitionProperty: pill.glide ? 'transform, width, height, opacity' : 'opacity' }} />
               )}
               {nav.map(([id, label]) => (
                 <button key={id} type="button" data-nav={id} onClick={() => go(id)} aria-current={active === id ? 'true' : undefined}
@@ -174,7 +198,10 @@ export default function PublicLayout() {
               <LangToggle glass />
               <Link to="/login" className="btn-gloss inline-flex h-11 items-center rounded-full px-5 text-[15px] font-semibold text-white transition-transform hover:scale-[1.03] active:scale-[0.97] shadow-sm">{T('শুরু করুন', 'Get started')}</Link>
             </div>
-            <button type="button" onClick={() => setOpen(!open)} className="glass-pill grid h-11 w-11 shrink-0 place-items-center rounded-full transition-transform hover:scale-105 active:scale-95 xl:hidden" aria-label={T('মেনু', 'Menu')} aria-expanded={open}>{open ? <X size={20} /> : <Menu size={20} />}</button>
+            <div className="ml-auto flex items-center gap-1.5 sm:ml-0 xl:hidden">
+              <span className="sm:hidden"><LangToggle glass /></span>
+              <button type="button" onClick={() => setOpen(!open)} className="glass-pill grid h-11 w-11 shrink-0 place-items-center rounded-full transition-transform hover:scale-105 active:scale-95" aria-label={T('মেনু', 'Menu')} aria-expanded={open}>{open ? <X size={20} /> : <Menu size={20} />}</button>
+            </div>
           </div>
           <div className={`grid transition-[grid-template-rows,opacity] duration-[500ms] ease-[cubic-bezier(.34,1.4,.64,1)] xl:hidden ${open ? 'mt-2 grid-rows-[1fr] opacity-100' : 'pointer-events-none grid-rows-[0fr] opacity-0'}`}>
             <div className="-mx-3 overflow-hidden px-3 pb-6">
@@ -194,6 +221,7 @@ export default function PublicLayout() {
       </header>
       <ScrollProgress />
       <main id="main" tabIndex={-1} className="scroll-mt-20 outline-none"><PageOutlet /></main>
+      <ScrollNavigator />
       <div className="fixed inset-x-0 bottom-0 z-40"><PlaceholderBanner /></div>
     </div>
   );

@@ -20,6 +20,15 @@ test('every frame of every scene is a real pose', () => {
   });
 });
 
+test('every particle (dust, seed, crumb, drop) of every scene is drawn at a real place', () => {
+  for (const [name, m] of Object.entries(SCENES)) each(m, (t, fr) => {
+    for (const [k, v] of Object.entries(fr)) {
+      if (!Array.isArray(v)) continue;
+      for (const p of v) if (p && typeof p === 'object' && 'x' in p) assert.ok(Number.isFinite(p.x) && (!('y' in p) || Number.isFinite(p.y)), `${name} ${k} at ${t.toFixed(2)}`);
+    }
+  });
+});
+
 test('a planted foot never slides, and the legs always reach the ground', () => {
   for (const [name, m] of Object.entries(SCENES)) {
     let prev = null;
@@ -153,4 +162,14 @@ test('sesame: both hands stay on the maul, each stroke lands on its clod, and th
   }
   const left = frame(T - 0.8, T - 0.8).seeds.filter((s) => s.landed && s.o > 0.1);
   assert.ok(left.length <= 3, `${left.length} seeds left uncovered`);
+});
+
+test('the ribbon always has a farm-work scene for Rabi and Kharif-1, and lentil has its own', async () => {
+  const { RABI_SCENE, NEXT_SCENE, sceneForRabi, sceneForNext } = await import('./sceneFor.js');
+  const { RABI_CROPS, ROTATION_CROPS } = await import('../../engine/crops.js');
+  const known = new Set(['tomato', 'wheat', 'mustard', 'lentil', 'mungbean', 'sesame', 'aman']);
+  assert.equal(RABI_SCENE.lentil, 'lentil');
+  for (const id of Object.keys(RABI_CROPS)) assert.ok(known.has(sceneForRabi(id)), `Rabi ${id}`);
+  for (const id of Object.keys(ROTATION_CROPS)) assert.ok(known.has(sceneForNext(id)), `Kharif-1 ${id}`);
+  for (const [id, scene] of Object.entries(NEXT_SCENE)) assert.equal(sceneForNext(id), scene);
 });

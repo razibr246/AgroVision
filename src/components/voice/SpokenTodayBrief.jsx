@@ -1,10 +1,12 @@
 // Spoken Voice Briefing for rural farmers.
-// Uses Web Speech API (speechSynthesis) with natural Bangla speech synthesis.
+// Spoken in the natural voice (src/voice/speech.js speakNatural: Bangladeshi Bangla, British English), with the
+// device's own voice as the fallback.
 // Reads aloud today's irrigation recommendation, rain forecast, and spray timing.
 import { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, Play, Pause, RotateCcw, Sparkles } from 'lucide-react';
 import { useStore } from '../../store';
 import { num, fmtBangla, fmtDate } from '../../engine/dates';
+import { speakNatural, stopSpeaking, ttsSupported } from '../../voice/speech';
 
 export default function SpokenTodayBrief({ crop, water, weather, dToday }) {
   const { s, T, L, farmer } = useStore();
@@ -13,9 +15,8 @@ export default function SpokenTodayBrief({ crop, water, weather, dToday }) {
   const [supported, setSupported] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      setSupported(true);
-    }
+    setSupported(ttsSupported());
+    return () => stopSpeaking();
   }, []);
 
   const buildScript = () => {
@@ -50,36 +51,11 @@ export default function SpokenTodayBrief({ crop, water, weather, dToday }) {
 
   const handleSpeak = () => {
     if (!supported) return;
-
-    if (speaking) {
-      window.speechSynthesis.cancel();
-      setSpeaking(false);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-    const script = buildScript();
-    const utterance = new SpeechSynthesisUtterance(script);
-
-    // Try finding a Bengali or English voice
-    const voices = window.speechSynthesis.getVoices();
-    if (lang === 'bn') {
-      const bnVoice = voices.find((v) => v.lang.includes('bn') || v.lang.includes('BD'));
-      if (bnVoice) utterance.voice = bnVoice;
-      utterance.lang = 'bn-BD';
-      utterance.rate = 0.92; // Slightly slower for rural clarity
-    } else {
-      const enVoice = voices.find((v) => v.lang.includes('en-GB') || v.lang.includes('en-US'));
-      if (enVoice) utterance.voice = enVoice;
-      utterance.lang = 'en-US';
-      utterance.rate = 1.0;
-    }
-
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
-
+    stopSpeaking();
+    if (speaking) { setSpeaking(false); return; }
     setSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+    speakNatural(buildScript(), lang, { rate: lang === 'bn' ? 0.95 : 1, onEnd: () => setSpeaking(false) })
+      .then((r) => { if (!r?.ok) setSpeaking(false); }, () => setSpeaking(false));
   };
 
   if (!supported) return null;

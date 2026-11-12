@@ -103,7 +103,16 @@ export function expressionFromState(st = {}) {
   }
   const act = st.act?.type;
   if (act === 'cheer') {
-    return { mood: 'happy', browTilt: 0.18, browY: 0.006, lidSquint: 0.12, smile: 0.35 };
+    return { mood: 'happy', browTilt: 0.18, browY: 0.006, lidSquint: 0.12, smile: 0.35, mouthOpen: 0.45 };
+  }
+  if (act === 'wave' || act === 'greet') {
+    return { mood: 'friendly', browTilt: 0.14, browY: 0.005, lidSquint: 0.1, smile: 0.3, mouthOpen: 0.22 };
+  }
+  if (act === 'wipe') {
+    return { mood: 'relieved', browTilt: -0.04, browY: 0.002, lidSquint: 0.15, mouthOpen: 0.18 };
+  }
+  if (act === 'soilcheck') {
+    return { mood: 'observant', browTilt: 0.16, browY: -0.002, lidSquint: 0.16, mouthOpen: 0.06 };
   }
   if (act === 'water' || act === 'plant' || act === 'harvest' || act === 'spray' || act === 'clear' || act === 'pump') {
     return { mood: 'focused', browTilt: -0.12, browY: -0.003, lidSquint: 0.08, mouthOpen: 0.08 };

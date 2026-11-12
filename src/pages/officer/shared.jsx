@@ -33,7 +33,7 @@ export function useOfficerUnion() {
 
 export function ageLabel(created, T) {
   const d = daysBetween(created, todayDhaka()); // real date: a request sent today reads "today"
-  return d <= 0 ? T('আজ', 'today') : T(`${num(d, 'bn')} দিন আগে`, `${d} day${d > 1 ? 's' : ''} ago`);
+  return d <= 0 ? T('আজ', 'today') : T(`${num(d, 'bn')} দিন আগে`, `${num(d, 'en')} day${d > 1 ? 's' : ''} ago`);
 }
 
 // Rabi crops by planned area across the given unions, largest first (only crops someone plans to grow).
@@ -69,20 +69,20 @@ export function ClusterCard({ h, union, compact = false }) {
   const send = () => {
     dispatch({ type: 'addAdvisory', adv: { id: `ADV-${h.id}`, cluster: h.id, text: draft, to, at: todayDhaka() } });
     dispatch({ type: 'updateRequest', ids: members.map((m) => m.id), patch: { status: 'answered' } });
-    toast(`${num(to.length, 'bn')} জন কৃষকের কাছে পরামর্শ গেছে`, `Advice sent to ${to.length} farmers`);
+    toast(`${num(to.length, 'bn')} জনের জন্য পরামর্শ ডেমোতে রাখা হয়েছে; পৌঁছায়নি`, `Advice saved in the demo for ${num(to.length, 'en')} farmers; not delivered`);
   };
   const villageNames = villages.map((v) => (lang === 'bn' ? members.find((m) => m.village === v).villageBn : v)).join(T(' ও ', ' and '));
   return (
     <Card className="border-l-4 !border-l-red-500 p-5">
       <div className="flex flex-wrap items-center gap-2">
         <AlertTriangle size={19} className="text-red-600" />
-        <h2 className="text-[18px] font-bold">{T(`কাছাকাছি ${num(members.length, 'bn')}টি জমি থেকে একই সমস্যা`, `${members.length} nearby fields report the same problem`)}</h2>
+        <h2 className="text-[18px] font-bold">{T(`কাছাকাছি ${num(members.length, 'bn')}টি জমি থেকে একই সমস্যা`, `${num(members.length, 'en')} nearby fields report the same problem`)}</h2>
         <Tags list={['AI', 'DEMO']} />
       </div>
       <p className="mt-1 text-[14px] text-muted">{T(`${bnOf(cropName(h.crop, 'bn'))} ${SYMPTOMS[h.symptom].bn}, ${villageNames}। সাত দিনের মধ্যে, দেড় কিলোমিটারের ভেতরে।`, `${SYMPTOMS[h.symptom].en} on ${cropName(h.crop, 'en').toLowerCase()} in ${villageNames}, within seven days and 1.5 km.`)}</p>
       {!compact && <p className="mt-1 text-[13px] text-muted">{T('একই ফসলে একই লক্ষণ, কাছাকাছি জায়গা আর সময়ে অন্তত পাঁচটি খবর এলে AI (DBSCAN পদ্ধতি) সেগুলো এক গুচ্ছে ধরে।', 'AI (DBSCAN clustering) groups at least five reports with the same crop and symptom that are close in place and time.')}</p>}
       {compact ? (
-        <div className="mt-3"><Button to="/officer/alerts" className="!py-2">{sent ? T('পাঠানো পরামর্শ দেখুন', 'View the advice sent') : T('সবাইকে পরামর্শ পাঠান', 'Advise them all')}</Button></div>
+        <div className="mt-3"><Button to="/officer/alerts" className="!py-2">{sent ? T('ডেমো পরামর্শ দেখুন', 'View demo advice') : T('ডেমো পরামর্শ লিখুন', 'Draft demo advice')}</Button></div>
       ) : (
         <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
           <label className="block" htmlFor={`adv-${h.id}`}>
@@ -91,12 +91,12 @@ export function ClusterCard({ h, union, compact = false }) {
             <SmsMeter text={draft} className="mt-1" />
           </label>
           <div className="flex flex-col gap-2 md:w-64">
-            <Button disabled={sent} onClick={send} className="py-3">{sent ? <><CheckCircle2 size={16} />{T(`${num(to.length, 'bn')} জনকে পাঠানো হয়েছে`, `Sent to ${to.length} farmers`)}</> : <><Send size={16} />{T(`${num(to.length, 'bn')} জন কৃষককে পাঠান`, `Send to ${to.length} farmers`)}</>}</Button>
+            <Button disabled={sent} onClick={send} className="py-3">{sent ? <><CheckCircle2 size={16} />{T('ডেমোতে রাখা হয়েছে', 'Saved in demo')}</> : <><Send size={16} />{T('ডেমোতে রাখুন', 'Save in demo')}</>}</Button>
             <p className="text-[12.5px] leading-5 text-muted">{T('কারা পাবেন: ওই গ্রামগুলোতে এই ফসল করেন এমন সব কৃষক, আর যাঁরা খবর দিয়েছেন।', 'Who gets it: everyone growing this crop in those villages, plus everyone who reported.')}</p>
           </div>
         </div>
       )}
-      {sent && !compact && <Note tone="ok" className="mt-3">{T('কৃষকেরা এটা তাঁদের "সাহায্য" পাতায় আর ঘণ্টার চিহ্নে দেখতে পাবেন।', 'Farmers see this on their Help page and as a bell notification.')}</Note>}
+      {sent && !compact && <Note tone="ok" className="mt-3">{T('পরামর্শটি শুধু এই ব্রাউজারের ডেমোতে রাখা হয়েছে; কৃষকের কাছে পৌঁছায়নি।', 'The advice is saved only in this browser demo; it has not been delivered to farmers.')}</Note>}
     </Card>
   );
 }

@@ -50,10 +50,11 @@ function playStep(surf = 'grass', isRun = false) {
 
 const FX = {
   tap: () => tone(660, 0.06, 'square', 0.03),
-  plant: () => { tone(320, 0.08, 'triangle', 0.08); tone(480, 0.08, 'triangle', 0.06, 0.06); },
-  water: () => noise(0.35, 0.06, 2200),
-  harvest: () => [523, 659, 784].forEach((f, i) => tone(f, 0.12, 'triangle', 0.07, i * 0.06)),
+  plant: () => { tone(280, 0.08, 'triangle', 0.07); tone(440, 0.08, 'triangle', 0.06, 0.05); noise(0.08, 0.025, 1100); },
+  water: () => { noise(0.38, 0.065, 2300); tone(640, 0.12, 'sine', 0.03, 0.04, -220); tone(780, 0.09, 'sine', 0.02, 0.12, -180); },
+  harvest: () => { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.14, 'triangle', 0.075, i * 0.05)); tone(1568, 0.22, 'sine', 0.035, 0.20); },
   coin: () => { tone(988, 0.08, 'square', 0.04); tone(1319, 0.16, 'square', 0.04, 0.07); },
+  greet: () => [440, 554, 659].forEach((f, i) => tone(f, 0.16, 'sine', 0.06, i * 0.07)),
   pump: () => { noise(0.25, 0.05, 900); tone(140, 0.2, 'sine', 0.08, 0, -40); },
   spray: () => noise(0.4, 0.05, 4000),
   clear: () => tone(200, 0.12, 'sawtooth', 0.04, 0, -80),

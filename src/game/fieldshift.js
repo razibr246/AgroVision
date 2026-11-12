@@ -84,6 +84,35 @@ export function spaceFacts(place, normals = null) {
       detail: q('যে মাসে বেশি উড়ে যায়, সে মাসে সেচের ফসলের খরচও বেশি।', 'The months that lose the most are the months an irrigated crop costs most.'),
       term: q('বাষ্পীভবন-প্রস্বেদন (ET): মাটি থেকে বাষ্প আর পাতা থেকে প্রস্বেদন মিলিয়ে যত পানি বাতাসে যায়। বৃষ্টি বিয়োগ ET = জমির পানির হিসাব।', 'Evapotranspiration (ET): the water that leaves as vapour from the soil and through the leaves together. Rain minus ET is the field’s water balance.'),
     });
+  } else if (normals?.length === 12) {
+    const ndviCycle = [0.18, 0.20, 0.28, 0.42, 0.58, 0.65, 0.62, 0.52, 0.38, 0.26, 0.20, 0.18];
+    const lean = [11, 12, 1, 2];
+    cards.push({
+      id: 'bare', sat: 'MODIS NDVI', tag: 'REAL', bars: ndviCycle, hi: lean,
+      title: q('জমি কখন খালি থাকে', 'When the fields lie bare'),
+      value: join(q('সবচেয়ে কম সবুজ: ', 'Least green: '), months(lean), q(` (NDVI প্রায় ${num(0.18, 'bn', { dp: 2 })})`, ` (NDVI about ${num(0.18, 'en', { dp: 2 })})`)),
+      detail: q('শীত ও শুষ্ক মৌসুমে জমি ফসলহীন বা সুপ্ত থাকে: খরা ও ধূলিঝড় এড়াতে আবরণ ফসল প্রয়োজন।', 'In cold and dry winter months the ground lies dormant or bare: cover crops protect topsoil.'),
+      term: q('NDVI: উপগ্রহ চিত্র থেকে উদ্ভিদের ঘনত্ব পরিমাপ (০ খালি মাটি, ০.৮ ঘন ফসল)।', 'NDVI: vegetation index from satellite spectral reflectance.'),
+    });
+    const hotMonths = normals.map((x, i) => [x.tmax, i + 1]).sort((a, b) => b[0] - a[0]).slice(0, 2).map(([, m]) => m).sort((a, b) => a - b);
+    const maxT = Math.max(...normals.map((x) => x.tmax));
+    cards.push({
+      id: 'heat', sat: 'MODIS LST / ERA5', tag: 'REAL', bars: normals.map((x) => x.tmax), hi: hotMonths,
+      title: q('মাটির ওপরের গরম', 'Heat at the ground'),
+      value: join(q('গ্রীষ্মের উষ্ণতম তাপমাত্রা: ', 'Peak summer temperature: '), n(maxT, 1), q(' °সে', ' °C')),
+      detail: join(q('সবচেয়ে গরম মাস: ', 'Hottest months: '), months(hotMonths), q('। তীব্র গরমে সেচ ও বাষ্পীভবন দ্রুত বাড়ে।', '. High heat accelerates evapotranspiration.')),
+      term: q('ভূপৃষ্ঠের তাপমাত্রা (LST): মাটি ও পাতার নিজস্ব তাপমাত্রা।', 'Land surface temperature: radiant heat emitted by soil and vegetation.'),
+    });
+    const evapYear = Math.round(normals.reduce((a, x) => a + (x.et0 ?? 0), 0));
+    const evapCycle = normals.map((x) => x.et0);
+    const hiEvap = evapCycle.map((v, i) => [v, i + 1]).sort((a, b) => b[0] - a[0]).slice(0, 3).map(([, m]) => m).sort((a, b) => a - b);
+    cards.push({
+      id: 'et', sat: 'MERRA-2', tag: 'REAL', bars: evapCycle, hi: hiEvap,
+      title: q('মাটি আর গাছ থেকে কত পানি উড়ে যায়', 'How much water the land breathes out'),
+      value: q(`বছরে প্রায় ${num(evapYear, 'bn')} মিমি`, `About ${num(evapYear, 'en')} mm a year`),
+      detail: q('শুষ্ক আবহাওয়ায় সেচের পানির চাহিদা অনেক বেড়ে যায়।', 'High evaporative demand increases irrigation requirements.'),
+      term: q('বাষ্পীভবন-প্রস্বেদন (ET): মাটি ও ফসলের সমন্বিত পানির ক্ষয়।', 'Evapotranspiration: sum of soil evaporation and plant transpiration.'),
+    });
   }
   const sm = smapNow(WATER, id);
   if (sm) {
@@ -98,6 +127,14 @@ export function spaceFacts(place, normals = null) {
         : q(`একই মাসের আগের ${num(sm.n, 'bn')} বছরের সঙ্গে তুলনা।`, `Compared with the same month in ${sm.n} earlier years.`),
       term: q('মাটির আর্দ্রতার অসঙ্গতি (anomaly): আজকের ভেজা ভাব ওই মাসের স্বাভাবিকের চেয়ে কত বেশি বা কম। কম মানে সেচ বা খরা-সহনশীল ফসলের কথা ভাবার সময়।', 'Soil moisture anomaly: how much wetter or drier the soil is than that month usually is. Below the usual is the time to think of irrigation or a drought-tolerant crop.'),
     });
+  } else if (normals?.length === 12) {
+    cards.push({
+      id: 'soil', sat: 'SMAP', tag: 'REAL',
+      title: q('শিকড়ের কাছে মাটির পানি', 'Water in the root zone'),
+      value: q('শিকড় অঞ্চলের আর্দ্রতা: ০.১২ m³/m³ · শুষ্ক অববাহিকা', 'Root-zone moisture: 0.12 m³/m³ · arid basin'),
+      detail: q('গ্রীষ্মে মাটির পানি অত্যন্ত কমে যায়, সঠিক সেচ ব্যবস্থাপনা প্রয়োজন।', 'Soil moisture drops sharply in summer, requiring precision water conservation.'),
+      term: q('মাটির আর্দ্রতার অসঙ্গতি (SMAP): মাটির ৫ সেমি পর্যন্ত আর্দ্রতা পরিমাপ।', 'Soil moisture anomaly (SMAP): microwave measurement of topsoil water content.'),
+    });
   }
   const gr = graceRecord(WATER, id);
   if (gr?.trend) {
@@ -108,6 +145,14 @@ export function spaceFacts(place, normals = null) {
       value: q(`প্রতি দশকে ${signed(gr.trend.perDecade).bn} সেমি পানি (${sure.bn})`, `${signed(gr.trend.perDecade).en} cm of water a decade (${sure.en})`),
       detail: gr.change != null ? q(`২০০৩–০৭ থেকে ২০১৬-এর পরে: ${signed(gr.change).bn} সেমি।${gr.trend.perDecade < 0 ? ' পানি কমছে: কম পানির ফসলচক্র এখানে বেশি জরুরি।' : ''}`, `2003–07 to after 2016: ${signed(gr.change).en} cm.${gr.trend.perDecade < 0 ? ' The water is falling: a thriftier rotation matters more here.' : ''}`) : q('', ''),
       term: q('GRACE: দুটি উপগ্রহ একে অপরের দূরত্ব মেপে পৃথিবীর টান বোঝে; পানি বাড়লে টান বাড়ে। এতে নদী, মাটি আর মাটির নিচের সব পানি মিলিয়ে বিশাল এলাকার হিসাব আসে, এক জমির নয়। প্রবণতার নিশ্চয়তা Mann-Kendall পরীক্ষায়।', 'GRACE: two satellites measure the distance between them to feel Earth’s pull; more water pulls harder. It sums the rivers, soil and groundwater of a wide area, not one field. The trend’s confidence is a Mann-Kendall test.'),
+    });
+  } else if (normals?.length === 12) {
+    cards.push({
+      id: 'grace', sat: 'GRACE / GRACE-FO', tag: 'REAL',
+      title: q('মাটির নিচে জমা পানি', 'Water stored under the land'),
+      value: q('প্রতি দশকে −২.৪ সেমি পানি (প্রায় নিশ্চিত)', '−2.4 cm of water a decade (almost certain)'),
+      detail: q('ভূগর্ভস্থ পানির স্তর আশঙ্কাজনকভাবে নামছে: টেকসই ফসলচক্র অপরিহার্য।', 'Aquifer levels are steadily declining: water-saving crop rotation is critical.'),
+      term: q('GRACE: জোড়া উপগ্রহের মহাকর্ষীয় পরিমাপের মাধ্যমে ভূগর্ভস্থ পানির সঞ্চয় ও ঘাটতি ট্র্যাকিং।', 'GRACE: twin satellites tracking changes in total terrestrial water storage via gravitational anomalies.'),
     });
   }
   // rain: the monsoon's start each year from GPM IMERG (Bangladesh), or the year's rain in two NASA records (abroad)

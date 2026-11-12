@@ -9,6 +9,7 @@ import { PRICE_SEASONS } from './glut.js';
 import { CROP_PROBLEMS } from '../data/crop_problems.js';
 import { matchSupport, supportProfile } from './support.js';
 import { BD_SUPPORT, AREA_TYPE } from '../data/support/bd_support.js';
+import knowledgeBase from '../data/models/chakra_knowledge_base.json' with { type: 'json' };
 
 export const KNOWLEDGE_BUDGET = 48_000; // characters of JSON; the server accepts more, but a short pack answers faster
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -72,6 +73,58 @@ export function soilSection(soil, chosen) {
   };
 }
 
+// The shared cross-country view used by foreign-country features and Chakra.
+export function placeSection(place) {
+  if (!place) return null;
+  return {
+    id: place.id, country: place.country, kind: place.kind, name: place.name,
+    farmer: place.farmer ? { name: place.farmer.name, village: place.farmer.village, place: place.farmer.place } : null,
+    field: { ...place.field, source: place.sources?.field ?? null }, timezone: place.tz,
+    crops: place.crops, climate: place.climate, soil: place.soil, water: place.water,
+    satellite: { recent: (place.satellite?.series ?? []).slice(-24), count: place.satellite?.series?.length ?? 0, source: place.sources?.field ?? null },
+    forecast: place.forecast ? { source: place.forecast.source ?? 'live forecast', days: place.forecast.days?.slice?.(0, 3) ?? [] } : null,
+    office: place.office, programmes: place.programmes, requests: place.requests ?? [],
+    sources: place.sources,
+  };
+}
+
+export function parcelSection(farmerId) {
+  if (!farmerId) return null;
+  const f = knowledgeBase.farmers?.[farmerId];
+  if (!f) return null;
+  const p = knowledgeBase.parcels?.[f.mainParcel];
+  if (!p) return null;
+  return {
+    id: p.id,
+    name: p.name,
+    village: p.village,
+    areaDec: p.areaDec,
+    areaBigha: p.areaBigha,
+    coords: p.coords,
+    irrigation: p.irrigation,
+    verified: p.verified,
+    satellite: p.satellite,
+    environmental: p.environmental,
+    source: 'Upazila agriculture office land registry and Copernicus Sentinel-2 Level-2A',
+  };
+}
+
+export function fertilizerSection(unionId, cropId) {
+  if (!unionId || !cropId) return null;
+  for (const p of Object.values(knowledgeBase.parcels || {})) {
+    if (p.union === unionId && p.fertilizer?.[cropId]) {
+      return {
+        union: unionId,
+        crop: cropId,
+        physiography: p.fertilizer[cropId].physiography,
+        recommendation: p.fertilizer[cropId].items,
+        source: 'Soil Resource Development Institute (SRDI) Fertilizer Recommendation System (frs-bd.com)',
+      };
+    }
+  }
+  return null;
+}
+
 // The pack: the most useful sections first; if it runs over the budget, the last ones are dropped and named.
 export function knowledgePack(input, { budget = KNOWLEDGE_BUDGET } = {}) {
   const cropIds = [...(input.options ?? []).map((o) => o.crop?.id), input.cropNow].filter(Boolean);
@@ -82,6 +135,9 @@ export function knowledgePack(input, { budget = KNOWLEDGE_BUDGET } = {}) {
     ['crop_problems', () => problemsSection(cropIds)],
     ['problem_cases', () => casesSection(input.cases)],
     ['government_support', () => supportSection(input)],
+    ['parcel_detail', () => parcelSection(input.farmer?.id)],
+    ['fertilizer_detail', () => fertilizerSection(input.farmer?.union, input.cropNow)],
+    ['place_context', () => placeSection(input.place)],
   ];
   const sections = {};
   const dropped = [];

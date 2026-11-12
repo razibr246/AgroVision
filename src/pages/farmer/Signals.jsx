@@ -120,7 +120,7 @@ function SignalGrid({ signals }) {
         {signals.map((sg) => {
           const Icon = ICON[sg.id] ?? Leaf;
           return (
-            <Card key={sg.id} className="flex flex-col p-4">
+            <Card key={sg.id} className="hazard-card cv-auto flex flex-col p-4">
               <div className="flex items-start justify-between gap-2">
                 <span className="inline-flex items-center gap-2 text-[15.5px] font-bold text-ink"><Icon size={19} style={{ color: TONE[sg.level] }} />{L(sg.title)}</span>
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12.5px] font-bold ${TONE_BG[sg.level]}`} style={{ color: TONE[sg.level] }}>{L(LEVELS[sg.level])}</span>

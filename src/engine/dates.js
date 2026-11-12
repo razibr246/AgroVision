@@ -18,7 +18,7 @@ const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
 export const bnDigits = (s) => String(s).replace(/[0-9]/g, (d) => BN_DIGITS[d]);
 export const num = (n, lang, opts = {}) => {
   if (n === null || n === undefined || Number.isNaN(n)) return '–';
-  const s = Number(n).toLocaleString('en-IN', { maximumFractionDigits: opts.dp ?? 0, minimumFractionDigits: opts.min ?? 0 });
+  const s = Number(n).toLocaleString('en-US', { maximumFractionDigits: opts.dp ?? 0, minimumFractionDigits: opts.min ?? 0 });
   return lang === 'bn' ? bnDigits(s) : s;
 };
 export const fmtDate = (t, lang) => {

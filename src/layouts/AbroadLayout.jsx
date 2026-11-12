@@ -1,17 +1,22 @@
 // Shell for the neighbouring countries, built like the Bangladesh app: one sample farmer and one local agriculture
 // officer per country, each with their own tabs. The country's data file and the farm's live forecast are loaded
 // once here and handed to every tab (useAbroad()).
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useParams, Navigate, useOutletContext } from 'react-router-dom';
 import { ChevronLeft, UserRound, Building2, Home, MapPinned, Sprout, ShieldAlert, Telescope, LifeBuoy, LayoutDashboard, BellRing, UsersRound, Globe2, Map as MapIcon, CalendarRange, Search, Droplets, HandCoins } from 'lucide-react';
 import BrandMark from '../components/brand/BrandMark';
 import { LangToggle, SkipToMain } from '../components/chrome';
 import { useStore } from '../store';
 import { ABROAD, ABROAD_ORDER } from '../data/abroad';
-import { useScrollOnNavigate } from '../components/Motion';
+import { useScrollOnNavigate, ScrollProgress } from '../components/Motion';
+import { ScrollNavigator } from '../components/SectionNav';
 import { useCountry, useLiveForecast, useBoard } from '../pages/abroad/parts';
+import ChakraAgent from '../components/chakra/ChakraAgent';
+import { placeFromAbroad } from '../engine/place';
+import { ABROAD_SUPPORT } from '../data/support/abroad_support';
 import { localAlerts, localNow } from '../engine/abroad';
 import { openCommandPalette } from '../components/CommandPalette';
+import { MacNavPills, MacPortalToggle, MacPortalDock } from '../components/MacOSPortalChrome';
 
 export const useAbroad = () => useOutletContext();
 
@@ -36,7 +41,7 @@ function SlidingTabs({ tabs, label, lang }) {
   }, [pathname, lang, tabs.length]);
   return (
     <nav ref={nav} className="hide-scrollbar relative flex min-w-0 flex-1 gap-0.5 overflow-x-auto [mask-image:linear-gradient(90deg,transparent_0,#000_8px,#000_calc(100%-8px),transparent_100%)] sm:[mask-image:none]" aria-label={label}>
-      {pill && <span aria-hidden="true" className="pointer-events-none absolute top-0 h-8 rounded-full bg-white shadow-[0_4px_12px_-2px_rgba(13,38,20,.2),inset_0_1px_0_rgba(255,255,255,.95)] ring-1 ring-black/5 transition-[transform,width] duration-[400ms] ease-[cubic-bezier(.34,1.4,.64,1)] motion-reduce:transition-none" style={{ width: pill.w, transform: `translateX(${pill.x}px)` }} />}
+      {pill && <span aria-hidden="true" className="pointer-events-none absolute top-0 h-8 rounded-full bg-white shadow-[0_4px_12px_-2px_rgba(13,38,20,.2),inset_0_1px_0_rgba(255,255,255,.95)] ring-1 ring-black/5 transition-[transform,width] duration-[400ms] ease-[cubic-bezier(.34,1.4,.64,1)] motion-reduce:transition-none will-change-[transform,width]" style={{ width: pill.w, transform: `translate3d(${pill.x}px, 0, 0)` }} />}
       {tabs.map((t) => (
         <NavLink key={t.to} to={t.to} end={t.end} className={({ isActive }) => `relative z-10 inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold transition-all duration-250 active:scale-95 ${isActive ? 'text-ink' : 'text-muted hover:text-ink hover:bg-white/40'}`}>
           <t.icon size={14} className="transition-transform duration-200 group-hover:scale-110" />{t.label}
@@ -55,7 +60,7 @@ export default function AbroadLayout() {
 }
 
 function Shell({ c }) {
-  const { T, L, s } = useStore();
+  const { T, L, s, macosPortal } = useStore();
   const { pathname } = useLocation();
   useScrollOnNavigate();
   const { data, error } = useCountry(c.id);
@@ -64,7 +69,13 @@ function Shell({ c }) {
   const { fc, status } = useLiveForecast(farm?.lat, farm?.lon, tz);
   const board = useBoard(c.id);
   const { req, notices } = board;
+  const support = ABROAD_SUPPORT[c.id];
   const officer = pathname.includes('/officer');
+  const place = useMemo(() => data ? placeFromAbroad(c, data, {
+    forecast: fc, programmes: support?.list ?? [],
+    crops: support?.profile?.crops?.map(([id, bn, en]) => ({ id, name: { bn, en } })) ?? [],
+    requests: officer ? req.list.map((r) => ({ id: r.id, topic: r.topic, text: r.text, reply: r.reply?.text ?? null, created: r.t })) : [],
+  }) : null, [c, data, fc, support, officer, req.list]);
   const base = `/abroad/${c.id}`;
   const now = tz ? localNow(tz) : null;
   const alerts = data && now ? localAlerts(c.id, data, fc, now.date, c.local.sms) : [];
@@ -91,7 +102,7 @@ function Shell({ c }) {
     ];
   const here = tabs.find((t) => (t.end ? pathname === t.to : pathname.startsWith(t.to)));
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-canvas">
+    <div data-macos-portal={macosPortal ? 'true' : 'false'} className="relative min-h-screen overflow-x-clip bg-canvas">
       <SkipToMain />
       <div aria-hidden="true" className="pointer-events-none fixed inset-0">
         <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full opacity-70 blur-3xl transition-colors duration-700" style={{ background: c.soft }} />
@@ -100,6 +111,7 @@ function Shell({ c }) {
       <header className="glass-bar sticky top-0 z-40 border-b border-white/60 bg-white/60">
         <div className="page-shell flex h-[60px] items-center gap-2">
           <Link to="/login" className="inline-flex h-10 shrink-0 items-center gap-1 rounded-full px-2.5 text-[14px] font-semibold text-muted transition hover:bg-white/70 hover:text-ink" aria-label={T('ফিরে যান', 'Back')}><ChevronLeft size={18} /><span className="hidden lg:inline">{T('বাংলাদেশ', 'Bangladesh')}</span></Link>
+          {macosPortal && <MacNavPills className="!hidden 2xl:!inline-flex" />}
           <Link to="/" className="hidden xl:block" aria-label={T('প্রথম পাতা', 'Home')}><BrandMark /></Link>
           <nav className="hide-scrollbar mx-auto flex min-w-0 gap-0.5 overflow-x-auto rounded-full bg-white/55 p-1 ring-1 ring-white/70" aria-label={T('দেশ', 'Countries')}>
             {ABROAD_ORDER.map((id) => {
@@ -124,6 +136,8 @@ function Shell({ c }) {
               ⌘K
             </kbd>
           </button>
+          <ChakraAgent role={officer ? 'officer' : 'farmer'} abroad={{ c, data, fc, place, board, now, alerts }} />
+          <MacPortalToggle compact className="hidden md:inline-flex" />
           <LangToggle glass />
         </div>
         <div className="page-shell flex items-center gap-2 pb-2">
@@ -137,7 +151,8 @@ function Shell({ c }) {
           <SlidingTabs tabs={tabs} lang={s.lang} label={officer ? T('কর্মকর্তার পাতা', 'Officer pages') : T('কৃষকের পাতা', 'Farmer pages')} />
         </div>
       </header>
-      <main id="main" tabIndex={-1} key={pathname} className="page-enter relative z-10 scroll-mt-32 pb-16 pt-6 outline-none">
+      <ScrollProgress />
+      <main id="main" tabIndex={-1} key={pathname} className={`page-enter relative z-10 scroll-mt-32 pt-6 outline-none ${macosPortal ? 'pb-24' : 'pb-16'}`}>
         <div>
           {error ? (
             <div className="page-shell rounded-2xl bg-white/70 p-6 text-[15px]">{T('এই দেশের তথ্য খোলা গেল না।', 'This country’s data could not be opened.')} <span className="text-muted">{String(error.message)}</span></div>
@@ -147,11 +162,13 @@ function Shell({ c }) {
             <>
               {/* The overview and whole-country pages carry their own big heading; every other tab gets one for screen readers. */}
               {here && here !== tabs[0] && !here.heading && <h1 className="sr-only">{L(c.name)} · {here.label}</h1>}
-              <Outlet context={{ c, data, fc, status, now, alerts, req, notices, boardMode: board.mode, boardError: board.writeError }} />
+              <Outlet context={{ c, data, fc, place, status, now, alerts, req, notices, boardMode: board.mode, boardError: board.writeError }} />
             </>
           )}
         </div>
       </main>
+      <MacPortalDock portal="abroad" items={tabs.slice(0, 5)} />
+      <ScrollNavigator />
     </div>
   );
 }

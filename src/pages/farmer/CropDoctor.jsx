@@ -126,7 +126,7 @@ export default function CropDoctor() {
     langRef.current = lang;
     clearResult();
     const sample = CROP_SAMPLES.find((item) => item.id === selectedSample);
-    if (sample && [sample.note.bn, sample.note.en].includes(note.trim())) setNote(sample.note[lang] || sample.note.bn);
+    if (sample && [sample.note.bn, sample.note.en].includes(note.trim())) setNote(sample.note[lang] || sample.note.en);
   }, [lang]);
 
   const chooseCrop = (id) => {
@@ -154,7 +154,7 @@ export default function CropDoctor() {
     setCloudConsent(false);
     setCrop(smp.crop);
     setImg(null);
-    setNote(smp.note[lang] || smp.note.bn);
+    setNote(smp.note[lang] || smp.note.en);
     setSt({ phase: 'idle' });
     setSentId(null);
     setErr(null);
@@ -255,7 +255,7 @@ export default function CropDoctor() {
       setSt({
         phase: 'done',
         report: fallback,
-        model: visionReport ? 'Offline RGB colour heuristic' : 'Offline symptom reference',
+        model: visionReport ? T('অফলাইন RGB রঙের হিসাব', 'Offline RGB colour heuristic') : T('অফলাইন লক্ষণ-তথ্য', 'Offline symptom reference'),
         at: Date.now(),
         sources: fallback.sources || [],
         offlineFallback: true,
@@ -285,7 +285,7 @@ export default function CropDoctor() {
         return;
       }
       if (!r.ok || !j?.report) {
-        setSt({ phase: 'error', status: r.status, msg: j?.error });
+        setSt({ phase: 'error', status: r.status, msg: j?.error === 'offline' ? 'offline' : null });
         return;
       }
       setSt({ phase: 'done', ...j });
@@ -301,15 +301,20 @@ export default function CropDoctor() {
   const low = rep && (!top || top.likelihood < THRESHOLD);
   const send = () => {
     const id = `CD-${farmer.id}-${Date.now().toString(36)}`;
-    const text = rep ? `${rep.summary}${note.trim() ? ` (${note.trim()})` : ''}` : note.trim() || T('ফসলের ছবি পাঠালাম, দেখে বলবেন।', 'I sent a photo of my crop; please take a look.');
+    const noteTrim = note.trim();
+    const noteSuffix = noteTrim ? ` (${noteTrim})` : '';
+    const bnFallback = noteTrim || 'ফসলের ছবি পাঠালাম, দেখে বলবেন।';
+    const enFallback = noteTrim || 'I sent a photo of my crop; please take a look.';
+    const bnText = rep ? `${lang === 'bn' ? rep.summary : (top ? `${top.name_bn}: ফসলের ছবি বিশ্লেষণ পাঠানো হয়েছে` : 'ফসলের ছবি বিশ্লেষণ পাঠানো হয়েছে')}${noteSuffix}` : bnFallback;
+    const enText = rep ? `${lang === 'en' ? rep.summary : (top ? `${top.name_en}: crop photo assessment sent` : 'Crop photo assessment sent')}${noteSuffix}` : enFallback;
     dispatch({ type: 'addRequest', req: {
       id, farmerId: farmer.id, union: farmer.union, village: farmer.village, villageBn: farmer.villageBn, lat: farmer.lat, lon: farmer.lon,
-      crop, symptom: top && top.key !== 'other' && top.key !== 'healthy' ? top.key : 'question', type: 'crop_doctor', text: { bn: text, en: text },
+      crop, symptom: top && top.key !== 'other' && top.key !== 'healthy' ? top.key : 'question', type: 'crop_doctor', text: { bn: bnText, en: enText },
       ai: !st.offlineFallback && rep?.findings?.length ? rep.findings.map((f) => ({ k: f.key, p: f.likelihood, bn: f.name_bn, en: f.name_en })) : null,
       doctor: rep && !st.offlineFallback ? { report: rep, model: st.model, at: st.at, sources: st.sources } : null,
       image: img, created: today, status: 'open', priority: rep?.urgency === 'high' ? 'High' : rep?.urgency === 'low' ? 'Low' : 'Medium', mine: true } });
     setSentId(id);
-    toast('ছবি কৃষি কর্মকর্তার কাছে পাঠানো হয়েছে', 'Photo sent to your officer');
+    toast('ছবি ও ফলাফল এই ব্রাউজারের ডেমোতে রাখা হয়েছে; কর্মকর্তার কাছে যায়নি', 'Photo and result saved in this browser demo; not sent to your officer');
   };
   const reset = () => { invalidateWork(); setImg(null); setSelectedSample(null); setCloudConsent(false); setSpectralMode(false); setSpectralStats(null); setSt({ phase: 'idle' }); setSentId(null); setNote(''); setErr(null); };
 
@@ -386,7 +391,7 @@ export default function CropDoctor() {
                       }`}
                     >
                       <Sparkles size={12} className={spectralMode ? 'text-amber-300' : ''} />
-                      <span>{T('🔬 ফলস-কালার NDVI ভিউ', 'False-Color NDVI')}</span>
+                      <span>{T('🔬 ফলস-কালার NDVI ভিউ', 'False-Colour NDVI')}</span>
                     </button>
                   </div>
                 </div>
@@ -398,7 +403,7 @@ export default function CropDoctor() {
                       <div className="spectral-laser-line" />
                     </div>
                   ) : (
-                    <img src={img} alt={T('আপনার তোলা ফসলের ছবি', 'Your crop photo')} className="mx-auto max-h-76 rounded-xl object-contain" />
+                    <img src={img} alt={T('আপনার তোলা ফসলের ছবি', 'Your crop photo')} loading="lazy" decoding="async" className="mx-auto max-h-76 rounded-xl object-contain" />
                   )}
                   {st.phase === 'checking' && (
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
@@ -425,7 +430,7 @@ export default function CropDoctor() {
                       </span>
                     </div>
                     <div className="mt-1 text-[11px] text-muted">
-                      {T('সেন্টিনেল-২ এমএসআই ও নাসা এগ্রো-স্পেকট্রোমিটার ফলস-কালার ক্যালিব্রেশন', 'Sentinel-2 MSI & NASA agro-spectrometer false-color calibration')}
+                      {T('সেন্টিনেল-২ এমএসআই ও নাসা এগ্রো-স্পেকট্রোমিটার ফলস-কালার ক্যালিব্রেশন', 'Sentinel-2 MSI & NASA agro-spectrometer false-colour calibration')}
                     </div>
                   </div>
                 )}
@@ -496,7 +501,7 @@ export default function CropDoctor() {
                     }`}
                   >
                     <div className="relative h-14 w-full overflow-hidden rounded-lg bg-black/5">
-                      <img src={smp.image} alt={L(smp.name)} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <img src={smp.image} alt={L(smp.name)} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                       {active && (
                         <span className="absolute top-1 right-1 grid h-4 w-4 place-items-center rounded-full bg-primary-600 text-white shadow-xs">
                           <CheckCircle2 size={12} />
@@ -588,7 +593,7 @@ export default function CropDoctor() {
               <div className="space-y-4">
                 <Note tone="gold">
                   {st.phase === 'off'
-                    ? T('ক্লাউড AI ডাক্তার এই মুহূর্তে সংযুক্ত নয়। তবে আপনি অফলাইন প্রাক-মূল্যায়ন দেখতে পারেন বা সরাসরি কৃষি কর্মকর্তাকে পাঠাতে পারেন।', 'The cloud AI doctor is not connected right now. You can view an offline assessment or send the photo straight to your officer.')
+                    ? T('ক্লাউড AI ডাক্তার এই মুহূর্তে সংযুক্ত নয়। অফলাইন প্রাক-মূল্যায়ন দেখতে পারেন; কর্মকর্তার কাছে পাঠানোর কাজটি এই ডেমোতে শুধু এখানে সংরক্ষিত হয়।', 'The cloud AI doctor is not connected right now. You can view an offline assessment; the officer handoff is only saved in this browser demo.')
                     : st.status === 429 ? T('অনেকবার অনুরোধ করা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।', 'The request limit was reached. Please try again later.')
                       : st.status === 422 ? T('এই ছবির উত্তর দেওয়া গেল না। কৃষি কর্মকর্তাকে পাঠান।', 'No answer could be given for this photo. Send it to your officer.')
                         : st.msg === 'offline' ? T('ইন্টারনেট পাওয়া যাচ্ছে না। সংযোগ দেখে আবার চেষ্টা করুন।', 'No internet connection. Check it and try again.')
@@ -599,7 +604,7 @@ export default function CropDoctor() {
                   {st.phase === 'error' && (
                     <Button variant="secondary" onClick={check}><RefreshCw size={16} />{T('আবার চেষ্টা', 'Try again')}</Button>
                   )}
-                  <Button disabled={!!sent || !img} onClick={send} variant="secondary"><Send size={16} />{sent ? T('পাঠানো হয়েছে', 'Sent') : T('কৃষি কর্মকর্তাকে পাঠান', 'Send to my officer')}</Button>
+                  <Button disabled={!!sent || !img} onClick={send} variant="secondary"><Send size={16} />{sent ? T('ডেমোতে রাখা হয়েছে', 'Saved in demo') : T('ডেমোতে রাখুন', 'Save in demo')}</Button>
                 </div>
               </div>
             )}
@@ -609,13 +614,13 @@ export default function CropDoctor() {
                 <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/80 pb-4">
                   <div className="min-w-0">
                     <p className="flex items-center gap-1.5 text-[13px] font-semibold text-violet-700">
-                      <Sparkles size={14} />{T(st.offlineFallback ? 'অফলাইন লক্ষণ-তথ্য' : 'ডাক্তারের প্রথম ধারণা', st.offlineFallback ? 'Offline symptom reference' : 'The doctor’s first look')}
+                      <Sparkles size={14} />{T(st.offlineFallback ? (rep.on_device_pixel_check ? 'অফলাইন রঙ বিশ্লেষণ (ডিভাইসে)' : 'অফলাইন লক্ষণ-তথ্য') : 'ডাক্তারের প্রথম ধারণা', st.offlineFallback ? (rep.on_device_pixel_check ? 'Offline RGB colour heuristic' : 'Offline symptom reference') : 'The doctor’s first look')}
                     </p>
                     <h2 className="mt-1 text-[23px] font-bold leading-tight text-ink">
                       {st.offlineFallback
                         ? rep.on_device_pixel_check
                           ? T('ছবির রঙের ইঙ্গিত, রোগ নির্ণয় নয়', 'Photo colour cues, not a diagnosis')
-                          : top ? T(`লেখা লক্ষণের মিল: ${top.name_bn}`, `Text symptom match: ${top.name_en}`) : T('অফলাইনে ছবি বিশ্লেষণ করা যায়নি', 'Photo not analyzed offline')
+                          : top ? T(`লেখা লক্ষণের মিল: ${top.name_bn}`, `Text symptom match: ${top.name_en}`) : T('অফলাইনে ছবি বিশ্লেষণ করা যায়নি', 'Photo not analysed offline')
                         : !rep.is_crop_photo
                           ? T('ফসলের ছবি মনে হচ্ছে না', 'This does not look like a crop photo')
                           : top ? (lang === 'bn' ? top.name_bn : top.name_en) : T('স্পষ্ট কিছু পাওয়া যায়নি', 'Nothing clear found')}
@@ -760,16 +765,17 @@ export default function CropDoctor() {
                 <div className="mt-6 border-t border-border pt-4">
                   <Button disabled={!!sent} onClick={send} className="w-full py-3 text-[16px]">
                     <Send size={17} />
-                    {sent ? T('কৃষি কর্মকর্তার কাছে পাঠানো হয়েছে', 'Sent to your officer') : T('ছবি আর এই ফলাফল কর্মকর্তাকে পাঠান', 'Send photo and result to my officer')}
+                    {sent ? T('ডেমোতে রাখা হয়েছে; কর্মকর্তার কাছে যায়নি', 'Saved in demo; not delivered to your officer') : T('ছবি ও ফলাফল ডেমোতে রাখুন', 'Save photo and result in demo')}
                   </Button>
                   {sent && (
                     <div className="mt-2.5 text-center">
                       <Badge tone={sent.status === 'open' ? 'amber' : 'green'} dot={true}>
-                        {sent.status === 'open' ? T('উত্তরের অপেক্ষায়', 'Waiting for officer reply') : T('উত্তর এসেছে, সাহায্য পাতায় দেখুন', 'Answered: see Help page')}
+                        {sent.status === 'open' ? T('ডেমো অনুরোধ · অফিসের উত্তরের নিশ্চয়তা নেই', 'Demo request · no officer reply expected') : T('ডেমোতে উত্তর এসেছে, সাহায্য পাতায় দেখুন', 'Demo reply: see Help page')}
                       </Badge>
                     </div>
                   )}
                 </div>
+                <p className="mt-2 text-center text-[12.5px] leading-5 text-amber-800">{T('ডেমো রেকর্ডটি এই ব্রাউজারে থাকে; কর্মকর্তার ফোন বা অন্য ডিভাইসে পৌঁছায় না।', 'This demo record stays in this browser; it does not reach an officer’s phone or another device.')}</p>
 
                 {st.sources?.length > 0 && (
                   <div className="mt-5 border-t border-border pt-3">

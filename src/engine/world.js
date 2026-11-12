@@ -47,6 +47,8 @@ export function locate(lat, lon, places) {
 }
 
 // Square outline (in lat/lon) for a plot of `areaDec` decimal centred on a point — a rough visual guide only.
+// A square of the field's recorded size round its pin: only the satellite's sampling window for a field that has no
+// real boundary (engine/sentinel.js). It is never drawn as the field's shape; real shapes are in engine/landgeom.js.
 export function plotSquare(lat, lon, areaDec) {
   const side = Math.sqrt(areaDec * 40.4686); // metres
   const dLat = side / 2 / 111320;

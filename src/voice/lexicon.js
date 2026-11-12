@@ -59,7 +59,7 @@ export const INTENTS = {
   upazila: foldAll(['ইউনিয়ন র‌্যাংকিং', 'ইউনিয়ন র‍্যাংকিং', 'কোন ইউনিয়ন', 'ইউনিয়নের ক্রম', 'কোন ইউনিয়নে ঝুঁকি', 'উপজেলার চিত্র', 'উপজেলার সার্বিক', 'সার্বিক চিত্র', 'ইউনিয়নগুলো', 'union ranking', 'which union', 'upazila overview', 'rank']),
   upazila_advice: foldAll(['পুরো উপজেলায় পরামর্শ', 'সারা উপজেলায়', 'উপজেলা জুড়ে', 'উপজেলার সব কৃষক', 'সব কৃষককে পরামর্শ', 'upazila wide', 'whole upazila', 'all farmers advice']),
   ack: foldAll(['দেখেছি', 'দেখেছি বলে জানান', 'মাঠকর্মীরা কী জানিয়েছে', 'মাঠকর্মীরা কি জানিয়েছে', 'পাঠানো বিষয়', 'ওপরে পাঠানো', 'উপরে পাঠানো', 'mark as seen', 'seen it', 'what was sent up', 'acknowledge']),
-  radar: foldAll(['রোপণ রাডার', 'ropan radar', 'আমন রাডার', 'aman radar', 'আমন', 'রাডার', 'বৃষ্টির শুরু', 'বর্ষার শুরু', 'বৃষ্টি শুরু', 'রোপণ আর বৃষ্টি', 'রোপণের ব্যবধান', 'ব্যবধান', 'সেন্টিনেল', 'নিসার', 'ropon', 'radar', 'aman', 'onset', 'adaptation gap', 'sentinel', 'nisar', 'transplant']),
+  radar: foldAll(['রোপণ রাডার', 'ropon radar', 'ropan radar', 'আমন রাডার', 'aman radar', 'আমন', 'রাডার', 'বৃষ্টির শুরু', 'বর্ষার শুরু', 'বৃষ্টি শুরু', 'রোপণ আর বৃষ্টি', 'রোপণের ব্যবধান', 'ব্যবধান', 'সেন্টিনেল', 'নিসার', 'ropon', 'radar', 'aman', 'onset', 'adaptation gap', 'sentinel', 'nisar', 'transplant']),
 };
 
 export const SYMPTOM_WORDS = {

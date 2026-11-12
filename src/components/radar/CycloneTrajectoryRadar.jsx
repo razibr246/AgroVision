@@ -1,8 +1,8 @@
 // Interactive Bay of Bengal Tropical Cyclone & Storm Surge Trajectory Radar.
 // Connects NASA GPM IMERG rainfall bursts, MERRA-2 pressure drops, and coastal DEM surge inundation.
 // Provides institutional DAE emergency harvest and polder gate lockdown protocols for Agriculture Officers.
-import { useState, useMemo } from 'react';
-import { Wind, Waves, AlertTriangle, ShieldAlert, Compass, CloudRain, Download, CheckCircle2, Eye } from 'lucide-react';
+import { useState, useEffect, useId } from 'react';
+import { Wind, Waves, AlertTriangle, ShieldAlert, Compass, CloudRain, Download, CheckCircle2, Eye, Play, Pause } from 'lucide-react';
 import { useStore } from '../../store';
 import { Card, Tags, Badge } from '../ui';
 import { num, bnDigits } from '../../engine/dates';
@@ -11,7 +11,7 @@ import { UPAZILAS } from '../../data/upazilas';
 const CYCLONE_SCENARIOS = [
   {
     id: 'depression',
-    name: { bn: 'গভীর নিম্নচাপ (Deep Depression)', en: 'Deep Depression' },
+    name: { bn: 'গভীর নিম্নচাপ', en: 'Deep Depression' },
     windSpeedKph: 55,
     pressureHpa: 996,
     rainMmDay: 75,
@@ -27,7 +27,7 @@ const CYCLONE_SCENARIOS = [
   },
   {
     id: 'severe',
-    name: { bn: 'প্রবল ঘূর্ণিঝড় (Severe Cyclone - Cat 2)', en: 'Severe Cyclonic Storm (Cat 2)' },
+    name: { bn: 'প্রবল ঘূর্ণিঝড় (শ্রেণি ২)', en: 'Severe Cyclonic Storm (Cat 2)' },
     windSpeedKph: 125,
     pressureHpa: 978,
     rainMmDay: 190,
@@ -43,7 +43,7 @@ const CYCLONE_SCENARIOS = [
   },
   {
     id: 'super',
-    name: { bn: 'মহাপ্রলয়ঙ্করী সুপার সাইক্লোন (Super Cyclone - Cat 5)', en: 'Super Cyclone (Cat 5)' },
+    name: { bn: 'মহাপ্রলয়ঙ্করী সুপার সাইক্লোন (শ্রেণি ৫)', en: 'Super Cyclone (Cat 5)' },
     windSpeedKph: 230,
     pressureHpa: 920,
     rainMmDay: 380,
@@ -62,15 +62,59 @@ const CYCLONE_SCENARIOS = [
 export default function CycloneTrajectoryRadar({ upazilaId }) {
   const { s, T, L, upazila } = useStore();
   const lang = s.lang;
+  const radarUid = useId().replace(/:/g, '');
   const [selectedScenarioId, setSelectedScenarioId] = useState('severe');
   const [downloaded, setDownloaded] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(true);
+  const [phase, setPhase] = useState(0.45);
 
   const scenario = CYCLONE_SCENARIOS.find((c) => c.id === selectedScenarioId) ?? CYCLONE_SCENARIOS[1];
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => {
+      setReducedMotion(mq.matches);
+      if (mq.matches) setIsAnimating(false);
+    };
+    sync();
+    mq.addEventListener?.('change', sync);
+    return () => mq.removeEventListener?.('change', sync);
+  }, []);
+
+  useEffect(() => {
+    if (!isAnimating || reducedMotion) return undefined;
+    let raf = 0;
+    let last = performance.now();
+    const speedScale = 0.08 + (scenario.windSpeedKph / 230) * 0.14;
+    const tick = (now) => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      setPhase((p) => (p + dt * speedScale) % 1);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [isAnimating, reducedMotion, scenario.windSpeedKph]);
+
+  // Bezier trajectory path P0(200,214) -> P1(206,158) -> P2(215,96)
+  const trackT = reducedMotion ? 0.45 : 0.14 + phase * 0.74;
+  const invT = 1 - trackT;
+  const eyeX = invT * invT * 200 + 2 * invT * trackT * 206 + trackT * trackT * 215;
+  const eyeY = invT * invT * 214 + 2 * invT * trackT * 158 + trackT * trackT * 96;
+  const sweepDeg = (phase * 720) % 360;
+  const spinDeg = -((phase * (1.8 + scenario.windSpeedKph / 60) * 360) % 360); // Counterclockwise (Northern Hemisphere)
+  const dashOffset = -(phase * 144);
+  const hoursToLandfall = Math.max(2, Math.round(scenario.leadTimeHours * (1 - trackT)));
 
   // Upazila exposure assessment
   const upazilaObj = (upazilaId && UPAZILAS[upazilaId]) ? UPAZILAS[upazilaId] : upazila;
   const targetId = upazilaId || upazila.id;
-  const isCoastal = ['sitakunda', 'dacope', 'bakerganj'].includes(targetId);
+  const isCoastal = [
+    'sitakunda', 'dacope', 'bakerganj', 'galachipa', 'barguna', 'bhola',
+    'kalapara', 'patharghata', 'satkhira', 'shyamnagar', 'coxsbazar', 'sandwip',
+  ].includes(targetId);
   const surgeExposure = isCoastal ? scenario.surgeHeightM : 0.0;
   const targetNameEn = (upazilaObj?.name?.en || upazilaObj?.en || upazila.name?.en || targetId).toUpperCase();
 
@@ -100,7 +144,7 @@ Timestamp: ${new Date().toISOString()}
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `DAE_Emergency_Cyclone_Advisory_${upazila.id}_${scenario.id}.txt`;
+    a.download = `DAE_Emergency_Cyclone_Advisory_${targetId}_${scenario.id}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -154,8 +198,8 @@ Timestamp: ${new Date().toISOString()}
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline gap-3 text-[12px] text-muted">
-                  <span>বাতাস: <b className="text-ink">{num(sc.windSpeedKph, lang)} কিমি/ঘণ্টা</b></span>
-                  <span>বৃষ্টি: <b className="text-ink">{num(sc.rainMmDay, lang)} মিমি/দিন</b></span>
+                  <span>{T('বাতাস:', 'Wind:')} <b className="text-ink">{num(sc.windSpeedKph, lang)} {T('কিমি/ঘণ্টা', 'km/h')}</b></span>
+                  <span>{T('বৃষ্টি:', 'Rain:')} <b className="text-ink">{num(sc.rainMmDay, lang)} {T('মিমি/দিন', 'mm/day')}</b></span>
                 </div>
               </button>
             );
@@ -167,20 +211,43 @@ Timestamp: ${new Date().toISOString()}
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1.2fr_.8fr] items-center">
         {/* Radar Graphic */}
         <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 p-2 shadow-inner">
+          <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/80 bg-slate-900/85 px-2.5 py-0.5 font-mono text-[10px] text-sky-200 backdrop-blur-xs">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: scenario.color }}
+              />
+              {T('ল্যান্ডফল বাকি:', 'LANDFALL T-')}
+              {num(hoursToLandfall, lang)}h
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsAnimating((a) => !a)}
+              aria-label={isAnimating ? T('রাডার অ্যানিমেশন থামান', 'Pause radar animation') : T('রাডার অ্যানিমেশন চালান', 'Play radar animation')}
+              className="pointer-events-auto inline-flex items-center gap-1 rounded-full border border-slate-700/80 bg-slate-900/85 px-2 py-0.5 font-mono text-[10px] text-slate-200 hover:border-sky-400/60 hover:text-white transition cursor-pointer"
+            >
+              {isAnimating ? <Pause size={10} /> : <Play size={10} />}
+              <span>{isAnimating ? T('বিরতি', 'Pause') : T('চালু', 'Live')}</span>
+            </button>
+          </div>
           <svg viewBox="0 0 400 250" className="h-full w-full" role="img" aria-label="Cyclone Radar Map">
             <defs>
-              <radialGradient id="cycloneEye" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#ef4444" stopOpacity="0.9" />
-                <stop offset="50%" stopColor="#f97316" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#f97316" stopOpacity="0.0" />
+              <radialGradient id={`${radarUid}-eye`} cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ef4444" stopOpacity="0.92" />
+                <stop offset="45%" stopColor={scenario.color} stopOpacity="0.52" />
+                <stop offset="100%" stopColor={scenario.color} stopOpacity="0.0" />
               </radialGradient>
-              <pattern id="radarGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <linearGradient id={`${radarUid}-sweep`} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.0" />
+                <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.28" />
+              </linearGradient>
+              <pattern id={`${radarUid}-grid`} width="40" height="40" patternUnits="userSpaceOnUse">
                 <circle cx="20" cy="20" r="1" fill="#1e293b" />
               </pattern>
             </defs>
 
             {/* Background Grid */}
-            <rect width="400" height="250" fill="url(#radarGrid)" />
+            <rect width="400" height="250" fill={`url(#${radarUid}-grid)`} />
 
             {/* Concentric Radar Range Rings */}
             <circle cx="200" cy="180" r="40" fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="2 2" />
@@ -190,45 +257,140 @@ Timestamp: ${new Date().toISOString()}
             <text x="205" y="105" fontSize="8" fill="#64748b">200 km</text>
             <text x="205" y="55" fontSize="8" fill="#64748b">300 km</text>
 
+            {/* Rotating Doppler Radar Beam Sweep */}
+            <g transform={`rotate(${sweepDeg.toFixed(1)} 200 180)`} opacity={isAnimating ? 0.85 : 0.35}>
+              <path d="M 200,180 L 200,50 A 130,130 0 0,1 268,69 Z" fill={`url(#${radarUid}-sweep)`} />
+              <line x1="200" y1="180" x2="268" y2="69" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.55" />
+            </g>
+
             {/* Bangladesh Simplified Coastline & Sundarbans */}
             <path
               d="M 60,60 L 110,65 L 140,80 L 180,95 L 210,95 L 240,110 L 270,105 L 300,120 L 330,150 L 360,200"
               fill="none"
               stroke="#22c55e"
               strokeWidth="2"
-              opacity="0.75"
+              opacity="0.78"
             />
+
+            {/* Animated Coastal Storm Surge Wave Arcs Approaching Bengal Delta */}
+            {[0, 1].map((wIdx) => {
+              const wavePhase = (phase * 1.5 + wIdx * 0.5) % 1;
+              const yShift = (1 - wavePhase) * 26;
+              return (
+                <path
+                  key={wIdx}
+                  d={`M 135,${94 + yShift} Q 210,${104 + yShift} 285,${126 + yShift}`}
+                  fill="none"
+                  stroke="#38bdf8"
+                  strokeWidth={1.1 + scenario.surgeHeightM * 0.25}
+                  strokeDasharray="6 5"
+                  opacity={(1 - wavePhase) * (0.25 + Math.min(scenario.surgeHeightM / 6, 0.55))}
+                />
+              );
+            })}
+
             {/* Bay of Bengal Label */}
-            <text x="200" y="235" textAnchor="middle" fontSize="10" fill="#38bdf8" opacity="0.6" letterSpacing="2">
-              BAY OF BENGAL (বঙ্গোপসাগর)
+            <text x="200" y="238" textAnchor="middle" fontSize="10" fill="#38bdf8" opacity="0.6" letterSpacing="2">
+              {T('বঙ্গোপসাগর', 'BAY OF BENGAL')}
             </text>
 
-            {/* Upazila Coastal Reference Points */}
-            <circle cx="150" cy="85" r="3" fill="#38bdf8" />
-            <text x="150" y="78" textAnchor="middle" fontSize="7.5" fill="#bae6fd">দাকোপ (Dacope)</text>
-
-            <circle cx="220" cy="100" r="3" fill="#38bdf8" />
-            <text x="220" y="93" textAnchor="middle" fontSize="7.5" fill="#bae6fd">বাকেরগঞ্জ (Bakerganj)</text>
-
-            <circle cx="310" cy="130" r="3" fill="#38bdf8" />
-            <text x="310" y="123" textAnchor="middle" fontSize="7.5" fill="#bae6fd">সীতাকুণ্ড (Sitakunda)</text>
-
-            {/* Projected Landfall Cone & Trajectory Path */}
+            {/* Projected Landfall Cone of Uncertainty */}
             <path
-              d="M 200,210 Q 210,160 215,100"
+              d="M 193,214 Q 186,158 172,94 L 258,98 Q 226,158 207,214 Z"
+              fill={scenario.color}
+              fillOpacity="0.14"
+              stroke={scenario.color}
+              strokeOpacity="0.35"
+              strokeWidth="1"
+              strokeDasharray="3 3"
+            />
+
+            {/* Projected Trajectory Track Path with Marching Dashes */}
+            <path
+              d="M 200,214 Q 206,158 215,96"
               fill="none"
               stroke={scenario.color}
-              strokeWidth="2.5"
-              strokeDasharray="6 3"
+              strokeWidth="2.4"
+              strokeDasharray="6 4"
+              strokeDashoffset={dashOffset}
             />
+            <circle cx="215" cy="96" r="3.5" fill="none" stroke={scenario.color} strokeWidth="1.5" />
 
-            {/* Cyclone Active Center / Eye */}
-            <circle cx="205" cy="170" r="35" fill="url(#cycloneEye)" />
-            <circle cx="205" cy="170" r="4" fill="#ffffff" />
-            <circle cx="205" cy="170" r="16" fill="none" stroke="#fca5a5" strokeWidth="1.5" />
-            <text x="205" y="195" textAnchor="middle" fontSize="8.5" fill="#ffffff" fontWeight="bold">
-              {scenario.windSpeedKph} km/h
-            </text>
+            {/* Upazila Coastal Reference Points */}
+            {[
+              { id: 'dacope', x: 150, y: 85, label: { bn: 'দাকোপ', en: 'Dacope' } },
+              { id: 'bakerganj', x: 220, y: 100, label: { bn: 'বাকেরগঞ্জ', en: 'Bakerganj' } },
+              { id: 'sitakunda', x: 310, y: 130, label: { bn: 'সীতাকুণ্ড', en: 'Sitakunda' } },
+            ].map((pt) => {
+              const isActiveTarget = pt.id === targetId;
+              return (
+                <g key={pt.id}>
+                  {isActiveTarget && (
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={6 + Math.sin(phase * Math.PI * 4) * 2.5}
+                      fill="none"
+                      stroke="#fbbf24"
+                      strokeWidth="1.2"
+                      opacity="0.8"
+                    />
+                  )}
+                  <circle cx={pt.x} cy={pt.y} r={isActiveTarget ? 3.8 : 3} fill={isActiveTarget ? '#fbbf24' : '#38bdf8'} />
+                  <text
+                    x={pt.x}
+                    y={pt.y - 7}
+                    textAnchor="middle"
+                    fontSize="7.5"
+                    fontWeight={isActiveTarget ? 'bold' : 'normal'}
+                    fill={isActiveTarget ? '#fde68a' : '#bae6fd'}
+                  >
+                    {L(pt.label)}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Moving Counterclockwise Cyclone Eye, Spiral Rainbands & Wind Vectors */}
+            <g transform={`translate(${eyeX.toFixed(2)} ${eyeY.toFixed(2)})`}>
+              <circle cx="0" cy="0" r="36" fill={`url(#${radarUid}-eye)`} />
+              <g transform={`rotate(${spinDeg.toFixed(1)})`}>
+                {[0, 120, 240].map((armDeg) => (
+                  <g key={armDeg} transform={`rotate(${armDeg})`}>
+                    <path
+                      d="M 10,0 C 16,-14 28,-12 33,-2"
+                      fill="none"
+                      stroke="#fca5a5"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      opacity="0.82"
+                    />
+                    <path
+                      d="M 7,4 C 13,17 24,15 29,6"
+                      fill="none"
+                      stroke="#7dd3fc"
+                      strokeWidth="1.15"
+                      strokeDasharray="3 3"
+                      opacity="0.72"
+                    />
+                    <polygon points="10,-3 14,-1 11,3" fill="#ffffff" opacity="0.85" />
+                  </g>
+                ))}
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="16"
+                  fill="none"
+                  stroke="#fca5a5"
+                  strokeWidth="1.5"
+                  strokeDasharray="8 4"
+                />
+              </g>
+              <circle cx="0" cy="0" r="3.8" fill="#ffffff" />
+              <text x="0" y="27" textAnchor="middle" fontSize="8.5" fill="#ffffff" fontWeight="bold">
+                {scenario.windSpeedKph} km/h
+              </text>
+            </g>
           </svg>
         </div>
 
@@ -272,7 +434,7 @@ Timestamp: ${new Date().toISOString()}
           <div className="flex items-start gap-2.5 rounded-xl bg-white p-3 shadow-2xs">
             <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-rose-600" />
             <div>
-              <span className="font-bold text-ink">৮০% পাকা আমন ধান দ্রুত কর্তন:</span>
+              <span className="font-bold text-ink">{T('৮০% পাকা আমন ধান দ্রুত কর্তন:', 'Harvest 80% Ripe Aman Now:')}</span>
               <p className="text-muted mt-0.5 text-[12px] leading-4">
                 {T('ধানের শীষে ৮০ ভাগ সোনালী রঙ আসলে ঘূর্ণিঝড়ের আগেই কেটে নিরাপদ গুদামে সংরক্ষণ করতে হবে।', 'Harvest any Aman field with 80%+ golden grain immediately before landfall.')}
               </p>
@@ -282,7 +444,7 @@ Timestamp: ${new Date().toISOString()}
           <div className="flex items-start gap-2.5 rounded-xl bg-white p-3 shadow-2xs">
             <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-rose-600" />
             <div>
-              <span className="font-bold text-ink">পোল্ডারের স্লুইস গেট লকডাউন:</span>
+              <span className="font-bold text-ink">{T('পোল্ডারের স্লুইস গেট লকডাউন:', 'Lock Polder Sluice Gates:')}</span>
               <p className="text-muted mt-0.5 text-[12px] leading-4">
                 {T('জোয়ারের লবণাক্ত পানি প্রবেশ ঠেকাতে সব স্লুইস গেট বন্ধ এবং ভেতরের নালা উন্মুক্ত রাখতে হবে।', 'Lock all flap sluice gates against tidal surge water; keep interior canals open.')}
               </p>
@@ -292,7 +454,7 @@ Timestamp: ${new Date().toISOString()}
           <div className="flex items-start gap-2.5 rounded-xl bg-white p-3 shadow-2xs">
             <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-rose-600" />
             <div>
-              <span className="font-bold text-ink">সার ও কীটনাশক স্প্রে বন্ধ:</span>
+              <span className="font-bold text-ink">{T('সার ও কীটনাশক স্প্রে বন্ধ:', 'Halt Fertiliser & Spray:')}</span>
               <p className="text-muted mt-0.5 text-[12px] leading-4">
                 {T('ঝড়ের আগে কোনো সার বা স্প্রে করা যাবে না; বৃষ্টিতে ধুয়ে নদী ও জলাশয়ে অপচয় হবে।', 'Halt all top-dressing and chemical sprays; storm rain will wash chemicals away.')}
               </p>
@@ -302,7 +464,7 @@ Timestamp: ${new Date().toISOString()}
           <div className="flex items-start gap-2.5 rounded-xl bg-white p-3 shadow-2xs">
             <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-rose-600" />
             <div>
-              <span className="font-bold text-ink">রবি বীজতলায় নালা ও পলিথিন শেড:</span>
+              <span className="font-bold text-ink">{T('রবি বীজতলায় নালা ও পলিথিন শেড:', 'Drain Rabi Seedbeds:')}</span>
               <p className="text-muted mt-0.5 text-[12px] leading-4">
                 {T('শাকসবজি ও সরিষার চারা বাঁচাতে চারপাশের নালা কেটে দ্রুত পানি নিষ্কাশনের ব্যবস্থা করুন।', 'Cut field perimeter trench drains to rapidly remove standing floodwater.')}
               </p>

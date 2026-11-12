@@ -16,11 +16,11 @@ import deltas from '../../data/climate/cmip6_deltas.json';
 import { climateChange, fieldContext, fieldFuture, cropOf, WATER_M3_PER_MM_BIGHA } from '../../engine/soilfuture';
 
 const KEYS = [
-  { k: 'পরিকল্পনা', en: 'PLAN', ask: 'এই রবিতে কী লাগাব' },
+  { k: 'পরিকল্পনা', en: 'PLAN', ask: { bn: 'এই রবিতে কী লাগাব', en: 'What should I plant this Rabi' } },
   { k: 'চক্র', en: 'ROT', rot: true },
-  { k: 'পানি', en: 'WATER', ask: 'আজ সেচ দেব কি' },
-  { k: 'বৃষ্টি', en: 'RAIN', ask: 'বৃষ্টি হবে কি' },
-  { k: 'দাম', en: 'PRICE', ask: 'দাম কবে পড়ে' },
+  { k: 'পানি', en: 'WATER', ask: { bn: 'আজ সেচ দেব কি', en: 'Should I irrigate today' } },
+  { k: 'বৃষ্টি', en: 'RAIN', ask: { bn: 'বৃষ্টি হবে কি', en: 'Will it rain' } },
+  { k: 'দাম', en: 'PRICE', ask: { bn: 'দাম কবে পড়ে', en: 'When do prices drop' } },
   { k: 'সাহায্য', en: 'HELP', help: true },
 ];
 
@@ -45,7 +45,7 @@ export default function SmsMode() {
     const water = (h.sNow.waterMm - b.sNow.waterMm) * WATER_M3_PER_MM_BIGHA;
     const d = Math.round(b.sNow.dSoc * 10) / 10;
     return T(`এবার রবিতে: ${chosen.crop.name.bn}। দশ বছরের সেরা ফসলচক্র: ${crops}${b.rot.residue === 'retain' ? ', খড় জমিতে রাখুন' : ''}। ১০ বছরে মাটির জৈব পদার্থ ${d >= 0 ? '+' : ''}${num(d, 'bn', { dp: 1 })}%, সেচ বিঘায় বছরে ${num(water, 'bn')} ঘনমিটার কম। বিস্তারিত: কৃষি অফিস।`,
-      `This Rabi: ${chosen.crop.name.en}. Best ten-year rotation: ${crops}${b.rot.residue === 'retain' ? ', keep the straw' : ''}. Soil organic matter ${d >= 0 ? '+' : ''}${d}% in 10 years, ${num(water, 'en')} m³ less irrigation a bigha a year. More: the agriculture office.`);
+      `This Rabi: ${chosen.crop.name.en}. Best ten-year rotation: ${crops}${b.rot.residue === 'retain' ? ', keep the straw' : ''}. Soil organic matter ${d >= 0 ? '+' : ''}${num(d, 'en', { dp: 1 })}% in 10 years, ${num(water, 'en')} m³ less irrigation a bigha a year. More: the agriculture office.`);
   };
   const helpReply = () => T(`লিখে পাঠান: ${KEYS.filter((x) => !x.help).map((x) => x.k).join(', ')}। অথবা নিজের ভাষায় প্রশ্ন।`, `Send: ${KEYS.filter((x) => !x.help).map((x) => x.en).join(', ')}. Or ask in your own words.`);
 
@@ -60,9 +60,9 @@ export default function SmsMode() {
       // The session survives language toggles so conversation context stays, but each reply follows the current UI language.
       session.current.lang = lang;
       const snap = farmerSnapshot(store, { clim, soilData, unions: demo.unions });
-      const r = respond(key?.ask ?? q, snap, session.current);
+      const r = respond(key?.ask ? key.ask[lang] : q, snap, session.current);
       session.current = r.session;
-      for (const e of r.effects) if (e.type === 'addRequest') { store.dispatch({ type: 'addRequest', req: e.req }); store.toast('অনুরোধ পাঠানো হয়েছে', 'Request sent'); }
+      for (const e of r.effects) if (e.type === 'addRequest') { store.dispatch({ type: 'addRequest', req: e.req }); store.toast('অনুরোধটি ডেমোতে রাখা হয়েছে; অফিসে যায়নি', 'Request saved in demo; not sent to the office'); }
       reply = r.say;
     }
     const parts = smsSplit(reply);
@@ -74,7 +74,7 @@ export default function SmsMode() {
   return (
     <div>
       <PageHeader eyebrow={T('ফিচার ফোনেও', 'On a feature phone too')} title={T('এসএমএসে FieldShift', 'FieldShift by SMS')}
-        subtitle={T('স্মার্টফোন বা ইন্টারনেট ছাড়াই: একটি শব্দ বা নিজের ভাষায় প্রশ্ন লিখে পাঠালে একই হিসাবের উত্তর আসে, বাংলায়, এসএমএসের মাপে।', 'No smartphone or internet needed: send a word, or a question in your own words, and the same working answers in Bangla, cut to SMS size.')} tags={['RULE']} />
+        subtitle={T('স্মার্টফোন বা ইন্টারনেট ছাড়াই: একটি শব্দ বা নিজের ভাষায় প্রশ্ন লিখে পাঠালে একই হিসাবের উত্তর আসে, বাংলা বা ইংরেজিতে, এসএমএসের মাপে।', 'No smartphone or internet needed: send a keyword, or a question in your own words, and the same engine answers in Bangla or English, cut to SMS size.')} tags={['RULE']} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr]">
         {/* The phone */}
         <div data-tour="sms-phone" className="mx-auto w-full max-w-[380px] rounded-[42px] bg-[#1c2420] p-3 shadow-2xl">
@@ -113,7 +113,7 @@ export default function SmsMode() {
           </Card>
           <Card className="p-5">
             <h2 className="flex items-center gap-2 text-[18px] font-bold"><Repeat size={18} className="text-primary-700" />{T('এই কথোপকথনে', 'In this conversation')}</h2>
-            <p className="mt-1 text-[14.5px]">{T(`${num(replies, 'bn')}টি এসএমএস উত্তর। প্রতিটি বাংলা এসএমএস ৭০ অক্ষরের, লম্বা হলে ৬৭ অক্ষরের ভাগে।`, `${replies} SMS replies. A Bangla SMS holds 70 characters, or 67 a part when it runs longer.`)}</p>
+            <p className="mt-1 text-[14.5px]">{T(`${num(replies, 'bn')}টি এসএমএস উত্তর। প্রতিটি বাংলা এসএমএস ৭০ অক্ষরের, লম্বা হলে ৬৭ অক্ষরের ভাগে।`, `${num(replies, 'en')} SMS replies. A Bangla SMS holds 70 characters (67 per part if longer); an English SMS holds 160 (153 per part).`)}</p>
           </Card>
           <Card data-tour="sms-real" className="p-5">
             <h2 className="flex items-center gap-2 text-[18px] font-bold"><Server size={18} className="text-primary-700" />{T('আসল ব্যবস্থায়', 'In a real service')}</h2>

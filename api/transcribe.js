@@ -1,3 +1,4 @@
+import { poolCall, geminiKeys } from './_keypool.js';
 import { parseBody } from './body.js';
 import { rateLimitResponse } from './rateLimit.js';
 import { AUDIO_TYPES, MAX_AUDIO_B64, CROP_KEYS, SYMPTOM_KEYS, ITEM_KINDS, UNITS, extractJson, normalizeTranscript, normalizeCallNote } from '../src/engine/callnote.js';
@@ -45,23 +46,26 @@ async function timed(url, init) {
 async function geminiHear({ audio, mime, lang, crop }) {
   let last = null;
   for (const model of models()) {
-    let r;
-    try {
-      r = await timed(`${GEMINI_API}/${model}:generateContent`, {
-        method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+    // Every key in turn for this model (api/_keypool.js); a busy or timed-out key hands over to the next.
+    const r = await poolCall(`hear:${model}`, async (key, index, signal) => {
+      const resp = await fetch(`${GEMINI_API}/${model}:generateContent`, {
+        method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
         body: JSON.stringify({ contents: [{ parts: [{ inline_data: { mime_type: mime, data: audio } }, { text: prompt(lang, crop) }] }], generationConfig: { temperature: 0.1, responseMimeType: 'application/json' } }),
+        signal,
       });
-    } catch { last = { busy: true }; continue; }
+      if (!resp.ok) return { status: resp.status, body: typeof resp.text === 'function' ? await resp.text().catch(() => '') : '' };
+      const data = await resp.json();
+      const text = data?.candidates?.[0]?.content?.parts?.map((p) => p?.text).filter((p) => typeof p === 'string').join('\n');
+      const j = extractJson(text);
+      const transcript = normalizeTranscript(j);
+      if (!transcript.text) return { status: 502, body: 'empty transcript' };
+      return { status: 200, value: { transcript, note: normalizeCallNote(j?.note, transcript.text), model } };
+    }, { timeoutMs: TIMEOUT });
+    if (r.ok) return r.value;
     if (r.status === 401 || r.status === 403) return { auth: true };
-    if (r.status === 429 || r.status >= 500) { last = { busy: true }; continue; }
     if (r.status === 404) { last = { error: `gemini model ${model} not found` }; continue; } // a mistyped GEMINI_MODEL
-    if (!r.ok) return { error: `gemini ${r.status}` };
-    const data = await r.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p?.text).filter((p) => typeof p === 'string').join('\n');
-    const j = extractJson(text);
-    const transcript = normalizeTranscript(j);
-    if (!transcript.text) { last = { error: 'empty transcript' }; continue; }
-    return { transcript, note: normalizeCallNote(j?.note, transcript.text), model };
+    if (r.status === 400) return { error: 'gemini 400' };
+    last = r.error === 'empty transcript' ? { error: 'empty transcript' } : { busy: true };
   }
   return last ?? { error: 'no model' };
 }
@@ -96,7 +100,7 @@ export function cleanRequest(body) {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'method not allowed' }); }
-  const gemini = !!process.env.GEMINI_API_KEY, groq = !!process.env.GROQ_API_KEY;
+  const gemini = geminiKeys().length > 0, groq = !!process.env.GROQ_API_KEY;
   if (!gemini && !groq) return res.status(503).json({ error: 'transcription not configured' });
   const parsed = parseBody(req.body);
   if (!parsed.ok) return res.status(400).json({ error: 'bad json' });

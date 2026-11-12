@@ -417,6 +417,7 @@ const WORLDS = {
     const S = stations({ start: [-17, -13], house: [-25, -19], shed: [-21, 3], kiosk: [21, -14], water: [7, -13], market: [-17, 25], safe: [4, -30] });
     const { r, props, add, addBehind, common } = maker(73, S);
     common({ house: 'brickhouse', shed: 'brick', kiosk: 'office', neighbours: [[-34, -30], [33, -28]], shedFaces: [-16, 3] });
+    props.forEach((p) => { if (p.type === 'brickhouse') p.style = 'fazenda'; }); // the local farmhouse (props.js)
     row(add, 'eucalyptus', [-42, -12.4], [42, -12.4], 6, [[S.water.x, S.water.z, 4], [S.kiosk.x, S.kiosk.z, 5], [-16, -12.4, 3], [S.safe.x - 1, -12.4, 3]]);
     add('tractor', -22, -12.2, { rot: Math.PI / 2, s: 1 });
     add('truck', S.market.x + 2.6, S.market.z, { rot: 0, s: 1 });
@@ -436,6 +437,7 @@ const WORLDS = {
     const S = stations({ start: [-17, -13], house: [-25, -19], shed: [-21, 3], kiosk: [21, -14], water: [7, -13], market: [-17, 25], safe: [4, -30] });
     const { r, props, add, addBehind, common } = maker(84, S);
     common({ house: 'brickhouse', shed: 'brick', kiosk: 'office', neighbours: [[-34, -30], [33, -28]], shedFaces: [-16, 3] });
+    props.forEach((p) => { if (p.type === 'brickhouse') p.style = 'cortijo'; }); // the local farmhouse (props.js)
     row(add, 'eucalyptus', [-42, -12.4], [42, -12.4], 5, [[S.water.x, S.water.z, 4], [S.kiosk.x, S.kiosk.z, 5], [-16, -12.4, 3], [S.safe.x - 1, -12.4, 3]]);
     add('tractor', -22, -12.2, { rot: Math.PI / 2, s: 0.9 });
     add('truck', S.market.x + 2.6, S.market.z, { rot: 0, s: 1 });
@@ -455,6 +457,7 @@ const WORLDS = {
     const S = stations({ start: [-17, -13], house: [-25, -19], shed: [-21, 3], kiosk: [21, -14], water: [7, -13], market: [-17, 25], safe: [4, -30] });
     const { r, props, add, addBehind, common } = maker(31, S);
     common({ house: 'brickhouse', shed: 'brick', kiosk: 'office', neighbours: [[-34, -30]], shedFaces: [-16, 3] });
+    props.forEach((p) => { if (p.type === 'brickhouse') p.style = 'ranch'; }); // the local farmhouse (props.js)
     row(add, 'poplar', [-42, -12.4], [42, -12.4], 5, [[S.water.x, S.water.z, 4], [S.kiosk.x, S.kiosk.z, 5], [-16, -12.4, 3], [S.safe.x - 1, -12.4, 3]]);
     for (let i = 0; i < 5; i++) add('kup', 28 + (i % 3) * 3, 4 + Math.floor(i / 3) * 3.5, { s: 0.8 });
     add('cow', -31, -20, { rot: 1.1, s: 1 }); add('cow', -33, -16, { rot: 1.6, s: 0.95 }); add('cow', 31, 18, { rot: 0.4, s: 1 });
@@ -509,7 +512,7 @@ const SOLID = {
   brickhouse: (p) => ({ box: [3.4 * p.s, 2.6 * p.s] }), mudhouse: (p) => ({ box: [3.2 * p.s, 2.4 * p.s] }), tharuhouse: (p) => ({ box: [4 * p.s, 2.2 * p.s] }),
   bhutanhouse: (p) => ({ box: [3.2 * p.s, 2.6 * p.s] }), stilthouse: (p) => ({ box: [3 * p.s, 2.4 * p.s] }),
   shed: () => ({ box: [2.2, 2.6] }), kiosk: () => ({ box: [1.5, 1.3] }),
-  gurdwara: () => ({ box: [4.2, 3] }), wardoffice: () => ({ box: [5, 1.9] }), lhakhang: () => ({ box: [2.4, 2] }), kyaung: () => ({ box: [3.2, 2.4] }), dhaba: () => ({ box: [1.6, 1.4] }),
+  upazila: () => ({ box: [3.4, 2.5] }), gurdwara: () => ({ box: [4.2, 3] }), wardoffice: () => ({ box: [5, 1.9] }), lhakhang: () => ({ box: [2.4, 2] }), kyaung: () => ({ box: [3.2, 2.4] }), dhaba: () => ({ box: [1.6, 1.4] }),
   tinhouse: (p) => ({ box: [3.5 * p.s, 2.7 * p.s] }), thatchhouse: (p) => ({ box: [3.5 * p.s, 2.7 * p.s] }), school: () => ({ box: [7, 1.9] }), shelter: () => ({ pillars: true }), tilashed: () => ({ circle: 1.6 }), van: () => ({ circle: 1.1 }), llp: () => ({ circle: 0.9 }), trellis: () => ({ box: [1.5, 1.5] }), stilthut: () => ({ circle: 1.4 }),
   banyan: (p) => ({ circle: 1.4 * (p?.s ?? 1) }), coconut: () => ({ circle: 0.4 }), betelnut: () => ({ circle: 0.25 }), bamboo: () => ({ circle: 1 }), guava: () => ({ circle: 0.4 }),
   pumphouse: () => ({ box: [1.4, 1.4] }), stw: () => ({ circle: 0.8 }), mogha: () => ({ circle: 0.6 }), stream: () => ({ circle: 0.6 }),
@@ -517,7 +520,9 @@ const SOLID = {
   kup: (p) => ({ circle: 1.4 * p.s }), dehari: () => ({ circle: 0.35 }), machan: () => ({ circle: 1.2 }), chorten: (p) => ({ circle: 1.2 * p.s }), zedi: () => ({ circle: 2.2 }), waterpots: () => ({ box: [0.9, 0.4] }), charpai: () => ({ box: [1, 0.5] }),
   eucalyptus: () => ({ circle: 0.3 }), poplar: () => ({ circle: 0.25 }), date: () => ({ circle: 0.35 }), kikar: () => ({ circle: 0.35 }), sal: () => ({ circle: 0.45 }),
   mango: (p) => ({ circle: 0.55 * p.s }), banana: () => ({ circle: 0.4 }), bluepine: () => ({ circle: 0.4 }), toddy: () => ({ circle: 0.35 }), tamarind: () => ({ circle: 0.6 }),
-  buffalo: () => ({ circle: 1 }), cow: () => ({ circle: 0.9 }), ox: () => ({ circle: 0.9 }), goat: () => ({ circle: 0.5 }), egret: () => ({ circle: 0.35 }), chicken: () => ({ circle: 0.25 }), duck: () => ({ circle: 0.25 }), pole: () => ({ circle: 0.2 }),
+  pole: () => ({ circle: 0.2 }), // the animals are not here: they wander, so they are bodies that move (footing.js keepApart)
+  kiln: (p) => ({ box: [5 * p.s, 3 * p.s] }), stone: (p) => ({ circle: 0.55 * p.s }), lungdar: () => ({ circle: 0.12 }),
+  mangrove: () => ({ circle: 0.45 }), hijal: () => ({ circle: 0.45 }), nipa: () => ({ circle: 0.5 }),
 };
 
 // Beyond the farm, out to the edge the farmer can walk to: the world's own trees in clumps and lines, a few more
@@ -559,9 +564,44 @@ function outerRing(L, seed) {
 
 const cache = {};
 const SEEDS = Object.fromEntries(Object.keys(WORLDS).map((w, i) => [w, 101 + i * 37]));
+// The agriculture office (office.js), placed the same way in every world: on free dry ground between the farm and
+// the village edge, close beside a road or path but not on it, clear of the field, the water, the other stations and
+// buildings. The station is where the farmer stands at the door; the building is a few metres behind, facing the farm.
+function placeOffice(L) {
+  const S = L.spots;
+  if (S.office) return;
+  const segD = (x, z, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz); };
+  const pathD = (x, z) => { let d = 99; for (const p of L.paths ?? []) for (let k = 1; k < p.length; k++) d = Math.min(d, segD(x, z, p[k - 1], p[k])); return d; };
+  const clear = (x, z, room) => {
+    if (Math.abs(x) < FIELD_W / 2 + 5 && Math.abs(z) < FIELD_D / 2 + 5) return false;
+    if (inWater(L, x, z) || inWater(L, x + 3, z) || inWater(L, x - 3, z) || inWater(L, x, z + 3) || inWater(L, x, z - 3)) return false;
+    for (const [k, st] of Object.entries(S)) if (Math.hypot(x - st.x, z - st.z) < (k === 'house' || k === 'start' ? 9 : (st.r ?? 2) + room + 3)) return false; // never across the way home
+    for (const p of L.props) if (SOLID[p.type]?.(p) && Math.hypot(x - p.x, z - p.z) < room + 3.5) return false;
+    return true;
+  };
+  let best = null;
+  for (let rad = 22; rad <= 44; rad += 2) for (let k = 0; k < 48; k++) {
+    const a = (k / 48) * Math.PI * 2, x = Math.cos(a) * rad, z = Math.sin(a) * rad;
+    const bx = x + Math.cos(a) * 3.4, bz = z + Math.sin(a) * 3.4; // the building, behind the door, away from the farm
+    if (!clear(x, z, 1.5) || !clear(bx, bz, 3.2)) continue;
+    const pd = pathD(x, z), score = (pd < 1.5 ? 20 : Math.abs(pd - 3)) + rad * 0.05;
+    if (!best || score < best.score) best = { x, z, bx, bz, score };
+  }
+  if (!best) return;
+  S.office = { x: best.x, z: best.z, r: 2.6 };
+  // clear the yard: no tree, bamboo or bush grows through the office or over its door
+  const SOFT = new Set([...TREES, 'bamboo', 'banana', 'tea', 'nipa']);
+  for (let k = L.props.length - 1; k >= 0; k--) {
+    const p = L.props[k];
+    if (SOFT.has(p.type) && (Math.hypot(p.x - best.bx, p.z - best.bz) < 7.5 || Math.hypot(p.x - best.x, p.z - best.z) < 4)) L.props.splice(k, 1);
+  }
+  L.props.push({ type: 'upazila', x: best.bx, z: best.bz, rot: face(best.bx, best.bz), s: 1 });
+}
+
 export function layoutFor(world) {
   if (cache[world]) return cache[world];
   const L = WORLDS[world]();
+  placeOffice(L);
   outerRing(L, SEEDS[world]);
   L.S = L.spots;
   L.blockers = [];
@@ -597,20 +637,29 @@ export function inWater(L, x, z) {
 
 // Push a point out of every blocker; keep it inside the walkable circle.
 export function resolve(L, x, z, rad = 0.35) {
-  for (const b of L.blockers) {
-    if (b.r) {
-      const dx = x - b.x, dz = z - b.z, d = Math.hypot(dx, dz), m = b.r + rad;
-      if (d < m && d > 1e-4) { x = b.x + (dx / d) * m; z = b.z + (dz / d) * m; }
-    } else {
-      // into the box's own frame (a rotation `rot` about the vertical axis), out to the nearest side, and back
-      const dx = x - b.x, dz = z - b.z;
-      let u = dx * b.c - dz * b.s, v = dx * b.s + dz * b.c;
-      const hw = b.hw + rad, hd = b.hd + rad;
-      if (Math.abs(u) < hw && Math.abs(v) < hd) {
-        if (hw - Math.abs(u) < hd - Math.abs(v)) u = Math.sign(u || 1) * hw; else v = Math.sign(v || 1) * hd;
-        x = b.x + u * b.c + v * b.s; z = b.z - u * b.s + v * b.c;
+  for (let pass = 0; pass < 4; pass++) {
+    let moved = false;
+    for (const b of L.blockers) {
+      if (b.r) {
+        const dx = x - b.x, dz = z - b.z, d = Math.hypot(dx, dz), m = b.r + rad;
+        if (d < m - 1e-6) {
+          if (d > 1e-4) { x = b.x + (dx / d) * m; z = b.z + (dz / d) * m; }
+          else { x = b.x + m; z = b.z; }
+          moved = true;
+        }
+      } else {
+        // into the box's own frame (a rotation `rot` about the vertical axis), out to the nearest side, and back
+        const dx = x - b.x, dz = z - b.z;
+        let u = dx * b.c - dz * b.s, v = dx * b.s + dz * b.c;
+        const hw = b.hw + rad, hd = b.hd + rad;
+        if (Math.abs(u) < hw - 1e-6 && Math.abs(v) < hd - 1e-6) {
+          if (hw - Math.abs(u) < hd - Math.abs(v)) u = Math.sign(u || 1) * hw; else v = Math.sign(v || 1) * hd;
+          x = b.x + u * b.c + v * b.s; z = b.z - u * b.s + v * b.c;
+          moved = true;
+        }
       }
     }
+    if (!moved) break;
   }
   const d = Math.hypot(x, z);
   if (d > WORLD_R) { x *= WORLD_R / d; z *= WORLD_R / d; }

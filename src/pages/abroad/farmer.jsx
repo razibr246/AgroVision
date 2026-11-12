@@ -437,8 +437,11 @@ export function Help() {
           <ul className="space-y-2.5">
             {req.list.map((r) => (
               <li key={r.id} className="rounded-2xl bg-white/75 p-3.5 ring-1 ring-white/80">
-                <div className="flex items-center justify-between text-[12px] font-semibold text-muted"><span>{L(TOPICS.find((t) => t.k === r.topic) ?? TOPICS[5])}</span><span>{fullDate(r.t.slice(0, 10), lang)}</span></div>
-                <p className="mt-1 text-[14.5px] leading-6">{r.text}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[12px] font-semibold text-muted">
+                  <span className="inline-flex items-center gap-1.5">{L(TOPICS.find((t) => t.k === r.topic) ?? TOPICS[5])}{r.demo && <span className="rounded-full bg-paddy-50 px-2 py-0.5 text-[11px] font-semibold text-paddy-700 ring-1 ring-paddy-200">{T('নমুনা', 'Sample')}</span>}</span>
+                  <span>{fullDate(r.t.slice(0, 10), lang)}</span>
+                </div>
+                <p className="mt-1 text-[14.5px] leading-6">{typeof r.text === 'string' ? r.text : L(r.text)}</p>
                 {r.reply ? <div className="mt-2 rounded-xl bg-primary-50 p-2.5 text-[14px] leading-6 ring-1 ring-primary-100"><b className="text-primary-800">{L(c.local.role)}:</b> {r.reply.text}</div> : <div className="mt-1.5 text-[12.5px] font-semibold text-paddy-700">{T('উত্তরের অপেক্ষায়', 'Waiting for a reply')}</div>}
               </li>
             ))}

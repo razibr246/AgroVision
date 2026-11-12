@@ -25,7 +25,7 @@ const DANGER_ICON = { 1: Skull, 2: Flame, 3: Waves, 4: Landmark };
 
 export default function Stories() {
   const { T, L, s } = useStore();
-  usePageMeta(L(GAMES.stories.name), GAMES.stories.seo.en);
+  usePageMeta(L(GAMES.stories.name), T('সাত মাঠের চ্যালেঞ্জ: বাংলাদেশের সাতটি অঞ্চলের সাত জন কৃষক ও সাতটি জলবায়ু ঝুঁকি (আকস্মিক বন্যা, লবণাক্ততা, জোয়ার, কুয়াশা-ব্লাইট, মেঘভাঙা বৃষ্টি) নিয়ে অতীতের একটি বাস্তব বছরে খেলা।', GAMES.stories.seo.en));
   const lang = s.lang;
   const [W, H] = BD.viewBox;
   const tone = Object.fromEntries(LEVELS.map((l) => [l.division.en, l.tone]));
@@ -61,7 +61,7 @@ export default function Stories() {
 
         <ol className="space-y-4">
           {LEVELS.map((l) => (
-            <li key={l.id}>
+            <li key={l.id} className="cv-auto">
               <Link to={`/stories/${l.id}`} className="surface-card lift lift-green group grid overflow-hidden rounded-[26px] border border-border/80 bg-white/90 sm:grid-cols-[200px_1fr] shadow-[var(--shadow-card)] transition-all duration-300 hover:border-primary-400 hover:shadow-2xl">
                 <div className="relative min-h-[160px] overflow-hidden bg-primary-950/5">
                   <div className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-108">
@@ -91,7 +91,7 @@ export default function Stories() {
       </div>
 
       <section className="mt-12 grid gap-5 lg:grid-cols-2">
-        <div className="surface-card rounded-[26px] border border-border/80 bg-white/90 p-6 shadow-[var(--shadow-card)]">
+        <div className="surface-card cv-auto rounded-[26px] border border-border/80 bg-white/90 p-6 shadow-[var(--shadow-card)]">
           <h2 className="text-[22px] font-bold text-ink">{T('FieldShift স্কোর', 'The FieldShift Score')}</h2>
           <p className="mt-1 text-[14.5px] leading-6 text-muted">{T('প্রতিটি সিদ্ধান্ত পাঁচ দিক থেকে মাপা; মোট ১০০, সঙ্গে বোনাস।', 'Every decision is weighed on five pillars: 100 points, plus a bonus.')}</p>
           <div className="mt-3.5 rounded-xl border border-primary-900/40 bg-primary-950 px-4 py-3 text-center font-mono text-[14px] font-bold text-primary-50 shadow-inner">{T('স্কোর', 'Score')} = 0.25·Y + 0.20·E + 0.20·C + 0.20·B + 0.15·M</div>
@@ -102,7 +102,7 @@ export default function Stories() {
           </ul>
           <p className="mt-3 text-[13px] font-semibold text-primary-800">{T('FieldShift-এর সতর্কতা মেনে কাজ করলে ×১.১ বোনাস।', 'Acting on a FieldShift alert earns a ×1.1 bonus.')}</p>
         </div>
-        <div className="surface-card rounded-[26px] border border-border/80 bg-white/90 p-6 shadow-[var(--shadow-card)]">
+        <div className="surface-card cv-auto rounded-[26px] border border-border/80 bg-white/90 p-6 shadow-[var(--shadow-card)]">
           <h2 className="text-[22px] font-bold text-ink">{T('বিপদের শেষ: খেলা যেখানে থামে', 'Danger Ends: where the game stops')}</h2>
           <ul className="mt-4 space-y-3.5">
             {Object.entries(DANGERS).map(([k, d]) => { const Icon = DANGER_ICON[k]; return (

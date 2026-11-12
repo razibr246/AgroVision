@@ -11,38 +11,33 @@ import { LEVEL_LOOK } from './FieldsMap';
 import { useFieldWatch } from './useFieldWatch';
 import { readField } from '../../engine/fieldwatch';
 import { pictureBox } from '../../engine/sentinel';
-import { plotSquare } from '../../engine/world';
+import { boundaryOf, measure } from '../../engine/landgeom';
+import { ShapeOverPhoto, BoundaryBadge } from '../map/FieldShape';
 import { cropName, IRRIGATION } from '../../engine/crops';
 import { num, fmtDate, parseISO, todayDhaka } from '../../engine/dates';
 import { WATCH_PROV } from '../../data/fieldWatch';
 
 const pctLabel = (p, lang) => `${num(Math.round(p * 100), lang)}%`;
 
-// The field's square drawn over the picture, in the picture's own 0–100 coordinates.
+// The field over the picture: its real boundary, or only its pin when no boundary has been given (never a square).
 function Outline({ parcel, box }) {
-  const [[s, w], [n, e]] = box ?? pictureBox(parcel);
-  const pts = plotSquare(parcel.lat, parcel.lon, parcel.area_dec).map(([la, lo]) => `${((lo - w) / (e - w)) * 100},${((n - la) / (n - s)) * 100}`).join(' ');
-  return (
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-      <polygon points={pts} fill="none" stroke="#fff" strokeWidth="0.9" vectorEffect="non-scaling-stroke" style={{ strokeWidth: 2.5 }} />
-      <polygon points={pts} fill="none" stroke="#edc067" strokeWidth="0.5" strokeDasharray="2 1.5" vectorEffect="non-scaling-stroke" style={{ strokeWidth: 1.5 }} />
-    </svg>
-  );
+  return <ShapeOverPhoto parcel={parcel} box={box ?? pictureBox(parcel)} />;
 }
 
 // The sharpest photo there is of the field (Esri, at the deepest zoom it has here), stitched from map tiles.
 // close: only the field and a margin, made 4× sharper by the in-browser AI model (src/ai/superres.js).
-const closeBox = (p) => {
-  const side = Math.max(70, 1.8 * Math.sqrt(p.area_dec * 40.4686));
-  const dLat = side / 2 / 111320, dLon = side / 2 / (111320 * Math.cos((p.lat * Math.PI) / 180));
-  return [[p.lat - dLat, p.lon - dLon], [p.lat + dLat, p.lon + dLon]];
+// A field with a real boundary is framed on that boundary; otherwise on its pin and recorded size.
+const frame = (p, min, k) => {
+  const m = boundaryOf(p) && measure(boundaryOf(p));
+  const lat = m ? (m.bbox[0][0] + m.bbox[1][0]) / 2 : p.lat, lon = m ? (m.bbox[0][1] + m.bbox[1][1]) / 2 : p.lon;
+  const extent = m ? Math.max((m.bbox[1][0] - m.bbox[0][0]) * 111320, (m.bbox[1][1] - m.bbox[0][1]) * 111320 * Math.cos((lat * Math.PI) / 180)) : 0;
+  const side = Math.max(min, k * Math.sqrt((m ? m.areaM2 / 40.4686 : p.area_dec) * 40.4686), 1.25 * extent);
+  const dLat = side / 2 / 111320, dLon = side / 2 / (111320 * Math.cos((lat * Math.PI) / 180));
+  return [[lat - dLat, lon - dLon], [lat + dLat, lon + dLon]];
 };
+const closeBox = (p) => frame(p, 70, 1.8);
 // tight: frame the field and its neighbours (about 180 m across) instead of the 480 m view, without AI.
-const tightBox = (p) => {
-  const side = Math.max(150, 4 * Math.sqrt(p.area_dec * 40.4686));
-  const dLat = side / 2 / 111320, dLon = side / 2 / (111320 * Math.cos((p.lat * Math.PI) / 180));
-  return [[p.lat - dLat, p.lon - dLon], [p.lat + dLat, p.lon + dLon]];
-};
+const tightBox = (p) => frame(p, 150, 4);
 export function PhotoPicture({ parcel, close, tight = false }) {
   const { T, s } = useStore();
   const [st, setSt] = useState({ phase: 'load' });
@@ -62,13 +57,13 @@ export function PhotoPicture({ parcel, close, tight = false }) {
       setSt({ phase: 'done', url, bounds, z, px: close ? out.width : canvas.width });
     })().catch((e) => { if (e.name !== 'AbortError') setSt({ phase: 'error' }); });
     return () => { ac.abort(); if (url) URL.revokeObjectURL(url); };
-  }, [parcel.id, parcel.lat, parcel.lon, parcel.area_dec, close, tight]);
+  }, [parcel.id, parcel.lat, parcel.lon, parcel.area_dec, parcel.boundary, close, tight]);
   // Metres per screen-pixel of the source photo at this zoom (Web Mercator), for an honest caption.
   const mpp = st.z ? (156543.03 * Math.cos((parcel.lat * Math.PI) / 180)) / 2 ** st.z : null;
   return (
     <>
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-primary-950">
-        {st.phase === 'done' && <img src={st.url} alt={close ? T('AI দিয়ে পরিষ্কার করা জমির কাছের ছবি', 'Close-up of the field, cleared up by AI') : T('জমির সবচেয়ে পরিষ্কার উপগ্রহ ছবি', 'Sharpest satellite photo of the field')} className="h-full w-full object-cover" />}
+        {st.phase === 'done' && <img src={st.url} alt={close ? T('AI দিয়ে পরিষ্কার করা জমির কাছের ছবি', 'Close-up of the field, cleared up by AI') : T('জমির সবচেয়ে পরিষ্কার উপগ্রহ ছবি', 'Sharpest satellite photo of the field')} loading="lazy" decoding="async" className="crisp-img h-full w-full object-cover" />}
         {st.phase === 'done' && <Outline parcel={parcel} box={st.bounds} />}
         {st.phase !== 'done' && (
           <div className="absolute inset-0 grid place-items-center p-6 text-center text-[13.5px] text-white/85">
@@ -97,7 +92,7 @@ export function Picture({ parcel, pictures, kind }) {
   return (
     <div className="relative aspect-square overflow-hidden rounded-2xl bg-primary-950">
       {src ? <img src={src} alt={kind === 'tc' ? T('উপগ্রহ থেকে জমির আসল রঙের ছবি', 'True-colour satellite picture of the field') : T('জমির সবুজের মানচিত্র', 'Green-cover map of the field')}
-        className="h-full w-full object-cover" onError={() => setFailed(true)} loading="lazy" /> : null}
+        className="crisp-img h-full w-full object-cover" onError={() => setFailed(true)} loading="lazy" decoding="async" /> : null}
       <Outline parcel={parcel} />
       {kind === 'ndvi' && (
         <div className="absolute inset-x-3 bottom-3 rounded-lg bg-black/55 px-2.5 py-1.5 text-[11.5px] text-white backdrop-blur">
@@ -127,7 +122,7 @@ export default function FieldSatellite({ parcel, index, active, onPlan, onEdit, 
       id: `S-${parcel.id}-${Date.now().toString(36)}`, farmerId: farmer.id, union: parcel.union, village: parcel.village, villageBn: parcel.villageBn, lat: parcel.lat, lon: parcel.lon,
       crop: r.top?.pattern.crops.at(-1) ?? parcel.last_crop, symptom: notField ? 'question' : 'satellite', type: 'help', parcel: parcel.id,
       text: { bn: body('bn'), en: body('en') }, ai: null, created: todayDhaka(), status: 'open', priority: r.level === 'warn' ? 'High' : 'Medium', mine: true } });
-    toast('উপজেলা কৃষি অফিসে জানানো হয়েছে', 'Sent to the upazila agriculture office');
+    toast('তথ্যটি এই ব্রাউজারের ডেমোতে রাখা হয়েছে; অফিসে পৌঁছায়নি', 'Saved in this browser demo; not delivered to the upazila office');
   };
 
   return (
@@ -141,6 +136,7 @@ export default function FieldSatellite({ parcel, index, active, onPlan, onEdit, 
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {parcel.pending ? <Badge tone="amber"><Clock size={12} />{T('উপজেলা অফিসের যাচাই বাকি', 'Waiting for the office to check')}</Badge>
                 : <Badge><CheckCircle2 size={12} />{T(`উপজেলা কৃষি অফিসে নিবন্ধিত · ${parcel.id}`, `Registered with the upazila office · ${parcel.id}`)}</Badge>}
+              <BoundaryBadge parcel={parcel} />
               {active && <Badge tone="blue"><Sprout size={12} />{T('এই জমির মৌসুম পরিকল্পনা চলছে', 'Season plan is for this field')}</Badge>}
             </div>
           </div>
@@ -173,7 +169,7 @@ export default function FieldSatellite({ parcel, index, active, onPlan, onEdit, 
                 {fw.status === 'loading' ? T('নতুন ছবি খোঁজা হচ্ছে…', 'Looking for new pictures…') : fw.status === 'offline' ? T('অফলাইন', 'Offline') : T('নতুন ছবি খুঁজুন', 'Check for new pictures')}
               </button>
             </div>
-            <p className={`mt-1 text-[12.5px] leading-5 text-muted ${kind === 'photo' || kind === 'close' ? 'hidden' : ''}`}>{T('হলুদ দাগের ঘর আপনার জমি। উপগ্রহের প্রতিটি বিন্দু ১০ মিটার, তাই ছোট আইল দেখা যায় না।', 'The yellow square is your field. Each satellite pixel is 10 m, so small bunds do not show.')}</p>
+            <p className={`mt-1 text-[12.5px] leading-5 text-muted ${kind === 'photo' || kind === 'close' ? 'hidden' : ''}`}>{boundaryOf(parcel)?.source === 'sample' ? T(`হলুদ রেখা ডেমোর নমুনা সীমানা (ছবিতে দেখা কাছের একটি আসল জমি)। উপগ্রহ এখনো পিনের চারপাশে জমির মাপের (${num(parcel.area_dec, 'bn')} শতক) একটি ঘর পড়ে।`, `The yellow line is the demo’s sample boundary (a real field seen nearby in the photo). The satellite still reads a window of the recorded size (${parcel.area_dec} decimal) around the pin.`) : boundaryOf(parcel) ? T('হলুদ রেখা জমির দেওয়া সীমানা; উপগ্রহ এই সীমানার ভেতরটাই পড়ে। প্রতিটি বিন্দু ১০ মিটার, তাই ছোট আইল দেখা যায় না।', 'The yellow line is the field’s given boundary; the satellite reads inside it. Each pixel is 10 m, so small bunds do not show.') : T(`হলুদ চিহ্ন জমির পিন; আসল সীমানা দেওয়া হয়নি, তাই উপগ্রহ পিনের চারপাশে জমির মাপের (${num(parcel.area_dec, 'bn')} শতক) একটি ঘর পড়ে। নিচে সীমানা দিলে উপগ্রহ ঠিক জমিটাই পড়বে।`, `The yellow mark is the field’s pin; no real boundary has been given, so the satellite reads a window of the field’s recorded size (${parcel.area_dec} decimal) around the pin. Add the boundary below and it reads exactly this field.`)}</p>
           </div>
 
           <div className="min-w-0 space-y-4">
@@ -218,9 +214,9 @@ export default function FieldSatellite({ parcel, index, active, onPlan, onEdit, 
 
             <div className="flex flex-wrap gap-2">
               <Button to="/farmer/doctor" variant="secondary" className="!py-2"><ScanLine size={16} />{T('পাতার ছবি তুলে দেখান', 'Photograph a leaf')}</Button>
-              {(r.level !== 'ok' || notField) && <Button onClick={tellOffice} className="!py-2"><Send size={16} />{notField ? T('অফিসকে অবস্থান ঠিক করতে বলুন', 'Ask the office to fix the position') : T('কৃষি অফিসকে জানান', 'Tell the agriculture office')}</Button>}
+              {(r.level !== 'ok' || notField) && <Button onClick={tellOffice} className="!py-2"><Send size={16} />{notField ? T('অবস্থান-সমস্যা ডেমোতে রাখুন', 'Save location issue in demo') : T('তথ্য ডেমোতে রাখুন', 'Save finding in demo')}</Button>}
             </div>
-            <p className="text-[12.5px] leading-5 text-muted">{T('উপগ্রহ রোগ বা পোকার নাম বলতে পারে না, শুধু দেখায় জমির কোথায় ফসল দুর্বল। নিশ্চিত হতে জমিতে গিয়ে দেখুন বা পাতার ছবি পাঠান।', 'A satellite cannot name a disease or a pest; it only shows where the crop is weaker. Walk the field or send a leaf photo to be sure.')}</p>
+            <p className="text-[12.5px] leading-5 text-muted">{T('উপগ্রহ রোগ বা পোকার নাম বলতে পারে না, শুধু দেখায় জমির কোথায় ফসল দুর্বল। নিশ্চিত হতে জমিতে গিয়ে দেখুন বা পাতার ছবি পাঠান। ডেমোতে অফিসকে জানালে তথ্যটি এই ব্রাউজারে থাকে, অফিসে যায় না।', 'A satellite cannot name a disease or a pest; it only shows where the crop is weaker. Walk the field or send a leaf photo to be sure. In this demo, telling the office only saves the finding in this browser; it does not reach the office.')}</p>
           </div>
 
           <div className="min-w-0 lg:col-span-2">

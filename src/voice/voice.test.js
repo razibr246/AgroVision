@@ -183,14 +183,21 @@ test('radar answer uses the real district data and leads with the officer’s up
 });
 
 test('the renamed radar chips still reach the radar answer', () => {
-  for (const q of ['রোপণ রাডার', 'Ropan Radar', 'আমন রাডার', 'বৃষ্টি ও আমন রোপণ', 'Rain and Aman planting']) {
+  for (const q of ['রোপণ রাডার', 'Ropon Radar', 'Ropan Radar', 'আমন রাডার', 'বৃষ্টি ও আমন রোপণ', 'Rain and Aman planting']) {
     assert.match(ask(q, osnap('saao'), createSession({ role: 'saao' })).say, /এখনো আসেনি|has not loaded/, q);
   }
 });
 
 test('greetings differ by role and use the person’s name', () => {
-  assert.ok(greeting(fsnap('SELINA'), createSession({ role: 'farmer' })).say.includes('সেলিনা'));
-  assert.ok(greeting(osnap('uao'), createSession({ role: 'uao' })).say.includes('মরিয়ম'));
+  const farmerEn = greeting(fsnap('SELINA'), createSession({ role: 'farmer' }));
+  assert.ok(farmerEn.say.includes('Selina'));
+  assert.ok(!/[\u0980-\u09ff]/.test(farmerEn.say));
+  const uaoEn = greeting(osnap('uao'), createSession({ role: 'uao' }));
+  assert.ok(/Assalamu alaikum|Good|hello/i.test(uaoEn.say));
+  assert.ok(!/[\u0980-\u09ff]/.test(uaoEn.say));
+
+  assert.ok(greeting(fsnap('SELINA'), createSession({ role: 'farmer', lang: 'bn' })).say.includes('সেলিনা'));
+  assert.ok(greeting(osnap('uao'), createSession({ role: 'uao', lang: 'bn' })).say.includes('মরিয়ম'));
 });
 
 test('Dhamrai: Razib Miah is told his own officer and upazila', () => {
@@ -232,8 +239,10 @@ test('the officer’s radar answer says when the rains set in, from the real ons
   const r = ask('আমন রাডার', snap, createSession({ role: 'saao' }));
   assert.match(r.say, /বৃষ্টি টানা শুরু হয় সাধারণত/);
   assert.match(r.say, /ধরে নেওয়া নিয়মে/);
-  const en = ask('Ropan Radar', snap, createSession({ role: 'saao', lang: 'en' }));
-  assert.ok(/rains usually set in|বৃষ্টি টানা/.test(en.say));
+  const en = ask('Ropon Radar', snap, createSession({ role: 'saao', lang: 'en' }));
+  assert.ok(/rains usually set in/i.test(en.say));
+  assert.ok(en.say.includes('Ropon Radar'));
+  assert.ok(!/Ropan Radar/.test(en.say));
 });
 
 test('a sample request’s photo guess is called a sample, never a real AI result', () => {
@@ -278,4 +287,17 @@ test('SMS mode cuts a Bangla reply into numbered parts that each fit one Unicode
   for (const p of parts) assert.ok(`${p} (১/৩)`.length <= 67, `part fits with its mark: ${p}`);
   assert.deepEqual(smsSplit('আজ সেচ লাগবে না।'), ['আজ সেচ লাগবে না।']);
   assert.equal(smsParts('আজ সেচ লাগবে না।').parts, 1);
+});
+
+test('omitted lang defaults voice session to English with English helpline, while Bangla input auto-detects', () => {
+  const s = createSession({ role: 'farmer' });
+  assert.equal(s.lang, 'en');
+  const enReply = respond('Who is my agriculture officer?', fsnap('RAHIM'), s);
+  assert.ok(enReply.say.includes('16123'));
+  assert.ok(!/১৬১২৩/.test(enReply.say));
+
+  const auto = createSession({ role: 'farmer' });
+  const bnReply = respond('আমার কৃষি কর্মকর্তা কে?', fsnap('RAHIM'), auto);
+  assert.equal(auto.lang, 'bn');
+  assert.ok(bnReply.say.includes('১৬১২৩'));
 });

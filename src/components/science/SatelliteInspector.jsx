@@ -19,7 +19,7 @@ const CONSTELLATION = [
     roleBn: '২৫ বছরের দৈনিক আবহাওয়া ইতিহাস, বাষ্পীভবন (ET₀) এবং বোরো ধানের ৩৫° তাপসীমা পরীক্ষা।',
     roleEn: '25-season daily meteorological backtesting, Penman-Monteith ET₀, and Boro 35 °C heat stress accumulation.',
     portal: 'https://power.larc.nasa.gov',
-    tone: 'text-amber-700 bg-amber-50 border-amber-200',
+    tone: 'text-paddy-700 bg-paddy-50 border-paddy-100',
   },
   {
     id: 'gpm',
@@ -45,7 +45,7 @@ const CONSTELLATION = [
     roleBn: 'জমির শিকড়ের গভীরতায় বাস্তব পানির আর্দ্রতা এবং খরা প্রতিরোধ ক্ষমতা যাচাই।',
     roleEn: 'Calibrates root-zone volumetric moisture (0–100 cm) against FAO-56 balance.',
     portal: 'https://smap.jpl.nasa.gov',
-    tone: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    tone: 'text-primary-700 bg-primary-50 border-primary-200',
   },
   {
     id: 'grace',
@@ -58,7 +58,7 @@ const CONSTELLATION = [
     roleBn: 'বরেন্দ্র অঞ্চলের মাটির নিচে গভীর পানির স্তর পতন (-৮.৯ সেমি/দশক) পর্যবেক্ষণ।',
     roleEn: 'Detects Bengal aquifer depletion trend (-8.9 cm/decade under the Barind).',
     portal: 'https://grace.jpl.nasa.gov',
-    tone: 'text-indigo-700 bg-indigo-50 border-indigo-200',
+    tone: 'text-sky-700 bg-sky-50 border-sky-200',
   },
   {
     id: 'modis',
@@ -71,7 +71,7 @@ const CONSTELLATION = [
     roleBn: 'রেজিস্ট্রার্ড ১৯টি জমির দীর্ঘমেয়াদি সবুজ ভাব ও শুষ্ক মৌসুমের ফসলি চাপ নির্ণয়।',
     roleEn: 'Tracks parcel vegetative vigor, green-cover anomalies, and winter crop stress.',
     portal: 'https://modis.gsfc.nasa.gov',
-    tone: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    tone: 'text-primary-700 bg-primary-50 border-primary-200',
   },
   {
     id: 'landsat',
@@ -84,7 +84,7 @@ const CONSTELLATION = [
     roleBn: '৪০ বছরের ঐতিহাসিক তুলনামূলক বেসলাইন (১৯৮৮–৯১ বনাম ১৯৯৮–০১ বনাম আজ)।',
     roleEn: 'Provides 40-year multi-decadal historical baseline for field parcel greenness.',
     portal: 'https://landsat.gsfc.nasa.gov',
-    tone: 'text-teal-700 bg-teal-50 border-teal-200',
+    tone: 'text-sky-700 bg-sky-50 border-sky-200',
   },
   {
     id: 'dem',
@@ -97,7 +97,7 @@ const CONSTELLATION = [
     roleBn: 'জমির ঢাল, ক্ষয়ঝুঁকি এবং বর্ষার পানি নিষ্কাশন গতিশীলতা নির্ণয়।',
     roleEn: 'Determines slope erosion risk and low-lying waterlogging drainage dynamics.',
     portal: 'https://www.earthdata.nasa.gov/sensors/srtm',
-    tone: 'text-purple-700 bg-purple-50 border-purple-200',
+    tone: 'text-clay-700 bg-clay-50 border-clay-100',
   },
   {
     id: 'sentinel',
@@ -110,7 +110,7 @@ const CONSTELLATION = [
     roleBn: 'মেঘ ভেদ করে আমন রোপণের দিন পরিমাপ (রাডার) এবং ১০ মিটার জমির সীমানা পরীক্ষণ।',
     roleEn: 'C-band radar penetrates monsoon clouds for Aman planting; 10m pixel extraction.',
     portal: 'https://sentinels.copernicus.eu',
-    tone: 'text-blue-700 bg-blue-50 border-blue-200',
+    tone: 'text-sky-700 bg-sky-50 border-sky-200',
   },
 ];
 
@@ -124,7 +124,7 @@ export default function SatelliteInspector() {
     <section id="sat-inspector" className="mt-12 scroll-mt-28">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-100 px-3 py-0.5 text-[12px] font-bold text-sky-900">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-100 px-3 py-0.5 text-[12.5px] font-bold text-sky-900">
             <Orbit size={13} className="text-sky-700 animate-spin-slow" />
             {T('অরবিটাল কনস্টেলেশন স্পেকট্রাম', 'Orbital Constellation Telemetry')}
           </span>
@@ -150,7 +150,7 @@ export default function SatelliteInspector() {
             key={sat.id}
             type="button"
             onClick={() => setSelectedId(sat.id)}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-[13px] font-semibold transition-all ${
+            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-[14px] font-semibold transition-all ${
               selectedId === sat.id
                 ? 'bg-primary-800 text-white shadow-sm ring-2 ring-primary-300'
                 : 'border border-border bg-white text-ink/80 hover:bg-canvas hover:text-ink'
@@ -167,22 +167,22 @@ export default function SatelliteInspector() {
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/70 pb-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className={`rounded-lg border px-2.5 py-0.5 text-[12px] font-bold ${active.tone}`}>
+              <span className={`rounded-lg border px-2.5 py-0.5 text-[12.5px] font-bold ${active.tone}`}>
                 {active.org}
               </span>
-              <span className="flex items-center gap-1 text-[12px] font-medium text-emerald-700">
+              <span className="flex items-center gap-1 text-[12.5px] font-medium text-primary-700">
                 <CheckCircle2 size={13} />
                 {T('সক্রিয় ডেটাস্ট্রিম', 'Active Telemetry Ingest')}
               </span>
             </div>
-            <h3 className="mt-2 text-[22px] font-bold text-ink">{active.name}</h3>
+            <h3 className="mt-2 text-[20px] font-bold text-ink">{active.name}</h3>
             <p className="mt-0.5 text-[14px] text-muted">{active.orbit}</p>
           </div>
           <a
             href={active.portal}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-canvas px-3.5 py-2 text-[13px] font-semibold text-primary-800 hover:bg-primary-50 hover:border-primary-300 transition"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-canvas px-3.5 py-2 text-[14px] font-semibold text-primary-800 hover:bg-primary-50 hover:border-primary-300 transition"
           >
             {T('নাসা ক্যাটালগ দেখুন', 'NASA Earthdata Catalog')}
             <ExternalLink size={14} />
@@ -209,7 +209,7 @@ export default function SatelliteInspector() {
 
           <div className="rounded-2xl bg-canvas p-4 border border-border/60 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-muted">
-              <Activity size={14} className="text-emerald-700" />
+              <Activity size={14} className="text-primary-700" />
               {T('রেজোলিউশন ও পরিধি', 'Spatial / Temporal Resolution')}
             </div>
             <div className="mt-2 text-[14px] font-semibold text-ink">{active.resolution}</div>

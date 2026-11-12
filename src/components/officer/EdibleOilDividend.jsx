@@ -96,7 +96,9 @@ export default function EdibleOilDividend({ switchedHa, upazilaName }) {
             {T('আমদানি বিল সাশ্রয় (ডলার ও টাকা)', 'Forex Import Bill Saved')}
           </div>
           <div className="mt-1 font-display text-[22px] font-bold text-emerald-900">
-            ৳{num(importSavedBdtCrore.toFixed(2), lang)} <span className="text-[15px] font-normal">{T('কোটি', 'Cr BDT')}</span>
+            {lang === 'bn'
+              ? <>৳{num(importSavedBdtCrore, 'bn', { dp: 2 })} <span className="text-[15px] font-normal">কোটি</span></>
+              : <>৳{num(importSavedBdtCrore * 10, 'en', { dp: 1 })}M <span className="text-[15px] font-normal">BDT</span></>}
           </div>
           <div className="text-[11.5px] text-emerald-800/80">
             ${num(Math.round(importSavedUsd / 1000), lang)}k USD {T('রিজার্ভ সরাসরি সাশ্রয়', 'forex reserves conserved')}
@@ -112,7 +114,7 @@ export default function EdibleOilDividend({ switchedHa, upazilaName }) {
             {num(cakeProductionTonnes, lang)} <span className="text-[13px] font-normal text-muted">{T('টন খৈল', 't cake')}</span>
           </div>
           <div className="text-[11.5px] text-sky-900/80">
-            {T(`প্রায় ${num(ureaSavedTonnes, lang)} টন রাসায়নিক ইউরিয়া সার সাশ্রয়`, `Replaces ~${ureaSavedTonnes} tonnes synthetic urea`)}
+            {T(`প্রায় ${num(ureaSavedTonnes, lang)} টন রাসায়নিক ইউরিয়া সার সাশ্রয়`, `Replaces ~${num(ureaSavedTonnes, 'en')} tonnes synthetic urea`)}
           </div>
         </div>
       </div>
@@ -122,7 +124,7 @@ export default function EdibleOilDividend({ switchedHa, upazilaName }) {
         <span>
           {T(
             `${upazilaName?.bn || 'উপজেলার'} রূপান্তরকৃত ${num(ha, lang)} হেক্টরে সরিষা চাষ আমন কাটার পর মাত্র ৭৫–৮০ দিনে সম্পন্ন হয়, যা বোরোর পানি সমস্যা কাটায় এবং জমির উর্বরতা বৃদ্ধি করে।`,
-            `On ${num(ha, 'en')} ha transitioned in ${upazilaName?.en || 'the upazila'}, a 75-80 day mustard cycle fits between Aman and Aus/Mungbean, conserving aquifer reserves while boosting domestic oil security.`
+            `On ${num(ha, 'en')} ha transitioned in ${upazilaName?.en || 'the upazila'}, a 75–80 day mustard cycle fits between Aman and Aus/Mungbean, conserving aquifer reserves while boosting domestic oil security.`
           )}
         </span>
       </div>

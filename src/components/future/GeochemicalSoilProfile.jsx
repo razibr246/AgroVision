@@ -18,8 +18,8 @@ import {
 const HORIZONS = [
   {
     id: 'ap',
-    depthRange: '০–১৫ সেমি (0–15 cm)',
-    nameBn: 'Ap কর্ষিত স্তর (Cultivated Topsoil)',
+    depthRange: { bn: '০–১৫ সেমি', en: '0–15 cm' },
+    nameBn: 'Ap কর্ষিত স্তর',
     nameEn: 'Ap Cultivated Topsoil',
     clayPct: 24,
     omPct: 1.8,
@@ -31,8 +31,8 @@ const HORIZONS = [
   },
   {
     id: 'pan',
-    depthRange: '১৫–২২ সেমি (15–22 cm)',
-    nameBn: 'লাঙলের তলা / হার্ডপ্যান (Plough Pan)',
+    depthRange: { bn: '১৫–২২ সেমি', en: '15–22 cm' },
+    nameBn: 'লাঙলের তলা (হার্ডপ্যান)',
     nameEn: 'Plough Hardpan',
     clayPct: 34,
     omPct: 0.9,
@@ -44,21 +44,21 @@ const HORIZONS = [
   },
   {
     id: 'b',
-    depthRange: '২২–৪৫ সেমি (22–45 cm)',
-    nameBn: 'B অন্তর্মৃত্তিকা স্তর (Subsoil Horizon)',
+    depthRange: { bn: '২২–৪৫ সেমি', en: '22–45 cm' },
+    nameBn: 'B অন্তর্মৃত্তিকা স্তর',
     nameEn: 'B Subsoil Horizon',
     clayPct: 38,
     omPct: 0.6,
     ph: 5.6,
-    descBn: 'ধৌত এঁটেল কণার সঞ্চয় ও লোহার মরিচাধরা ছোপ (Mottles); উচ্চ ক্যাটায়ন বিনিময় ক্ষমতা (CEC)।',
+    descBn: 'ধৌত এঁটেল কণার সঞ্চয় ও লোহার মরিচাধরা ছোপ; উচ্চ ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি)।',
     descEn: 'Illuvial clay accumulation with redoximorphic iron mottles and high mineral CEC capacity.',
     color: '#8c532b',
     bg: 'bg-orange-950/20',
   },
   {
     id: 'c',
-    depthRange: '৪৫–৬০+ সেমি (45–60+ cm)',
-    nameBn: 'C জীবাশ্ম স্তর ও প্রাচীন বরেন্দ্র কাদামাটি (Paleosol & Fossil Carbon)',
+    depthRange: { bn: '৪৫–৬০+ সেমি', en: '45–60+ cm' },
+    nameBn: 'C জীবাশ্ম স্তর ও প্রাচীন বরেন্দ্র কাদামাটি',
     nameEn: 'C Paleosol & Fossilized Carbon',
     clayPct: 42,
     omPct: 0.4,
@@ -91,8 +91,8 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
   );
 
   const carbonPools = useMemo(
-    () => calculateCarbonPools({ totalCarbonTHa: 28.5, landform, clayPct: horizon.clayPct }),
-    [landform, horizon.clayPct]
+    () => calculateCarbonPools({ totalCarbonTHa: 28.5, landform, clayPct: horizon.clayPct, lang }),
+    [landform, horizon.clayPct, lang]
   );
 
   const dieselOffset = useMemo(
@@ -189,7 +189,7 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
                 }`}
               >
                 <div className="flex items-center justify-between text-[11.5px] font-bold">
-                  <span style={{ color: h.color }}>{h.depthRange}</span>
+                  <span style={{ color: h.color }}>{L(h.depthRange)}</span>
                   <span className="text-[10.5px] font-medium text-muted">pH {num(h.ph, lang)}</span>
                 </div>
                 <div className="mt-0.5 text-[12px] font-bold text-ink truncate">
@@ -206,7 +206,7 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
             <div>
               <span className="text-[12px] font-bold uppercase tracking-wider text-clay-700">
-                {horizon.depthRange} · {L({ bn: horizon.nameBn, en: horizon.nameEn })}
+                {L(horizon.depthRange)} · {L({ bn: horizon.nameBn, en: horizon.nameEn })}
               </span>
               <p className="mt-0.5 text-[13px] text-muted">
                 {L({ bn: horizon.descBn, en: horizon.descEn })}
@@ -401,7 +401,7 @@ export default function GeochemicalSoilProfile({ soil, farmer, waterSavedMm = 13
                   <b>{T('জলবায়ু ও পরিবেশগত প্রভাব:', 'Environmental & Climate Impact:')}</b>{' '}
                   {T(
                     'ভূগর্ভস্থ গভীর ও অগভীর নলকূপে এক বিঘা জমিতে বোরো ধান চাষ করতে প্রায় ১৫০–২০০ লিটার ডিজেল বা সমমানের বিদ্যুৎ পোড়ে। সরিষা, মসুর বা গমে শিফট করলে প্রায় ১৩৫ মিমি সেচের পানি কম লাগে—যা সরাসরি বায়ুমণ্ডলে ডিজেল পোড়ানো কার্বন ও ভূগর্ভস্থ পানির অপচয় কমায়।',
-                    'Irrigating one bigha of Boro paddy consumes 150–200 liters of diesel in tube wells. Shifting to mustard, lentils, or wheat saves ~135 mm of water, directly avoiding fossil fuel combustion and groundwater depletion.'
+                    'Irrigating one bigha of Boro paddy consumes 150–200 litres of diesel in tube wells. Shifting to mustard, lentils, or wheat saves ~135 mm of water, directly avoiding fossil fuel combustion and groundwater depletion.'
                   )}
                 </p>
               </div>

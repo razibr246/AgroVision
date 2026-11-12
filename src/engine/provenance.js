@@ -68,7 +68,7 @@ export const DATASETS = [
     what: t('আজকের সেচ আর সতর্কতা', 'Today’s irrigation advice and alerts'), limit: t('পূর্বাভাস, নিশ্চয়তা নয়', 'A forecast, not a certainty'), src: 'https://open-meteo.com/' },
   { id: 'rules', kind: 'RULE', use: 'calc', name: t('ফসলের সীমা', 'Crop thresholds'), years: '—', scale: t('প্রতিটি ফসল', 'each crop'),
     what: t('কোন তাপ বা বৃষ্টিতে কোন ফসলের ক্ষতি হয়: প্রকাশিত গবেষণা থেকে শুরুর মান', 'What heat or rain harms each crop: starting values from published research'),
-    limit: t('স্থানীয় কৃষিবিদের যাচাই এখনো বাকি', 'Not yet reviewed by local agronomists'), src: 'docs/THRESHOLDS.md' },
+    limit: t('পর্যালোচনা জানানো হয়েছে; নথি ও পরিধি নেই', 'Review reported; scope and record not documented'), src: 'docs/THRESHOLDS.md' },
   { id: 'neighbours', kind: 'DEMO', use: 'calc', name: t('পাশের কৃষকদের পরিকল্পনা', 'Neighbours’ plans'), years: '—', scale: t('ইউনিয়ন', 'union'),
     what: t('দাম পড়ার ঝুঁকির হিসাব', 'The price-drop risk'), limit: t('নমুনা কৃষক; আসল ব্যবহারে আসল পরিকল্পনা আসবে', 'Sample farmers; real plans replace them in use'), src: null },
 ];

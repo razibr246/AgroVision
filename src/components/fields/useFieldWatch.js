@@ -6,9 +6,10 @@ import { savedWatch } from '../../data/fieldWatch';
 import { readPasses, pictureUrls, WATCH_START } from '../../engine/sentinel';
 import { addDays, iso, parseISO, todayDhaka } from '../../engine/dates';
 import { STORAGE_PREFIX } from '../../config/brand';
+import { shapeKey } from '../../engine/landgeom';
 
 const RECHECK_MS = 6 * 3600e3; // look for new passes at most every six hours
-const keyOf = (p) => `${STORAGE_PREFIX}.fw.${p.id}|${p.lat.toFixed(5)}|${p.lon.toFixed(5)}|${p.area_dec}`;
+const keyOf = (p) => `${STORAGE_PREFIX}.fw.${p.id}|${p.lat.toFixed(5)}|${p.lon.toFixed(5)}|${p.area_dec}${p.boundary && p.boundary.source !== 'sample' ? `|${shapeKey(p.boundary)}` : ''}`;
 const readCache = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
 const writeCache = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
 
@@ -17,8 +18,8 @@ const NONE = { id: 'none', lat: 0, lon: 0, area_dec: 0 };
 // `parcel` may be null (no field marked yet): then there is nothing to read and nothing is fetched.
 export function useFieldWatch(parcel) {
   const off = !parcel;
-  const { id, lat, lon, area_dec: area } = parcel ?? NONE;
-  const field = useMemo(() => ({ id, lat, lon, area_dec: area }), [id, lat, lon, area]);
+  const { id, lat, lon, area_dec: area, boundary } = parcel ?? NONE;
+  const field = useMemo(() => ({ id, lat, lon, area_dec: area, boundary }), [id, lat, lon, area, boundary]);
   const saved = useMemo(() => savedWatch(field), [field]);
   const key = keyOf(field);
   const [live, setLive] = useState(() => readCache(key));

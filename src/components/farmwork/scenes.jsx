@@ -1,11 +1,12 @@
 // The farm-work scenes FarmworkScene can play: each one's loop length, stages, words, artwork and painter.
-import { TOMATO_HARVEST_STAGES, MUNGBEAN_SOWING_STAGES, AMAN_TRANSPLANT_STAGES, WHEAT_HARVEST_STAGES, SESAME_SOWING_STAGES, MUSTARD_HARVEST_STAGES } from '../../engine/farmTimeline';
+import { TOMATO_HARVEST_STAGES, MUNGBEAN_SOWING_STAGES, AMAN_TRANSPLANT_STAGES, WHEAT_HARVEST_STAGES, SESAME_SOWING_STAGES, MUSTARD_HARVEST_STAGES, LENTIL_HARVEST_STAGES } from '../../engine/farmTimeline';
 import TomatoArt, { tomatoPainter } from './TomatoArt';
 import MungArt, { mungPainter } from './MungArt';
 import AmanArt, { amanPainter } from './AmanArt';
 import WheatArt, { wheatPainter } from './WheatArt';
 import SesameArt, { sesamePainter } from './SesameArt';
 import MustardArt, { mustardPainter } from './MustardArt';
+import LentilArt, { lentilPainter } from './LentilArt';
 import { T as TOMATO_T } from './tomato';
 import { T as MUNG_T, SEAM as MUNG_SEAM } from './mungbean';
 import { T as AMAN_T, SEAM as AMAN_SEAM } from './aman';
@@ -15,6 +16,13 @@ import { T as SESAME_T, SEAM as SESAME_SEAM } from './sesame';
 export { RABI_SCENE, NEXT_SCENE } from './sceneFor'; // which scene each crop's bar opens
 
 export const SCENES = {
+  lentil: {
+    T: WHEAT_T, stages: LENTIL_HARVEST_STAGES, poster: 4.4, seam: 0, Art: LentilArt, painter: lentilPainter,
+    title: { bn: 'মসুর কাটার অ্যানিমেশন', en: 'Lentil harvest animation' },
+    action: { bn: 'মসুর কাটার পালা', en: 'Lentil harvest, step by step' },
+    range: { bn: 'কাটার সময়', en: 'Harvest' },
+    slider: { bn: 'ফসল কাটার তারিখ', en: 'Harvest date' },
+  },
   mustard: {
     T: WHEAT_T, stages: MUSTARD_HARVEST_STAGES, poster: 4.4, seam: 0, Art: MustardArt, painter: mustardPainter,
     title: { bn: 'সরিষা কাটার অ্যানিমেশন', en: 'Mustard harvest animation' },

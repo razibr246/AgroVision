@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense } from 'react';
+import { Component, lazy, Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import PublicLayout from './layouts/PublicLayout';
 import Home from './pages/public/Home';
@@ -6,6 +6,7 @@ import { WhyDrawer, DataInfo, Toast } from './components/Overlays';
 import { MotionManager } from './components/Motion';
 import DemoTour from './components/tour/DemoTour';
 import CommandPalette from './components/CommandPalette';
+import { useStore } from './store';
 
 // Every page except Home loads on first visit, so the landing page does not download the whole app. The service
 // worker caches each route's assets when that route is first opened instead of downloading every page up front.
@@ -70,9 +71,12 @@ const AbPlanting = load(() => import('./pages/abroad/officer'), 'Planting');
 
 // A quiet placeholder while a page's code arrives (usually a fraction of a second).
 function PageLoading() {
+  const store = useStore();
+  const lang = store?.s?.lang ?? (typeof document !== 'undefined' && document.documentElement.lang === 'bn' ? 'bn' : 'en');
+  const bn = lang === 'bn';
   return (
-    <div className="page-shell py-10" role="status" aria-live="polite" aria-busy="true">
-      <span className="sr-only">পাতা খোলা হচ্ছে · Loading page</span>
+    <div className="page-shell page-loading-shell py-10" role="status" aria-live="polite" aria-busy="true">
+      <span className="sr-only">{bn ? 'পাতা খোলা হচ্ছে' : 'Loading page'}</span>
       <div className="skeleton h-7 w-56" style={{ animationDelay: '0ms' }} />
       <div className="skeleton mt-3 h-4 w-80 max-w-full" style={{ animationDelay: '80ms' }} />
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -96,7 +100,7 @@ class PageError extends Component {
   componentDidCatch(error, info) { console.error('Page error:', error, info?.componentStack); }
   render() {
     if (!this.state.failed) return this.props.children;
-    const bn = document.documentElement.lang !== 'en';
+    const bn = document.documentElement.lang === 'bn';
     return (
       <div className="page-shell py-16 text-center" role="alert">
         <p className="text-[20px] font-bold">{bn ? 'এই পাতাটি খোলা গেল না' : 'This page could not be opened'}</p>
@@ -115,6 +119,14 @@ function RouteErrorBoundary({ children }) {
 const page = (el) => <RouteErrorBoundary><Suspense fallback={<PageLoading />}>{el}</Suspense></RouteErrorBoundary>;
 
 export default function App() {
+  const store = useStore();
+  const lang = store?.s?.lang ?? 'en';
+  useEffect(() => {
+    if (typeof document !== 'undefined' && document.documentElement.lang !== lang) {
+      document.documentElement.lang = lang;
+    }
+  }, [lang]);
+
   return (
     <>
       <Routes>

@@ -6,6 +6,7 @@ import { useStore } from '../../store';
 import { Segmented } from '../ui';
 import { num, monthOf, todayDhaka } from '../../engine/dates';
 import BD from '../../data/geo/bangladesh_crops.json';
+import { svgPathCentroid } from '../../engine/landgeom';
 
 const SEASONS = [
   { key: 'kharif1', rice: 'aus', bn: 'খরিফ-১', en: 'Kharif-1', months: { bn: 'ফাল্গুন–আষাঢ় (মার্চ–জুন)', en: 'March–June' } },
@@ -30,9 +31,14 @@ export default function CountryCrops() {
   const [season, setSeason] = useState(now);
   const [hover, setHover] = useState(null); // { d, x, y }
   const [barHover, setBarHover] = useState(null);
+  const [focus, setFocus] = useState(null); // a district picked from the "Largest" list
+  const [table, setTable] = useState(false);
   const S = SEASONS.find((x) => x.key === season);
   const crops = BD.national[season];
   const max = crops[0].ha;
+  const listed = crops.reduce((a, c) => a + c.ha, 0); // land under the crops listed this season (not all farmland)
+  const share = (ha) => (ha / listed) * 100;
+  const pct = (v) => (v >= 1 ? num(v, lang, { dp: 0 }) : num(v, lang, { dp: 1 }));
 
   // Share of each district's land under this season's rice, cut into five equal-count bands.
   const { rows, breaks } = useMemo(() => {
@@ -42,7 +48,10 @@ export default function CountryCrops() {
     return { rows: r, breaks: q };
   }, [S.rice]);
   const bin = (pct) => breaks.filter((b) => pct > b).length;
-  const top = [...rows].sort((a, b) => b.ha - a.ha).slice(0, 5);
+  const ranked = useMemo(() => [...rows].sort((a, b) => b.ha - a.ha), [rows]);
+  const top = ranked.slice(0, 5);
+  const centre = useMemo(() => Object.fromEntries(BD.districts.map((d) => [d.id, svgPathCentroid(d.d)])), []);
+  const lit = hover?.d.id ?? focus; // the district outlined on the map
   const totalRice = rows.reduce((a, x) => a + x.ha, 0);
   const [W, H] = BD.viewBox;
   const name = (d) => (lang === 'bn' ? d.bn : d.en);
@@ -65,6 +74,12 @@ export default function CountryCrops() {
           {/* National ranking: one series, one colour; the value sits at the end of each bar. */}
           <div data-reveal className="glass flat rounded-[22px] p-5 sm:p-6">
             <h3 key={`t-${season}`} className="swap-in text-[18px] font-bold">{T(`${S.bn} মৌসুমে সারা দেশে কোন ফসলে কত জমি`, `Land under each crop across Bangladesh, ${S.en}`)}</h3>
+            {crops.length > 1 && (
+              <p key={`h-${season}`} className="swap-in mt-2 text-[14px] leading-6 text-muted">
+                <span className="font-display text-[26px] font-bold leading-none text-ink tabular">{pct(share(crops[0].ha))}%</span>{' '}
+                {T(`তালিকার ফসলি জমির এই ভাগে ${crops[0].bn}; বাকি ${num(crops.length - 1, 'bn')}টি ফসল মিলিয়ে ${pct(100 - share(crops[0].ha))}%।`, `of the land under these crops is ${crops[0].en.toLowerCase()}; the other ${crops.length - 1} together take ${pct(100 - share(crops[0].ha))}%.`)}
+              </p>
+            )}
             <ul key={season} className="swap-in mt-4 space-y-2.5" onMouseLeave={() => setBarHover(null)}>
               {crops.map((c, i) => (
                 <li key={c.key} className="relative grid grid-cols-[96px_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[112px_minmax(0,1fr)]"
@@ -72,12 +87,13 @@ export default function CountryCrops() {
                   aria-label={`${T(c.bn, c.en)}: ${area(c.ha, lang)} (${c.src})`}>
                   <span className="truncate text-[14.5px] text-ink">{T(c.bn, c.en)}</span>
                   <span className="flex min-w-0 items-center gap-2">
-                    <span className="min-w-0 flex-1"><span className="bar-grow block h-[18px] rounded-r-[4px] transition-opacity duration-300" style={{ width: `${Math.max(1.5, (c.ha / max) * 100)}%`, background: BAR, opacity: barHover && barHover !== c.key ? 0.45 : 1, animationDelay: `${i * 45}ms` }} /></span>
-                    <span className="shrink-0 whitespace-nowrap text-[13px] tabular text-muted">{area(c.ha, lang)}</span>
+                    {/* A faint track gives the small bars a scale to sit in; the bar keeps a 1.5% minimum so it stays visible. */}
+                    <span className="min-w-0 flex-1 rounded-r-[4px] bg-black/[.045]"><span className="bar-grow block h-[18px] rounded-r-[4px] transition-opacity duration-300" style={{ width: `${Math.max(1.5, (c.ha / max) * 100)}%`, background: BAR, opacity: barHover && barHover !== c.key ? 0.45 : 1, animationDelay: `${i * 45}ms` }} /></span>
+                    <span className={`shrink-0 whitespace-nowrap text-right text-[13px] tabular ${lang === 'bn' ? 'w-[150px]' : 'w-[96px] sm:w-[108px]'}`}><span className={i === 0 ? 'font-semibold text-ink' : 'text-ink/80'}>{area(c.ha, lang)}</span>{crops.length > 1 && <span className="ml-1 text-muted">· {pct(share(c.ha))}%</span>}</span>
                   </span>
                   {barHover === c.key && (
                     <span className="pointer-events-none absolute -top-9 left-24 z-10 whitespace-nowrap rounded-lg bg-ink px-2.5 py-1.5 text-[12.5px] text-white shadow-lg">
-                      {T(c.bn, c.en)} · {num(c.ha, lang)} {T('হেক্টর', 'ha')} · {c.src}
+                      {T(c.bn, c.en)} · {num(c.ha, lang)} {T('হেক্টর', 'ha')}{crops.length > 1 ? ` · ${pct(share(c.ha))}%` : ''} · {c.src}
                     </span>
                   )}
                 </li>
@@ -94,7 +110,7 @@ export default function CountryCrops() {
                   const on = x.key === season;
                   return (
                     <li key={x.key} className="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[112px_minmax(0,1fr)]">
-                      <button type="button" onClick={() => setSeason(x.key)} className={`truncate text-left text-[14px] ${on ? 'font-semibold text-ink' : 'text-muted hover:text-ink'}`}>{T(r.bn, r.en)}</button>
+                      <button type="button" onClick={() => setSeason(x.key)} aria-pressed={on} className={`truncate text-left text-[14px] leading-tight ${on ? 'font-semibold text-ink' : 'text-muted hover:text-ink'}`}>{T(r.bn, r.en)}<span className="block text-[11.5px] font-normal text-muted">{T(x.bn, x.en)}</span></button>
                       <span className="flex min-w-0 items-center gap-2">
                         <span className="min-w-0 flex-1"><span className="block h-3.5 rounded-r-[4px] transition-colors duration-500" style={{ width: `${(r.ha / BD.national.kharif2[0].ha) * 100}%`, background: on ? BAR : '#c9cfc6' }} /></span>
                         <span className="shrink-0 whitespace-nowrap text-[13px] tabular text-muted">{area(r.ha, lang)}</span>
@@ -117,9 +133,17 @@ export default function CountryCrops() {
                   {rows.map((d) => (
                     <path key={d.id} d={d.d} fill={RAMP[bin(d.pct)]} stroke="#fcfcfb" strokeWidth={hover?.d.id === d.id ? 0 : 1.2} strokeLinejoin="round"
                       onMouseMove={(e) => { const r = e.currentTarget.ownerSVGElement.getBoundingClientRect(); setHover({ d, x: e.clientX - r.left, y: e.clientY - r.top }); }}
+                      onClick={(e) => { const r = e.currentTarget.ownerSVGElement.getBoundingClientRect(); setHover({ d, x: e.clientX - r.left, y: e.clientY - r.top }); }}
                       className="cursor-pointer transition-[fill] duration-500" />
                   ))}
-                  {hover && <path d={hover.d.d} fill="none" stroke="#13261b" strokeWidth={2.5} pointerEvents="none" />}
+                  {lit && <path d={rows.find((d) => d.id === lit)?.d} fill="none" stroke="#13261b" strokeWidth={2.5} pointerEvents="none" />}
+                  {/* The five largest, numbered as in the list beside the map. */}
+                  {top.map((d, i) => centre[d.id] && (
+                    <g key={`n-${d.id}`} transform={`translate(${centre[d.id][0]},${centre[d.id][1]})`} pointerEvents="none">
+                      <circle r={11} fill="#fcfcfb" stroke={lit === d.id ? '#13261b' : '#245a28'} strokeWidth={lit === d.id ? 2.5 : 1.5} />
+                      <text textAnchor="middle" dy="4.2" fontSize="12.5" fontWeight="700" fill="#13261b">{num(i + 1, lang)}</text>
+                    </g>
+                  ))}
                   {(() => { const h = rows.find((d) => d.id === HOME_DISTRICT); return h && <path d={h.d} fill="none" stroke="#e0a12b" strokeWidth={2.5} strokeDasharray="5 4" pointerEvents="none" />; })()}
                 </svg>
                 {hover && (
@@ -145,11 +169,36 @@ export default function CountryCrops() {
                 <p className="mt-4 font-semibold text-ink">{T('সবচেয়ে বেশি', 'Largest')}</p>
                 <ol key={season} className="swap-in mt-1.5 space-y-1">
                   {top.map((d, i) => (
-                    <li key={d.id} className="flex justify-between gap-2"><span className="text-ink">{num(i + 1, lang)}. {name(d)}</span><span className="tabular text-muted">{area(d.ha, lang)}</span></li>
+                    <li key={d.id} tabIndex={0} onMouseEnter={() => setFocus(d.id)} onMouseLeave={() => setFocus(null)} onFocus={() => setFocus(d.id)} onBlur={() => setFocus(null)}
+                      className={`-mx-1.5 flex justify-between gap-2 rounded-md px-1.5 py-0.5 outline-none ${focus === d.id ? 'bg-primary-50' : ''}`}>
+                      <span className="text-ink">{num(i + 1, lang)}. {name(d)}</span><span className="tabular text-muted">{area(d.ha, lang)}</span>
+                    </li>
                   ))}
                 </ol>
               </div>
             </div>
+            {/* The same numbers as a table, for reading without the colours. */}
+            <button type="button" onClick={() => setTable((v) => !v)} aria-expanded={table} className="mt-3 text-[13px] font-semibold text-primary-700 hover:underline">
+              {table ? T('তালিকা লুকান', 'Hide the table') : T(`সব ${num(rows.length, 'bn')} জেলা তালিকায় দেখুন`, `See all ${rows.length} districts as a table`)}
+            </button>
+            {table && (
+              <div className="mt-2 max-h-72 overflow-auto rounded-xl border border-black/[.06]">
+                <table className="w-full text-[13px]">
+                  <thead className="sticky top-0 bg-[#f4f6f2] text-left text-muted">
+                    <tr><th className="px-3 py-1.5 font-semibold">{T('জেলা', 'District')}</th><th className="px-3 py-1.5 text-right font-semibold">{T('ধানের জমি', 'Rice land')}</th><th className="px-3 py-1.5 text-right font-semibold">{T('জেলার জমির ভাগ', 'Share of district')}</th></tr>
+                  </thead>
+                  <tbody>
+                    {ranked.map((d, i) => (
+                      <tr key={d.id} className="border-t border-black/[.04]">
+                        <td className="px-3 py-1 text-ink">{num(i + 1, lang)}. {name(d)}</td>
+                        <td className="px-3 py-1 text-right tabular text-ink/80">{area(d.ha, lang)}</td>
+                        <td className="px-3 py-1 text-right tabular text-muted">{num(d.pct, lang, { dp: 1 })}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
             <p className="mt-3 text-[12.5px] text-muted">{T('উৎস: বিবিএস কৃষি পরিসংখ্যান বর্ষগ্রন্থ ২০২৩ (২০২২-২৩ মৌসুম); জেলার সীমানা বিবিএস/OCHA।', 'Source: BBS Yearbook of Agricultural Statistics 2023 (2022-23 season); district boundaries BBS/OCHA.')}</p>
           </div>
         </div>

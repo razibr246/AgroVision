@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { margin: 0; background: #222; overflow: hidden; }
+    canvas { width: 800px; height: 800px; display: block; }
+  </style>
+</head>
+<body>
+<canvas id="cv" width="800" height="800"></canvas>
+<script type="module">
+import { REGIONS } from '/src/game/regions.js';
+import { createPreview } from '/src/game/three/stage.js';
+
+const canvas = document.getElementById('cv');
+const pv = createPreview(canvas, REGIONS.razib.farmer.look, { world: REGIONS.razib.world });
+window.__PV__ = pv;
+</script>
+</body>
+</html>

@@ -43,7 +43,7 @@ export function Upazila() {
   const nTowns = Object.values(unionsAll).length - nUnions;
   const send = () => {
     dispatch({ type: 'addAdvisory', adv: { id: `UPZ-${upz.id}`, upazila: upz.id, text: msg ?? defaultMsg, to: allFarmers, at: todayDhaka() } });
-    toast(`${num(allFarmers.length, 'bn')} জন কৃষককে পাঠানো হয়েছে`, `Sent to ${allFarmers.length} farmers`);
+    toast(`${num(allFarmers.length, 'bn')} জনের জন্য পরামর্শ ডেমোতে রাখা হয়েছে; পৌঁছায়নি`, `Advice saved in demo for ${num(allFarmers.length, 'en')} farmers; not delivered`);
   };
   return (
     <div>
@@ -68,7 +68,7 @@ export function Upazila() {
       <div id="up-sample" className="mt-12 mb-4 flex flex-wrap items-center gap-3 border-t border-border pt-8">
         <h2 className="text-[22px] font-bold">{T(`নমুনা পরিকল্পনা: ${bnOf(cropName(crop, 'bn'))} দাম পড়ার ঝুঁকি, ইউনিয়ন অনুযায়ী`, `Sample planning: ${cropName(crop, 'en').toLowerCase()} price-drop risk by union`)}</h2>
         <Tags list={['DEMO', 'AI']} />
-        <p className="w-full text-[13.5px] leading-6 text-muted">{T(`আজ ${fmtDate(todayDhaka(), 'bn')}। ${upz.name.bnOf} ${num(nUnions, 'bn')}টি ইউনিয়ন ও ${num(nTowns, 'bn')}টি পৌরসভার নমুনা কৃষকদের পরিকল্পনা থেকে হিসাব; আসল কৃষকদের তথ্য এলে এটা আসল হবে। কোনো ইউনিয়নের কৃষক আর অনুরোধ দেখতে বাঁ পাশে ইউনিয়ন বেছে নিন।`, `Today ${fmtDate(todayDhaka(), 'en')}. Worked out from sample farmers' plans in ${upz.name.en}'s ${nUnions} unions and ${nTowns === 1 ? 'municipality' : `${nTowns} municipalities`}; it becomes real once real farmers' plans come in. Pick a union on the left to see its farmers and requests.`)}</p>
+        <p className="w-full text-[13.5px] leading-6 text-muted">{T(`আজ ${fmtDate(todayDhaka(), 'bn')}। ${upz.name.bnOf} ${num(nUnions, 'bn')}টি ইউনিয়ন ও ${num(nTowns, 'bn')}টি পৌরসভার নমুনা কৃষকদের পরিকল্পনা থেকে হিসাব; আসল কৃষকদের তথ্য এলে এটা আসল হবে। কোনো ইউনিয়নের কৃষক আর অনুরোধ দেখতে বাঁ পাশে ইউনিয়ন বেছে নিন।`, `Today ${fmtDate(todayDhaka(), 'en')}. Worked out from sample farmers' plans in ${upz.name.en}'s ${num(nUnions, 'en')} unions and ${nTowns === 1 ? '1 municipality' : `${num(nTowns, 'en')} municipalities`}; it becomes real once real farmers' plans come in. Pick a union on the left to see its farmers and requests.`)}</p>
         <div className="flex w-full flex-wrap items-center gap-1.5" role="group" aria-label={T('ফসল', 'Crop')}>
           <span className="mr-1 text-[13px] font-semibold text-muted">{T(`${upz.name.bnOf} নমুনা পরিকল্পনায় ফসল (বেশি জমি আগে):`, `Crops in ${upz.name.en}'s sample plans (most land first):`)}</span>
           {crops.map((c) => (
@@ -112,10 +112,11 @@ export function Upazila() {
       </div>
 
       <Card id="up-advice" className="mt-6 p-5">
-        <h2 className="flex items-center gap-2 text-[19px] font-bold"><Building2 size={18} className="text-primary-600" />{T('পুরো উপজেলায় পরামর্শ পাঠান', 'Send advice to the whole upazila')}</h2>
+        <h2 className="flex items-center gap-2 text-[19px] font-bold"><Building2 size={18} className="text-primary-600" />{T('পুরো উপজেলার জন্য ডেমো পরামর্শ', 'Demo advice for the whole upazila')}</h2>
         <textarea rows={4} value={msg ?? defaultMsg} onChange={(e) => setMsg(e.target.value)} disabled={!!sent} className="mt-3 w-full rounded-2xl border border-border p-3 text-[14px] leading-6 outline-none focus:border-primary-300 disabled:bg-canvas" aria-label={T('পরামর্শের লেখা', 'Advice text')} />
             <SmsMeter text={msg ?? defaultMsg} className="mt-1" />
-        <Button disabled={!!sent} onClick={send} className="mt-2">{sent ? <><CheckCircle2 size={16} />{T(`${num(allFarmers.length, 'bn')} জনকে পাঠানো হয়েছে`, `Sent to ${allFarmers.length} farmers`)}</> : <><Send size={16} />{T(`${num(allFarmers.length, 'bn')} জন কৃষককে পাঠান`, `Send to ${allFarmers.length} farmers`)}</>}</Button>
+        <Button disabled={!!sent} onClick={send} className="mt-2">{sent ? <><CheckCircle2 size={16} />{T('ডেমোতে রাখা হয়েছে', 'Saved in demo')}</> : <><Send size={16} />{T('ডেমোতে রাখুন', 'Save in demo')}</>}</Button>
+        <p className="mt-2 text-[12.5px] leading-5 text-amber-800">{T('ডেমো: পরামর্শটি এই ব্রাউজারে থাকে; কৃষকের কাছে পৌঁছায় না।', 'Demo only: this advice stays in this browser and is not delivered to farmers.')}</p>
       </Card>
       <Link to="/officer" className="mt-4 inline-flex items-center gap-1 text-[14px] font-semibold text-primary-700">{T('ইউনিয়নের পাতায় ফিরুন', 'Back to the union view')}<ChevronRight size={15} /></Link>
     </div>
@@ -196,8 +197,8 @@ function UnionRabi() {
               <YAxis tick={{ fontSize: 11, fill: '#5d6d66' }} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} cursor={{ fill: 'rgba(19, 38, 27, .05)' }} formatter={(v, n) => [`${num(v, lang, { dp: 1 })} ${T('টন', 't')}`, seriesName(n)]} />
               <Legend formatter={seriesName} wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="mine" stackId="s" fill="#2f6e2f" />
-              <Bar dataKey="rest" stackId="s" fill="#c9cfc6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="mine" stackId="s" fill="#2f6e2f" animationDuration={450} />
+              <Bar dataKey="rest" stackId="s" fill="#c9cfc6" radius={[4, 4, 0, 0]} animationDuration={450} />
             </BarChart>
           </ResponsiveContainer>
         </div>

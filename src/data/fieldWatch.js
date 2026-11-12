@@ -10,9 +10,10 @@ const pics = import.meta.glob('../assets/fields/*.{jpg,png}', { eager: true, que
 const picOf = (id, kind) => pics[`../assets/fields/${id}-${kind}`];
 
 // The saved reading for a parcel, only while the parcel is still where (and as big as) it was when it was read.
+// The saved readings cover a window around the pin, so a field with a real boundary is read again over its boundary.
 export function savedWatch(p) {
   const base = PARCELS.find((x) => x.id === p.id);
   const w = watch.parcels[p.id];
-  if (!base || !w || base.area_dec !== p.area_dec || distanceKm(base, p) > 0.015) return null;
+  if (!base || !w || (p.boundary && p.boundary.source !== 'sample') || base.area_dec !== p.area_dec || distanceKm(base, p) > 0.015) return null;
   return { ...w, pictures: { tc: picOf(p.id, 'tc.jpg'), ndvi: picOf(p.id, 'ndvi.png'), date: w.latest } };
 }

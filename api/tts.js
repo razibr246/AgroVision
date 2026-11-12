@@ -1,11 +1,14 @@
 import { parseBody } from './body.js';
 import { rateLimitResponse } from './rateLimit.js';
+import { poolCall, geminiKeys } from './_keypool.js';
 
 // The voice of চক্র এজেন্ট: natural speech from Google Gemini's text-to-speech model, a young Bangladeshi woman's Bangla
 // or fluent British English. Vercel serverless function; needs GEMINI_API_KEY. GEMINI_TTS_VOICE_BN / _EN / GEMINI_TTS_VOICE
 // and GEMINI_TTS_MODEL override the choices below. Without a key, or once the day's quota is used, it answers an error
 // and the browser speaks with its own voice (src/voice/speech.js).
-//   POST /api/tts  { text, lang: 'bn'|'en' }  → { audio: <base64 WAV>, mime: 'audio/wav', voice, model }
+//   POST /api/tts  { text, lang: 'bn'|'en', speaker? }  → { audio: <base64 WAV>, mime: 'audio/wav', voice, model }
+// Every key in GEMINI_API_KEYS is tried in turn (api/_keypool.js); each key's project has its own copy of the designed
+// Bangladeshi voice, listed in GEMINI_TTS_VOICES_BN in the same order.
 const API = 'https://generativelanguage.googleapis.com/v1beta/models';
 const MAX_TEXT = 900;
 
@@ -36,6 +39,66 @@ const regionalVoices = new Map();
 // Google project and expires on 2027-10-30; with another key, or after that, the prebuilt fallback speaks instead.
 const BN_DESIGNED = 'voice_zajpkutxwrdt';
 const BN_FALLBACK = 'Sulafat'; // a warm prebuilt voice, steered towards Bangladeshi Bangla by the style line
+const HEDGE_MS = 5_000; // a key that has not answered by then gets a second key alongside
+
+// The gender of each speaker, and of each prebuilt voice in Google's catalogue (GET /v1beta/voices, Nov 2026): a man
+// must speak with a male voice and a woman with a female one (checked in api/tts.test.js).
+export const SPEAKER_GENDER = { agent: 'female', tara: 'female', father: 'male', mother: 'female', boy: 'male', girl: 'female', frog: 'male', youngman: 'male', cousin: 'male', oldman: 'male', oldwoman: 'female', teengirl: 'female', youngwoman: 'female' };
+export const VOICE_GENDER = { Iapetus: 'male', Achernar: 'female', Leda: 'female', Puck: 'male', Rasalgethi: 'male', Achird: 'male', Zubenelgenubi: 'male', Algenib: 'male', Gacrux: 'female', Laomedeia: 'female', Sulafat: 'female', Aoede: 'female' };
+
+// Who is speaking. The agent and Tara (the satellite in the children's dream) use the designed Bangladeshi woman's voice
+// in Bangla; the other characters have their own prebuilt voices, steered by a short style line, and everyone speaks
+// British English in English. null = the default voice for that language.
+export const SPEAKERS = {
+  agent: { bn: null, en: null },
+  tara: { bn: null, en: { voice: 'Leda', style: 'A bright, kind young woman, delighted and gently playful, in warm, natural British English.' } },
+  father: {
+    bn: { voice: 'Iapetus', style: 'A Bangladeshi farmer in his forties from a village, warm and a little weary, speaking everyday Bangladeshi Bangla.' },
+    en: { voice: 'Iapetus', style: 'A warm, slightly weary farmer in his forties, in natural British English.' },
+  },
+  mother: {
+    bn: { voice: 'Achernar', style: 'A Bangladeshi farming mother in her late thirties, soft and caring, speaking everyday Bangladeshi Bangla.' },
+    en: { voice: 'Achernar', style: 'A soft, caring mother in her late thirties, in natural British English.' },
+  },
+  // Google has no child voices: a boy speaks with a male voice of medium pitch, a girl with a female voice of high pitch,
+  // each steered young by the style line. (Genders from Google's voice catalogue, GET /v1beta/voices, Nov 2026.)
+  boy: {
+    bn: { voice: 'Rasalgethi', style: 'A curious, lively nine-year-old Bangladeshi boy with a light young voice, speaking simple everyday Bangladeshi Bangla.' },
+    en: { voice: 'Rasalgethi', style: 'A curious, lively nine-year-old boy with a light young voice, in natural British English.' },
+  },
+  girl: {
+    bn: { voice: 'Leda', style: 'A curious, lively nine-year-old Bangladeshi girl, speaking simple everyday Bangladeshi Bangla.' },
+    en: { voice: 'Leda', style: 'A curious, lively nine-year-old girl, in natural British English.' },
+  },
+  youngman: {
+    bn: { voice: 'Achird', style: 'A friendly Bangladeshi young farmer of about thirty, speaking everyday Bangladeshi Bangla.' },
+    en: { voice: 'Achird', style: 'A friendly young farmer of about thirty, in natural British English.' },
+  },
+  cousin: {
+    bn: { voice: 'Zubenelgenubi', style: 'A relaxed Bangladeshi young man who works in a Dhaka factory, speaking casual everyday Bangladeshi Bangla.' },
+    en: { voice: 'Zubenelgenubi', style: 'A relaxed young man who works in a city factory, in casual British English.' },
+  },
+  oldman: {
+    bn: { voice: 'Algenib', style: 'A Bangladeshi farmer in his sixties, slow and grounded, speaking everyday village Bangladeshi Bangla.' },
+    en: { voice: 'Algenib', style: 'An old farmer in his sixties, slow and grounded, in natural British English.' },
+  },
+  oldwoman: {
+    bn: { voice: 'Gacrux', style: 'A Bangladeshi grandmother in her eighties, slow, warm and wise, speaking village Bangladeshi Bangla.' },
+    en: { voice: 'Gacrux', style: 'A grandmother in her eighties, slow, warm and wise, in natural British English.' },
+  },
+  teengirl: {
+    bn: { voice: 'Laomedeia', style: 'A bright Bangladeshi girl of fifteen, eager and hopeful, speaking everyday Bangladeshi Bangla.' },
+    en: { voice: 'Laomedeia', style: 'A bright girl of fifteen, eager and hopeful, in natural British English.' },
+  },
+  youngwoman: {
+    bn: { voice: 'Leda', style: 'A confident Bangladeshi young woman of eighteen, speaking modern everyday Bangladeshi Bangla.' },
+    en: { voice: 'Leda', style: 'A confident young woman of eighteen, in natural British English.' },
+  },
+  frog: {
+    bn: { voice: 'Puck', style: 'A cheeky cartoon frog, playful and a little croaky, speaking Bangladeshi Bangla.' },
+    en: { voice: 'Puck', style: 'A cheeky cartoon frog, playful and a little croaky, in British English.' },
+  },
+};
 // The full model first; the free tier allows each TTS model 10 requests a day, so the Lite model takes over when it is used.
 const models = () => [...new Set([process.env.GEMINI_TTS_MODEL || 'gemini-3.8-flash-tts', 'gemini-3.8-flash-lite-tts'])];
 
@@ -46,17 +109,27 @@ function spokenTranscript(text, lang) {
     .replace(/\bNASA\s+IMERG\b/gi, 'নাসা আইমার্জ')
     .replace(/\bNASA\b/gi, 'নাসা')
     .replace(/\bSentinel[-\s]?1\b/gi, 'সেন্টিনেল এক')
+    .replace(/\bSentinel[-\s]?2\b/gi, 'সেন্টিনেল দুই')
     .replace(/\bMODIS\b/gi, 'মোডিস')
     .replace(/\bSoilGrids?\b/gi, 'সয়েলগ্রিডস')
     .replace(/\bBMD\b/gi, 'আবহাওয়া অধিদপ্তর')
     .replace(/\bBRRI\b/gi, 'ব্রি')
+    .replace(/\bBARI\b/gi, 'বারি')
     .replace(/\bDAE\b/gi, 'কৃষি সম্প্রসারণ অধিদপ্তর')
     .replace(/\bDAM\b/gi, 'কৃষি বিপণন অধিদপ্তর')
+    .replace(/\bSRDI\b/gi, 'মৃত্তিকা সম্পদ উন্নয়ন ইনস্টিটিউট')
+    .replace(/\bBBS\b/gi, 'পরিসংখ্যান ব্যুরো')
+    .replace(/\bMERRA-?2\b/gi, 'মেরা টু')
+    .replace(/\bICBM\b/gi, 'আইসিবিএম')
+    .replace(/\bIPCC\b/gi, 'আইপিসিসি')
+    .replace(/\bFAO-?56\b/gi, 'এফএও ছাপ্পান্ন')
+    .replace(/\bNDVI\b/gi, 'এনডিভিআই')
+    .replace(/\bSPI\b/gi, 'এসপিআই')
     .replace(/(\d+(?:\.\d+)?)\s*%/g, '$1 শতাংশ')
     .replace(/[0-9]/g, (digit) => BN_DIGITS[Number(digit)]);
 }
 
-async function voiceFor(lang) {
+async function voiceFor(lang, key = process.env.GEMINI_API_KEY) {
   const override = lang === 'bn' ? process.env.GEMINI_TTS_VOICE_BN : process.env.GEMINI_TTS_VOICE_EN;
   if (override || process.env.GEMINI_TTS_VOICE) {
     const name = override || process.env.GEMINI_TTS_VOICE;
@@ -71,7 +144,7 @@ async function voiceFor(lang) {
       const locales = lang === 'bn' ? ['bn-BD', 'bn-IN', 'bn'] : ['en-GB'];
       for (const locale of locales) params.append('language_code', locale);
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/voices?${params}`, {
-        headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY },
+        headers: { 'x-goog-api-key': key },
         signal: AbortSignal.timeout(1800),
       });
       if (!response.ok) return { name: DEFAULT_VOICE, regional: false };
@@ -117,7 +190,7 @@ function findAudio(o) {
 }
 
 // One attempt: a designed voice goes through the Interactions API, a prebuilt or catalogue voice through generateContent.
-async function synthesize({ model, voice, designed, transcript, style }) {
+async function synthesize({ key, signal, model, voice, designed, transcript, style }) {
   const body = designed
     ? {
         model,
@@ -130,11 +203,11 @@ async function synthesize({ model, voice, designed, transcript, style }) {
         generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { voice } } },
       };
   const r = await fetch(designed ? INTERACTIONS_API : `${API}/${model}:generateContent`, {
-    method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+    method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(25_000),
+    signal,
   });
-  if (!r.ok) return { status: r.status };
+  if (!r.ok) return { status: r.status, body: typeof r.text === 'function' ? await r.text().catch(() => '') : '' };
   const j = await r.json();
   const part = findAudio(j);
   if (!part?.data) return { status: 502 };
@@ -144,36 +217,53 @@ async function synthesize({ model, voice, designed, transcript, style }) {
   return { status: 200, audio: out, model: j.modelVersion || j.model || model };
 }
 
+// The voice for this speaker, language and key: the Bangladeshi designed voice of that key's project for the agent and
+// Tara in Bangla, the British catalogue voice for the agent in English, a character's own voice otherwise.
+async function voiceFor2(speaker, lang, index, key) {
+  const role = SPEAKERS[speaker]?.[lang];
+  if (role) return { name: role.voice, designed: false, style: role.style };
+  if (lang === 'bn') {
+    const own = String(process.env.GEMINI_TTS_VOICES_BN ?? '').split(',').map((v) => v.trim())[index];
+    const id = process.env.GEMINI_TTS_VOICE_BN || own || (index === 0 ? BN_DESIGNED : '');
+    return id ? { name: id, designed: /^voice_[\w-]+$/i.test(id), style: DESIGNED_VOICE_STYLE.bn } : { name: BN_FALLBACK, designed: false, style: FALLBACK_STYLE.bn };
+  }
+  const v = await voiceFor('en', key);
+  return { name: v.name, designed: !!v.designed, style: v.designed ? DESIGNED_VOICE_STYLE.en : v.regional ? STYLE.en : FALLBACK_STYLE.en };
+}
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'method not allowed' }); }
-  if (!process.env.GEMINI_API_KEY) return res.status(503).json({ error: 'voice not configured' });
+  if (!geminiKeys().length) return res.status(503).json({ error: 'voice not configured' });
   const parsed = parseBody(req.body);
   if (!parsed.ok) return res.status(400).json({ error: 'bad json' });
   const body = parsed.value;
   const lang = body?.lang === 'en' ? 'en' : 'bn';
+  const asked = body?.speaker === 'child' ? 'girl' : body?.speaker; // 'child' was the old name, before boys had their own voice
+  const speaker = Object.hasOwn(SPEAKERS, asked ?? '') ? asked : 'agent';
   const text = String(body?.text ?? '').replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT);
   if (!text) return res.status(400).json({ error: 'empty text' });
-  const blocked = await rateLimitResponse(req, res, { scope: 'tts', limit: 120, windowSeconds: 3600 });
+  const blocked = await rateLimitResponse(req, res, { scope: 'tts', limit: 240, windowSeconds: 3600 });
   if (blocked) return blocked;
   try {
-    const chosen = await voiceFor(lang);
     const transcript = spokenTranscript(text, lang);
-    // The chosen voice on each model in turn; a designed voice that is missing (another key) or expired falls back to the
-    // prebuilt voice. A quota (429) or overload (503) moves on to the next model.
-    const tries = [chosen, ...(chosen.designed ? [{ name: lang === 'bn' ? BN_FALLBACK : DEFAULT_VOICE, designed: false, regional: false }] : [])];
     let last = 502;
-    for (const v of tries) {
-      const style = v.designed ? DESIGNED_VOICE_STYLE[lang] : v.regional ? STYLE[lang] : FALLBACK_STYLE[lang];
-      for (const model of models()) {
-        const r = await synthesize({ model, voice: v.name, designed: v.designed, transcript, style });
-        if (r.status === 200) return res.status(200).json({ audio: r.audio.toString('base64'), mime: 'audio/wav', voice: v.name, model: r.model });
-        last = r.status;
-        if (r.status === 400 || r.status === 404) break; // this voice is not available here: try the next voice
-        if (r.status === 401 || r.status === 403) return res.status(503).json({ error: 'voice not configured' });
-      }
+    // Each model in turn, each key in turn within it. A designed voice this key's project does not have (another key,
+    // or expired) is replaced by the prebuilt one on the same key, so the line is still spoken.
+    for (const model of models()) {
+      const r = await poolCall(`tts:${model}`, async (key, index, signal) => {
+        const v = await voiceFor2(speaker, lang, index, key);
+        let out = await synthesize({ key, signal, model, voice: v.name, designed: v.designed, transcript, style: v.style });
+        if ((out.status === 400 || out.status === 404) && v.designed) {
+          out = await synthesize({ key, signal, model, voice: lang === 'bn' ? BN_FALLBACK : DEFAULT_VOICE, designed: false, transcript, style: FALLBACK_STYLE[lang] });
+          if (out.status === 200) out.voice = lang === 'bn' ? BN_FALLBACK : DEFAULT_VOICE;
+        }
+        return out.status === 200 ? { status: 200, value: { ...out, voice: out.voice ?? v.name } } : { status: out.status, body: out.body };
+      }, { hedgeMs: HEDGE_MS, timeoutMs: 25_000 });
+      if (r.ok) return res.status(200).json({ audio: r.value.audio.toString('base64'), mime: 'audio/wav', voice: r.value.voice, model: r.value.model, speaker, key: r.index + 1 });
+      last = r.status;
     }
-    return res.status(last === 429 ? 429 : 502).json({ error: last === 429 ? 'voice quota used for today' : `voice service error ${last}` });
+    return res.status(last === 429 ? 429 : last === 503 ? 503 : 502).json({ error: last === 429 ? 'voice quota used for today' : `voice service error ${last}` });
   } catch (e) {
     return res.status(e?.name === 'TimeoutError' ? 504 : 502).json({ error: 'voice service unreachable' });
   }

@@ -10,13 +10,13 @@ export const SETTING_RANGES = {
   text: { min: 0.9, max: 1.3, step: 0.1 }, // HUD text size, times the default
 };
 
-export const DEFAULT_SETTINGS = { look: 1, invertY: false, fov: 0, text: 1 };
+export const DEFAULT_SETTINGS = { look: 1, invertY: false, fov: 0, text: 1, fastWalk: false };
 
 const round = (v, step) => Math.round(v / step) * step;
 
 // one setting, clamped to its range and snapped to its step; anything unusable gives the default
 export function cleanSetting(key, v) {
-  if (key === 'invertY') return typeof v === 'boolean' ? v : DEFAULT_SETTINGS.invertY;
+  if (key === 'invertY' || key === 'fastWalk') return typeof v === 'boolean' ? v : DEFAULT_SETTINGS[key];
   const r = SETTING_RANGES[key];
   if (!r) return undefined;
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN;

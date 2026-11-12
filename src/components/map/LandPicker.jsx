@@ -5,14 +5,15 @@
 // mode 'add': mark a new field; it waits for the upazila agriculture office to check it.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Marker, Polygon, useMap, useMapEvents } from 'react-leaflet';
+import { Marker, useMap, useMapEvents } from 'react-leaflet';
 import { Search, Crosshair, CheckCircle2, RotateCcw, MapPin, X } from 'lucide-react';
 import { useStore, demo, soilData } from '../../store';
 import { Button, Note, Tags } from '../ui';
 import MapFrame from './MapFrame';
 import UpazilaBoundary, { insideUpazila as insideIn } from './UpazilaBoundary';
 import { PLACES as ALL_PLACES, upazilaOfUnion } from '../../data/demo';
-import { locate, plotSquare, distanceKm } from '../../engine/world';
+import { locate, distanceKm } from '../../engine/world';
+import { BoundaryLayer } from './FieldShape';
 import { IRRIGATION, RABI_CROPS, cropName } from '../../engine/crops';
 import { num } from '../../engine/dates';
 
@@ -84,7 +85,6 @@ export default function LandPicker({ height = 420, onDone, compact = false, parc
   const resized = Number(area) !== farmer.area_dec;
   const dirty = adding ? moved : moved || resized || lastCrop !== farmer.last_crop || irrigation !== farmer.irrigation;
   const savedOk = target ? !target.pending : landConfirmed;
-  const square = useMemo(() => plotSquare(pos.lat, pos.lon, Math.max(1, Number(area) || 1)), [pos, area]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -170,14 +170,14 @@ export default function LandPicker({ height = 420, onDone, compact = false, parc
             {fix && <button type="button" onClick={() => byHand(fix, 18)} className="pointer-events-auto flex items-center gap-1.5 rounded-xl bg-[#1a73e8] px-3 py-2 text-[13px] font-semibold text-white shadow-md hover:bg-[#1765cc]"><MapPin size={16} />{T('পিন আমার অবস্থানে', 'Pin where I am')}</button>}
           </>}>
           <UpazilaBoundary upazila={upazila.id} />
-          <Polygon positions={square} pathOptions={{ color: '#ffffff', weight: 2.5, fillColor: '#edc067', fillOpacity: 0.25 }} />
+          {target && <BoundaryLayer parcel={target} pathOptions={{ color: '#ffffff', weight: 2.5, fillColor: '#edc067', fillOpacity: 0.2 }} />}
           <Marker position={[pos.lat, pos.lon]} icon={pinIcon} draggable keyboard title={T('আপনার জমি — টেনে সরান', 'Your field — drag to move')}
             eventHandlers={{ dragend: (e) => { const ll = e.target.getLatLng(); byHand({ lat: ll.lat, lon: ll.lng }); } }} />
           <ClickToPlace onPick={(p) => byHand(p)} />
           <FlyTo target={fly} />
           <CenterGrabber grabRef={grabCenter} />
         </MapFrame>
-        <p className="mt-2 text-[13px] text-muted">{T('মানচিত্রে চাপ দিন অথবা হলুদ পিনটি টেনে আপনার জমির ওপর বসান। সাদা দাগের ঘর আপনার জমির আনুমানিক মাপ।', 'Tap the map or drag the yellow pin onto your field. The white square shows roughly how big your plot is.')} {T('ডান দিকের গোল বোতামে আপনার লাইভ অবস্থান, ওপরের স্তরের বোতামে উপগ্রহ/সাধারণ/ভূমিরূপ।', 'The round button on the right shows your live location; the layers button switches Satellite / Default / Terrain.')}</p>
+        <p className="mt-2 text-[13px] text-muted">{T('মানচিত্রে চাপ দিন অথবা হলুদ পিনটি টেনে আপনার জমির মাঝখানে বসান। জমির আসল আকার এখানে আঁকা হয় না; সেটি "জমির আসল সীমানা ও মাপ" অংশে হেঁটে, এঁকে, সার্ভেয়ারের মাপে বা ফাইল দিয়ে দিন।', 'Tap the map or drag the yellow pin onto the middle of your field. The field’s real shape is not drawn here; give it in “The field’s real boundary and size”, by walking, tracing, a surveyor’s coordinates or a file.')} {T('ডান দিকের গোল বোতামে আপনার লাইভ অবস্থান, ওপরের স্তরের বোতামে উপগ্রহ/সাধারণ/ভূমিরূপ।', 'The round button on the right shows your live location; the layers button switches Satellite / Default / Terrain.')}</p>
         {msg && <Note tone={msg.tone === 'warn' ? 'warn' : 'info'} className="mt-2">{tr(msg)}</Note>}
       </div>
 

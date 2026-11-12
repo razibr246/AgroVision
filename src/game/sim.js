@@ -3,14 +3,16 @@
 // the state every frame and turns the events in `g.out` into sound, particles and HUD messages.
 import { DAY, PLOT, GAP, FCOLS, FROWS, FIELD_W, FIELD_D, REGIONS, QUESTS } from './regions.js';
 import { layoutFor, resolve, inWater } from './layout.js';
+import { surfaceAt, FOOTING, approach } from './footing.js';
 import { PLACES, spot } from './places.js';
 import { num } from '../engine/dates.js';
+import { officeOf, initOffice } from './office.js';
 import { initVillage, stepVillage, marketMult, fillOrder, wateredBeforeRain } from './village.js';
 
 const CELL = PLOT + GAP;
 export const plotCenter = (c, r) => [-FIELD_W / 2 + PLOT / 2 + c * CELL, -FIELD_D / 2 + PLOT / 2 + r * CELL];
-export const STATIONS = ['shed', 'water', 'market', 'kiosk'];
-const ACT_TIME = { plant: 0.7, water: 0.9, harvest: 0.8, spray: 1, clear: 0.6, pump: 1.1, sell: 0.9, wipe: 2.4, phone: 2.8, adjust: 2.2 };
+export const STATIONS = ['shed', 'water', 'market', 'kiosk', 'office']; // office: the agriculture office (office.js)
+const ACT_TIME = { plant: 0.7, water: 0.9, harvest: 0.8, spray: 1, clear: 0.6, pump: 1.1, sell: 0.9, wipe: 2.4, phone: 2.8, adjust: 2.2, wave: 1.8, greet: 1.8, soilcheck: 2.2 };
 const rand = (a, b) => a + Math.random() * (b - a);
 
 // Bangla genitive: পোকা → পোকার, শূকর → শূকরের.
@@ -56,6 +58,11 @@ export function createGame(id, mods = {}) {
     mods: { heat: 1, storm: 1, pests: 1, dry: 1, ...mods },
   };
   g.out.push({ type: 'say', text: R.lines.hello });
+  // the agriculture office every farmer can visit (office.js): its name on the label and its board over the door
+  const off = officeOf(R.country);
+  if (R.names && !R.names.office) R.names.office = off.name;
+  if (g.home?.signs && !g.home.signs.office) g.home.signs.office = off.sign;
+  initOffice(g);
   initVillage(g); // the haat's prices, showers, fertiliser and the neighbours' orders (village.js)
   return g;
 }
@@ -133,7 +140,7 @@ export function target(g) {
     return { kind: 'plot', p, what, rot, last: p.last, crop: p.crop ? C[p.crop] : C[sow] };
   }
   let best = null;
-  for (const id of STATIONS) { const s = g.S[id], d = dist(me, s); if (d < s.r + 1.4 && (!best || d < best.d)) best = { kind: 'station', id, d }; }
+  for (const id of STATIONS) { const s = g.S[id]; if (!s) continue; const d = dist(me, s); if (d < s.r + 1.4 && (!best || d < best.d)) best = { kind: 'station', id, d }; }
   return best;
 }
 
@@ -147,6 +154,87 @@ export function act(g) {
   const s = g.S[t.id];
   me.yaw = Math.atan2(s.x - me.x, s.z - me.z);
   return useStation(g, t.id);
+}
+
+// Expressive actions / player gestures: greet/wave, wipe brow & recover stamina, soil check
+export function emote(g, type) {
+  const me = g.me;
+  if (me.act || me.down > 0 || g.won || g.paused) return false;
+  if (type === 'wipe') {
+    startAct(g, 'wipe');
+    me.stamina = Math.min(1, (me.stamina ?? 1) + 0.35);
+    sound(g, 'rustle');
+    emit(g, {
+      type: 'toast',
+      text: {
+        bn: 'দম নিলেন — গামছা দিয়ে ঘাম মুছে দম ফিরে পেলেন (+৩৫% শক্তি)',
+        en: 'Caught your breath — wiped brow and regained +35% stamina',
+      },
+    });
+    floater(g, { bn: '+৩৫% দম', en: '+35% Stamina' }, me.x, me.z, 'ok');
+    return true;
+  }
+  if (type === 'wave' || type === 'greet') {
+    startAct(g, 'wave');
+    sound(g, 'greet');
+    let greetedNearby = false;
+    for (const id of STATIONS) {
+      const s = g.S[id]; if (!s) continue; const d = dist(me, s);
+      if (d < 6.5) {
+        greetedNearby = true;
+        const name = g.R.names?.[id] ? (g.R.names[id].bn ? g.R.names[id] : { bn: id, en: id }) : { bn: 'প্রতিবেশী', en: 'Neighbour' };
+        const reply = id === 'shed'
+          ? { bn: 'রফিক ভাই: "ওয়ালাইকুমুস সালাম!"', en: 'Rafiq: "Greetings, brother!"' }
+          : id === 'kiosk' || id === 'office'
+          ? { bn: 'কর্মকর্তা: "নমস্কার! আসুন।"', en: 'Officer: "Welcome! Come on in."' }
+          : { bn: 'সালামু আলাইকুম!', en: 'Greetings!' };
+        floater(g, reply, s.x, s.z, 'ok');
+        emit(g, {
+          type: 'toast',
+          text: {
+            bn: `${name.bn}-এর সাথে শুভেচ্ছা বিনিময় করলেন!`,
+            en: `Exchanged warm greetings near ${name.en}!`,
+          },
+        });
+        break;
+      }
+    }
+    if (!greetedNearby) {
+      floater(g, { bn: 'অভিবাদন!', en: 'Hello!' }, me.x, me.z, 'ok');
+    }
+    return true;
+  }
+  if (type === 'soilcheck') {
+    startAct(g, 'soilcheck');
+    sound(g, 'rustle');
+    const t = target(g);
+    if (t?.kind === 'plot' && t.p) {
+      const p = t.p;
+      const moist = Math.round(p.moist * 100);
+      const fert = Math.round(((p.fert ?? 0.3) / 0.6) * 100);
+      emit(g, {
+        type: 'toast',
+        text: {
+          bn: `মাটির অবস্থা: আর্দ্রতা ${moist}%, উর্বরতা ${fert}%${p.crop ? ` · ${p.crop}` : ' · ফাঁকা জমি'}`,
+          en: `Soil Check: Moisture ${moist}%, Fertility ${fert}%${p.crop ? ` · ${p.crop}` : ' · Empty Plot'}`,
+        },
+      });
+      floater(g, { bn: `আর্দ্রতা ${moist}%`, en: `Moist ${moist}%` }, p.x, p.z, 'ok');
+    } else {
+      const sHealth = Math.round(g.soilHealth ?? 50);
+      const sMoist = Math.round(g.ev?.flood ? 85 : g.ev?.heat ? 25 : 55);
+      emit(g, {
+        type: 'toast',
+        text: {
+          bn: `মাটি পরখ: সামগ্রিক উর্বরতা ${sHealth}%, আর্দ্রতা ${sMoist}%`,
+          en: `Field Soil Check: Overall Fertility ${sHealth}%, Moisture ${sMoist}%`,
+        },
+      });
+      floater(g, { bn: `উর্বরতা ${sHealth}%`, en: `Fertility ${sHealth}%` }, me.x, me.z, 'ok');
+    }
+    return true;
+  }
+  return false;
 }
 
 function startAct(g, type) { g.me.act = { type, p: 0, dur: ACT_TIME[type] ?? 0.7 }; g.me.idle = 0; g.me.vx = g.me.vz = 0; g.me.speed = 0; }
@@ -188,7 +276,7 @@ function plotAction(g, p) {
     } else {
       gainXp(g, 10, { bn: 'ফসল তোলা', en: 'Harvest' });
     }
-    Object.assign(p, { crop: null, g: 0, health: 1, wilt: 0, fed: null, feed: 1 });
+    Object.assign(p, { crop: null, g: 0, health: 1, wilt: 0, fed: null, feed: 1, wasRipe: false });
     startAct(g, 'harvest'); fx(g, 'harvest', p.x, p.z); sound(g, 'harvest');
     floater(g, { bn: `+১ ${C[k].bn}${C[k].soil ? ' · শিকড়ে নাইট্রোজেন সঞ্চয়' : ''}`, en: `+1 ${C[k].en}${C[k].soil ? ' · root nodules fixed N₂' : ''}` }, p.x, p.z, 'good');
     if (Math.random() < 0.35) say(g, 'harvest');
@@ -203,6 +291,7 @@ function plotAction(g, p) {
 function useStation(g, id) {
   const s = g.S[id];
   if (id === 'shed') { emit(g, { type: 'open', panel: 'shop' }); sound(g, 'tap'); return; }
+  if (id === 'office') { note(g, 'officeVisits'); emit(g, { type: 'open', panel: 'office' }); sound(g, 'tap'); return; }
   if (id === 'kiosk') { note(g, 'advised'); emit(g, { type: 'open', panel: 'kiosk' }); sound(g, 'tap'); return; }
   if (id === 'water') {
     g.can = canMax(g); startAct(g, 'pump'); sound(g, 'pump'); fx(g, 'pump', s.x, s.z);
@@ -310,7 +399,7 @@ export function update(g, dt, input) {
   if (questDone(g)) {
     emit(g, { type: 'questDone', index: g.quest }); sound(g, 'good');
     g.quest++; g.questStarted = false;
-    if (g.quest >= QUESTS.length) { g.won = true; g.me.act = { type: 'cheer', p: 0, dur: 1e9 }; say(g, 'win'); emit(g, { type: 'win' }); }
+    if (g.quest >= QUESTS.length) { g.won = true; g.me.act = { type: 'wave', p: 0, dur: 2.2 }; /* a calm wave at the season's end, no arms-up cheer */ say(g, 'win'); emit(g, { type: 'win' }); }
     else g.nextQuestAt = g.t + 1.5;
   }
   const nothing = !growing(g).length && !Object.values(g.seeds).some(Boolean) && !Object.values(g.basket).some(Boolean) && g.money < 6;
@@ -324,22 +413,33 @@ function stepFarmer(g, dt, input) {
   const ix = input?.mx ?? 0, iz = input?.mz ?? 0, l = Math.min(1, Math.hypot(ix, iz));
   const wantRun = !!input?.run && l > 0.3;
   me.run = wantRun && me.stamina > 0.04;
-  me.stamina = Math.max(0, Math.min(1, me.stamina + (me.run ? -0.15 : 0.18) * dt));
+  me.stamina = Math.max(0, Math.min(1, me.stamina + (me.run ? -0.1 : 0.18) * dt));
   // the storm wind slows anyone still out in it
   const z = g.ev.zone, outside = g.ev.storm > 0 && z && Math.hypot(me.x - z.x, me.z - z.z) > z.r;
-  const baseSp = (F.speed ?? 4) * 1.08;
-  const baseRun = (F.run ?? 6.8) * 1.12;
-  const top = (me.run ? baseRun : baseSp) * (outside ? 0.68 : 1) * (g.ev.flood > 0.3 && Math.abs(me.x) < 16 && Math.abs(me.z) < 10 ? 0.58 : 1);
-  const tx = l > 0.05 ? (ix / Math.max(l, 1e-6)) * top * l : 0, tz = l > 0.05 ? (iz / Math.max(l, 1e-6)) * top * l : 0;
-  const k = Math.min(1, dt * (l > 0.05 ? 18 : 22));
-  me.vx += (tx - me.vx) * k; me.vz += (tz - me.vz) * k;
-  me.speed = Math.hypot(me.vx, me.vz);
-  if (me.speed > 0.12) {
-    const want = Math.atan2(me.vx, me.vz);
+  // A person's pace: a brisk walk of about 2 m/s and a run of 5.5–6.5 m/s (F.speed and F.run are each farmer's own
+  // feel, 3.6–4.4 and 6–7.2). Faster than that a walk is no longer a walk: the legs could not keep step (humangait.js).
+  // The ground under the feet (footing.js) sets how fast, and how quickly they get going and stop.
+  const ground = surfaceAt(g.L, g, me.x, me.z), f = FOOTING[ground];
+  me.ground = ground;
+  // a brisk walk (the fast-walk setting) is still a walk: about 2.6–3 m/s, quick long steps, never a jog
+  const top = (me.run ? (F.run ?? 6.8) * 0.9 : (F.speed ?? 4) * (input?.brisk ? 0.7 : 0.5)) * (outside ? 0.68 : 1) * f.top;
+  // turn toward where the player steers, a person's quick turn (about 0.6 s for a half turn); a sharp turn first
+  // takes the speed down (small steps round on the spot), then goes
+  let align = 1;
+  if (l > 0.05) {
+    const want = Math.atan2(ix, iz);
     let d = want - me.yaw; d = Math.atan2(Math.sin(d), Math.cos(d));
-    me.yaw += d * Math.min(1, dt * 19);
-    me.turnRate = d / Math.max(1e-4, dt);
-    me.bank = Math.max(-0.28, Math.min(0.28, -d * Math.min(1, me.speed / 3.6) * 0.45));
+    const rate = me.speed < 1 ? 6.5 : me.run ? 4.2 : 5.5;
+    const step = Math.max(-rate * dt, Math.min(rate * dt, d));
+    me.yaw += step;
+    me.turnRate = step / Math.max(1e-4, dt);
+    me.bank = Math.max(-0.28, Math.min(0.28, -me.turnRate * dt * 8 * Math.min(1, me.speed / 3.6)));
+    align = Math.max(0.15, Math.cos(Math.min(Math.PI / 2, Math.abs(d - step))));
+  }
+  const tx = l > 0.05 ? (ix / Math.max(l, 1e-6)) * top * l * align : 0, tz = l > 0.05 ? (iz / Math.max(l, 1e-6)) * top * l * align : 0;
+  [me.vx, me.vz] = approach(me.vx, me.vz, tx, tz, f, dt, me.run);
+  me.speed = Math.hypot(me.vx, me.vz);
+  if (me.speed > 0.05) {
     me.idle = 0;
     let nx = me.x + me.vx * dt, nz = me.z + me.vz * dt;
     if (inWater(g.L, nx, nz)) { if (!inWater(g.L, nx, me.z)) nz = me.z; else if (!inWater(g.L, me.x, nz)) nx = me.x; else { nx = me.x; nz = me.z; } }
@@ -347,14 +447,17 @@ function stepFarmer(g, dt, input) {
     // ran into a wall, a tree or the water's edge: a thud, and the speed is gone
     const blocked = Math.hypot(rx - (me.x + me.vx * dt), rz - (me.z + me.vz * dt));
     if (blocked > 0.02 && me.speed > 2.6 && g.t - (me.bumpAt ?? -9) > 0.7) { me.bumpAt = g.t; me.vx *= 0.25; me.vz *= 0.25; sound(g, 'bump'); }
+    // walking along a wall: only the speed along it is kept
+    if (blocked > 1e-4 && dt > 0) { me.vx = (rx - me.x) / dt; me.vz = (rz - me.z) / dt; const sp = Math.hypot(me.vx, me.vz), cap = Math.max(top, 0.1); if (sp > cap) { me.vx *= cap / sp; me.vz *= cap / sp; } me.speed = Math.hypot(me.vx, me.vz); }
     [me.x, me.z] = [rx, rz];
     const gl = g.L?.ground;
     if (gl) {
       me.slopeX = (gl(me.x + 0.35, me.z) - gl(me.x - 0.35, me.z)) / 0.7;
       me.slopeZ = (gl(me.x, me.z + 0.35) - gl(me.x, me.z - 0.35)) / 0.7;
     }
-    return;
+    if (l > 0.05) return;
   }
+  if (l > 0.05) return; // turning on the spot
   me.bank = 0; me.turnRate = 0;
   // a habit of their own when left alone
   me.idle += dt;
@@ -368,7 +471,7 @@ const STORM_LOSS = {
   fog: { bn: 'কুয়াশা আর ঠান্ডায় পচে গেল', en: 'Rotted in the fog and cold' },
 };
 function kill(g, p, why) {
-  p.dead = true; p.pests = 0; g.count.lost++;
+  p.dead = true; p.pests = 0; p.wasRipe = false; g.count.lost++;
   floater(g, why === 'storm' ? STORM_LOSS[g.R.storm.kind] : why === 'pests' ? { bn: `${gen(g.R.pestWord.bn)} কারণে নষ্ট`, en: `Lost to ${g.R.pestWord.en}` } : { bn: 'পানির অভাবে মরে গেল', en: 'Died of thirst' }, p.x, p.z, 'bad');
   sound(g, 'bad');
 }
@@ -384,6 +487,13 @@ function stepPlots(g, dt) {
       p.wilt = Math.max(0, p.wilt - dt * 2);
       if (!p.pests && p.g < 1) p.g = Math.min(1, p.g + (dt / (c.grow * (1 - p.fert * 0.5))) * (heat ? 0.8 : 1) * (p.feed ?? 1));
       if (!p.pests) p.health = Math.min(1, p.health + dt * 0.05);
+      const lim = ripeAt(g);
+      if (p.g >= lim && !p.wasRipe) {
+        p.wasRipe = true;
+        sound(g, 'chime');
+        fx(g, 'harvest', p.x, p.z);
+        floater(g, { bn: 'পেকেছে! ✨', en: 'Ripe! ✨' }, p.x, p.z, 'good');
+      }
     } else {
       p.wilt += dt; p.health = Math.max(0, p.health - dt * 0.03);
       if (p.wilt > 16) { kill(g, p, 'dry'); continue; }
@@ -407,6 +517,16 @@ function stepPlaces(g) {
   const H = g.home, me = g.me;
   if (!H) return;
   const busy = !!g.ev.zone || g.ev.storm > 0;
+  if (!busy) {
+    if (!g.shedGreeted && g.S?.shed && Math.hypot(me.x - g.S.shed.x, me.z - g.S.shed.z) < 3.8) {
+      g.shedGreeted = true;
+      floater(g, { bn: 'রফিক ভাই: "আসসালামু আলাইকুম! খাঁটি বীজ ও সার মজুত আছে।"', en: 'Rafiq: "Greetings! Certified seeds & fertilizers ready."' }, g.S.shed.x, g.S.shed.z, 'ok');
+    }
+    if (!g.kioskGreeted && g.S?.kiosk && Math.hypot(me.x - g.S.kiosk.x, me.z - g.S.kiosk.z) < 3.8) {
+      g.kioskGreeted = true;
+      floater(g, { bn: 'কর্মকর্তা: "স্বাগতম! নাসা উপগ্রহ ও আবহাওয়া পরামর্শ নিন।"', en: 'Officer: "Welcome! Check NASA satellite & weather advisory."' }, g.S.kiosk.x, g.S.kiosk.z, 'ok');
+    }
+  }
   for (const p of H.places) {
     const [px, pz] = spot(g.S, p.at);
     if (g.seen.includes(p.id) || Math.hypot(me.x - px, me.z - pz) > p.r) continue;

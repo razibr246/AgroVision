@@ -249,7 +249,8 @@ export function frame(t, w = t) {
   const branch = dragging ? { x: grip[0], y: grip[1], a: trail(grip) }
     : t < BRANCH.pick ? { x: BRANCH.rest0[0], y: BRANCH.rest0[1], a: 0 }
       : (() => { const k = smooth((t - BRANCH.drop) / 0.25); return { x: dropAt[0], y: lerp(dropAt[1], G - 2, k), a: lerp(dropAt[2], 0, k) }; })();
-  const dust = dragging && hv < -5 ? Array.from({ length: 4 }, (_, j) => ({ x: sweep - 4 - j * 5 - hash(j) * 4, y: 258 - ((t * 20 + j * 3) % 8), o: 0.35 })) : [];
+  // (no dust in the moment between picking the branch up and its leaves touching the soil: `sweep` is not set yet)
+  const dust = dragging && Number.isFinite(sweep) && hv < -5 ? Array.from({ length: 4 }, (_, j) => ({ x: sweep - 4 - j * 5 - hash(j) * 4, y: 258 - ((t * 20 + j * 3) % 8), o: 0.35 })) : [];
   const sprout = smooth((t - 15.95) / 0.6);
   const night = t > 15.45 && t < 16.15 ? Math.sin(((t - 15.45) / 0.7) * Math.PI) : 0;
   return { t, w, sk, extra, view: viewAt(t), maul, held: k > 0.5, clods, crumbs, bag, stream, bowl, swirl, seeds, branch, sweep, dust, sprout, night };

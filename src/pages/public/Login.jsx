@@ -15,6 +15,7 @@ import { LEVELS } from '../../data/stories';
 import { bnDigits } from '../../engine/dates';
 import { ABROAD, ABROAD_ORDER, WORLD, areaIn } from '../../data/abroad';
 import FarmerAvatar from '../../components/brand/FarmerAvatar';
+import Auth0LoginCard from '../../components/auth/Auth0LoginCard';
 
 export default function Login() {
   const { s, dispatch, T, L, farmers } = useStore();
@@ -56,12 +57,15 @@ export default function Login() {
         <div className="mx-auto my-auto w-full max-w-[520px] py-10">
           <h1 className="text-[32px] font-bold">{T(`${PROJECT_NAME} খুলুন`, `Open ${PROJECT_NAME}`)}</h1>
           <p className="mt-2 text-[16px] leading-7 text-muted">{T('এই নমুনায় পাসওয়ার্ড বা ওটিপি নেই। কৃষক বা কর্মকর্তা বেছে নিলেই চলবে, পরে যেকোনো সময় বদলানো যায়।', 'There is no password or OTP in this demo. Pick the farmer or the officer — you can switch any time.')}</p>
-          <Segmented className="mt-6 grid w-full grid-cols-2" value={role} onChange={setRole}
+          <div className="mt-5">
+            <Auth0LoginCard role={role} />
+          </div>
+          <Segmented className="mt-2 grid w-full grid-cols-2" value={role} onChange={setRole}
             options={[{ value: 'farmer', icon: UserRound, label: T('আমি কৃষক', 'I am a farmer') }, { value: 'officer', icon: ShieldCheck, label: T('আমি কৃষি কর্মকর্তা', 'I am an officer') }]} />
           {role === 'farmer' ? (
             <div className="mt-5 space-y-2.5">
               {heroes.map((h) => (
-                <button key={h.id} type="button" onClick={() => enterFarmer(h.id)} className={`${row} ${h.id === s.farmerId ? 'border-primary-300 bg-white' : 'border-border bg-white'}`}>
+                <button key={h.id} type="button" onClick={() => enterFarmer(h.id)} className={`cv-auto ${row} ${h.id === s.farmerId ? 'border-primary-300 bg-white' : 'border-border bg-white'}`}>
                   <FarmerAvatar id={h.id} size={48} className="transition-transform duration-300 group-hover:scale-[1.06]" fallback={<span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary-100 text-[18px] font-bold text-primary-800">{L(h.name).slice(0, 1)}</span>} />
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2 text-[16px] font-bold">{L(h.name)}{(() => { const lv = LEVELS.find((x) => x.live === h.id); return lv && <span className="rounded-full px-2 py-0.5 text-[11.5px] font-bold text-white" style={{ background: lv.tone }}>{T(`স্তর ${bnDigits(lv.n)} · ${lv.division.bn}`, `Level ${lv.n} · ${lv.division.en}`)}</span>; })()}</span>
@@ -79,7 +83,7 @@ export default function Login() {
           ) : (
             <div className="mt-5 space-y-2.5">
               {LEVELS.map((l) => UPAZILAS[l.upz]).filter(Boolean).map((u) => (
-                <button key={u.id} type="button" onClick={() => enterOfficer(u)} className="group flex w-full items-center gap-3 rounded-2xl bg-primary-950 p-3.5 text-left text-white transition hover:bg-primary-900">
+                <button key={u.id} type="button" onClick={() => enterOfficer(u)} className="cv-auto group flex w-full items-center gap-3 rounded-2xl bg-primary-950 p-3.5 text-left text-white transition hover:bg-primary-900">
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/10"><Building2 size={21} /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[16px] font-bold">{L(u.officer)}</span>

@@ -92,7 +92,13 @@ export function createCharacterStage(host) {
     a.reset(); a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity); a.clampWhenFinished = once;
     if (p.now) p.now.crossFadeTo(a, 0.3, false);
     a.play(); p.now = a;
-    if (once) setTimeout(() => play(p, 'Idle'), (a.getClip().duration * 1000) | 0);
+    if (once) {
+      if (p.playTimeout) clearTimeout(p.playTimeout);
+      p.playTimeout = setTimeout(() => {
+        p.playTimeout = null;
+        play(p, 'Idle');
+      }, (a.getClip().duration * 1000) | 0);
+    }
   }
 
   let token = 0;
@@ -103,7 +109,10 @@ export function createCharacterStage(host) {
     const my = ++token;
     const [a, k] = await Promise.all([person(adult, -0.35), person(kid, 0.75)]);
     if (my !== token) { disposePerson(a); disposePerson(k); return; } // a newer pick came in while these loaded
-    for (const p of cast.splice(0)) { scene.remove(p.root); disposePerson(p); }
+    for (const p of cast.splice(0)) {
+      if (p.playTimeout) clearTimeout(p.playTimeout);
+      scene.remove(p.root); disposePerson(p);
+    }
     cast.push(a, k);
     scene.add(a.root, k.root);
     if (!reducedMotion) {
@@ -155,6 +164,8 @@ export function createCharacterStage(host) {
 
     if (autoRotate && !isDragging) {
       angle = motion.angle;
+    } else if (!isDragging && Math.abs(spin) > 1e-4) {
+      angle += spin * dt;
     }
     spin = motion.spin;
 
@@ -191,7 +202,7 @@ export function createCharacterStage(host) {
     curLookX += (targetLookX - curLookX) * lerpK;
     curLookY += (targetLookY - curLookY) * lerpK;
 
-    camera.position.set(Math.sin(angle) * curR, curY, Math.cos(angle) * curR);
+    camera.position.set(curLookX + Math.sin(angle) * curR, curY, Math.cos(angle) * curR);
     camera.lookAt(curLookX, curLookY, 0);
 
     ring.material.emissiveIntensity = motion.ringIntensity;

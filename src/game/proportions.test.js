@@ -1,17 +1,17 @@
-// The semi-chibi body: a big head (about five heads tall, not a realistic 7.5), sturdy legs, feet on the ground,
+// The realistic body: about seven heads tall, legs half the height, life-size hands and feet, feet on the ground,
 // and the hands-in-pockets pose only for clothes that have somewhere to put them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STYLE, HIP_Y, SHIN_POS, POCKET, ARM, figure, hasPockets } from './proportions.js';
 import { REGIONS } from './regions.js';
 
-test('stylised semi-chibi: about five heads tall, large head, sturdy short legs', () => {
+test('a realistic adult: about seven heads tall, legs about half the height', () => {
   const f = figure();
-  assert.ok(f.heads >= 4.5 && f.heads <= 5.5, `${f.heads.toFixed(2)} heads`);
-  assert.ok(f.height > 1.55 && f.height < 1.85, `height ${f.height.toFixed(2)} m keeps the game's doors, carts and camera`);
-  assert.ok(f.legShare > 0.38 && f.legShare < 0.48, `legs ${(f.legShare * 100).toFixed(0)}% of height (realistic ≈ 51%)`);
-  assert.ok(f.neckGap > 0.02, 'the larger head still leaves a visible neck');
-  assert.ok(STYLE.hand > 1 && STYLE.foot > 1 && STYLE.legThick > 1 && STYLE.shoulder > 1, 'big hands and feet, thick legs, broad shoulders');
+  assert.ok(f.heads >= 6.8 && f.heads <= 7.8, `${f.heads.toFixed(2)} heads`);
+  assert.ok(f.height > 1.6 && f.height < 1.85, `height ${f.height.toFixed(2)} m keeps the game's doors, carts and camera`);
+  assert.ok(f.legShare > 0.48 && f.legShare < 0.55, `legs ${(f.legShare * 100).toFixed(0)}% of height`);
+  assert.ok(f.neckGap > 0.02, 'a visible neck under the jaw');
+  for (const k of ['hand', 'foot', 'legThick', 'armThick', 'shoulder', 'torsoWide']) assert.ok(Math.abs(STYLE[k] - 1) < 0.1, `${k} at life size`);
 });
 
 test('the shoes stand on the ground: hip height is the leg plus the scaled sole', () => {
@@ -41,3 +41,41 @@ test('the pocket pose puts the wrist on the pocket: forward kinematics of the ar
   const d = Math.hypot(wrist[0] - at[0], wrist[1] - at[1], wrist[2] - at[2]);
   assert.ok(d < 0.012, `wrist ${wrist.map((v) => v.toFixed(3))} is ${(d * 100).toFixed(1)} cm from the pocket`);
 });
+
+test('atlanto-occipital joint and neck proportions define an anatomically viable neck (F05)', () => {
+  assert.equal(STYLE.aoY, 0.125, 'AO joint is 12.5 cm above neck base');
+  assert.equal(STYLE.aoZ, -0.020, 'AO joint is 2.0 cm posterior to cranial center');
+  assert.ok(STYLE.aoY < STYLE.neckY, 'AO joint sits below the cranial centroid');
+  const f = figure();
+  assert.ok(f.heads >= 6.8 && f.heads <= 7.8, `${f.heads.toFixed(2)} heads`);
+  assert.ok(f.height > 1.6 && f.height < 1.85, `height ${f.height.toFixed(2)} m`);
+  assert.ok(f.neckGap > 0.02, 'visible neck under jaw');
+
+  // Cervical-cranial continuity invariant across pitch range [-0.5, 0.5] rad
+  const aoY = STYLE.aoY, aoZ = STYLE.aoZ;
+  const neckCylTop = 0.065 + 0.16 / 2; // 0.145 m
+  const collarTop = 0.128 + 0.068 * 0.90; // 0.1892 m
+  const collarBottom = 0.128 - 0.068 * 0.90; // 0.0668 m
+  const neckCylBottom = 0.065 - 0.16 / 2; // -0.015 m
+
+  assert.ok(neckCylBottom < 0.0, 'neck cylinder penetrates torso opening');
+  assert.ok(neckCylTop - collarBottom > 0.07, 'substantial ball-and-cylinder overlap');
+
+  for (let pitch = -0.5; pitch <= 0.5; pitch += 0.05) {
+    const cos = Math.cos(pitch), sin = Math.sin(pitch);
+    // Posterior skull base
+    const yHeadA = (STYLE.neckY - aoY) / STYLE.head - 0.06;
+    const zHeadA = -aoZ / STYLE.head - 0.11;
+    const yRotA = yHeadA * cos - zHeadA * sin;
+    const yNeckA = aoY + STYLE.head * yRotA;
+    assert.ok(yNeckA <= collarTop, `Occiput (${yNeckA.toFixed(3)}m) enclosed in collar (${collarTop.toFixed(3)}m) at pitch ${pitch.toFixed(2)}`);
+
+    // Anterior chin
+    const yHeadB = (STYLE.neckY - aoY) / STYLE.head - 0.09;
+    const zHeadB = -aoZ / STYLE.head + 0.06;
+    const yRotB = yHeadB * cos - zHeadB * sin;
+    const yNeckB = aoY + STYLE.head * yRotB;
+    assert.ok(yNeckB <= collarTop, `Chin (${yNeckB.toFixed(3)}m) enclosed in collar (${collarTop.toFixed(3)}m) at pitch ${pitch.toFixed(2)}`);
+  }
+});
+

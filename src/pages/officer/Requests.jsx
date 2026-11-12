@@ -26,7 +26,7 @@ export default function Requests() {
           <Segmented value={tab} onChange={setTab} options={[
             { value: 'open', label: T(`খোলা (${count(isOpen)})`, `Open (${count(isOpen)})`) },
             { value: 'done', label: T(`উত্তর দেওয়া (${count((r) => !isOpen(r))})`, `Done (${count((r) => !isOpen(r))})`) },
-            { value: 'all', label: T(`সব (${num(all.length, lang)})`, `All (${all.length})`) },
+            { value: 'all', label: T(`সব (${num(all.length, lang)})`, `All (${num(all.length, 'en')})`) },
           ]} />
           <label className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-black/[.05] px-3 focus-within:ring-2 focus-within:ring-primary-500 lg:flex-1">
             <Search size={17} className="text-muted" />
@@ -43,7 +43,7 @@ export default function Requests() {
               <Link
                 key={r.id}
                 to={`/officer/requests/${r.id}`}
-                className={`group flex items-center gap-3.5 rounded-xl border p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+                className={`cv-auto group flex items-center gap-3.5 rounded-xl border p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
                   isUrgent
                     ? 'border-l-4 !border-l-red-500 border-border bg-white hover:border-red-300'
                     : r.mine

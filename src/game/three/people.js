@@ -12,6 +12,9 @@
 import * as THREE from 'three';
 import { blink, idleGaze, ageStoop, expressionFromState } from '../../engine/motion.js';
 import { STYLE, HIP_Y, DOWN_HIP_Y, SHIN_POS, POCKET, hasPockets } from '../proportions.js';
+import { attachReal } from './realPeople.js';
+import { stridePose, gaitParams } from '../humangait.js';
+import { smooth01 } from '../gait.js';
 
 const ankle = new THREE.Vector3(); // scratch for planting the feet in animate()
 const TH = STYLE.thigh, SH = STYLE.shin, LT = STYLE.legThick, AT = STYLE.armThick, TR = TH / 0.44; // TR: thigh against the old 0.44 m
@@ -26,9 +29,22 @@ const mats = new Map();
 // Phones get plain materials; elsewhere cloth and skin get a sheen (light caught at grazing angles, as fabric and skin do).
 const HQ = typeof window !== 'undefined' && !window.matchMedia?.('(pointer: coarse)').matches;
 export function mat(color, o = {}) {
-  const k = `${color}|${o.flat ? 1 : 0}|${o.map?.uuid ?? ''}|${o.emissive ?? ''}|${o.rough ?? ''}|${o.metal ?? ''}|${o.side ?? ''}|${o.sheen ?? ''}`;
+  const poKey = `${o.polygonOffset ? 1 : 0}|${o.polygonOffsetFactor ?? ''}|${o.polygonOffsetUnits ?? ''}`;
+  const k = `${color}|${o.flat ? 1 : 0}|${o.map?.uuid ?? ''}|${o.emissive ?? ''}|${o.rough ?? ''}|${o.metal ?? ''}|${o.side ?? ''}|${o.sheen ?? ''}|${poKey}`;
   if (!mats.has(k)) {
-    const base = { color: o.map ? '#ffffff' : color, map: o.map ?? null, roughness: o.rough ?? 0.85, metalness: o.metal ?? 0, flatShading: !!o.flat, emissive: o.emissive ?? '#000000', emissiveIntensity: o.emissive ? 1 : 0, side: o.side ?? THREE.FrontSide };
+    const base = {
+      color: o.map ? '#ffffff' : color,
+      map: o.map ?? null,
+      roughness: o.rough ?? 0.85,
+      metalness: o.metal ?? 0,
+      flatShading: !!o.flat,
+      emissive: o.emissive ?? '#000000',
+      emissiveIntensity: o.emissive ? 1 : 0,
+      side: o.side ?? THREE.FrontSide,
+      polygonOffset: !!o.polygonOffset,
+      polygonOffsetFactor: o.polygonOffsetFactor ?? 0,
+      polygonOffsetUnits: o.polygonOffsetUnits ?? 0,
+    };
     mats.set(k, HQ && o.sheen ? new THREE.MeshPhysicalMaterial({ ...base, sheen: o.sheen, sheenRoughness: o.sheenRough ?? 0.7, sheenColor: new THREE.Color(o.sheenColor ?? '#ffffff') }) : new THREE.MeshStandardMaterial(base));
   }
   return mats.get(k);
@@ -97,6 +113,79 @@ function frontOf(female) {
   };
 }
 const capsule = (r, l) => { const k = `cap${r}|${l}`; if (!shapes.has(k)) shapes.set(k, new THREE.CapsuleGeometry(r, l, 3, 8)); return shapes.get(k); };
+
+// Cached continuous tapered nose geometry (nasion to tip lobule and alar flare)
+export function noseGeometry() {
+  if (shapes.has('nose')) return shapes.get('nose');
+  // Order profile points from bottom (subnasale) to top (nasion) to produce CCW face winding and outward normals
+  const pts = [
+    new THREE.Vector2(0.0001, -0.023),
+    new THREE.Vector2(0.012, -0.019),
+    new THREE.Vector2(0.017, -0.014),
+    new THREE.Vector2(0.016, -0.009),
+    new THREE.Vector2(0.011, 0.000),
+    new THREE.Vector2(0.008, 0.010),
+    new THREE.Vector2(0.006, 0.020),
+    new THREE.Vector2(0.0001, 0.026),
+  ];
+  const g = new THREE.LatheGeometry(pts, 16);
+  g.computeVertexNormals();
+  shapes.set('nose', g);
+  return g;
+}
+
+// Cached anatomical curved eyebrow conforming to forehead ellipsoid curvature
+function browGeometry(side = 1) {
+  const k = `curvedBrow${side}`;
+  if (shapes.has(k)) return shapes.get(k);
+  const R = 0.100, tube = 0.0034;
+  const theta1 = Math.asin(0.015 / R), theta2 = Math.asin(0.060 / R);
+  const arc = theta2 - theta1;
+  const g = new THREE.TorusGeometry(R, tube, 6, 14, arc);
+  g.rotateZ(theta1);
+  const thetaMid = (theta1 + theta2) / 2;
+  const xMid = R * Math.cos(thetaMid), yMid = R * Math.sin(thetaMid);
+  g.translate(-xMid, -yMid, 0);
+  g.applyMatrix4(new THREE.Matrix4().set(
+    0, side, 0, 0,
+    0, 0,    1, 0,
+    1, 0,    0, 0,
+    0, 0,    0, 1
+  ));
+  if (side === -1) {
+    const idx = g.getIndex();
+    for (let i = 0; i < idx.count; i += 3) {
+      const a = idx.getX(i);
+      idx.setX(i, idx.getX(i + 1));
+      idx.setX(i + 1, a);
+    }
+  }
+  g.computeVertexNormals();
+  g.userData = { yMid, xMid };
+  shapes.set(k, g);
+  return g;
+}
+
+// Cached curved moustache wrapping flush around the maxilla and cheeks
+function moustacheGeometry() {
+  const k = 'curvedMoustache';
+  if (shapes.has(k)) return shapes.get(k);
+  const R = 0.106, tube = 0.0065, arc = 0.82;
+  const g = new THREE.TorusGeometry(R, tube, 6, 18, arc);
+  g.rotateZ(-arc / 2);
+  g.translate(-R, 0, 0);
+  g.applyMatrix4(new THREE.Matrix4().set(
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    1, 0, 0, 0,
+    0, 0, 0, 1
+  ));
+  g.scale(1.0, 1.35, 0.90);
+  g.computeVertexNormals();
+  shapes.set(k, g);
+  return g;
+}
+
 const isFemale = (look) => look.female === true || ['sari', 'ghagra', 'kira'].includes(look.lower) || ['orhni', 'aanchal', 'hijab'].includes(look.head) || ['blouse', 'choli', 'tego'].includes(look.top);
 function mesh(g, m, parent, pos = [0, 0, 0], rot = [0, 0, 0], scale) {
   const o = new THREE.Mesh(g, m);
@@ -110,6 +199,11 @@ const group = (parent, pos = [0, 0, 0]) => { const o = new THREE.Group(); o.posi
 const texCache = new Map();
 export function canvasTex(key, w, h, draw, rep = [1, 1]) {
   if (texCache.has(key)) return texCache.get(key);
+  if (typeof document === 'undefined') {
+    const t = new THREE.Texture();
+    texCache.set(key, t);
+    return t;
+  }
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   draw(cv.getContext('2d'), w, h);
   const t = new THREE.CanvasTexture(cv);
@@ -308,7 +402,7 @@ const faceTex = (k) => canvasTex(`face${k}`, 512, 512, (c, W, H) => {
   }
 }, [1, 1]);
 // a polo shirt's woven chest stripes: a lattice band under the collar, then a gold line and a dark one
-const poloTex = (base, gold, dark, lattice) => canvasTex(`polo${base}${gold}`, 128, 256, (c, w, h) => {
+export const poloTex = (base, gold, dark, lattice) => canvasTex(`polo${base}${gold}`, 128, 256, (c, w, h) => {
   c.fillStyle = base; c.fillRect(0, 0, w, h);
   const y0 = h * 0.13, y1 = h * 0.21;
   c.strokeStyle = lattice; c.lineWidth = 1.4;
@@ -376,21 +470,30 @@ export function buildFarmer(look) {
   const wide = lower === 'shalwar' ? 1.5 : lower === 'pyjama' ? 1.2 : lower === 'cargo' ? 1.15 : 1;
   const legs = [];
   for (const side of [-1, 1]) {
-    const thigh = group(hips, [side * 0.1, 0, 0]); // set a little wider for the sturdier legs
+    const thigh = group(hips, [side * (0.092 + (LT - 1) * 0.03), 0, 0]); // hip-width apart, wider only for thicker legs
+    let hipCap;
+    if (!skirted) {
+      hipCap = mesh(geo.sphere(0.078 * wide * LT, 18, 12), legM, thigh, [0, 0, 0]);
+      thigh.hipCap = hipCap;
+    }
     if (!skirted) mesh(limb(0.076 * wide * LT, 0.056 * wide * LT, TH, 1.04), legM, thigh); // a long skirt hides the thigh
     const knee = group(thigh, [0, -TH, 0]);
-    mesh(geo.sphere(0.042 * wide * LT, 14, 10), legM, knee, [0, 0, 0], [0, 0, 0], [1, 0.9, 0.92]);
-    mesh(limb(0.058 * wide * LT, (lower === 'shalwar' ? 0.048 : wide > 1 ? 0.046 * wide : 0.036) * LT, SH, wide > 1 ? 1.02 : 1.12), legM, knee);
+    let kneeCap;
+    if (!skirted) {
+      kneeCap = mesh(geo.sphere(0.060 * wide * LT, 14, 10), legM, knee, [0, 0, 0], [0, 0, 0], [1, 1.0, 1.04]);
+      knee.kneeCap = kneeCap;
+    }
+    if (!skirted) mesh(limb(0.058 * wide * LT, (lower === 'shalwar' ? 0.048 : wide > 1 ? 0.046 * wide : 0.036) * LT, SH, wide > 1 ? 1.02 : 1.12), legM, knee);
     if (lower === 'shalwar') mesh(geo.cyl(0.05 * LT, 0.05 * LT, 0.05), mat(look.lowB), knee, [0, -(SH - 0.02), 0]); // gathered cuff
     if (lower === 'cargo') {
       // flapped pockets on the outside of each thigh, and a hem at the ankle
-      mesh(geo.box(0.035, 0.13 * TR, 0.1 * LT), mat(look.lowA), thigh, [side * 0.08 * LT, -0.29 * TR, 0.005]);
-      mesh(geo.box(0.04, 0.035, 0.108 * LT), mat(look.lowB), thigh, [side * 0.082 * LT, -0.225 * TR, 0.005]);
+      mesh(geo.box(0.012, 0.13 * TR, 0.075 * LT), mat(look.lowA), thigh, [side * (0.071 * wide * LT - 0.012), -0.29 * TR, 0.005], [0, 0, side * 0.08]); // flat on the side of the thigh
+      mesh(geo.box(0.014, 0.03, 0.08 * LT), mat(look.lowB), thigh, [side * (0.074 * wide * LT - 0.012), -0.225 * TR, 0.005], [0, 0, side * 0.08]);
       mesh(geo.cyl(0.06 * LT, 0.06 * LT, 0.03), mat(look.lowB), knee, [0, -(SH - 0.02), 0]);
     }
     mesh(geo.sphere(0.032 * wide * LT, 12, 8), legM, knee, [0, -(SH - 0.015), 0], [0, 0, 0], [0.88, 1.1, 0.9]);
     const foot = group(knee, [0, -SHIN_POS, 0.03]);
-    foot.scale.setScalar(STYLE.foot); // large, toy-like feet and shoes
+    foot.scale.setScalar(STYLE.foot);
     const fm = mat(look.feetA);
     const shoeG = capsule(0.05, 0.12);
     if (look.feet === 'jutti') {
@@ -414,8 +517,11 @@ export function buildFarmer(look) {
   P.legs = legs;
   // A rounded pelvic bridge joins the waist to both upper legs. The waistband and
   // skirts sit over it, while trousers inherit the same fabric as their thighs.
-  mesh(geo.sphere(0.12, 20, 14), legM, hips, [0, -0.105, 0], [0, 0, 0], [1.68, 0.88, 1.28]);
-  if (lower === 'cargo') mesh(geo.cyl(0.162, 0.16, 0.16, 16), mat(look.lowA, { rough: 0.95 }), hips, [0, -0.05, 0], [0, 0, 0], [1, 1, 0.85]);
+  // Upper pelvic bridge directly on thigh rotation axis (y = 0, z = 0) eliminates groin tearing (F14)
+  const upperPelvis = mesh(geo.sphere(0.115, 20, 14), legM, hips, [0, 0, 0], [0, 0, 0], [1.16 + (LT - 1) * 0.8, 0.75, 0.68 + (LT - 1) * 0.5]);
+  hips.upperPelvis = upperPelvis;
+  mesh(geo.sphere(0.12, 20, 14), legM, hips, [0, -0.105, 0], [0, 0, 0], [1.2 + (LT - 1) * 0.9, 0.7, 0.66 + (LT - 1) * 0.55]); // inside the line of hips and thighs, no deeper than a thigh: no ring, no pouch
+  if (lower === 'cargo') mesh(geo.cyl(0.162 * (0.86 + (LT - 1) * 0.4), 0.16 * (0.86 + (LT - 1) * 0.4), 0.16, 16), mat(look.lowA, { rough: 0.95 }), hips, [0, -0.05, 0], [0, 0, 0], [1, 1, 0.85]);
   P.skirt = skirted ? 0.45 : longTop || kneeSkirt ? 0.75 : 1;
   // the front pockets the hands go into when standing (trousers under a short top; a kurta's hem covers them)
   if ((lower === 'pyjama' || lower === 'shalwar' || lower === 'cargo') && !longTop) {
@@ -429,31 +535,34 @@ export function buildFarmer(look) {
   skirtGroup.scale.set(1.05, legShorter, 1.05);
   P.skirtGroup = skirtGroup;
   if (lower === 'ghagra') {
-    mesh(geo.cyl(0.17, 0.3, 0.86, 18), cloth('#fff', { map: bandTex(look.lowA, look.bands, false) }), skirtGroup, [0, -0.42, 0]);
+    mesh(geo.cyl(0.175, 0.32, 0.86, 18), cloth('#fff', { map: bandTex(look.lowA, look.bands, false) }), skirtGroup, [0, -0.42, 0]);
   } else if (lower === 'kira') {
-    mesh(geo.cyl(0.18, 0.24, 0.88, 18), cloth('#fff', { map: bandTex(look.lowA, look.bands, true) }), skirtGroup, [0, -0.42, 0]);
+    mesh(geo.cyl(0.185, 0.265, 0.88, 18), cloth('#fff', { map: bandTex(look.lowA, look.bands, true) }), skirtGroup, [0, -0.42, 0]);
   } else if (lower === 'lungi') {
     // folded up to the knee for field work, with the tuck at the waist
-    mesh(geo.cyl(0.17, 0.235, 0.52, 20), cloth('#fff', { map: check(look.lowA, look.lowB) }), skirtGroup, [0, -0.25, 0], [0, 0, 0], [1, 1, 0.86]);
+    mesh(geo.cyl(0.175, 0.255, 0.52, 20), cloth('#fff', { map: check(look.lowA, look.lowB) }), skirtGroup, [0, -0.25, 0], [0, 0, 0], [1.02, 1, 0.94]);
     if (!coversWaist) {
       mesh(geo.cyl(0.175, 0.175, 0.07, 16), cloth(look.lowA), hips, [0, 0.0, 0]);
       mesh(geo.sphere(0.045, 10, 8), cloth(look.lowA), hips, [0.03, -0.02, 0.165], [0, 0, 0], [1.1, 1, 0.6]);
     }
   } else if (lower === 'dhoti') {
-    mesh(geo.cyl(0.17, 0.24, 0.6, 16), cloth(look.lowA), skirtGroup, [0, -0.29, 0]);
+    mesh(geo.cyl(0.175, 0.26, 0.6, 16), cloth(look.lowA), skirtGroup, [0, -0.29, 0]);
     mesh(geo.box(0.07, coversWaist ? 0.46 : 0.56, 0.03), cloth(look.lowB), skirtGroup, [0, coversWaist ? -0.34 : -0.28, 0.2], [0.1, 0, 0]); // the front pleats
   } else if (lower === 'sari') {
-    mesh(geo.cyl(0.17, 0.27, 0.9, 18), cloth('#fff', { map: bandTex(look.lowA, [look.lowB, look.gold ?? '#e2b84a'], false) }), skirtGroup, [0, -0.43, 0]);
+    mesh(geo.cyl(0.175, 0.285, 0.9, 18), cloth('#fff', { map: bandTex(look.lowA, [look.lowB, look.gold ?? '#e2b84a'], false) }), skirtGroup, [0, -0.43, 0]);
     // the front pleats, lying on the skirt's flare
     const pl = cloth(look.lowA, { rough: 0.7 });
     for (let k = -2; k <= 1; k++) mesh(geo.box(0.032, 0.8, 0.012), pl, skirtGroup, [k * 0.03 + 0.015, -0.45, 0.226 + (k % 2) * 0.004], [-0.11, 0, 0]);
     mesh(geo.box(0.14, 0.018, 0.012), cloth('#fff', { map: bandTex(look.lowA, [look.lowB, look.gold ?? '#e2b84a'], false) }), skirtGroup, [0, -0.84, 0.266], [-0.11, 0, 0]);
   } else if (lower === 'longyi') {
-    mesh(geo.cyl(0.175, 0.22, 0.86, 16), cloth('#fff', { map: check(look.lowA, look.lowB, 8, [4, 3]) }), skirtGroup, [0, -0.42, 0]);
+    mesh(geo.cyl(0.18, 0.255, 0.86, 16), cloth('#fff', { map: check(look.lowA, look.lowB, 8, [4, 3]) }), skirtGroup, [0, -0.42, 0]);
     mesh(geo.sphere(0.05, 10, 8), cloth(look.lowA), skirtGroup, [0.0, -0.02, 0.18], [0, 0, 0], [1, 1.2, 0.8]); // the paso knot
   }
   const topM = look.top === 'polo' ? cloth('#fff', { map: poloTex(look.topA, look.topB, look.topC, look.topD) }) : look.top === 'sweater' ? cloth('#fff', { map: canvasTex(`knit${look.topA}`, 32, 32, (c, w, h) => { c.fillStyle = look.topA; c.fillRect(0, 0, w, h); c.strokeStyle = look.topB; c.lineWidth = 2; for (let x = 0; x < w; x += 4) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, h); c.stroke(); } }, [6, 3]) }) : look.top === 'shirt' ? cloth('#fff', { map: check(look.topA, look.topB, 10, [3, 2]) }) : cloth(look.topA);
-  if (longTop) mesh(geo.cyl(0.18, 0.27, 0.52 * legShorter, 28, true), topM, hips, [0, -0.24 * legShorter, 0], [0, 0, 0], [1.05, 1, 0.9]);
+  if (longTop) {
+    const topWide = wide > 1.2 ? 1.15 : 1.08;
+    mesh(geo.cyl(0.195, 0.295, 0.52 * legShorter, 28, true), topM, skirtGroup, [0, -0.24 * legShorter, 0], [0, 0, 0], [topWide, 1, 0.96]);
+  }
 
   // upper body
   // The chest has a little more depth than the old flattened mannequin profile.
@@ -462,26 +571,26 @@ export function buildFarmer(look) {
   const fz = frontOf(female);
   const plainTop = look.top === 'polo' ? cloth(look.topA) : topM;
   if (look.top === 'kurta' || look.top === 'kameez' || look.top === 'eingyi') {
-    mesh(geo.box(0.02, 0.16, 0.01), mat(look.topB), torso, [0, 0.45, fz(0.45) + 0.004]);
-    for (let k = 0; k < 3; k++) mesh(geo.sphere(0.009, 6, 4), mat('#cfc6b4'), torso, [0.012, 0.5 - k * 0.045, fz(0.5 - k * 0.045, 0.012) + 0.008]);
+    mesh(geo.box(0.02, 0.16, 0.01), mat(look.topB, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), torso, [0, 0.45, fz(0.45) + 0.010]);
+    for (let k = 0; k < 3; k++) mesh(geo.sphere(0.009, 6, 4), mat('#cfc6b4', { polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }), torso, [0.012, 0.5 - k * 0.045, fz(0.5 - k * 0.045, 0.012) + 0.014]);
   }
   if (look.top === 'fotua' || look.top === 'shirt') {
     if (look.top === 'fotua') mesh(geo.cyl(0.168, 0.205, 0.22, 24, true), topM, torso, [0, -0.1, 0], [0, 0, 0], [1, 1, 0.86]);
-    mesh(geo.box(0.02, 0.16, 0.01), mat(look.topB), torso, [0, 0.45, fz(0.45) + 0.004]);
-    if (look.top === 'shirt') for (const sd of [-1, 1]) mesh(geo.box(0.09, 0.03, 0.05), topM, torso, [sd * 0.05, 0.54, fz(0.54, 0.05) + 0.012], [0.4, 0, sd * 0.5]);
+    mesh(geo.box(0.02, 0.16, 0.01), mat(look.topB, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), torso, [0, 0.45, fz(0.45) + 0.010]);
+    if (look.top === 'shirt') for (const sd of [-1, 1]) mesh(geo.box(0.09, 0.03, 0.05), cloth(look.topA, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), torso, [sd * 0.05, 0.54, fz(0.54, 0.05) + 0.012], [0.4, 0, sd * 0.5]);
   }
   if (look.top === 'polo') {
     // worn loose over the trousers: the hem, a ribbed collar, a two-button placket and a small badge on the chest
     mesh(geo.cyl(0.175, 0.2, 0.2, 14), plainTop, torso, [0, -0.06, 0], [0, 0, 0], [1, 1, 0.84]);
     mesh(geo.torus(0.078, 0.022, 8, 18), plainTop, torso, [0, 0.565, 0.005], [Math.PI / 2 + 0.15, 0, 0]);
     for (const sd of [-1, 1]) mesh(geo.box(0.055, 0.01, 0.05), plainTop, torso, [sd * 0.035, 0.545, fz(0.545, 0.035) + 0.012], [1.05, 0, sd * 0.55]);
-    mesh(geo.box(0.036, 0.12, 0.008), mat(look.topA, { rough: 0.7 }), torso, [0, 0.47, fz(0.47) + 0.004]);
-    for (let k = 0; k < 2; k++) mesh(geo.sphere(0.008, 6, 4), mat('#f5efe6'), torso, [0, 0.505 - k * 0.05, fz(0.505 - k * 0.05) + 0.008]);
-    mesh(geo.cyl(0.018, 0.018, 0.004, 12), mat('#f3efe8'), torso, [0.09, 0.38, fz(0.38, 0.09) + 0.002], [Math.PI / 2, 0, 0.45]);
+    mesh(geo.box(0.036, 0.12, 0.008), mat(look.topA, { rough: 0.7, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), torso, [0, 0.47, fz(0.47) + 0.010]);
+    for (let k = 0; k < 2; k++) mesh(geo.sphere(0.008, 6, 4), mat('#f5efe6', { polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }), torso, [0, 0.505 - k * 0.05, fz(0.505 - k * 0.05) + 0.014]);
+    mesh(geo.cyl(0.018, 0.018, 0.004, 12), mat('#f3efe8', { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), torso, [0.09, 0.38, fz(0.38, 0.09) + 0.009], [Math.PI / 2, 0, 0.45]);
   }
   if (look.sari) {
     // the pallu: from the right hip across the chest, over the left shoulder, and down the back
-    const pm = mat('#fff', { map: palluTex(look.lowA, look.lowB, look.gold ?? '#e2b84a'), side: THREE.DoubleSide, rough: 0.75 });
+    const pm = mat('#fff', { map: palluTex(look.lowA, look.lowB, look.gold ?? '#e2b84a'), side: THREE.DoubleSide, rough: 0.75, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     mesh(ribbon(
       [[0.05, -0.02, fz(-0.02, 0.05) + 0.016], [-0.04, 0.2, fz(0.2, 0.04) + 0.016], [-0.15, 0.45, fz(0.45, 0.15) + 0.03], [-0.19, 0.59, 0.0], [-0.19, 0.42, -0.165], [-0.17, 0.0, -0.19], [-0.15, -0.42, -0.245]],
       [[0.15, 0.04, fz(0.04, 0.15) + 0.03], [0.09, 0.3, fz(0.3, 0.09) + 0.016], [-0.02, 0.53, fz(0.53, 0.02) + 0.02], [-0.05, 0.62, 0.0], [-0.02, 0.44, -0.17], [0.03, 0.0, -0.2], [0.06, -0.42, -0.25]],
@@ -505,29 +614,47 @@ export function buildFarmer(look) {
   if (look.top === 'choli') mesh(geo.cyl(0.152, 0.163, 0.1, 18), skin, torso, [0, 0.05, 0], [0, 0, 0], [1, 1, 0.78]); // bare midriff
   if (look.top === 'tego') {
     // the kira is worn up to the chest; the tego jacket crosses over it, with white wonju showing at the neck
-    for (const s of [-1, 1]) mesh(geo.box(0.032, 0.17, 0.01), mat(look.topB), torso, [s * 0.04, 0.48, fz(0.48, 0.04) + 0.005], [0, 0, s * 0.45]);
-    mesh(geo.box(0.04, 0.42, 0.01), mat(look.topB), torso, [0.05, 0.3, fz(0.3, 0.05) + 0.006], [0, 0, -0.18]);
+    for (const s of [-1, 1]) mesh(geo.box(0.032, 0.17, 0.01), mat(look.topB, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), torso, [s * 0.04, 0.48, fz(0.48, 0.04) + 0.010], [0, 0, s * 0.45]);
+    mesh(geo.box(0.04, 0.42, 0.01), mat(look.topB, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), torso, [0.05, 0.3, fz(0.3, 0.05) + 0.011], [0, 0, -0.18]);
     for (const s of [-1, 1]) mesh(geo.sphere(0.022, 8, 6), mat(look.silver, { metal: 0.8, rough: 0.25 }), torso, [s * 0.12, 0.47, fz(0.47, 0.12) + 0.01]);
   }
   if (look.ajrak) {
-    const am = mat('#fff', { map: ajrakTex(), side: THREE.DoubleSide });
-    mesh(geo.box(0.17, 0.66, 0.02), am, torso, [-0.1, 0.22, fz(0.3, 0.1) + 0.014], [0.05, 0, -0.08]);
-    mesh(geo.box(0.17, 0.72, 0.02), am, torso, [-0.1, 0.2, -0.16], [-0.05, 0, -0.08]);
-    mesh(geo.box(0.16, 0.05, 0.34), am, torso, [-0.16, 0.52, 0], [0, 0, 0.35]);
+    const am = mat('#fff', { map: ajrakTex(), side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    mesh(geo.box(0.15, 0.6, 0.008), am, torso, [-0.1, 0.2, fz(0.3, 0.1) + 0.012], [0.06, 0, -0.06]);
+    mesh(geo.box(0.15, 0.66, 0.008), am, torso, [-0.11, 0.18, -0.155], [-0.06, 0, -0.06]);
+    mesh(geo.cyl(0.1, 0.1, 0.15, 16, true, 0, Math.PI), am, torso, [-0.12, 0.47, -0.005], [0, Math.PI / 2, Math.PI / 2], [1, 1, 0.62]); // the fold over the shoulder
   }
 
-  // head
+  // head and neck articulation (Feature F05: Neck Seam Elimination, AO Joint & Ball Collar)
   const neck = group(torso, [0, 0.55, 0]);
-  mesh(geo.cyl(0.047, 0.056, 0.12, 14), skin, neck, [0, 0.045, 0]);
-  const head = group(neck, [0, STYLE.neckY, 0]); head.scale.setScalar(STYLE.head); // the large, friendly head of a designer toy
-  P.neck = neck; P.head = head;
+  // 1. Tapered collar fillet blending the neck base into the torso opening
+  mesh(geo.cyl(0.068, 0.105, 0.048, 18), skin, neck, [0, 0.008, -0.006], [0, 0, 0], [1.12, 1, 0.88]);
+  // 2. Extended neck cylinder providing continuous cervical column
+  mesh(geo.cyl(0.054, 0.078, 0.16, 18), skin, neck, [0, 0.065, -0.01]);
+  // 3. Spherical collar ball-joint enclosing the cervical-cranial junction (ball-and-socket seal)
+  mesh(geo.sphere(0.068, 16, 12), skin, neck, [0, 0.128, -0.015], [0, 0, 0], [0.95, 0.9, 1.0]);
+
+  // Atlanto-occipital cranial articulation pivot
+  const aoY = STYLE.aoY ?? 0.125, aoZ = STYLE.aoZ ?? -0.020;
+  const headJoint = group(neck, [0, aoY, aoZ]); headJoint.scale.setScalar(STYLE.head);
+  P.neck = neck; P.head = headJoint;
+  // Cranial assembly offset from AO joint pivot to skull centroid
+  const head = group(headJoint, [0, (STYLE.neckY - aoY) / STYLE.head, -aoZ / STYLE.head]);
+  P.cranial = head;
   mesh(geo.sphere(0.118, 18, 14), skin, head, [0, 0, 0], [0, 0, 0], [0.95, 1.08, 1]);
   mesh(geo.sphere(0.02, 6, 4), skin, head, [-0.115, 0, 0]); mesh(geo.sphere(0.02, 6, 4), skin, head, [0.115, 0, 0]);
-  // the nose (bridge and tip), the jaw, and the painted face over them
-  mesh(geo.sphere(0.017, 10, 8), skin, head, [0, -0.012, 0.112], [0.3, 0, 0], [1.05, 1.15, 1]);
-  mesh(geo.box(0.014, 0.034, 0.014), skin, head, [0, 0.008, 0.113], [-0.25, 0, 0]);
+  // Feature F03: Continuous anatomical nose connecting nasion, dorsal bridge, lobule tip, and alar wings
+  mesh(
+    noseGeometry(),
+    skin,
+    head,
+    [0, -0.002, 0.113],
+    [0.14, 0, 0],
+    female ? [0.78, 0.94, 0.90] : [0.85, 1.0, 0.95]
+  );
   mesh(geo.sphere(0.086, 16, 10), skin, head, [0, -0.052, 0.02], [0, 0, 0], [female ? 0.92 : 1.02, 0.72, 0.95]);
   const faceKey = faceFor(look);
+  const F = FACES[faceKey] || {};
   {
     const ft = faceTex(faceKey); ft.wrapS = ft.wrapT = THREE.ClampToEdgeWrapping;
     const fm = new THREE.MeshStandardMaterial({ map: ft, transparent: true, roughness: 0.8, polygonOffset: true, polygonOffsetFactor: -2 });
@@ -551,56 +678,82 @@ export function buildFarmer(look) {
   const brows = [];
   const browColor = look.beard ?? look.moustache ?? (look.head === 'gaungbaung' ? '#3a3330' : (look.hair || '#1a120c'));
   const browM = mat(browColor, { rough: 0.88 });
+  // Feature F04: Curved conforming eyebrows
   for (const s of [-1, 1]) {
-    const browPivot = group(head, [s * 0.042, 0.052, 0.109]);
-    mesh(geo.box(0.038, 0.008, 0.012), browM, browPivot, [0, 0, 0], [0, 0, s * -0.12]);
-    brows.push({ pivot: browPivot, side: s, baseRotZ: s * -0.12 });
+    const bg = browGeometry(s);
+    const browPivot = group(head, [s * bg.userData.yMid, 0.052, bg.userData.xMid + 0.010]);
+    mesh(bg, browM, browPivot, [0, 0, 0], [0, 0, s * -0.10], female ? [0.88, 0.82, 0.88] : [1, 1, 1]);
+    brows.push({ pivot: browPivot, side: s, baseRotZ: s * -0.10 });
   }
   P.brows = brows;
-  // Dynamic mouth articulation for breathing, effort, and gestures
-  const mouthPivot = group(head, [0, -0.048, 0.108]);
-  const mouthLipM = mat(look.skin, { rough: 0.75, sheen: 0.2 });
-  mesh(geo.sphere(0.012, 8, 6), mouthLipM, mouthPivot, [0, 0, 0], [0, 0, 0], [1.15, 0.45, 0.55]);
-  mouthPivot.scale.set(1, 0.02, 1);
+  // Feature F01: Dynamic anatomical oral cavity, lip vermilion arches, and interior dental arch
+  const mouthPivot = group(head, [0, -0.0475, 0.1105]);
+  const cavityM = mat('#160a08', { rough: 0.96, side: THREE.DoubleSide });
+  const cavity = mesh(geo.sphere(0.011, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), cavityM, mouthPivot, [0, -0.001, -0.003], [-Math.PI / 2, 0, 0], [1.15, 0.15, 0.55]);
+  const teethM = mat('#f7f3ec', { rough: 0.3, metal: 0.04 });
+  const teeth = mesh(geo.box(0.014, 0.0032, 0.0028), teethM, mouthPivot, [0, 0.0014, -0.0024]);
+  const lipM = mat(F.lip ?? '#9e5a4c', { rough: 0.68, sheen: 0.35 });
+  const lipLoM = mat(F.lipLo ?? F.lip ?? '#b06558', { rough: 0.65, sheen: 0.38 });
+  const upperLip = group(mouthPivot, [0, 0.0014, 0.0006]);
+  mesh(geo.sphere(0.0125, 12, 6), lipM, upperLip, [0, 0, 0], [0, 0, 0], [1.3, 0.20, 0.22]);
+  const lowerLip = group(mouthPivot, [0, -0.0018, 0.0006]);
+  mesh(geo.sphere(0.0118, 12, 6), lipLoM, lowerLip, [0, 0, 0], [0, 0, 0], [1.18, 0.26, 0.24]);
+  mouthPivot.cavity = cavity;
+  mouthPivot.teeth = teeth;
+  mouthPivot.upperLip = upperLip;
+  mouthPivot.lowerLip = lowerLip;
   P.mouth = mouthPivot;
   if (look.beard) {
     // a full beard that follows the jaw from the cheeks round the chin, and a moustache curving over the lip
     const bm = mat(look.beard, { rough: 1, sheen: 0.4, sheenRough: 0.9, side: THREE.DoubleSide });
-    mesh(new THREE.SphereGeometry(0.1, 24, 12, 0, Math.PI * 2, Math.PI * 0.44, Math.PI * 0.5), bm, head, [0, -0.012, 0.012], [0, 0, 0], [0.98, 1.12, 1.04]);
-    mesh(geo.sphere(0.05, 14, 10), bm, head, [0, -0.115, 0.06], [0.3, 0, 0], [1.25, 1, 0.9]);
+    mesh(new THREE.SphereGeometry(0.1, 28, 14, 0, Math.PI * 2, Math.PI * 0.44, Math.PI * 0.52), bm, head, [0, -0.012, 0.01], [0, 0, 0], [0.97, 1.14, 1.02]);
+    mesh(new THREE.ConeGeometry(0.042, 0.06, 16, 1, true), bm, head, [0, -0.118, 0.052], [Math.PI + 0.45, 0, 0], [1.25, 1, 0.7]); // the chin's beard tapers to a soft point, close to the jaw
     mesh(geo.torus(0.026, 0.009, 6, 14, Math.PI), bm, head, [0, -0.04, 0.113], [0, 0, Math.PI]);
   }
-  if (look.moustache) mesh(geo.box(0.085, 0.022, 0.025), mat(look.moustache), head, [0, -0.034, 0.113], [0, 0, 0], [1, 1, 1]);
+  // Feature F04: Curved conforming moustache
+  if (look.moustache) mesh(moustacheGeometry(), mat(look.moustache), head, [0, -0.034, 0.1165]);
   if (look.silver) mesh(geo.sphere(0.006, 6, 4), mat(look.silver, { rough: 0.2, metal: 0.8 }), head, [0.017, -0.02, 0.127]);
 
   // headwear
   const hA = look.headA, hB = look.headB;
   if (look.head === 'turban') {
     const tm = mat('#fff', { map: turbanTex(hA, hB) });
-    mesh(geo.sphere(0.135, 22, 12, 0, Math.PI * 2, 0, Math.PI * 0.56), tm, head, [0, 0.07, -0.012], [0, 0, 0], [1.08, 0.82, 1.1]);
-    for (let k = 0; k < 3; k++) mesh(geo.torus(0.122 - k * 0.012, 0.022, 6, 18), tm, head, [0, 0.05 + k * 0.035, 0.005], [Math.PI / 2 - 0.35 + k * 0.08, 0, 0]);
+    mesh(geo.sphere(0.138, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), tm, head, [0, 0.072, -0.010], [0, 0, 0], [1.08, 0.85, 1.12]);
+    for (let k = 0; k < 3; k++) mesh(geo.torus(0.128 - k * 0.009, 0.023, 8, 20), tm, head, [0, 0.052 + k * 0.034, 0.006], [Math.PI / 2 - 0.35 + k * 0.08, 0, 0], [1.03, 1, 1.05]);
     mesh(geo.box(0.05, 0.08, 0.03), tm, head, [0, 0.12, 0.12], [0.5, 0, 0]);
   } else if (look.head === 'sindhi') {
-    // a round cap, open in an arch over the forehead, covered in mirror work
-    mesh(geo.cyl(0.126, 0.124, 0.1, 22, false, Math.PI * 0.18, Math.PI * 1.64), mat('#fff', { map: topiTex(hA, hB), side: THREE.DoubleSide }), head, [0, 0.085, 0]);
-    mesh(geo.cyl(0.126, 0.126, 0.01, 22), mat(hA), head, [0, 0.135, 0]);
-    hair(head, look.hair);
+    // Feature F10: Tighter hair profile under Sindhi topi to keep apex within y < 0.136m
+    hair(head, look.hair, 0.120, 0.64);
+    // Feature F10: Align arched cutout over forehead (+Z axis, centered at theta = PI/2)
+    mesh(geo.cyl(0.128, 0.126, 0.105, 24, false, Math.PI * 0.68, Math.PI * 1.64), mat('#fff', { map: topiTex(hA, hB), side: THREE.DoubleSide }), head, [0, 0.088, 0]);
+    // Feature F10: Raise top disc to y = 0.142m (above hair crown apex 0.1352m)
+    mesh(geo.cyl(0.128, 0.128, 0.012, 24), mat(hA), head, [0, 0.142, 0]);
   } else if (look.head === 'orhni') {
-    mesh(geo.sphere(0.07, 10, 8), mat(look.hair), head, [0, -0.02, -0.12]);
+    // Feature F10: Hair bun positioned at z = -0.09m, radius 0.052m (back at z = -0.134m < veil -0.163m)
+    mesh(geo.sphere(0.052, 10, 8), mat(look.hair), head, [0, -0.02, -0.09], [0, 0, 0], [1, 0.9, 0.85]);
     const om = mat('#fff', { map: bandTex(hA, [hB, '#f3efe6'], false), side: THREE.DoubleSide });
-    mesh(new THREE.SphereGeometry(0.142, 22, 12, Math.PI * 0.725, Math.PI * 1.55, 0, Math.PI * 0.62), om, head, [0, 0.0, -0.004]);
-    mesh(geo.box(0.2, 0.6, 0.02), om, torso, [0, 0.3, -0.16], [-0.06, 0, 0]);
-    mesh(geo.box(0.12, 0.38, 0.02), om, torso, [0.12, 0.36, 0.16], [0.08, 0, 0.35]);
+    // Feature F10 & F11: Extend veil sphere backward and downward to theta = 0.70*PI (reaches y_torso = +0.62m)
+    mesh(new THREE.SphereGeometry(0.144, 24, 14, Math.PI * 0.72, Math.PI * 1.56, 0, Math.PI * 0.70), om, head, [0, 0.005, -0.010], [0, 0, 0], [1.0, 1.02, 1.06]);
+    // Feature F11: Raise & expand torso back drape box to [0, 0.35, -0.165], height 0.68m (reaches y_torso = +0.69m, overlapping veil by 7cm)
+    mesh(geo.box(0.22, 0.68, 0.016), om, torso, [0, 0.35, -0.165], [-0.04, 0, 0]);
+    // Feature F11: Reposition front chest drape to x = 0.07m to prevent arm penetration during arm swing
+    mesh(geo.box(0.11, 0.36, 0.014), om, torso, [0.07, 0.35, 0.162], [0.08, 0, 0.22]);
   } else if (look.head === 'short') {
     hair(head, look.hair, 0.127, 0.74); // a bob, down past the ears at the back
   } else if (look.head === 'gamcha') {
-    hair(head, look.hair);
+    // Feature F10: Tighter hair profile under gamcha wrap
+    hair(head, look.hair, 0.120, 0.65);
     const gm = mat('#fff', { map: check(hA, hB, 6) });
-    mesh(geo.torus(0.115, 0.04, 8, 18), gm, head, [0, 0.07, -0.005], [Math.PI / 2 - 0.12, 0, 0]);
+    // Feature F10: Major radius 0.122m, tube 0.034m (inner radius 0.0898m clears hair crown)
+    mesh(geo.torus(0.122, 0.034, 8, 20), gm, head, [0, 0.068, -0.004], [Math.PI / 2 - 0.12, 0, 0], [1.02, 1.0, 1.06]);
     mesh(geo.sphere(0.06, 10, 8), gm, head, [0.02, 0.1, -0.11]);
   } else if (look.head === 'tupi') {
-    hair(head, look.hair);
-    mesh(geo.sphere(0.128, 20, 8, 0, Math.PI * 2, 0, Math.PI * 0.32), mat(hA), head, [0, 0.035, 0]);
+    // Feature F10: Crop hair slightly so cap fits without Z-fighting
+    hair(head, look.hair, 0.120, 0.62);
+    // Feature F10: Expand dome to 0.130m down to theta = 0.36*PI
+    mesh(geo.sphere(0.130, 22, 10, 0, Math.PI * 2, 0, Math.PI * 0.36), mat(hA), head, [0, 0.032, -0.003], [0, 0, 0], [0.98, 1.02, 1.01]);
+    // Feature F10: Cylindrical headband bridging rim down to y = 0.075m, sealing hair border
+    mesh(geo.cyl(0.124, 0.126, 0.022, 22, true), mat(hA), head, [0, 0.086, -0.003]);
   } else if (look.head === 'mathal') {
     // the mathal: a broad conical hat of palm leaf, the Bangladeshi farmer's sunshade
     hair(head, look.hair);
@@ -614,17 +767,19 @@ export function buildFarmer(look) {
     mesh(geo.sphere(0.03, 8, 6), mat(hB), head, [0, 0.14, -0.01]);
     mesh(geo.cyl(0.08, 0.1, 0.1, 14), km, head, [0, -0.13, -0.01]);
   } else if (look.head === 'aanchal') {
-    mesh(geo.sphere(0.075, 10, 8), mat(look.hair), head, [0, -0.02, -0.12]);
+    mesh(geo.sphere(0.052, 10, 8), mat(look.hair), head, [0, -0.02, -0.09], [0, 0, 0], [1, 0.9, 0.85]);
     mesh(new THREE.SphereGeometry(0.142, 22, 12, Math.PI * 0.725, Math.PI * 1.55, 0, Math.PI * 0.62), mat('#fff', { map: bandTex(hA, [hB], false), side: THREE.DoubleSide }), head, [0, 0.0, -0.004]);
   } else if (look.head === 'hijab') {
     // a hijab wraps the head and neck, open at the face, and falls over the shoulders
     const hm = mat(hA, { side: THREE.DoubleSide, rough: 0.9 });
     mesh(new THREE.SphereGeometry(0.142, 24, 16, Math.PI * 0.72, Math.PI * 1.56, 0, Math.PI * 0.9), hm, head, [0, 0.005, -0.006]);
-    // the band framing the face, and the drape that falls from under the chin over the shoulders like a short cape
-    mesh(geo.torus(0.128, 0.012, 6, 24, Math.PI * 1.1), mat(look.headB ?? '#' + new THREE.Color(hA).multiplyScalar(0.72).getHexString()), head, [0, 0.0, 0.035], [0, 0, -Math.PI * 0.05 + Math.PI * 1.5 - Math.PI * 0.55]);
-    const cape = new THREE.LatheGeometry([[0.11, 0.1], [0.13, 0.03], [0.165, -0.02], [0.215, -0.055], [0.245, -0.1], [0.25, -0.16], [0.236, -0.24]].map(([r, y]) => new THREE.Vector2(r, y)), 28);
-    mesh(cape, hm, neck, [0, 0, 0.01], [0.1, 0, 0], [1, 1, 0.8]);
-    mesh(geo.torus(0.236, 0.007, 5, 32), mat('#' + new THREE.Color(hA).multiplyScalar(0.72).getHexString()), neck, [0, -0.24, 0.034], [Math.PI / 2 + 0.1, 0, 0], [1, 0.8, 1]);
+    // Feature F10 & F11: Forward-projected face torus framing facial ellipse cleanly (z = 0.082m, tilt = 0.24 rad)
+    mesh(geo.torus(0.116, 0.014, 8, 24, Math.PI * 1.15), mat(look.headB ?? '#' + new THREE.Color(hA).multiplyScalar(0.72).getHexString()), head, [0, -0.008, 0.082], [0.24, 0, Math.PI * 0.925], [0.94, 1.12, 1.0]);
+    // Feature F11: Consolidate cape lathe under head hierarchy in head coordinate space (y in [-0.04, -0.18])
+    const cape = new THREE.LatheGeometry([[0.115, -0.04], [0.132, -0.07], [0.155, -0.11], [0.185, -0.15], [0.205, -0.18]].map(([r, y]) => new THREE.Vector2(r, y)), 28);
+    mesh(cape, hm, head, [0, 0, -0.005], [0.06, 0, 0], [1, 1, 0.88]);
+    // Feature F11: Consolidate cape hem trim torus under head hierarchy
+    mesh(geo.torus(0.205, 0.007, 6, 32), mat('#' + new THREE.Color(hA).multiplyScalar(0.72).getHexString()), head, [0, -0.18, 0.005], [Math.PI / 2 + 0.06, 0, 0], [1, 0.88, 1]);
   } else if (look.head === 'cap') {
     // a baseball cap, peak to the front, short hair showing at the sides and back
     // the hair is only round the back and above the ears, so it never covers the face
@@ -639,10 +794,12 @@ export function buildFarmer(look) {
   } else if (look.head === 'bare') {
     hair(head, look.hair);
   } else if (look.head === 'gaungbaung') {
-    hair(head, look.hair);
+    // Feature F10: Tighter hair profile under gaung baung to prevent lateral & posterior puncture
+    hair(head, look.hair, 0.118, 0.55);
     const gm = mat(hA);
-    mesh(geo.torus(0.112, 0.042, 8, 18), gm, head, [0, 0.07, 0], [Math.PI / 2 - 0.1, 0, 0]);
-    mesh(geo.sphere(0.115, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), gm, head, [0, 0.08, 0], [0, 0, 0], [1, 0.6, 1]);
+    mesh(geo.torus(0.120, 0.040, 8, 18), gm, head, [0, 0.07, 0], [Math.PI / 2 - 0.1, 0, 0]);
+    // Feature F10: Enlarge dome radius (0.130m > 0.118m hair) with scale [1.02, 0.74, 1.05]
+    mesh(geo.sphere(0.130, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.52), gm, head, [0, 0.078, -0.004], [0, 0, 0], [1.02, 0.74, 1.05]);
     mesh(geo.sphere(0.045, 8, 6), mat(hB), head, [-0.12, 0.1, 0.03]);
     mesh(geo.box(0.02, 0.09, 0.06), mat(hB), head, [-0.15, 0.12, 0.04], [0, 0, 0.5]);
   }
@@ -653,12 +810,13 @@ export function buildFarmer(look) {
 
   // arms: full sleeves for kurta, kameez, tego and eingyi; short for the choli
   const arms = [];
-  const sleeve = look.top === 'choli' || look.top === 'shirt' ? 'short' : look.top === 'genji' ? 'none' : 'long';
+  const sleeve = look.top === 'choli' || look.top === 'shirt' || look.top === 'polo' || look.top === 'fotua' ? 'short' : look.top === 'genji' ? 'none' : 'long';
   for (const side of [-1, 1]) {
     const shoulder = group(torso, [side * (female ? 0.19 : 0.205) * STYLE.shoulder, 0.465, 0]);
     const upperM = sleeve === 'none' ? skin : look.top === 'polo' ? cloth(look.topA) : topM;
-    // Rounded deltoid, blending the chest into the upper arm instead of a ball joint.
-    mesh(geo.sphere((sleeve === 'long' ? 0.069 : 0.064) * AT, 20, 14), upperM, torso, [side * (female ? 0.174 : 0.19) * STYLE.shoulder, 0.475, 0], [0, 0, side * -0.12], [1.12, 0.9, 0.94]);
+    // Feature F09: Airtight spherical ball-and-socket deltoid joint centered at shoulder rotation pivot
+    const deltoid = mesh(geo.sphere((sleeve === 'long' ? 0.069 : 0.064) * AT, 20, 14), upperM, shoulder, [0, 0, 0]);
+    shoulder.deltoid = deltoid;
     if (sleeve === 'short') { mesh(limb(0.05 * AT, 0.04 * AT, 0.28), skin, shoulder); mesh(limb(0.06 * AT, 0.054 * AT, 0.13, 1), upperM, shoulder); }
     else mesh(limb((sleeve === 'long' ? 0.058 : 0.053) * AT, (sleeve === 'long' ? 0.048 : 0.04) * AT, 0.28), upperM, shoulder);
     const elbow = group(shoulder, [0, -0.28, 0]);
@@ -669,7 +827,7 @@ export function buildFarmer(look) {
     mesh(geo.sphere(0.032, 12, 8), skin, elbow, [0, -0.244, 0], [0, 0, 0], [0.9, 1, 0.92]); // wrist transition
     if (look.cuff) mesh(geo.cyl(0.052 * AT, 0.052 * AT, 0.07), mat(look.cuff), elbow, [0, -0.2, 0]);
     const hand = group(elbow, [0, -0.27, 0]);
-    hand.scale.setScalar(STYLE.hand); // big, chunky hands
+    hand.scale.setScalar(STYLE.hand);
     // palm, four slightly curled fingers and a thumb
     mesh(geo.sphere(0.041, 16, 12), skin, hand, [0, -0.03, 0.004], [0, 0, 0], [0.58, 1, 0.9]);
     for (let f = 0; f < 4; f++) {
@@ -717,12 +875,45 @@ export function buildFarmer(look) {
   mesh(geo.box(0.06, 0.115, 0.002), mat('#57c46a', { emissive: '#3aa857' }), tools.phone, [0, 0.0, 0.007], [-0.4, 0, 0]);
   tools.sack = group(torso, [0, 0.35, -0.22]);
   mesh(geo.sphere(0.2, 10, 8), mat('#d9c08a', { flat: true }), tools.sack, [0, 0, 0], [0, 0, 0], [1, 1.1, 0.7]);
+  // village work: the short jharu (a bundle of coconut-leaf ribs tied at the grip), the kula (a woven winnowing
+  // tray, held in both hands), and the picking basket on the left forearm
+  tools.broom = group(handR, [0, -0.05, 0.02]);
+  const rib = mat('#cdb27a', { rough: 0.9 }), tie = mat('#8a5a2b');
+  mesh(geo.cyl(0.024, 0.02, 0.12, 8), tie, tools.broom, [0, 0, 0]);
+  for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2, r = 0.018 + (k % 3) * 0.008; mesh(geo.cyl(0.004, 0.003, 0.62, 4), rib, tools.broom, [Math.cos(a) * r, -0.34, Math.sin(a) * r], [Math.sin(a) * 0.09, 0, -Math.cos(a) * 0.09]); }
+  tools.kula = group(handR, [-0.18, -0.07, 0.12]);
+  const weave = mat('#c9a35e', { rough: 0.95, side: THREE.DoubleSide }), rim = mat('#8a6a35');
+  mesh(geo.cyl(0.26, 0.22, 0.05, 20, true), weave, tools.kula, [0, 0, 0], [0, 0, 0], [1, 1, 0.82]);
+  mesh(geo.cyl(0.22, 0.22, 0.008, 20), weave, tools.kula, [0, -0.022, 0], [0, 0, 0], [1, 1, 0.82]);
+  mesh(geo.torus(0.26, 0.012, 5, 22), rim, tools.kula, [0, 0.025, 0], [Math.PI / 2, 0, 0], [1, 0.82, 1]);
+  mesh(geo.cyl(0.2, 0.2, 0.014, 18), mat('#d9b24c', { rough: 1 }), tools.kula, [0, -0.008, 0], [0, 0, 0], [1, 1, 0.8]); // the rice on it
+  tools.basket = group(torso, [0.2 * STYLE.shoulder, 0.02, 0.12]);
+  mesh(geo.cyl(0.15, 0.1, 0.2, 16, true), weave, tools.basket, [0, 0, 0]);
+  mesh(geo.cyl(0.1, 0.1, 0.01, 14), weave, tools.basket, [0, -0.1, 0]);
+  mesh(geo.torus(0.15, 0.01, 5, 18), rim, tools.basket, [0, 0.1, 0], [Math.PI / 2, 0, 0]);
+  P.basketFill = mesh(geo.sphere(0.13, 12, 8), mat('#6f9a3a', { rough: 0.8 }), tools.basket, [0, 0.02, 0], [0, 0, 0], [1, 0.45, 1]);
   // tools held in a hand keep their real size inside the bigger hands
-  for (const t of [tools.can, tools.sickle, tools.spray, tools.phone]) t.scale.setScalar(1 / STYLE.hand);
+  for (const t of [tools.can, tools.sickle, tools.spray, tools.phone, tools.broom, tools.kula]) t.scale.setScalar(1 / STYLE.hand);
   for (const t of Object.values(tools)) t.visible = false;
   P.tools = tools;
   P.phase = 0;
   root.traverse((o) => { if (o.isMesh) o.material = personMat(o.material); });
+  // Store immutable rest-pose world transforms before any animation begins
+  root.updateMatrixWorld(true);
+  const restQ = new Map(), restP = new Map();
+  const allJoints = [P.hips, P.torso, P.neck, P.head];
+  for (const a of P.arms ?? []) allJoints.push(a.shoulder, a.elbow, a.hand);
+  for (const l of P.legs ?? []) allJoints.push(l.thigh, l.knee, l.foot);
+  for (const j of allJoints) {
+    if (j) {
+      restQ.set(j, j.getWorldQuaternion(new THREE.Quaternion()));
+      restP.set(j, j.getWorldPosition(new THREE.Vector3()));
+    }
+  }
+  P.restQ = restQ;
+  P.restP = restP;
+  P.restHipsPos = P.hips.position.clone();
+  P.realReady = attachReal(P, look); // the real MakeHuman person, when one has been made for this look (realPeople.js)
   return P;
 }
 
@@ -731,17 +922,17 @@ export function buildFarmer(look) {
 // silhouette. personLight (0..1, set by the stage from the time of day) dims both at night.
 export const personLight = { value: 1 };
 const personMats = new Map();
-function personMat(m) {
+export function personMat(m) {
   if (!personMats.has(m)) {
     const p = m.clone();
     p.onBeforeCompile = (sh) => {
       sh.uniforms.personLight = personLight;
       sh.fragmentShader = `uniform float personLight;\n${sh.fragmentShader}`.replace('#include <opaque_fragment>', `
         float rimK = pow(1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0), 2.6);
-        outgoingLight += (vec3(1.0, 0.95, 0.86) * rimK * 0.42 + diffuseColor.rgb * 0.16) * personLight;
+        outgoingLight += (vec3(1.0, 0.95, 0.86) * rimK * 0.3 + diffuseColor.rgb * 0.09) * personLight;
         #include <opaque_fragment>`);
     };
-    p.customProgramCacheKey = () => 'person';
+    p.customProgramCacheKey = () => `person_${m.id}_${m.map ? 1 : 0}_${m.normalMap ? 1 : 0}`;
     personMats.set(m, p);
   }
   return personMats.get(m);
@@ -751,76 +942,84 @@ const lerp = (a, b, t) => a + (b - a) * t;
 
 // Pose for this frame. st: { speed, run, act: {type,p,dur} | null, down, t, carrying, bank, turnRate, lookTarget }
 export function animate(P, st, dt) {
-  const { hips, torso, head, legs, arms, tools } = P;
+  const { hips, torso, neck, head, legs, arms, tools } = P;
   const rawSpeed = st.speed ?? 0;
-  P.smoothSpeed = lerp(P.smoothSpeed ?? rawSpeed, rawSpeed, Math.min(1, dt * 16));
+  P.smoothSpeed = lerp(P.smoothSpeed ?? rawSpeed, rawSpeed, Math.min(1, dt * 30)); // callers ease their speeds already; a lag here would slide the feet
   const speed = P.smoothSpeed;
-  const a = Math.min(1, speed / 3.0);
-
-  // Advance gait phase in direct proportion to real movement speed
-  // When coming to a stop, smoothly settle phase toward natural double-support ground contact
+  // The walk and the run (../humangait.js): each foot planted while it is on the ground, the stride matched to the
+  // ground speed, the legs posed by inverse kinematics from where the feet are. Speeds go into the figure's own units
+  // (a person of bigger build covers the same ground with a slightly slower stride). Turning on the spot takes small
+  // steps; a sari or long skirt shortens the step.
+  const scaleZ = (P.body.scale.z || 1) * (P.root.scale.z || 1);
+  const turnStep = Math.min(0.5, Math.abs(st.turnRate ?? 0) * 0.16);
+  const gs = Math.max(speed, turnStep) / scaleZ;
+  const a = smooth01(gs / 0.5); // 0 standing .. 1 stepping out
+  const wantRun = speed > 3.0 || (st.run && speed > 1.6) ? 1 : 0;
+  P.runness = lerp(P.runness ?? wantRun, speed < 1.2 ? 0 : wantRun, Math.min(1, dt * 5));
+  const rn = P.runness;
+  const sk = P.skirt;
+  const stepMax = sk >= 1 ? Infinity : sk * lerp(1.25, 2.2, rn);
+  const G = gaitParams(gs, rn, stepMax);
   if (a > 0.02) {
-    const rate = st.run ? 8.4 + speed * 0.72 : 5.0 + speed * 1.32;
-    P.phase = ((P.phase ?? 0) + dt * rate) % (Math.PI * 2);
+    P.phase = ((P.phase ?? 0) + dt * Math.PI * G.cad) % (Math.PI * 2); // a stride is two steps
   } else if (P.phase !== undefined) {
+    // coming to a stop: settle into the nearest double support, both feet down side by side
     const targetPh = Math.round(P.phase / Math.PI) * Math.PI;
-    P.phase = lerp(P.phase, targetPh, Math.min(1, dt * 9));
+    P.phase = lerp(P.phase, targetPh, Math.min(1, dt * 9)) % (Math.PI * 2);
   } else {
     P.phase = 0;
   }
 
-  const ph = P.phase, s = Math.sin(ph);
-  const sk = P.skirt;
+  const ph = P.phase;
+  const yawR = P.root.rotation.y, sx = st.slopeX ?? 0, sz = st.slopeZ ?? 0;
+  const pose = stridePose(ph / (Math.PI * 2), gs, rn, a, {
+    stepMax,
+    hipX: [legs[0].thigh.position.x, legs[1].thigh.position.x],
+    slopeF: sx * Math.sin(yawR) + sz * Math.cos(yawR), // the ground's rise ahead of the person and to their side
+    slopeS: sx * Math.cos(yawR) - sz * Math.sin(yawR),
+  });
+  let hipY = pose.hipY;
 
-  // Stride kinematics: double-sinusoidal pelvic bounce
-  const bounce = (st.run ? 0.082 : 0.044) * Math.sin(ph * 2 - Math.PI * 0.5) * a;
-  let hipY = HIP_Y + bounce;
-
-  // Aerodynamic forward lean and dynamic turn banking
-  let lean = (st.run ? 0.30 : 0.08) * a;
+  // a little forward lean, more when running; leaning into a start and back against a stop; banking into a turn
+  let lean = pose.lean;
   const bank = (st.bank ?? 0) * a;
-
-  // Dynamic deceleration settle & elastic inertia when braking
   const accel = (rawSpeed - (P.prevSpeed ?? rawSpeed)) / Math.max(0.001, dt);
   P.prevSpeed = rawSpeed;
-  const decelSettle = Math.max(-0.14, Math.min(0.14, -accel * 0.008));
-  lean += decelSettle;
+  P.accelS = lerp(P.accelS ?? 0, Math.max(-12, Math.min(12, accel)), Math.min(1, dt * 6));
+  const decelSettle = Math.max(-0.14, Math.min(0.14, -P.accelS * 0.008)); // the skirt's hem swings on when braking
+  lean += Math.max(-0.08, Math.min(0.12, P.accelS * 0.02));
 
-  // Stride amplitude & leg poses with proportional speed matching
-  const stride = (st.run ? 0.92 : 0.62) * a * sk;
-  const L = [s * stride, -s * stride];
+  const L = [-pose.legs[0].thigh, -pose.legs[1].thigh];
+  const K = [pose.legs[0].knee, pose.legs[1].knee];
+  const footRoll = [pose.legs[0].foot, pose.legs[1].foot];
 
-  // Knee shock-absorption during stance + dynamic swing lift
-  const swing0 = Math.max(0, -Math.cos(ph));
-  const swing1 = Math.max(0, Math.cos(ph));
-  const stance0 = 1 - swing0, stance1 = 1 - swing1;
-  const K = [
-    (st.run ? 1.22 : 0.64) * swing0 * a + stance0 * 0.16 * a,
-    (st.run ? 1.22 : 0.64) * swing1 * a + stance1 * 0.16 * a,
-  ];
-
-  // Heel-strike dorsiflexion, flat mid-stance, and toe-off plantarflexion
-  const footRoll = [
-    -L[0] * 0.72 - K[0] * 0.25,
-    -L[1] * 0.72 - K[1] * 0.25,
-  ];
-
-  // Athletic contralateral arm swing with natural idle respiration drape
-  const armSwing = (st.run ? 1.05 : 0.58) * a;
+  // arms swing from the shoulder against the legs, elbows a little bent (well bent running); a slow drape standing
   const idleArmDrape = (1 - a) * Math.sin((st.t ?? 0) * 2.1) * 0.024;
-  const A = [-s * armSwing + idleArmDrape, s * armSwing - idleArmDrape];
-  const E = [
-    -(st.run ? 1.38 : 0.38) - Math.max(0, -A[0]) * (st.run ? 0.58 : 0.44),
-    -(st.run ? 1.38 : 0.38) - Math.max(0, -A[1]) * (st.run ? 0.58 : 0.44),
-  ];
+  const A = [pose.arms[0].shoulder + idleArmDrape, pose.arms[1].shoulder - idleArmDrape];
+  const E = [Math.min(-0.2, pose.arms[0].elbow), Math.min(-0.2, pose.arms[1].elbow)];
   let az = [
-    0.08 + (st.run ? 0.16 : 0.04) * a,
-    -0.08 - (st.run ? 0.16 : 0.04) * a,
+    -0.28 - lerp(0.04, 0.12, rn) * a,
+    0.28 + lerp(0.04, 0.12, rn) * a,
   ];
 
   let headX = 0, headY = 0, bodyY = 0;
   for (const t of Object.values(tools)) t.visible = false;
-  if (st.carrying) tools.sack.visible = true;
+  if (st.carrying) {
+    tools.sack.visible = true;
+    lean += 0.10; // biomechanical forward compensatory trunk lean under dorsal load
+    if (!st.act) {
+      // hands steady sack straps on chest/shoulders
+      A[0] = lerp(A[0], -0.28, 0.65);
+      A[1] = lerp(A[1], -0.28, 0.65);
+      E[0] = lerp(E[0], -0.95, 0.65);
+      E[1] = lerp(E[1], -0.95, 0.65);
+      az[0] = lerp(az[0], -0.34, 0.65);
+      az[1] = lerp(az[1], 0.34, 0.65);
+    }
+  }
+  tools.basket.rotation.z = 0;
+  if (st.basket) tools.basket.visible = true; // a picker keeps the basket on the arm between plants
+  if (P.basketFill) P.basketFill.scale.set(1, 0.15 + 0.85 * (st.fill ?? 0), 1);
 
   // Authentic human idle weight-shifting (stance shift) and breathing
   let idleHipX = 0, idleHipRoll = 0, idleKneeRelax = [0, 0];
@@ -881,10 +1080,20 @@ export function animate(P, st, dt) {
   }
   if (P.mouth) {
     const mouthLerp = Math.min(1, dt * 10);
-    const targetMouthY = -0.048 - (expr.mouthOpen ?? 0) * 0.007;
-    const targetMouthScaleY = 0.02 + (expr.mouthOpen ?? 0) * 0.85;
-    P.mouth.position.y = lerp(P.mouth.position.y, targetMouthY, mouthLerp);
-    P.mouth.scale.y = lerp(P.mouth.scale.y, targetMouthScaleY, mouthLerp);
+    const mOpen = expr.mouthOpen ?? 0;
+    const mSmile = expr.smile ?? 0;
+    if (P.mouth.lowerLip) {
+      P.mouth.lowerLip.position.y = lerp(P.mouth.lowerLip.position.y, -0.0018 - mOpen * 0.007, mouthLerp);
+      P.mouth.upperLip.position.y = lerp(P.mouth.upperLip.position.y, 0.0014 + mOpen * 0.0015, mouthLerp);
+      P.mouth.cavity.scale.y = lerp(P.mouth.cavity.scale.y, 0.15 + mOpen * 1.1, mouthLerp);
+      P.mouth.cavity.position.y = lerp(P.mouth.cavity.position.y, -0.001 - mOpen * 0.0035, mouthLerp);
+      P.mouth.scale.x = lerp(P.mouth.scale.x, 1 + mSmile * 0.14, mouthLerp);
+    } else {
+      const targetMouthY = -0.048 - mOpen * 0.007;
+      const targetMouthScaleY = 0.02 + mOpen * 0.85;
+      P.mouth.position.y = lerp(P.mouth.position.y, targetMouthY, mouthLerp);
+      P.mouth.scale.y = lerp(P.mouth.scale.y, targetMouthScaleY, mouthLerp);
+    }
   }
 
   const act = st.act;
@@ -892,29 +1101,136 @@ export function animate(P, st, dt) {
     const p = act.p / act.dur, e = Math.sin(Math.min(1, p) * Math.PI);
     switch (act.type) {
       case 'plant': case 'clear':
-        lean = 0.45 * e; K[0] = K[1] = 1.8 * e; L[0] = L[1] = 1.2 * e; headX = 0.3 * e; // thighs forward, shins back to the feet: a squat
-        A[1] = -0.8 * e; E[1] = -0.2; A[0] = -0.5 * e; E[0] = -0.4 * e; break;
-      case 'harvest':
+        lean = 0.52 * e; K[0] = K[1] = 1.82 * e; L[0] = L[1] = 1.22 * e; headX = 0.35 * e; // squat with deep knee flexion and foot planting
+        A[1] = -0.65 * e; E[1] = -0.25 * e; az[1] = 0.28 * (1 - e) + 0.10 * e; // hand reaches downward into furrow
+        A[0] = -0.45 * e; E[0] = -0.45 * e; az[0] = -0.25 * e; // left hand steadies on knee
+        break;
+      case 'harvest': {
+        const slice = Math.sin(p * Math.PI * 4);
         lean = 0.55 * e; K[0] = K[1] = 1.3 * e; L[0] = L[1] = 0.9 * e; headX = 0.25 * e;
-        tools.sickle.visible = true; A[1] = -1.0 * e; az[1] = -0.2 + Math.sin(p * Math.PI * 4) * 0.65 * e; E[1] = -0.5; A[0] = -0.9 * e; break;
+        tools.sickle.visible = true;
+        A[1] = -1.0 * e;
+        az[1] = 0.28 * (1 - e) + (-0.15 + slice * 0.55) * e; // smooth resting blend, 2-slice sweep
+        E[1] = -0.2 - 0.35 * e;
+        A[0] = -0.9 * e; E[0] = -0.35 * e; // left hand gathers stalks
+        break;
+      }
       case 'water':
-        tools.can.visible = true; A[1] = -1.15 * e; E[1] = -0.2; lean = 0.25 * e; headX = 0.35 * e;
-        tools.can.rotation.x = 0.9 * e; break;
-      case 'spray':
-        tools.spray.visible = true; tools.tank.visible = true; A[1] = -0.9; E[1] = -0.3; az[1] = Math.sin(p * Math.PI * 5) * 0.4; lean = 0.25 * e; headX = 0.3 * e; break;
-      case 'pump':
-        tools.can.visible = true; A[1] = -1.5 + Math.sin(p * Math.PI * 8) * 0.45; E[1] = -0.5; A[0] = -0.4; lean = 0.2 * e; break;
+        tools.can.visible = true;
+        A[1] = -1.15 * e; E[1] = -0.25 * e;
+        A[0] = -0.35 * e; E[0] = -0.55 * e; az[0] = -0.34 * e; // left arm counterbalances heavy can
+        lean = 0.25 * e; headX = 0.35 * e;
+        tools.can.rotation.x = 0.9 * e;
+        break;
+      case 'spray': {
+        const sweep = Math.sin(p * Math.PI * 5);
+        tools.spray.visible = true; tools.tank.visible = true;
+        A[1] = -0.9 * e;
+        E[1] = -0.2 - 0.25 * e;
+        az[1] = 0.28 * (1 - e) + (0.15 + sweep * 0.35) * e; // smooth wand sweep
+        A[0] = (-0.25 - sweep * 0.12) * e; E[0] = -0.85 * e; az[0] = -0.22 * e; // left hand pumps knapsack lever
+        lean = 0.25 * e; headX = 0.3 * e;
+        break;
+      }
+      case 'pump': {
+        const pumpCycle = Math.sin(p * Math.PI * 8);
+        tools.can.visible = true;
+        A[1] = (-1.35 + pumpCycle * 0.45) * e;
+        E[1] = -0.2 - 0.45 * e;
+        A[0] = -0.45 * e; E[0] = -0.5 * e;
+        lean = 0.2 * e;
+        break;
+      }
       case 'sell':
-        A[0] = A[1] = -1.0 * e; E[0] = E[1] = -0.5 * e; lean = 0.3 * e; tools.sack.visible = p < 0.5; break;
-      case 'wipe':
-        A[1] = -2.5 * e; az[1] = 0.25; E[1] = -1.9 * e; headX = -0.25 * e; break;
+        A[0] = A[1] = -1.0 * e; E[0] = E[1] = -0.5 * e; az[0] = -0.18 * e; az[1] = 0.18 * e; lean = 0.3 * e; tools.sack.visible = p < 0.5; break;
+      case 'sweep': {
+        // bent low from the hips over the short jharu, knees soft, the broom flicked across the ground in short strokes
+        // while the free hand rests on the knee; the feet stay where they are
+        const stroke = Math.sin(p * Math.PI * 6);
+        lean = 0.95 * e; K[0] = K[1] = 0.55 * e; L[0] = L[1] = 0.25 * e; headX = -0.15 * e;
+        A[1] = -0.35 * e; az[1] = (-0.05 + stroke * 0.32) * e; E[1] = -0.15 * e;
+        A[0] = -0.55 * e; E[0] = -0.6 * e; az[0] = 0.15 * e;
+        tools.broom.visible = true; tools.broom.rotation.set(0.35 * e, 0, stroke * 0.25 * e);
+        break;
+      }
+      case 'winnow': {
+        // standing square with the kula in both hands at the waist: a toss and catch, the tray tipped forward each time
+        const toss = Math.max(0, Math.sin(p * Math.PI * 7)), en = Math.min(1, p * 5, (1 - p) * 5);
+        A[0] = A[1] = (-0.85 - toss * 0.18) * en; E[0] = E[1] = -0.75 * en; az[0] = -0.18 * en; az[1] = 0.18 * en;
+        lean = 0.12 * en; headX = 0.3 * en; K[0] = K[1] = toss * 0.12 * en;
+        tools.kula.visible = true; tools.kula.rotation.set(-0.9 * en + toss * 0.35, 0, 0); tools.kula.position.y = -0.07 + toss * 0.04;
+        break;
+      }
+      case 'spread': {
+        // crouched at the edge of the drying mat, one hand raking the paddy flat in long sweeps
+        const rake = Math.sin(p * Math.PI * 4);
+        lean = 0.5 * e; K[0] = K[1] = 1.7 * e; L[0] = L[1] = 1.15 * e; headX = 0.35 * e;
+        A[1] = -1.0 * e; az[1] = rake * 0.45 * e; E[1] = -0.15 * e; A[0] = -0.35 * e; E[0] = -0.5 * e;
+        break;
+      }
+      case 'pick': {
+        // picking beans from a staked vine: standing close, the right hand reaches into the leaves (chest to head
+        // high, a little higher or lower each time), feels for a pod, snaps it off with a small twist and drops it in
+        // the basket on the left forearm; the head follows the hand, the weight shifts into each reach
+        const n = 3, ph = (p * n) % 1, k = Math.floor(p * n);
+        const reachOut = Math.sin(Math.min(1, ph / 0.45) * Math.PI * 0.5);      // out to the vine
+        const back = Math.max(0, (ph - 0.62) / 0.38);                            // back to the basket
+        const r = reachOut * (1 - Math.sin(Math.min(1, back) * Math.PI * 0.5));
+        const high = [0.25, -0.1, 0.12][k % 3];                                  // each pod at its own height
+        const twist = ph > 0.45 && ph < 0.62 ? Math.sin((ph - 0.45) / 0.17 * Math.PI) : 0;
+        lean = (0.12 + 0.08 * r) * e; K[0] = K[1] = 0.1 * e; L[0] = L[1] = 0.04 * e;
+        A[1] = (-0.55 - (1.05 + high) * r) * e; E[1] = (-1.2 + 0.85 * r) * e; az[1] = (0.15 - 0.05 * r + 0.12 * twist) * e;
+        A[0] = -0.75 * e; E[0] = -1.45 * e; az[0] = 0.12 * e;                    // the basket arm
+        headX = (0.05 - 0.18 * r * (0.5 + high)) * e; headY = (0.1 * (1 - r)) * e;
+        tools.basket.visible = true;
+        break;
+      }
+      case 'tip':
+        // the full basket off the arm and tipped out onto the heap at the row's end
+        lean = 0.45 * e; K[0] = K[1] = 0.5 * e; A[0] = A[1] = -1.0 * e; E[0] = E[1] = -0.6 * e; az[0] = -0.2 * e; az[1] = 0.2 * e;
+        tools.basket.visible = true; tools.basket.rotation.z = -1.3 * Math.max(0, Math.sin(p * Math.PI)); break;
+      case 'wipe': {
+        const swipe = Math.sin(p * Math.PI * 2);
+        A[1] = -2.35 * e;
+        az[1] = 0.28 * (1 - e) + (-0.32 + swipe * 0.12) * e; // adducts across chest and sweeps brow
+        E[1] = -2.25 * e;
+        headX = -0.18 * e;
+        headY = (0.10 + swipe * 0.08) * e;
+        A[0] = -0.20 * e; E[0] = -0.35 * e; // left hand steadies body
+        break;
+      }
+      case 'talk': {
+        // speaking with someone: the right hand rises to chest height and opens and turns with the words, the
+        // left rests, small nods and tilts of the head, weight easing from one leg to the other
+        const t = act.p, beat = Math.sin(t * 5.2) * 0.5 + Math.sin(t * 3.1 + 1) * 0.5, en = Math.min(1, t * 3, (act.dur - t) * 3);
+        A[1] = (-0.55 - 0.18 * beat) * en; E[1] = (-1.25 + 0.2 * beat) * en; az[1] = (0.12 + 0.1 * Math.sin(t * 2.3)) * en;
+        A[0] = -0.08 * en; E[0] = -0.3 * en;
+        headX = (0.05 * Math.sin(t * 4.1)) * en; headY = (0.08 * Math.sin(t * 1.7)) * en;
+        lean = 0.03 * en;
+        break;
+      }
+      case 'wave': case 'greet': {
+        const wave = Math.sin(p * Math.PI * 6);
+        A[1] = -2.35 * e;
+        az[1] = 0.28 * (1 - e) + (0.35 + wave * 0.22) * e; // smooth resting blend
+        E[1] = -0.20 * (1 - e) + (-1.25 + wave * 0.18) * e;
+        headX = -0.12 * e; headY = (0.15 + wave * 0.08) * e;
+        A[0] = -0.15 * e; E[0] = -0.25 * e;
+        break;
+      }
+      case 'soilcheck':
+        lean = 0.62 * e; K[0] = K[1] = 1.95 * e; L[0] = L[1] = 1.25 * e; headX = 0.45 * e;
+        A[1] = -0.58 * e; E[1] = -0.28 * e; az[1] = 0.28 * (1 - e) + 0.08 * e; // hand reaches downward into soil
+        A[0] = -0.45 * e; E[0] = -0.45 * e; az[0] = -0.25 * e; // left hand rests on knee
+        break;
       case 'adjust':
         A[0] = -2.6 * e; az[0] = -0.35; E[0] = -1.5 * e; headY = 0.2 * e; break;
       case 'phone':
-        tools.phone.visible = true; A[0] = -0.95 * Math.min(1, p * 4, (1 - p) * 4); E[0] = -1.2; A[1] = -0.5 * e; E[1] = -1.0 * e; headX = 0.42 * e; break;
+        tools.phone.visible = true; A[0] = -1.02 * Math.min(1, p * 4, (1 - p) * 4); E[0] = -0.2 - 1.1 * Math.min(1, p * 4, (1 - p) * 4); az[0] = -0.18 * Math.min(1, p * 4, (1 - p) * 4); // phone held with forearm clearing torso
+        A[1] = -0.3 * e; E[1] = -0.6 * e; az[1] = 0.28; headX = 0.35 * e; break;
       case 'cheer': {
         const w = Math.sin(st.t * 7);
-        A[0] = -2.8 + w * 0.2; A[1] = -2.8 - w * 0.2; E[0] = E[1] = -0.2; az = [0.35, -0.35]; bodyY = Math.abs(Math.sin(st.t * 5)) * 0.16; headX = -0.2; break;
+        A[0] = -2.8 + w * 0.2; A[1] = -2.8 - w * 0.2; E[0] = E[1] = -0.2; az = [-0.35, 0.35]; bodyY = Math.abs(Math.sin(st.t * 5)) * 0.16; headX = -0.2; break; // Feature F16: V-spread arms eliminating skull intersection
       }
       default:
     }
@@ -931,29 +1247,61 @@ export function animate(P, st, dt) {
   if (st.down > 0) { hipY = DOWN_HIP_Y; L[0] = L[1] = -1.45; K[0] = K[1] = 1.5; lean = 0.25; A[1] = -2.4; E[1] = -1.8; A[0] = -0.5; headX = 0.35; }
   lean += (P.ageStoop ?? 0);
   const k = Math.min(1, dt * 18);
-  hips.position.y = lerp(hips.position.y, hipY, k);
-  hips.position.x = lerp(hips.position.x, idle ? idleHipX : 0, k);
+  // the stepping legs and the hips follow the stride exactly (any lag would slide the planted foot); poses and the
+  // way into and out of a step are eased
+  const gk = act || st.down > 0 ? k : lerp(k, 1, a);
+  hips.position.y = lerp(hips.position.y, hipY, gk);
+  hips.position.x = lerp(hips.position.x, idle ? idleHipX : act ? 0 : pose.sway, gk);
   P.body.position.y = lerp(P.body.position.y, bodyY, k);
   torso.rotation.x = lerp(torso.rotation.x, lean, k);
-  head.rotation.x = lerp(head.rotation.x, headX - lean * 0.5, k);
-  head.rotation.y = lerp(head.rotation.y, headY, k * 0.6);
+  const targetPitch = headX - lean * 0.5;
+  const targetYaw = headY + (act ? 0 : pose.yaw * 0.6); // the head stays facing ahead while the shoulders turn
+  if (neck) {
+    neck.rotation.x = lerp(neck.rotation.x, targetPitch * 0.35, k);
+    neck.rotation.y = lerp(neck.rotation.y, targetYaw * 0.30, k * 0.6);
+    head.rotation.x = lerp(head.rotation.x, targetPitch * 0.65, k);
+    head.rotation.y = lerp(head.rotation.y, targetYaw * 0.70, k * 0.6);
+  } else {
+    head.rotation.x = lerp(head.rotation.x, targetPitch, k);
+    head.rotation.y = lerp(head.rotation.y, targetYaw, k * 0.6);
+  }
 
   // The walk & run: pelvic list and yaw, thoracic counter-rotation, dynamic turn banking
   const still = a < 0.04 && !act;
-  const hipYaw = act ? 0 : s * (st.run ? 0.16 : 0.10) * a;
-  const hipRoll = act ? 0 : still ? idleHipRoll : Math.cos(ph) * (st.run ? 0.072 : 0.050) * a;
+  // the pelvis turns with the leg reaching forward and dips on the side of the swinging leg; the shoulders turn against it
+  const hipYaw = act ? 0 : pose.yaw;
+  const hipRoll = act ? 0 : still ? idleHipRoll : pose.list;
 
-  hips.rotation.y = lerp(hips.rotation.y, hipYaw, k);
-  hips.rotation.z = lerp(hips.rotation.z, hipRoll + bank * 0.75, k);
-  torso.rotation.y = lerp(torso.rotation.y, act ? 0 : -hipYaw * 1.45, k);
+  hips.rotation.y = lerp(hips.rotation.y, hipYaw, gk);
+  hips.rotation.z = lerp(hips.rotation.z, hipRoll + bank * 0.75, gk);
+  torso.rotation.y = lerp(torso.rotation.y, act ? 0 : -hipYaw * 1.6, k);
   torso.rotation.z = lerp(torso.rotation.z, act ? 0 : -hipRoll * 0.85 + bank * 0.55, k);
 
-  const slopePitch = (st.slopeZ ?? 0) * 0.45;
-
+  // Turning on the spot: a planted foot stays pointing where it was while the body turns above it (the hip turns
+  // in its socket), and only swings round with the next step, as a person pivots in small steps. Without this the
+  // feet twisted on the ground with the body.
+  const rootYaw = P.root.rotation.y, dYaw = Math.atan2(Math.sin(rootYaw - (P.lastRootYaw ?? rootYaw)), Math.cos(rootYaw - (P.lastRootYaw ?? rootYaw)));
+  P.lastRootYaw = rootYaw;
+  P.footYaw ??= [0, 0];
+  // standing still and turning: both feet stay put; when one has been left more than ~25° behind, it steps round
+  // (lifted for a quarter second, knee bent) and is set down facing the new way, then the other follows
+  const pivoting = speed < 0.3 && !act;
+  if (pivoting && !P.pivot) { const far = Math.abs(P.footYaw[0]) >= Math.abs(P.footYaw[1]) ? 0 : 1; if (Math.abs(P.footYaw[far]) > 0.42) P.pivot = { i: far, t: 0 }; }
+  const pivotLift = [0, 0];
   for (let i = 0; i < 2; i++) {
-    legs[i].thigh.rotation.x = lerp(legs[i].thigh.rotation.x, -L[i], k);
-    legs[i].knee.rotation.x = lerp(legs[i].knee.rotation.x, K[i] + (idle ? idleKneeRelax[i] : 0), k);
-    legs[i].foot.rotation.x = lerp(legs[i].foot.rotation.x, footRoll[i] + (still ? -slopePitch : 0), k);
+    const stepping = P.pivot?.i === i;
+    const planted = pivoting ? !stepping : (pose.legs[i].stance && speed < 1.2 && !act);
+    if (planted) P.footYaw[i] = Math.max(-1.0, Math.min(1.0, P.footYaw[i] - dYaw)); // a hip turns about 45° in its socket
+    else P.footYaw[i] *= Math.exp(-dt * (stepping ? 16 : 14)); // lifted: it swings round to face the new way
+    if (stepping) { P.pivot.t += dt; pivotLift[i] = Math.sin(Math.min(1, P.pivot.t / 0.26) * Math.PI); if (P.pivot.t >= 0.26) P.pivot = null; }
+    legs[i].thigh.rotation.y = P.footYaw[i];
+  }
+  if (!pivoting) P.pivot = null;
+  for (let i = 0; i < 2; i++) if (pivotLift[i]) { L[i] -= 0.35 * pivotLift[i]; K[i] += 0.7 * pivotLift[i]; } // the stepping foot lifts clear
+  for (let i = 0; i < 2; i++) {
+    legs[i].thigh.rotation.x = lerp(legs[i].thigh.rotation.x, -L[i], gk);
+    legs[i].knee.rotation.x = lerp(legs[i].knee.rotation.x, K[i] + (idle ? idleKneeRelax[i] : 0), gk);
+    legs[i].foot.rotation.x = lerp(legs[i].foot.rotation.x, footRoll[i], gk);
     arms[i].shoulder.rotation.x = lerp(arms[i].shoulder.rotation.x, A[i], k);
     arms[i].shoulder.rotation.z = lerp(arms[i].shoulder.rotation.z, az[i], k);
     arms[i].elbow.rotation.x = lerp(arms[i].elbow.rotation.x, E[i], k);
@@ -967,7 +1315,7 @@ export function animate(P, st, dt) {
   // Ground work keeps the feet planted: run the legs' own transforms to find the lower ankle, and set the hips so it
   // sits at its standing height. Fixed hip drops were fitted to the old longer legs; on these shorter legs they sank
   // the feet into the soil and folded the figure onto its hands.
-  if (act && (act.type === 'plant' || act.type === 'clear' || act.type === 'harvest')) {
+  if (act && (act.type === 'plant' || act.type === 'clear' || act.type === 'harvest' || act.type === 'spread' || act.type === 'sweep' || act.type === 'pick' || act.type === 'soilcheck')) {
     let lowest = Infinity;
     for (const l of legs) { l.thigh.updateMatrix(); l.knee.updateMatrix(); ankle.copy(l.foot.position).applyMatrix4(l.knee.matrix).applyMatrix4(l.thigh.matrix); lowest = Math.min(lowest, ankle.y); }
     hips.position.y = HIP_Y - TH - SHIN_POS - lowest;
@@ -975,12 +1323,35 @@ export function animate(P, st, dt) {
 
   // Secondary cloth inertia and sway for skirts, dhotis, saris, and long garments
   if (P.skirtGroup) {
-    const sway = Math.sin(ph) * 0.075 * a;
+    const sway = Math.sin(ph) * 0.075 * a * lerp(1, 0.6, rn);
     const billow = -speed * 0.026;
     const brakeBillow = Math.min(0.22, Math.max(-0.05, decelSettle * 0.95));
+
+    // Feature F06: Stride kinematics: find forward extension of thighs and lateral separation
+    const tRot0 = legs[0]?.thigh?.rotation?.x ?? 0;
+    const tRot1 = legs[1]?.thigh?.rotation?.x ?? 0;
+    const forwardThigh = Math.max(0, -tRot0, -tRot1);
+    const backThigh = Math.max(0, tRot0, tRot1);
+    const strideSpread = Math.abs(tRot0 - tRot1);
+
+    // Stride-following splay: skirt pitch follows leading thigh motion and squats
+    const strideFollowPitch = -forwardThigh * 0.22;
     P.skirtGroup.rotation.z = lerp(P.skirtGroup.rotation.z, -hips.rotation.z * 0.65 + sway, k);
-    P.skirtGroup.rotation.x = lerp(P.skirtGroup.rotation.x, billow - lean * 0.35 + brakeBillow, k);
+    P.skirtGroup.rotation.x = lerp(P.skirtGroup.rotation.x, billow - lean * 0.35 + brakeBillow + strideFollowPitch, k);
+
+    // Dynamic depth expansion (Z) and lateral stride splay (X) to eliminate knee-punch tearing
+    const depthExpand = forwardThigh * 0.36 + strideSpread * 0.20;
+    const splayExpand = strideSpread * 0.14 + (act ? 0.08 : 0);
+    const targetScaleZ = 1.05 * (1 + depthExpand);
+    const targetScaleX = 1.05 * (1 + splayExpand);
+    P.skirtGroup.scale.z = lerp(P.skirtGroup.scale.z, targetScaleZ, k);
+    P.skirtGroup.scale.x = lerp(P.skirtGroup.scale.x, targetScaleX, k);
+
+    // Dynamic forward centroid tracking
+    const forwardOffset = (forwardThigh - backThigh * 0.35) * 0.065;
+    P.skirtGroup.position.z = lerp(P.skirtGroup.position.z, forwardOffset, k);
   }
 
   if (!act || act.type !== 'water') tools.can.rotation.x = 0;
+  P.real?.sync(st);
 }

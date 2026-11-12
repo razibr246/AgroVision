@@ -3,8 +3,9 @@
 // and opens the page; nothing here computes anything of its own.
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Clapperboard, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Clapperboard, X, GripHorizontal, Move } from 'lucide-react';
 import { useStore } from '../../store';
+import { useDraggable } from './useDraggable';
 
 export const TOUR = [
   // One farmer, one field, one decision first; the evidence and what is real; the ten-year view; then the rest.
@@ -13,7 +14,7 @@ export const TOUR = [
   { path: '/farmer/plan', farmer: 'RAHIM', step: 4, hash: 'first-step', title: { bn: 'প্রথম কাজ, আর তার আগে মাঠে কী দেখবেন', en: 'The first step, and what to check in the field first' },
     say: { bn: 'কোন ফসল, কোন সপ্তাহে। তার আগে: মাটি পরীক্ষা (মাটির সংখ্যা মডেলের আনুমানিক), বীজ, সেচের পালা, পানি জমে কি না। এক চাপে পুরো তুলনাটা উপসহকারী কৃষি কর্মকর্তার কাছে যায়।', en: 'Which crop, which week. Before that: a soil test (the soil figures are a model estimate), seed, the irrigation turn, whether water stands. One tap sends the whole comparison to the union’s agriculture officer.' } },
   { path: '/farmer/plan', farmer: 'RAHIM', step: 4, hash: 'how-made', title: { bn: 'পরামর্শটা কীভাবে তৈরি, কতটা পাকা', en: 'How the advice was made, and how firm it is' },
-    say: { bn: 'কোন তথ্য হিসাবে ঢুকেছে আর কোনটা শুধু পাশে দেখানো; ফসলের নিয়ম আর তার যাচাই এখনো বাকি; আর ওজন বা আবহাওয়া বদলালেও একই ফসল প্রথম থাকে কি না। ব্যবধান কম হলে অ্যাপ নিজেই বলে "কাছাকাছি, নিশ্চিত নয়"।', en: 'What went into the calculation and what is only context; the crop rules, still awaiting local review; and whether the same crop stays first under other weights and weather. When the lead is small the app says “a close call” itself.' } },
+    say: { bn: 'কোন তথ্য হিসাবে ঢুকেছে আর কোনটা শুধু পাশে দেখানো; ফসলের নিয়মের স্থানীয় পর্যালোচনার পরিধি নথিভুক্ত আছে কি না; আর ওজন বা আবহাওয়া বদলালেও একই ফসল প্রথম থাকে কি না। ব্যবধান কম হলে অ্যাপ নিজেই বলে "কাছাকাছি, নিশ্চিত নয়"।', en: 'What went into the calculation and what is only context; whether the scope of local crop-rule review is documented; and whether the same crop stays first under other weights and weather. When the lead is small the app says “a close call” itself.' } },
   { path: '/science', hash: 'coverage', title: { bn: 'কোনটা আসল, কোনটা মডেল, কোনটা নমুনা', en: 'What is real, what is modelled, what is sample' },
     say: { bn: 'প্রতিটি উৎস: উপগ্রহে দেখা, স্টেশনের মাপ, মডেলের হিসাব, প্রকাশিত রেকর্ড, নিয়ম না নমুনা; কোন বছর, কত বড় এলাকা, আর এই জমির জন্য আছে, পুরোনো না নেই। কৃষকেরা নমুনা; আবহাওয়া, উপগ্রহ, দাম আর ফলন আসল।', en: 'Every source: seen by satellite, measured at a station, estimated by a model, a published record, a rule or sample; which years, how large an area, and whether it is here, out of date or missing for this field. The farmers are sample; the weather, satellites, prices and yields are real.' } },
   { path: '/', hash: 'climate-shift', title: { bn: 'আবহাওয়া বদলেছে, পুরোনো ফসলচক্র টেকে না', en: 'The weather has moved; the old rotation no longer holds' },
@@ -30,8 +31,8 @@ export const TOUR = [
     say: { bn: 'নাসার NEX-GDDP-CMIP6-এর ৮টি জলবায়ু মডেলে আলাদা করে ২০৪০-এর দশক চালানো: কোন ফসলচক্র কতগুলো ভবিষ্যতে মাটি ধরে রাখে আর ঝুঁকি বাড়ায় না।', en: 'The 2040s run in each of NASA NEX-GDDP-CMIP6’s eight climate models: in how many futures each rotation keeps the soil and adds no risk.' } },
   { path: '/farmer/plan', farmer: 'RAZIB', title: { bn: 'এই মৌসুমের ধাপ, ধামরাইয়ে', en: 'This season’s step, in Dhamrai' },
     say: { bn: 'ফসলচক্রের এ বছরের ধাপ: কোন ফসল, কবে। প্রতিটি তারিখ ২৫ মৌসুমের নাসা আবহাওয়ায় যাচাই। ধামরাইয়ের রাজিব নিজের এলাকার তথ্যে আলাদা উত্তর পান।', en: 'This year’s step of the rotation: which crop, and when. Every date is tested on 25 seasons of NASA weather. Razib in Dhamrai gets a different answer from his own area’s data.' } },
-  { path: '/farmer/voice', farmer: 'RAHIM', title: { bn: 'বাংলায় মুখে জিজ্ঞেস করুন', en: 'Ask it aloud in Bangla' },
-    say: { bn: '"এই ধান কাটার পর কী লাগামু?" বলুন বা চিপে চাপুন। একই হিসাব থেকে উত্তর আসে, বাংলায়।', en: 'Say "এই ধান কাটার পর কী লাগামু?" (what do I plant after this rice?) or tap a chip. The answer comes from the same working, in Bangla.' } },
+  { path: '/farmer/voice', farmer: 'RAHIM', title: { bn: 'বাংলায় মুখে জিজ্ঞেস করুন', en: 'Ask by voice' },
+    say: { bn: '"এই ধান কাটার পর কী লাগামু?" বলুন বা চিপে চাপুন। একই হিসাব থেকে উত্তর আসে, বাংলায়।', en: 'Ask "What should I plant after this rice?" or tap a quick prompt. The answer comes directly from your field calculations.' } },
   { path: '/officer/radar', officer: ['godagari', 'Deopara'], title: { bn: 'বৃষ্টি কবে নামে, রোপণ কবে হয়', en: 'When the rains set in, when planting happens' },
     say: { bn: 'জিপিএম আইমার্জের ২৫ বছরের বৃষ্টি থেকে প্রতি বছরের বৃষ্টি শুরু, আর সেন্টিনেল-১ রাডারে আমন রোপণ; জেলার প্রতিটি উপজেলায়। কৃষি কর্মকর্তা এখান থেকেই এলাকার ফসলচক্র সাজাতে পারেন।', en: 'The date the rains set in each year from 25 years of GPM IMERG rain, and Aman transplanting from Sentinel-1 radar, for every upazila of the district. From here the officer can plan the area’s rotations.' } },
   { path: '/officer/upazila', officer: ['godagari', 'Deopara'], hash: 'up-rotation', title: { bn: 'পুরো উপজেলায় কী বদলায়', en: 'What changes across the upazila' },
@@ -55,6 +56,16 @@ export default function DemoTour() {
   const step = k == null ? null : TOUR[k];
   const to = (n) => { dispatch({ type: 'set', patch: { tour: n } }); go(TOUR[n], dispatch, navigate); };
   const close = () => dispatch({ type: 'set', patch: { tour: null } });
+
+  const {
+    ref: cardRef,
+    hasMoved,
+    isDragging,
+    resetPos,
+    dragProps,
+    style: dragStyle,
+  } = useDraggable();
+
   useEffect(() => {
     if (!step) return undefined;
     const onKeyDown = (event) => {
@@ -83,8 +94,37 @@ export default function DemoTour() {
   }, [step, pathname]);
   if (!step) return null;
   return (
-    <aside role="dialog" aria-label={T('ডেমো গল্প', 'Demo story')}
-      className="fixed inset-x-3 bottom-[84px] z-[60] mx-auto max-w-[560px] rounded-[22px] border border-black/10 bg-white/95 p-4 shadow-[0_18px_44px_-14px_rgba(0,0,0,.45)] backdrop-blur sm:bottom-5">
+    <aside
+      ref={cardRef}
+      role="dialog"
+      aria-label={T('ডেমো গল্প', 'Demo story')}
+      {...dragProps}
+      style={dragStyle}
+      onDoubleClick={resetPos}
+      className={`fixed inset-x-3 bottom-[84px] z-[60] mx-auto max-w-[560px] rounded-[22px] border border-black/10 bg-white/95 p-4 backdrop-blur sm:bottom-5 transition-shadow select-none ${
+        isDragging
+          ? 'cursor-grabbing shadow-[0_24px_64px_-10px_rgba(0,0,0,.6)] ring-2 ring-primary-500/40 scale-[1.01]'
+          : 'cursor-grab shadow-[0_18px_44px_-14px_rgba(0,0,0,.45)] hover:shadow-[0_22px_50px_-12px_rgba(0,0,0,.55)]'
+      }`}
+    >
+      {/* Draggable Drag-Bar Affordance */}
+      <div className="flex items-center justify-between pb-1.5 -mt-0.5 select-none">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-ink/40">
+          <GripHorizontal size={14} className="text-primary-700/60" />
+          <span className="hidden sm:inline">{T('মাউস দিয়ে টেনে যে কোনো স্থানে সরান', 'Drag anywhere to move')}</span>
+        </div>
+        {hasMoved && (
+          <button
+            type="button"
+            onClick={resetPos}
+            className="text-[11px] font-semibold text-primary-700 hover:text-primary-900 transition underline underline-offset-2 cursor-pointer"
+            title={T('মাঝখানে ফিরিয়ে আনুন', 'Reset position to default')}
+          >
+            {T('মাঝখানে আনুন', 'Reset position')}
+          </button>
+        )}
+      </div>
+
       <div className="mb-3 flex gap-1" role="progressbar" aria-label={T('ডেমো গল্পের অগ্রগতি', 'Demo story progress')} aria-valuemin={1} aria-valuemax={TOUR.length} aria-valuenow={k + 1}>
         {TOUR.map((_, i) => <span key={i} className={`h-1 flex-1 rounded-full transition-colors duration-300 ${i <= k ? 'bg-primary-700' : 'bg-black/10'}`} />)}
       </div>
@@ -95,14 +135,14 @@ export default function DemoTour() {
           <p className="mt-0.5 text-[16px] font-bold leading-snug">{L(step.title)}</p>
           <p className="mt-1 text-[13.5px] leading-6 text-ink/75">{L(step.say)}</p>
         </div>
-        <button type="button" onClick={close} aria-label={T('গল্প বন্ধ করুন', 'Close the story')} className="grid h-8 w-8 shrink-0 place-items-center rounded-full hover:bg-black/5"><X size={17} /></button>
+        <button type="button" onClick={close} aria-label={T('গল্প বন্ধ করুন', 'Close the story')} className="grid h-8 w-8 shrink-0 place-items-center rounded-full hover:bg-black/5 cursor-pointer"><X size={17} /></button>
       </div>
       <div className="mt-3 flex items-center justify-between gap-2">
-        <button type="button" disabled={k === 0} onClick={() => to(k - 1)} className="inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[14px] font-semibold text-ink/70 hover:bg-black/5 disabled:opacity-40"><ArrowLeft size={16} />{T('আগে', 'Back')}</button>
+        <button type="button" disabled={k === 0} onClick={() => to(k - 1)} className="inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[14px] font-semibold text-ink/70 hover:bg-black/5 disabled:opacity-40 cursor-pointer"><ArrowLeft size={16} />{T('আগে', 'Back')}</button>
         <p className="text-[12px] font-medium tabular-nums text-ink/55">{T('← → চালান · Esc বন্ধ', '← → navigate · Esc close')}</p>
         {k < TOUR.length - 1
-          ? <button type="button" onClick={() => to(k + 1)} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary-700 px-4 text-[14px] font-semibold text-white hover:bg-primary-800">{T('পরের ধাপ', 'Next')}<ArrowRight size={16} /></button>
-          : <button type="button" onClick={close} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary-700 px-4 text-[14px] font-semibold text-white hover:bg-primary-800">{T('শেষ', 'Done')}</button>}
+          ? <button type="button" onClick={() => to(k + 1)} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary-700 px-4 text-[14px] font-semibold text-white hover:bg-primary-800 cursor-pointer">{T('পরের ধাপ', 'Next')}<ArrowRight size={16} /></button>
+          : <button type="button" onClick={close} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary-700 px-4 text-[14px] font-semibold text-white hover:bg-primary-800 cursor-pointer">{T('শেষ', 'Done')}</button>}
       </div>
     </aside>
   );

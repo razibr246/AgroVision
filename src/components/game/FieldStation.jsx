@@ -219,9 +219,9 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
                     </p>
                     <p className="mt-1 text-[15px] font-semibold">{rotName(c.e.rot)}</p>
                     <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[12.5px] text-white/75 sm:grid-cols-3">
-                      <span>{T(`সেচ: বিঘায় ${num(Math.round(x.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার/বছর`, `Water: ${Math.round(x.waterMm * WATER_M3_PER_MM_BIGHA)} m³/bigha/yr`)}</span>
-                      <span>{T(`লাভ: বিঘায় ৳${num(Math.round(x.money), 'bn')}/বছর`, `Profit: ৳${Math.round(x.money)}/bigha/yr`)}</span>
-                      <span>{T(`খারাপ মৌসুম: ${num(Math.round(x.risk * 100), 'bn')}%`, `Bad seasons: ${Math.round(x.risk * 100)}%`)}</span>
+                      <span>{T(`সেচ: বিঘায় ${num(Math.round(x.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার/বছর`, `Water: ${num(Math.round(x.waterMm * WATER_M3_PER_MM_BIGHA), 'en')} m³/bigha/yr`)}</span>
+                      <span>{T(`লাভ: বিঘায় ৳${num(Math.round(x.money), 'bn')}/বছর`, `Profit: ৳${num(Math.round(x.money), 'en')}/bigha/yr`)}</span>
+                      <span>{T(`খারাপ মৌসুম: ${num(Math.round(x.risk * 100), 'bn')}%`, `Bad seasons: ${num(Math.round(x.risk * 100), 'en')}%`)}</span>
                       <span>{T(`জৈব পদার্থ ১০ বছরে: ${x.dSoc >= 0 ? '+' : '−'}${num(Math.abs(x.dSoc), 'bn', { dp: 1 })}%`, `Organic matter in 10 yrs: ${x.dSoc >= 0 ? '+' : '−'}${Math.abs(x.dSoc).toFixed(1)}%`)}</span>
                       <span>{T(`ইউরিয়া বাঁচে: ${num(ureaSavedKgPerBigha(x.nFix), 'bn', { dp: 1 })} কেজি/বিঘা`, `Urea saved: ${ureaSavedKgPerBigha(x.nFix).toFixed(1)} kg/bigha`)}</span>
                       <span>{T(`জমি ঢাকা: বছরে ${num(Math.round(x.cover), 'bn')} দিন`, `Soil covered: ${Math.round(x.cover)} days/yr`)}</span>
@@ -247,7 +247,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
                       <span>{T(`মাটির কার্বন ১০ বছরে: ${d >= 0 ? '+' : '−'}${num(Math.abs(d), 'bn', { dp: 1 })}%`, `Soil carbon in 10 yrs: ${d >= 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}%`)}</span>
                       <span>{T(`নাইট্রোজেন: ${num(Math.round(o.nFix), 'bn')} কেজি/হেক্টর/বছর`, `Nitrogen: ${Math.round(o.nFix)} kg/ha/yr`)}</span>
                       <span>{T(`ফসলের গোত্র: ${num(o.families, 'bn')}`, `Crop families: ${o.families}`)}</span>
-                      {o.waterMm != null && (() => { const w = world === 'fut' && o.waterFut != null ? o.waterFut : o.waterMm; return <span>{T(`সেচ: বছরে ${num(Math.round(w), 'bn')} মিমি`, `Irrigation: ${Math.round(w)} mm/yr`)}</span>; })()}
+                      {o.waterMm != null && (() => { const w = world === 'fut' && o.waterFut != null ? o.waterFut : o.waterMm; return <span>{T(`সেচ: বছরে ${num(Math.round(w), 'bn')} মিমি`, `Irrigation: ${num(Math.round(w), 'en')} mm/yr`)}</span>; })()}
                       {o.gross != null && <span>{T(`ফসলের দাম: হেক্টরে ${abroad.prices.symbol}${num(Math.round(o.gross), 'bn')}/বছর`, `Harvest value: ${abroad.prices.symbol}${num(Math.round(o.gross), 'en')}/ha/yr`)}</span>}
                     </div>
                   </button>
@@ -278,10 +278,10 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
           <Box className="mt-3 text-[13.5px] leading-6">
             {place.kind === 'bd' ? (!bd ? loading : (() => {
               const h = bd.ff.habit.sFut, b = bd.ff.best.sFut;
-              return h && b && T(`এই আবহাওয়ায় এখনকার চাষ: সেচ বিঘায় ${num(Math.round(h.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার, খারাপ মৌসুম ${num(Math.round(h.risk * 100), 'bn')}%। সবচেয়ে ভালো পথ (${rotName(bd.ff.best.rot)}): সেচ ${num(Math.round(b.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার, খারাপ মৌসুম ${num(Math.round(b.risk * 100), 'bn')}%।`, `In this weather, farming as now: ${Math.round(h.waterMm * WATER_M3_PER_MM_BIGHA)} m³ of irrigation a bigha, ${Math.round(h.risk * 100)}% bad seasons. The best option (${rotName(bd.ff.best.rot)}): ${Math.round(b.waterMm * WATER_M3_PER_MM_BIGHA)} m³, ${Math.round(b.risk * 100)}% bad seasons.`);
+              return h && b && T(`এই আবহাওয়ায় এখনকার চাষ: সেচ বিঘায় ${num(Math.round(h.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার, খারাপ মৌসুম ${num(Math.round(h.risk * 100), 'bn')}%। সবচেয়ে ভালো পথ (${rotName(bd.ff.best.rot)}): সেচ ${num(Math.round(b.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার, খারাপ মৌসুম ${num(Math.round(b.risk * 100), 'bn')}%।`, `In this weather, farming as now: ${num(Math.round(h.waterMm * WATER_M3_PER_MM_BIGHA), 'en')} m³ of irrigation a bigha, ${Math.round(h.risk * 100)}% bad seasons. The best option (${rotName(bd.ff.best.rot)}): ${num(Math.round(b.waterMm * WATER_M3_PER_MM_BIGHA), 'en')} m³, ${Math.round(b.risk * 100)}% bad seasons.`);
             })()) : (!ab ? loading : (() => {
               const h = ab.options.find((o) => o.habit), best = ab.options.reduce((a, o) => ((o.dSocFut ?? o.dSoc) > (a.dSocFut ?? a.dSoc) ? o : a), ab.options[0]);
-              return T(`এই আবহাওয়ায় এখনকার চাষ: সেচ বছরে ${num(Math.round(h.waterFut ?? h.waterMm), 'bn')} মিমি, দশ বছরে মাটির কার্বন ${num(h.dSocFut, 'bn', { dp: 1 })}%। মাটির জন্য সবচেয়ে ভালো পথ (${abName(best)}): সেচ ${num(Math.round(best.waterFut ?? best.waterMm), 'bn')} মিমি, কার্বন ${num(best.dSocFut, 'bn', { dp: 1 })}%।`, `In this weather, farming as now: ${Math.round(h.waterFut ?? h.waterMm)} mm of irrigation a year, soil carbon ${h.dSocFut.toFixed(1)}% over ten years. Best for the soil (${abName(best)}): ${Math.round(best.waterFut ?? best.waterMm)} mm, carbon ${best.dSocFut.toFixed(1)}%.`);
+              return T(`এই আবহাওয়ায় এখনকার চাষ: সেচ বছরে ${num(Math.round(h.waterFut ?? h.waterMm), 'bn')} মিমি, দশ বছরে মাটির কার্বন ${num(h.dSocFut, 'bn', { dp: 1 })}%। মাটির জন্য সবচেয়ে ভালো পথ (${abName(best)}): সেচ ${num(Math.round(best.waterFut ?? best.waterMm), 'bn')} মিমি, কার্বন ${num(best.dSocFut, 'bn', { dp: 1 })}%।`, `In this weather, farming as now: ${num(Math.round(h.waterFut ?? h.waterMm), 'en')} mm of irrigation a year, soil carbon ${h.dSocFut.toFixed(1)}% over ten years. Best for the soil (${abName(best)}): ${num(Math.round(best.waterFut ?? best.waterMm), 'en')} mm, carbon ${best.dSocFut.toFixed(1)}%.`);
             })())}
             <span className="ml-1"><Tag k="RULE" /></span>
           </Box>
@@ -292,8 +292,8 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
       </>)}
 
       {tab === 'fusion' && (<>
-        <p className="font-display text-[20px] font-semibold">{T('নাসা ডেটা ফিউশন ও রেজোলিউশন হারমোনাইজেশন', 'NASA Data Fusion & Resolution Harmonization')}</p>
-        <p className="mt-1 text-[13.5px] text-white/65">{T('আলাদা রেজোলিউশনের উপগ্রহ তথ্য কীভাবে একটি নির্দিষ্ট চাষের জমিতে নির্ভুলভাবে সমন্বিত হয়।', 'How multi-resolution satellite observations are downscaled and harmonized to a single field parcel.')}</p>
+        <p className="font-display text-[20px] font-semibold">{T('নাসা ডেটা ফিউশন ও রেজোলিউশন হারমোনাইজেশন', 'NASA Data Fusion & Resolution Harmonisation')}</p>
+        <p className="mt-1 text-[13.5px] text-white/65">{T('আলাদা রেজোলিউশনের উপগ্রহ তথ্য কীভাবে একটি নির্দিষ্ট চাষের জমিতে নির্ভুলভাবে সমন্বিত হয়।', 'How multi-resolution satellite observations are downscaled and harmonised to a single field parcel.')}</p>
 
         {/* Multi-Resolution Pipeline Cards */}
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
@@ -339,15 +339,15 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
             <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('FAO-56 পেনম্যান-মন্টিথ নিয়মে বাতাস, রোদ ও আর্দ্রতা থেকে ঘাসের বাষ্পীভবন (ET₀) এবং ফসলের বৃদ্ধির ধাপের সহগ (Kc) গুণ করে নিখুঁত পানির চাহিদা বের করা হয়।', 'Calculated using FAO-56 Penman-Monteith from radiation, wind and humidity (ET₀), multiplied by crop growth-stage coefficient (Kc).')}</p>
           </Box>
           <Box>
-            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-sky-200"><Scale size={14} />{T('মাটির আর্দ্রতা অসংগতি (Soil Moisture Anomaly)', 'Soil Moisture Anomaly (SMA)')}</p>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-sky-200"><Scale size={14} />{T('মাটির আর্দ্রতা অসংগতি', 'Soil Moisture Anomaly (SMA)')}</p>
             <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('আজকের আর্দ্রতা ওই মাসের দীর্ঘমেয়াদি গড়ের তুলনায় কত স্ট্যান্ডার্ড ডেভিয়েশন নিচে বা ওপরে। শূন্যের নিচে নামলে সেচ বা খরা-সহনশীল ফসলের সংকেত।', 'Departure of current SMAP root moisture from the multi-year monthly mean. Sub-zero anomalies trigger thriftier rotation alerts.')}</p>
           </Box>
           <Box>
-            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-amber-200"><Wind size={14} />{T('পানির ব্যালেন্স ও অনুপ্রবেশ (P - ET & Infiltration)', 'Water Balance & Soil Infiltration')}</p>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-amber-200"><Wind size={14} />{T('পানির ব্যালেন্স ও অনুপ্রবেশ', 'Water Balance & Soil Infiltration')}</p>
             <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('বৃষ্টি ও সেচ থেকে বাষ্পীভবন বাদ দিয়ে শিকড়ের পানির সঞ্চয় মাপা হয়। স্যাক্সটন-রলস (২০০৬) নিয়মে জৈব পদার্থ বাড়লে ভারী বৃষ্টির পানি মাটিতে দ্রুত ঢোকে, ক্ষয় কমে।', 'Rain + irrigation minus ET gives root zone water balance. Under Saxton & Rawls (2006), higher organic matter speeds infiltration and stops runoff.')}</p>
           </Box>
           <Box>
-            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-rose-200"><Thermometer size={14} />{T('উপগ্রহ বনাম মাটির পর্যবেক্ষণ (Satellite vs Ground)', 'Satellite vs Ground Truth')}</p>
+            <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-rose-200"><Thermometer size={14} />{T('উপগ্রহ বনাম মাঠের পর্যবেক্ষণ', 'Satellite vs Ground Truth')}</p>
             <p className="mt-1 text-[12.5px] leading-5 text-white/75">{T('উপগ্রহ বিশাল এলাকা প্রতিদিন দেখে কিন্তু পিক্সেলের গড় দেখায়; আবহাওয়া কেন্দ্র ও মাটি পরীক্ষা এক বিন্দুতে নিখুঁত। দুটির মেলবন্ধনই সবচেয়ে বিশ্বস্ত সিদ্ধান্ত দেয়।', 'Satellites provide continuous spatial coverage; ground stations calibrate sensor biases. Combining both yields maximum agronomic accuracy.')}</p>
           </Box>
         </div>
@@ -355,7 +355,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
         {/* Human-in-the-loop Reminder */}
         <p className="mt-3 flex items-start gap-2 rounded-2xl bg-emerald-400/10 p-3 text-[13.5px] leading-6 text-emerald-100 ring-1 ring-emerald-300/20">
           <Users size={16} className="mt-1 shrink-0 text-emerald-300" />
-          {T('সিদ্ধান্ত কৃষকের: এই টুল মহাকাশ তথ্য ও বিজ্ঞানের মাধ্যমে সম্ভাব্য পথ দেখায়, কিন্তু কৃষকের বাস্তব অভিজ্ঞতা এবং উপজেলা কৃষি কর্মকর্তার মাঠ পর্যায়ের পরামর্শের বিকল্প নয়।', 'Farmer in Control: FieldShift synthesizes NASA space data to illuminate possibilities, but never replaces the farmer’s hands-on experience or extension officer’s ground wisdom.')}
+          {T('সিদ্ধান্ত কৃষকের: এই টুল মহাকাশ তথ্য ও বিজ্ঞানের মাধ্যমে সম্ভাব্য পথ দেখায়, কিন্তু কৃষকের বাস্তব অভিজ্ঞতা এবং উপজেলা কৃষি কর্মকর্তার মাঠ পর্যায়ের পরামর্শের বিকল্প নয়।', 'Farmer in Control: FieldShift synthesises NASA space data to illuminate possibilities, but never replaces the farmer’s hands-on experience or extension officer’s ground wisdom.')}
         </p>
       </>)}
     </div>

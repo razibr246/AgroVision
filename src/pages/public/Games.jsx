@@ -2,11 +2,13 @@
 // and by who is playing), then two clear sections: "Play as a farmer" (the 3D people games: the grown-ups' season and
 // the children's dream, with the character gallery) and "Stories and challenges" (decision games on real NASA
 // weather), then the science lab. Names, audiences and times come from data/games.js.
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Swords, Sprout, ArrowRight, BookOpen, Gamepad2, MapPinned, Sparkles, Users, Droplets, Bug, CloudLightning, Coins, Clock, UserRound, Compass, FlaskConical } from 'lucide-react';
 import Photo from '../../components/Photo';
 import { IMAGES } from '../../assets/images';
 import { useStore } from '../../store';
+import { scrollToEl } from '../../components/Motion';
 import BiomechanicsLab from '../../components/game/BiomechanicsLab';
 import usePageMeta from '../../components/usePageMeta';
 import { GAMES, SECTIONS, START_HERE } from '../../data/games';
@@ -28,7 +30,7 @@ function Card({ id, text, n }) {
   const { T, L } = useStore();
   const g = GAMES[id], Icon = ICON[id];
   return (
-    <Link to={g.to} style={{ '--n': n }} className="tool-card tool-deal glass flat group flex flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white/80 shadow-md backdrop-blur-md transition-all duration-300 hover:border-primary-400/60 hover:shadow-2xl">
+    <Link to={g.to} style={{ '--n': n }} className="tool-card tool-deal cv-auto glass flat group flex flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white/80 shadow-md backdrop-blur-md transition-all duration-300 hover:border-primary-400/60 hover:shadow-2xl">
       <div className="relative aspect-[16/9] overflow-hidden">
         <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-smooth)] group-hover:scale-110"><Photo name={PHOTO[id]} fill sizes="(min-width: 768px) 600px, 100vw" decorative /></div>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,26,14,0)_30%,rgba(8,26,14,.8)_100%)]" />
@@ -63,7 +65,15 @@ function SectionHead({ id, icon: Icon, n }) {
 
 export default function Games() {
   const { T, L } = useStore();
-  usePageMeta(T('খেলে শিখুন', 'Learn by playing'), 'Climate-smart farming games built on real NASA data: Harvest Horizon (3D farm), Tara’s Dream Farm (kids, VR/AR), The Ten-Year Inheritance, Seven Fields Challenge and Season Showdown.');
+  const loc = useLocation();
+  useEffect(() => {
+    if (loc.hash) {
+      const id = loc.hash.replace('#', '');
+      const el = document.getElementById(id);
+      if (el) setTimeout(() => scrollToEl(el, 0), 80);
+    }
+  }, [loc.hash]);
+  usePageMeta(T('খেলে শিখুন', 'Learn by playing'), T('নাসার আসল তথ্যে তৈরি জলবায়ু-বুদ্ধিমত্তা কৃষি খেলাসমূহ: ফসলের দিগন্ত (৩ডি খামার), তারা আর স্বপ্নের মাঠ (শিশুদের VR/AR), মাঠের মুখ (৩D-তে ১৫ জন কৃষক), দশ বছরের উত্তরাধিকার, সাত মাঠের চ্যালেঞ্জ এবং মৌসুমের লড়াই।', 'Climate-smart farming games built on real NASA data: Harvest Horizon (3D farm), Tara and the Dream Fields (kids, VR/AR), Faces of the Field (15 farmers in 3D), The Ten-Year Inheritance, Seven Fields Challenge and Season Showdown.'));
   const farm = GAMES.farm;
   return (
     <div className="page-shell pb-24 pt-[110px] sm:pt-[124px]">
@@ -95,7 +105,7 @@ export default function Games() {
             );
           })}
         </div>
-        <p className="mt-3 text-[13px] text-muted">{T('নিচে দুই ভাগে সব খেলা: ১. কৃষক হয়ে ৩D খামারে খেলুন, ২. গল্প আর চ্যালেঞ্জ।', 'All the games are below in two parts: 1. play as a farmer on a 3D farm, 2. stories and challenges.')}</p>
+        <p className="mt-3 text-[13px] text-muted">{T('নিচে দুই ভাগে সব খেলা: ১. কৃষক হয়ে ৩ডি খামারে খেলুন, ২. গল্প আর চ্যালেঞ্জ।', 'All the games are below in two parts: 1. play as a farmer on a 3D farm, 2. stories and challenges.')}</p>
       </section>
 
       {/* Part 1: the people games */}
@@ -117,8 +127,8 @@ export default function Games() {
         </div>
       </section>
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <Card id="kids" n={0} text={T('কৃষক বাবা-মায়ের চিন্তা শুনে ঘুমিয়ে পড়া শিশু স্বপ্নে নাসার উপগ্রহ "তারা"-র সঙ্গে আকাশে ওড়ে: মেঘ ধরে, খালি মাটিতে সবুজ কম্বল দেয়, ঠিক মাপে পানি দেয়, আর দুই দরজা পেরিয়ে দেখে আগে জানলে কী বদলায়। হাসি, কান্না আর সকালের আনন্দ।', 'A child falls asleep hearing the family worry, and in a dream flies with Tara, a NASA satellite: catching clouds, giving bare soil a green blanket, watering just right, and walking through two doors to see what changes when you know in time. Laughter, tears and a happy morning.')} />
-        <Card id="people" n={1} text={T('প্রত্যেক কৃষক নিজের পোশাকে, নিজের সন্তানের পাশে, মঞ্চের আলোয়: কোথায় চাষ করেন, কোন ঝড়ের ভয়। এখান থেকেই বড়দের খেলা বা শিশুর স্বপ্ন শুরু করুন।', 'Each farmer in their own clothes, beside their own child, under stage lights: where they farm and which storm they fear. Start the grown-ups’ game or the child’s dream from here.')} />
+        <Card id="kids" n={0} text={T('আজ রাতে কৃষক পরিবার আবহাওয়া নিয়ে চিন্তায়। ঘুমিয়ে পড়লেই নাসার ছোট্ট উপগ্রহ তারা তোমাকে নিয়ে আকাশে ওড়ে: বৃষ্টির মেঘ ধরো, খালি মাটিতে সবুজ কম্বল দাও, অসুস্থ গাছ খুঁজে বের করো, তাপপ্রবাহে মাঠ ঠান্ডা করো আর ঠিক মাপে পানি দাও। তারপর দুটো দরজা খুলে দেখো, আগাম খবর না পেলে আর পেলে খামারের ভবিষ্যৎ কেমন হয়। ঘুম ভাঙলে হাসিমুখের সকাল।', 'Tonight a farm family is worried about the weather. Fall asleep, and Tara, a little NASA satellite, takes you flying: catch rain clouds, tuck a green blanket over bare soil, find the sick plants, cool a heatwave and pour just enough water. Then open two doors and see the farm’s future without an early warning, and with one. Wake up to a happy morning.')} />
+        <Card id="people" n={1} text={T('নয় দেশের পনেরো জন কৃষক, পাশে নিজের সন্তান, মঞ্চের আলোয়: বাংলাদেশ থেকে ভুটান, পাঞ্জাব থেকে ব্রাজিল। প্রত্যেকের নিজের পোশাক, নিজের ফসল, আর যে ঝড়, বন্যা বা তাপপ্রবাহকে তিনি সবচেয়ে ভয় পান। একজনকে বেছে নিয়ে তাঁর মৌসুমে নামুন, বা তাঁর সন্তানের স্বপ্নে।', 'Fifteen farmers from nine countries stand beside their children under the stage lights, from Bangladesh to Bhutan and Punjab to Brazil. Each in their own clothes, with their own crop and the storm, flood or heatwave they fear most. Pick one and step into their season, or into their child’s dream.')} />
       </div>
 
       {/* Part 2: stories and challenges */}
@@ -140,7 +150,7 @@ export default function Games() {
 
       {/* The science lab, for the curious */}
       <div className="mt-14 flex items-center gap-2 text-[22px] font-semibold"><FlaskConical size={22} className="text-primary-700" />{T('বিজ্ঞানের খেলাঘর: মাটি আর শরীরের ভৌতবিদ্যা', 'Science lab: soil and body physics')}</div>
-      <div id="biomechanics">
+      <div id="biomechanics" className="scroll-mt-28">
         <BiomechanicsLab />
       </div>
 

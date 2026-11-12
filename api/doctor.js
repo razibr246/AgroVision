@@ -11,6 +11,7 @@ import { rateLimitResponse } from './rateLimit.js';
 // The result is a first look, not a diagnosis: the prompt keeps it to likely causes with the evidence seen, what to do
 // now without chemicals, and when to involve the agriculture officer; chemical advice only as DAE/BARI recommend it.
 import Anthropic from '@anthropic-ai/sdk';
+import { poolCall, geminiKeys } from './_keypool.js';
 
 export const MODEL = 'claude-opus-5-5';
 export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
@@ -75,28 +76,40 @@ Finish by calling the report_crop_check tool exactly once with your answer.`;
 
 // Gemini: one request with Google Search grounding; the answer is the report as JSON in the report tool's schema.
 // A key whose plan has no search quota (free keys) is refused with 429: the request then runs once more without search.
-async function geminiReport({ image, crop, lang, context, known }) {
-  const ask = (search) => fetch(`${GEMINI_API}/${GEMINI_MODEL}:generateContent`, {
-    method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+async function geminiReport(args) {
+  let last = { status: 502, error: 'AI service unreachable' };
+  // Each model tries the keys in turn (api/_keypool.js); 3.5 Flash-Lite, which also reads photos, answers if the first is out.
+  for (const model of [...new Set([GEMINI_MODEL, 'gemini-3.5-flash-lite'])]) {
+    const r = await poolCall(`doctor:${model}`, (key, index, signal) => doctorOnce({ ...args, key, signal, model }), { timeoutMs: 120_000 });
+    if (r.ok) return r.value;
+    last = r.status === 429 ? { status: 429, error: 'busy, try again in a minute' } : r.status === 400 ? { status: 400, error: 'request rejected' } : { status: 502, error: `AI service error ${r.status}` };
+    if (r.status === 400) break;
+  }
+  return last;
+}
+
+async function doctorOnce({ image, crop, lang, context, known, key, signal, model: name }) {
+  const ask = (search) => fetch(`${GEMINI_API}/${name}:generateContent`, {
+    method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt().replace('Use web search only when it helps', 'Use Google Search only when it helps').replace('Finish by calling the report_crop_check tool exactly once with your answer.', 'Answer only with the JSON report.') }] },
       contents: [{ role: 'user', parts: [{ inlineData: { mimeType: 'image/jpeg', data: image } }, { text: userText({ crop, lang, context, known }) }] }],
       ...(search ? { tools: [{ googleSearch: {} }] } : {}),
       generationConfig: { responseMimeType: 'application/json', responseJsonSchema: REPORT_TOOL.input_schema, temperature: 0.3 },
     }),
-    signal: AbortSignal.timeout(search ? 140_000 : 280_000),
+    signal,
   });
   let r = await ask(true);
   if (r.status === 429) r = await ask(false);
   const js = await r.json().catch(() => ({}));
-  if (!r.ok) return { status: r.status === 429 ? 429 : r.status === 400 ? 400 : r.status === 401 || r.status === 403 ? 503 : 502, error: r.status === 429 ? 'busy, try again in a minute' : r.status === 401 || r.status === 403 ? 'doctor not configured' : `AI service error ${r.status}` };
+  if (!r.ok) return { status: r.status, body: JSON.stringify(js) };
   const cand = js.candidates?.[0];
-  if (!cand || cand.finishReason === 'SAFETY' || js.promptFeedback?.blockReason) return { status: 422, error: 'declined', category: js.promptFeedback?.blockReason ?? cand?.finishReason ?? null };
+  if (!cand || cand.finishReason === 'SAFETY' || js.promptFeedback?.blockReason) return { status: 200, value: { status: 422, error: 'declined', category: js.promptFeedback?.blockReason ?? cand?.finishReason ?? null } };
   const text = (cand.content?.parts ?? []).filter((p) => p.text && !p.thought).map((p) => p.text).join('');
   let report;
-  try { report = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, '')); } catch { return { status: 502, error: 'no report' }; }
+  try { report = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, '')); } catch { return { status: 502, body: 'no report' }; }
   const sources = (cand.groundingMetadata?.groundingChunks ?? []).map((c) => c.web).filter((w) => w?.uri).slice(0, 6).map((w) => ({ url: w.uri, title: w.title || w.uri }));
-  return { report, sources, model: js.modelVersion || GEMINI_MODEL };
+  return { status: 200, value: { report, sources, model: js.modelVersion || name } };
 }
 
 function userText({ crop, lang, context = {}, known = [] }) {
@@ -118,7 +131,7 @@ function userText({ crop, lang, context = {}, known = [] }) {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'method not allowed' }); }
-  const gemini = !!process.env.GEMINI_API_KEY;
+  const gemini = geminiKeys().length > 0;
   if (!gemini && !process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) return res.status(503).json({ error: 'doctor not configured' });
   const parsed = parseBody(req.body);
   if (!parsed.ok) return res.status(400).json({ error: 'bad json' });

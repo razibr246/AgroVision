@@ -23,6 +23,16 @@ import { supplyCurve, normalWeekly, PRICE_DIP, slotLoad, slotOf, weekOf, weekSta
 import MARKET from '../../../data/market/market_dhaka.json';
 
 export const shiftLabel = (shift, T) => (shift === 0 ? T('স্বাভাবিক সময়ে', 'at the usual time') : shift < 0 ? T('দুই সপ্তাহ আগে', 'two weeks earlier') : T('দুই সপ্তাহ পরে', 'two weeks later'));
+const FERT_EN = {
+  'ইউরিয়া': 'Urea', 'ইউরিয়া': 'Urea', 'টিএসপি': 'TSP', 'ডিএপি': 'DAP',
+  'এমওপি': 'MoP', 'জিপসাম': 'Gypsum', 'জিংক সালফেট': 'Zinc sulphate',
+  'বরিক এসিড': 'Boric acid', 'বোরিক এসিড': 'Boric acid',
+  'গোবর/কম্পোস্ট': 'Cow dung / compost', 'গোবর/কম্পোষ্ট': 'Cow dung / compost', 'চুন': 'Lime',
+};
+const fertName = (raw, lang) => {
+  const b = String(raw || '').replace(/\s*\(.*\)/, '').trim();
+  return lang === 'en' ? (FERT_EN[b] || FERT_EN[b.normalize('NFC')] || b) : b;
+};
 const WATER_DROPS = { High: 3, Medium: 2, 'Low-Medium': 1.5, Low: 1 };
 const WATER_WORD = { High: { bn: 'বেশি', en: 'High' }, Medium: { bn: 'মাঝারি', en: 'Medium' }, 'Low-Medium': { bn: 'কম-মাঝারি', en: 'Low to medium' }, Low: { bn: 'কম', en: 'Low' } };
 function WaterNeed({ level }) {
@@ -62,7 +72,7 @@ export function optionWhy(o, d, ctx) {
         ...(o.money ? [T(`বিঘায় লাভ প্রায় ৳${num(o.money.net, 'bn')}: ফলন ${num(o.money.kg, 'bn')} কেজি (FAOSTAT, দেশের গড়) × (দাম ৳${num(o.money.priceKg, 'bn', { dp: 2 })} − সব খরচ ৳${num(o.money.costKg, 'bn', { dp: 2 })} প্রতি কেজি)। দাম: ${o.money.price.what.bn}${o.money.price.year ? `, ${bnDigits(o.money.price.year)}` : ''}; খরচ: ${o.money.costSrc.what.bn}।`, `Profit about ৳${num(o.money.net, 'en')} a bigha: yield ${o.money.kg} kg (FAOSTAT, national average) × (price ৳${o.money.priceKg} − full cost ৳${o.money.costKg} a kg). Price: ${o.money.price.what.en}${o.money.price.year ? `, ${o.money.price.year}` : ''}; cost: ${o.money.costSrc.what.en}.`)] : []),
         T(`ইউনিয়নে দাম পড়ার ঝুঁকি: ${RISK_STYLE[o.glut.level].bn}।`, `Price-drop risk in your union: ${o.glut.level.toLowerCase()}.`),
         T(`ফসল তোলা আনুমানিক ${fmtRange(o.hw.start, o.hw.end, 'bn')}।`, `Harvest roughly ${fmtRange(o.hw.start, o.hw.end, 'en')}.`)] },
-      { h: T('মনে রাখবেন', 'Keep in mind'), lines: [T('এটা সিদ্ধান্ত নিতে সাহায্যের হিসাব, কোনো নিশ্চয়তা নয়। ফসলের সীমাগুলো কৃষিবিদ দিয়ে যাচাই করে নিতে হবে।', 'This helps you decide; it is not a guarantee. The crop thresholds still need an agronomist to check them.')] },
+      { h: T('মনে রাখবেন', 'Keep in mind'), lines: [T('এটা সিদ্ধান্তে সাহায্যের হিসাব, কোনো নিশ্চয়তা নয়। কৃষিবিদ অনুমোদনের কথা জানানো হয়েছে, কিন্তু কোন নিয়ম যাচাই হয়েছে তা নথিভুক্ত নেই; স্থানীয় পরামর্শ মিলিয়ে নিন।', 'This helps you decide; it is not a guarantee. Agronomist approval is reported, but the rules checked are not documented; confirm locally before acting.')] },
     ],
     sources: [climateSource(lang), soilSource(lang), ...(o.money ? [T(`দাম: ${o.money.price.what.bn} (${bnDigits(o.money.price.year)}); খরচ: ${o.money.costSrc.what.bn} (${bnDigits(o.money.costSrc.year)}); ফলন: FAOSTAT ${bnDigits(o.money.faoYear)}, দেশের গড়`, `Price: ${o.money.price.what.en} (${o.money.price.year}); cost: ${o.money.costSrc.what.en} (${o.money.costSrc.year}); yield: FAOSTAT ${o.money.faoYear}, national average`)] : []),
       T('পাশের কৃষকদের পরিকল্পনা (দাম পড়ার ঝুঁকি): নমুনা তথ্য', 'Neighbours’ plans (price-drop risk): sample data')],
@@ -122,7 +132,7 @@ function FieldBasis({ rec }) {
       sub: T(`ফসলে ${num(rec.water.mm, 'bn')} মিমি লাগে; আসবে ${L(IRRIGATION[farmer.irrigation])} থেকে`, `The crop needs ${rec.water.mm} mm; from your ${L(IRRIGATION[farmer.irrigation]).toLowerCase()}`),
       src: T('এই এলাকার আবহাওয়া আর FAO-র ফসল-সহগ দিয়ে হিসাব', 'Worked out from local weather and FAO crop coefficients') },
     fert.length > 0 && { icon: FlaskConical, k: T('সার, আপনার জমির মাপে', 'Fertiliser for your field'), tag: 'RECORD',
-      v: fert.map((i) => `${i.fertilizer.replace(/\s*\(.*\)/, '')} ${num(i.kg, lang)} ${T('কেজি', 'kg')}`).join(', '),
+      v: fert.map((i) => `${fertName(i.fertilizer, lang)} ${num(i.kg, lang)} ${T('কেজি', 'kg')}`).join(', '),
       sub: fp.cost ? T(`সরকারি দামে প্রায় ৳${num(fp.cost, 'bn')}`, `About ৳${num(fp.cost, 'en')} at the official price`) : null,
       src: T(`মৃত্তিকা সম্পদ উন্নয়ন ইনস্টিটিউট (SRDI), ${L(union.meta)} ইউনিয়নের মাটি পরীক্ষা থেকে`, `SRDI, from ${L(union.meta)} union’s soil tests`) },
     m && { icon: Coins, k: T('দাম, খরচ, ফলন', 'Price, cost, yield'), tag: 'RECORD',
@@ -232,7 +242,7 @@ export function StepDecision() {
           const isChosen = o.crop.id === chosen.crop.id && o.shift === chosen.shift;
           const isCur = o.crop.id === farmer.last_crop;
           return (
-            <Card key={o.crop.id} className={`spotlight-card lift p-4 transition-all duration-300 hover:-translate-y-0.5 ${isChosen ? 'ring-2 ring-primary-600 shadow-md' : 'hover:border-primary-300'}`}>
+            <Card key={o.crop.id} className={`spotlight-card lift cv-auto p-4 transition-all duration-300 hover:-translate-y-0.5 ${isChosen ? 'ring-2 ring-primary-600 shadow-md' : 'hover:border-primary-300'}`}>
               <div className="flex items-start gap-3">
                 <ScoreRing value={o.score} size={50} color={isRec ? '#2f6e2f' : '#8a9a8f'} />
                 <div className="min-w-0 flex-1">
@@ -298,7 +308,7 @@ function rotationWhy(o, r, ctx) {
       { h: T('পানি', 'Water'), lines: [o.water
         ? T(`FAO-56 পদ্ধতিতে (ফসল-সহগ × হারগ্রিভস ET₀, কাজে লাগা বৃষ্টি বাদ) ${bnDigits(o.water.seasons)} মৌসুমের মধ্যমা: পুরো ফলনে প্রায় ${num(o.water.mm, 'bn')} মিমি।`, `FAO-56 (crop coefficient × Hargreaves ET₀, less usable rain), median of ${o.water.seasons} seasons: about ${o.water.mm} mm for a full yield.`)
         : T('FAO-56-এ এই ফসলের সহগ নেই, তাই মিলিমিটারে মাপা হয়নি; শুধু ফসলের পানির শ্রেণি ধরা হয়েছে।', 'FAO-56 has no coefficients for this crop, so only its water class is used.')] },
-      { h: T('মনে রাখবেন', 'Keep in mind'), lines: [T('বোনার সময় আর ঝুঁকির সীমাগুলো বারি, বিজেআরআই আর ব্রির প্রকাশিত সুপারিশ থেকে শুরুর মান; কৃষিবিদ দিয়ে যাচাই করে নিতে হবে। এই ফসলগুলোর দাম ও ফলনের তথ্য এখনো যোগ হয়নি, তাই লাভ হিসাবে ধরা হয়নি।', 'Sowing windows and risk thresholds are starting values from BARI, BJRI and BRRI guidance and need an agronomist to check them. Prices and yields for these crops are not loaded yet, so profit is not counted.')] },
+      { h: T('মনে রাখবেন', 'Keep in mind'), lines: [T('বোনার সময় আর ঝুঁকির সীমাগুলো বারি, বিজেআরআই আর ব্রির প্রকাশিত সুপারিশ থেকে শুরুর মান; স্থানীয় পর্যালোচনার পরিধি নথিভুক্ত নেই। এই ফসলগুলোর দাম ও ফলনের তথ্য এখনো যোগ হয়নি, তাই লাভ হিসাবে ধরা হয়নি।', 'Sowing windows and risk thresholds are starting values from BARI, BJRI and BRRI guidance; the scope of local review is not documented. Prices and yields for these crops are not loaded yet, so profit is not counted.')] },
     ],
     sources: [climateSource(lang), soilSource(lang),
       T('আমন রোপণের দিন: কোপার্নিকাস সেন্টিনেল-১ রাডার (VH), প্রতি উপজেলায় ৩৬টি ফসলি জমি, ২০১৭–২০২৫', 'Aman transplanting day: Copernicus Sentinel-1 radar (VH), 36 cropland points per upazila, 2017–2025'),
@@ -350,7 +360,7 @@ export function StepRotation() {
         <div className="mb-2 text-[14px] font-semibold">{T('বাংলা মাসে পুরো বছরের পরিকল্পনা', 'The year, by Bangla month')}</div>
         <SeasonRibbon compact />
       </Card>
-      <Card className="mt-4 overflow-hidden">
+      <Card className="cv-auto mt-4 overflow-hidden">
         <div className="grid sm:grid-cols-[1fr_1.6fr]">
           <div className="relative min-h-[220px]"><CropPhoto crop={b ? b.crop : { id: 'aman', name: { bn: 'রোপা আমন', en: 'T. Aman rice' } }} sizes="300px" /></div>
           <div className="p-5">
@@ -387,7 +397,7 @@ export function StepRotation() {
       {r.alternatives.length > 0 && (
         <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
           {r.alternatives.map((a) => (
-            <Card key={a.crop.id} className="flex items-start gap-3 p-4">
+            <Card key={a.crop.id} className="cv-auto surface-card lift flex items-start gap-3 p-4 transition-all duration-200 hover:shadow-md">
               <ScoreRing value={a.score} size={40} color="#8a9a8f" />
               <div className="min-w-0 flex-1">
                 <div className="font-semibold">{T('অথবা', 'Or')} {L(a.crop.name)}</div>
@@ -406,14 +416,14 @@ export function StepRotation() {
         </div>
       )}
       {rows && (
-        <Card className="mt-4 p-4 sm:p-5">
+        <Card className="cv-auto mt-4 p-4 sm:p-5">
           <h3 className="text-[16px] font-bold text-ink">{T('এই হিসাব যে তথ্যে', 'What this is worked out from')}</h3>
           <p className="text-[13.5px] leading-6 text-muted">{T('প্রতিটি সংখ্যার উৎস আর সীমা দেওয়া আছে।', 'Every number with its source and its limits.')}</p>
           <BasisGrid rows={rows} />
         </Card>
       )}
       <Note tone="gold" className="mt-4">{L(r.nextRabiCaution)}</Note>
-      <Card className="mt-4 flex flex-col gap-3 bg-gradient-to-br from-primary-50 to-sky-50 p-4 sm:flex-row sm:items-center">
+      <Card className="cv-auto surface-card lift mt-4 flex flex-col gap-3 bg-gradient-to-br from-primary-50 to-sky-50 p-4 transition-all duration-200 hover:shadow-md sm:flex-row sm:items-center">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary-700 text-white"><Telescope size={21} /></span>
         <div className="min-w-0 flex-1">
           <div className="text-[16px] font-bold">{T('এভাবে ১০ বছর চললে জমির কী হবে?', 'What happens to the field after ten years of this?')}</div>
@@ -565,7 +575,7 @@ export function StepGlut() {
       <StepHeader kicker={T('ধাপ ৭, দাম পড়ার ঝুঁকি', 'Step 7, price-drop check')} title={T('সবাই একই ফসল করলে দাম পড়ে যায়', 'When everyone grows the same crop, prices fall')}
         sub={T(`${union.meta.full.bnIn} যত জমির পরিকল্পনা হয়েছে, তার ${num(g.share * 100, 'bn')}%-এ ${crop.name.bn}। আপনার ফসল উঠবে ${fmtRange(chosen.hw.start, chosen.hw.end, 'bn')}।`, `${num(g.share * 100, 'en')}% of the planned land in ${union.meta.en} is ${crop.name.en.toLowerCase()}. Your harvest: ${fmtRange(chosen.hw.start, chosen.hw.end, 'en')}.`)} tags={['REAL', 'RULE', 'DEMO']} />
       <BoardStatus nReal={nReal} nSample={samplePlans.length} />
-      <Card className="p-4">
+      <Card className="cv-auto p-4">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div className="text-[15px] font-semibold">{T(`${crop.name.bn}: ইউনিয়নে কোন সপ্তাহে কত টন উঠবে`, `${crop.name.en}: tonnes ready each week in the union`)}</div>
           <span className={`chip !text-[13px] ${RISK_STYLE[g.level].cls}`}>{T('আপনার ঝুঁকি', 'Your risk')}: {L(RISK_STYLE[g.level])}</span>

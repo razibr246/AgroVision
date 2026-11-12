@@ -9,6 +9,7 @@ import {
   Compass, Dumbbell, Heart, Flame, ShieldCheck, ChevronRight, Activity, Camera
 } from 'lucide-react';
 import { useStore } from '../../store';
+import { LangToggle } from '../../components/chrome';
 import { REGIONS } from '../../game/regions';
 import { CHILDREN, CHILD_IDS } from '../../game/dream';
 import { bnDigits, num } from '../../engine/dates';
@@ -30,7 +31,7 @@ const ACTIONS = [
 
 export default function People() {
   const { T, L, s } = useStore();
-  usePageMeta(L(GAMES.people.name), GAMES.people.seo.en);
+  usePageMeta(L(GAMES.people.name), T('কৃষকদের সাথে পরিচয়: বাংলাদেশ, প্রতিবেশী পাঁচ দেশ, যুক্তরাষ্ট্র, ব্রাজিল ও স্পেনের ১৫ জন ৩ডি কৃষক ও তাঁদের সন্তান, এবং তাঁদের প্রত্যেকের আবহাওয়া-ভীতি।', GAMES.people.seo.en));
   const host = useRef(null), stage = useRef(null);
   const [i, setI] = useState(0);
   const [ready, setReady] = useState(false);
@@ -107,7 +108,7 @@ export default function People() {
   // Physiological stress computations for current action & farmer profile
   const curAct = ACTIONS.find((a) => a.id === activeAction) ?? ACTIONS[0];
   const ageFactor = f.age > 45 ? 1 + (f.age - 45) * 0.009 : 1;
-  const isFemale = ['rahima', 'rampyari', 'kinley'].includes(id);
+  const isFemale = ['rahima', 'rampyari', 'kinley', 'ellen', 'lucia'].includes(id);
   const displayL4L5 = Math.round(curAct.l4l5 * ageFactor);
   const displayBpm = Math.min(180, Math.round(curAct.bpm * (f.age > 50 ? 1.08 : 1.0)));
   const displayKcal = Math.round(curAct.kcal * (isFemale ? 0.92 : 1.0));
@@ -132,7 +133,7 @@ export default function People() {
       {/* HUD UI Layer */}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between overflow-y-auto overscroll-contain">
         {/* Top Header Bar */}
-        <div className="pointer-events-auto flex items-center justify-between p-3 sm:p-5">
+        <div className="pointer-events-auto flex flex-wrap items-center justify-between gap-2 p-3 sm:p-5">
           <div className="flex items-center gap-2">
             <Link to="/games" className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur hover:bg-white/25 active:scale-95 transition" aria-label={T('খেলাগুলোয় ফিরুন', 'Back to the games')}>
               <ArrowLeft size={20} />
@@ -142,8 +143,10 @@ export default function People() {
             </span>
           </div>
 
-          {/* Quick Turntable Spin & Camera Controls */}
-          <div className="flex items-center gap-1.5 rounded-full bg-black/40 p-1 backdrop-blur-md ring-1 ring-white/20">
+          <div className="flex flex-wrap items-center gap-2">
+            <LangToggle dark />
+            {/* Quick Turntable Spin & Camera Controls */}
+            <div className="flex items-center gap-1.5 rounded-full bg-black/40 p-1 backdrop-blur-md ring-1 ring-white/20">
             <button
               type="button"
               onClick={() => rotateBy(-1)}
@@ -190,6 +193,7 @@ export default function People() {
                 <span>{m.label}</span>
               </button>
             ))}
+            </div>
           </div>
         </div>
 
@@ -382,7 +386,7 @@ export default function People() {
                   aria-current={k === i ? 'true' : undefined}
                   className={`min-h-11 rounded-full px-3.5 py-2 text-[13px] font-semibold backdrop-blur transition active:scale-95 ${k === i ? 'bg-white text-[#1b2620] shadow-md ring-2 ring-primary-500' : 'bg-white/12 text-white/80 hover:bg-white/25'}`}
                 >
-                  {REGIONS[x].flag ?? '🇧🇩'} {REGIONS[x].farmer.bn}
+                  {REGIONS[x].flag ?? '🇧🇩'} {L(REGIONS[x].farmer)}
                 </button>
               </li>
             ))}

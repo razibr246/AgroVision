@@ -64,13 +64,13 @@ function UpazilaNowPage() {
             <>
               <p className="mt-3 text-[15px] leading-7">{T(`সেন্টিনেল-১ রাডারে রোপণ ধরা পড়েছে ${day(se.transplantDoy)} নাগাদ`, `Sentinel-1 radar saw transplanting around ${day(se.transplantDoy)}`)}{' '}<Badge tone={cat.tone}>{L(cat)}</Badge></p>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-primary-50 p-3"><div className="text-[12px] text-muted">{T('রোপণের পর', 'Since transplanting')}</div><div className="text-[20px] font-bold tabular">{T(`${num(sinceTransplant, 'bn')} দিন`, `${sinceTransplant} days`)}</div></div>
+                <div className="rounded-xl bg-primary-50 p-3"><div className="text-[12px] text-muted">{T('রোপণের পর', 'Since transplanting')}</div><div className="text-[20px] font-bold tabular">{T(`${num(sinceTransplant, 'bn')} দিন`, `${num(sinceTransplant, 'en')} days`)}</div></div>
                 <div className="rounded-xl bg-paddy-50 p-3"><div className="text-[12px] text-muted">{T('সম্ভাব্য কাটা', 'Likely harvest')}</div><div className="text-[15px] font-bold leading-6 tabular">{day(se.transplantDoy + HARVEST_AFTER[0])} – {day(se.transplantDoy + HARVEST_AFTER[1])}</div></div>
               </div>
               <p className="mt-2 text-[12.5px] leading-5 text-muted">{T(`কাটার সময় সাধারণ হিসাব: আধুনিক উচ্চফলনশীল আমন জাত রোপণের প্রায় ${num(HARVEST_AFTER[0], 'bn')}–${num(HARVEST_AFTER[1], 'bn')} দিন পরে কাটা হয়; জাতভেদে বদলায়।`, `Harvest timing is a rule of thumb: modern high-yielding Aman is usually cut ${HARVEST_AFTER[0]}–${HARVEST_AFTER[1]} days after transplanting, depending on the variety.`)}</p>
             </>
           ) : <p className="mt-3 text-[15px] leading-7 text-muted">{T('এ মৌসুমে যথেষ্ট নমুনা জমিতে রোপণের সংকেত মেলেনি।', 'Too few sample fields showed transplanting this season.')}</p>}
-          <Link to="/officer/radar" className="mt-3 inline-flex items-center gap-1 text-[13.5px] font-semibold text-primary-700">{T('রোপণ রাডারের পুরো হিসাব', 'Full Ropan Radar view')}<ChevronRight size={14} /></Link>
+          <Link to="/officer/radar" className="mt-3 inline-flex items-center gap-1 text-[13.5px] font-semibold text-primary-700">{T('রোপণ রাডারের পুরো হিসাব', 'Full Ropon Radar view')}<ChevronRight size={14} /></Link>
           <Src>{T(`উপগ্রহ: সেন্টিনেল-১, ${fmtDate(Date.parse(AMAN.provenance.through), 'bn')} পর্যন্ত; স্বাভাবিক ${day(row.transplantNormal, 2025)} (২০১৭–২০২৫), ±${num(SHIFT_DAYS, 'bn')} দিন`, `Satellite: Sentinel-1 to ${fmtDate(Date.parse(AMAN.provenance.through), 'en')}; usual ${day(row.transplantNormal, 2025)} (2017–2025), ±${SHIFT_DAYS} days`)}</Src>
         </Card>
 
@@ -87,7 +87,7 @@ function UpazilaNowPage() {
                 ))}
               </div>
               {facts.season.source.quote && (
-                <blockquote className="mt-3 flex gap-2 rounded-xl bg-black/[.03] p-3 text-[13.5px] leading-6"><Quote size={15} className="mt-1 shrink-0 text-primary-600" /><span>“{facts.season.source.quote.bn}” <span className="text-muted">— {facts.season.source.quote.by}</span></span></blockquote>
+                <blockquote className="mt-3 flex gap-2 rounded-xl bg-black/[.03] p-3 text-[13.5px] leading-6"><Quote size={15} className="mt-1 shrink-0 text-primary-600" /><span>“{L(facts.season.source.quote)}” <span className="text-muted">— {L(facts.season.source.quote.by)}</span></span></blockquote>
               )}
               <Src url={facts.season.source.url}>{L(facts.season.source)}</Src>
             </>

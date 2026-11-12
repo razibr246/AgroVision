@@ -32,7 +32,7 @@ export default function RadarBrief({ view, row, year, mine, district }) {
   const to = upazilaFarmers.map((f) => f.id);
   const send = () => {
     dispatch({ type: 'addAdvisory', adv: { id: advId, upazila: view, text: L(msg), to, at: todayDhaka() } });
-    toast(`${num(to.length, 'bn')} জন কৃষককে পাঠানো হয়েছে`, `Sent to ${to.length} farmers`);
+    toast(`${num(to.length, 'bn')} জনের জন্য বার্তা ডেমোতে রাখা হয়েছে; পৌঁছায়নি`, `Message saved in demo for ${to.length} farmers; not delivered`);
   };
 
   const tiles = [
@@ -121,10 +121,11 @@ export default function RadarBrief({ view, row, year, mine, district }) {
           <p className="mt-1.5 text-[14.5px] leading-6">{L(msg)}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {mine ? (
-              sent ? <Badge tone="green"><CheckCircle2 size={13} />{T(`${num(sent.to.length, 'bn')} জন কৃষককে পাঠানো হয়েছে`, `Sent to ${sent.to.length} farmers`)}</Badge>
-                : <Button onClick={send} disabled={!to.length}><Send size={16} />{T(`উপজেলার ${num(to.length, 'bn')} জন কৃষককে পাঠান`, `Send to the upazila's ${to.length} farmers`)}</Button>
+              sent ? <Badge tone="green"><CheckCircle2 size={13} />{T('ডেমোতে রাখা হয়েছে', 'Saved in demo')}</Badge>
+                : <Button onClick={send} disabled={!to.length}><Send size={16} />{T('ডেমোতে বার্তা রাখুন', 'Save demo message')}</Button>
             ) : <span className="text-[13px] text-muted">{T('শুধু নিজের উপজেলার কৃষকদের বার্তা পাঠানো যায়।', 'Messages go only to your own upazila’s farmers.')}</span>}
           </div>
+          <p className="mt-2 text-[12.5px] leading-5 text-amber-800">{T('ডেমো: বার্তাটি এই ব্রাউজারে থাকে; কৃষকের কাছে পৌঁছায় না।', 'Demo only: this message stays in this browser and is not delivered to farmers.')}</p>
         </div>
       )}
     </Card>

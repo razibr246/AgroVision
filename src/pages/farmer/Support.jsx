@@ -29,7 +29,7 @@ function Programme({ m, onAsk }) {
   const st = FIT_STYLE[fit];
   const I = st.icon;
   return (
-    <article id={`sp-${p.id}`} className={`rounded-[20px] bg-white p-4 ring-1 ${st.ring} break-inside-avoid sm:p-5`}>
+    <article id={`sp-${p.id}`} className={`support-card cv-auto rounded-[20px] bg-white p-4 ring-1 ${st.ring} break-inside-avoid sm:p-5`}>
       <div className="flex flex-wrap items-center gap-1.5 text-[12px] font-semibold">
         <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 ${st.chip}`}><I size={13} aria-hidden="true" />{L(FIT[fit])}</span>
         <span className="rounded-full bg-canvas px-2.5 py-1 text-ink/75">{L(KINDS[p.kind])}</span>

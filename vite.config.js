@@ -86,8 +86,9 @@ const devAbroadApi = () => ({
     const boards = new Map(); // country -> { requests, notices }
     server.middlewares.use('/api/abroad', async (req, res) => {
       const { applyOp, listBoard, validCountry } = await import('./api/abroad.js');
+      const { seedAbroadBoard } = await import('./src/data/abroad_requests.js');
       const send = (code, body) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json'); res.setHeader('Cache-Control', 'no-store'); res.end(JSON.stringify(body)); };
-      const boardOf = (cc) => { if (!boards.has(cc)) boards.set(cc, { requests: {}, notices: {} }); return boards.get(cc); };
+      const boardOf = (cc) => { if (!boards.has(cc)) boards.set(cc, seedAbroadBoard(cc)); return boards.get(cc); };
       if (req.method === 'GET') {
         const cc = new URL(req.url, 'http://x').searchParams.get('cc') || '';
         return validCountry(cc) ? send(200, listBoard(boardOf(cc))) : send(400, { error: 'bad country' });
@@ -144,8 +145,28 @@ const slimClimate = () => ({
 
 // npm run build        -> static site in dist/ (hash routing, works on any static host)
 // npm run build:single -> inline app JS/CSS in one HTML; public assets and the MapLibre worker remain alongside it
+const manualChunks = (id) => {
+  if (!id.includes('node_modules')) return undefined;
+  const norm = id.replace(/\\/g, '/');
+  if (norm.includes('/node_modules/three/')) return 'vendor-three';
+  if (norm.includes('/node_modules/maplibre-gl/')) return 'vendor-maplibre';
+  if (norm.includes('/node_modules/leaflet/') || norm.includes('/node_modules/react-leaflet/') || norm.includes('/node_modules/@react-leaflet/') || norm.includes('/node_modules/@maplibre/')) return 'vendor-leaflet';
+  if (norm.includes('/node_modules/recharts/') || norm.includes('/node_modules/victory-vendor/') || norm.includes('/node_modules/d3-') || norm.includes('/node_modules/react-smooth/')) return 'vendor-charts';
+  if (norm.includes('/node_modules/lucide-react/')) return 'vendor-icons';
+  if (norm.includes('/node_modules/@auth0/')) return 'vendor-auth';
+  if (norm.includes('/node_modules/react/') || norm.includes('/node_modules/react-dom/') || norm.includes('/node_modules/react-router') || norm.includes('/node_modules/scheduler/') || norm.includes('/node_modules/use-sync-external-store/')) return 'vendor-react';
+  return undefined;
+};
+
 export default defineConfig(({ mode }) => ({
   plugins: [slimClimate(), react(), tailwindcss(), brandHtml(), dropGitHistory(), devPlansApi(), devMessagesApi(), devAbroadApi(), devDoctorApi(loadEnv(mode, process.cwd(), '')), ...(mode === 'single' ? [viteSingleFile()] : [])],
   base: './',
-  build: mode === 'single' ? { outDir: 'dist-single', chunkSizeWarningLimit: 6000 } : { chunkSizeWarningLimit: 1500 },
+  build: mode === 'single'
+    ? { outDir: 'dist-single', chunkSizeWarningLimit: 6000 }
+    : {
+        chunkSizeWarningLimit: 1500,
+        rollupOptions: {
+          output: { manualChunks },
+        },
+      },
 }));

@@ -19,6 +19,25 @@ import SpokenTodayBrief from '../../components/voice/SpokenTodayBrief';
 import { num, fmtDate, fmtBangla, bnDigits, iso, parseISO, daysBetween } from '../../engine/dates';
 
 const WEEKDAY = { bn: ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহস্পতি', 'শুক্র', 'শনি'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] };
+const FERT_EN = {
+  'ইউরিয়া': 'Urea', 'ইউরিয়া': 'Urea', 'টিএসপি': 'TSP', 'ডিএপি': 'DAP',
+  'এমওপি': 'MoP', 'জিপসাম': 'Gypsum', 'জিংক সালফেট': 'Zinc sulphate',
+  'বরিক এসিড': 'Boric acid', 'বোরিক এসিড': 'Boric acid',
+  'গোবর/কম্পোস্ট': 'Cow dung / compost', 'গোবর/কম্পোষ্ট': 'Cow dung / compost', 'চুন': 'Lime',
+};
+const PHYS_EN = {
+  'পলি মাটি': 'Alluvial soil',
+  'খিয়ার মাটি': 'Barind clay (Khiyar)', 'খিয়ার মাটি': 'Barind clay (Khiyar)',
+  'পাহাড়ী মাটি': 'Hill soil', 'পাহাড়ী মাটি': 'Hill soil',
+};
+const fertEn = (raw) => {
+  const b = String(raw || '').replace(/\s*\(.*\)/, '').trim();
+  return FERT_EN[b] || FERT_EN[b.normalize('NFC')] || b;
+};
+const physEn = (raw) => {
+  const v = String(raw || '').trim();
+  return PHYS_EN[v] || PHYS_EN[v.normalize('NFC')] || v;
+};
 
 // What the next week holds, from the forecast at the field.
 function forecastAlerts(wx, crop, dToday) {
@@ -69,7 +88,7 @@ function FieldNow({ parcel, crop, dToday }) {
   const cropStanding = r?.last && r.last.ndvi >= 0.5;
   const [view, setView] = useState('photo');
   return (
-    <Card className="overflow-hidden">
+    <Card className="cv-auto overflow-hidden">
       <div className="farmer-today-page">
         <div className="p-4 pb-0">
           <Segmented value={view} onChange={setView} className="mb-3 grid w-full grid-cols-3 whitespace-nowrap"
@@ -196,6 +215,24 @@ export default function Today() {
         }
       />
 
+      {s.farmerMode === 'simple' && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-emerald-400/50 bg-emerald-50/80 p-3.5 text-emerald-950 shadow-xs">
+          <div className="flex items-center gap-2">
+            <Sparkles size={18} className="text-emerald-700 shrink-0 animate-pulse" />
+            <span className="text-[14px] font-bold">
+              {T('সহজ মোড চালু আছে: নিচের রঙ দেখে সরাসরি সেচের সিদ্ধান্ত নিন।', 'Simple mode active: check the coloured card below for your irrigation decision.')}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => dispatch({ type: 'set', patch: { farmerMode: 'advanced' } })}
+            className="rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-[12.5px] font-bold text-emerald-900 shadow-2xs hover:bg-emerald-100 cursor-pointer"
+          >
+            {T('উন্নত মোড →', 'Advanced Mode →')}
+          </button>
+        </div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-[.95fr_1.05fr]">
         <section data-tour="today-advice" className={`spotlight-card lift relative overflow-hidden rounded-[22px] bg-gradient-to-br ${dToday < 0 ? 'from-primary-700 to-primary-900' : ws.grad} p-6 text-white shadow-[var(--shadow-card)] sm:p-8 lg:sticky lg:top-32 lg:self-start`} aria-live="polite">
           <div className="flex items-center justify-between">
@@ -209,7 +246,7 @@ export default function Today() {
             <ol className="mt-4 space-y-2.5 text-[15px] leading-6 text-white/95">
               <li className="flex gap-2"><CalendarDays size={17} className="mt-1 shrink-0" />{T(`${crop.action.bn} ${fmtBangla(chosen.t0, 'bn')} (${fmtDate(chosen.t0, 'bn')}), আর ${bnDigits(-dToday)} দিন। তার আগে জমি চাষ দিয়ে ঝুরঝুরে করুন।`, `${crop.action.en} on ${fmtDate(chosen.t0, 'en')}, in ${-dToday} days. Plough the land to a fine tilth before then.`)}</li>
               <li className="flex gap-2"><Droplets size={17} className="mt-1 shrink-0" />{T('বোনার সময় মাটিতে "জো" থাকা চাই: মুঠোয় চাপলে দলা বাঁধে, আঙুলে চাপলে ভেঙে যায়। মাটি শুকনো হলে বোনার ৩–৪ দিন আগে হালকা সেচ দিন।', 'Sow on good moisture ("jo"): a handful holds together when squeezed and crumbles under a finger. If the soil is dry, give a light irrigation 3–4 days before sowing.')}</li>
-              {fp && !fp.none && <li className="flex gap-2"><Sprout size={17} className="mt-1 shrink-0" />{T(`শেষ চাষে আপনার ${bnDigits(farmer.area_dec)} শতকে সার (মৃত্তিকা সম্পদ উন্নয়ন ইনস্টিটিউট, ${fp.physiography}): ${fp.items.filter((i) => i.kg > 0).slice(0, 4).map((i) => `${i.fertilizer.replace(/\s*\(.*\)/, '')} ${num(i.kg, 'bn')} কেজি`).join(', ')}। জাত: ${fp.variety}।`, `Fertiliser at the last ploughing for your ${farmer.area_dec} decimal (SRDI, ${fp.physiography}): ${fp.items.filter((i) => i.kg > 0).slice(0, 4).map((i) => `${i.fertilizer.replace(/\s*\(.*\)/, '')} ${num(i.kg, 'en')} kg`).join(', ')}. Varieties: ${fp.variety}.`)}</li>}
+              {fp && !fp.none && <li className="flex gap-2"><Sprout size={17} className="mt-1 shrink-0" />{T(`শেষ চাষে আপনার ${bnDigits(farmer.area_dec)} শতকে সার (মৃত্তিকা সম্পদ উন্নয়ন ইনস্টিটিউট, ${fp.physiography}): ${fp.items.filter((i) => i.kg > 0).slice(0, 4).map((i) => `${i.fertilizer.replace(/\s*\(.*\)/, '')} ${num(i.kg, 'bn')} কেজি`).join(', ')}। জাত: ${fp.variety}।`, `Fertiliser at the last ploughing for your ${num(farmer.area_dec, 'en')} decimal (SRDI, ${physEn(fp.physiography)}): ${fp.items.filter((i) => i.kg > 0).slice(0, 4).map((i) => `${fertEn(i.fertilizer)} ${num(i.kg, 'en')} kg`).join(', ')}.`)}</li>}
               {wx && <li className="flex gap-2"><CloudRain size={17} className="mt-1 shrink-0" />{T(`গত ৭ দিনে বৃষ্টি ${num(wx.rain7, 'bn')} মিমি, আগামী ৩ দিনে ${num(wx.rainNext3, 'bn')} মিমি পূর্বাভাস।`, `Rain: ${num(wx.rain7, 'en')} mm in the last 7 days, ${num(wx.rainNext3, 'en')} mm forecast for the next 3.`)}</li>}
             </ol>
           ) : (
@@ -252,7 +289,7 @@ export default function Today() {
         </section>
 
         <div className="space-y-6">
-          <Card className="spotlight-card lift p-5 sm:p-6" data-tour="today-weather">
+          <Card className="spotlight-card lift cv-auto p-5 sm:p-6" data-tour="today-weather">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-[20px] font-bold">{T('আপনার জমির আবহাওয়া', 'Weather at your field')}</h2>
               {liveWeather ? <Tags list={['MODEL']} /> : null}
@@ -298,7 +335,7 @@ export default function Today() {
             <Note tone="gold">{T('আপনার জমি এখনো উপজেলা কৃষি অফিসে নিবন্ধিত নয়, তাই উপগ্রহের ছবি দেখানো যাচ্ছে না। "আমার জমি" পাতায় জমিটা মানচিত্রে চিহ্নিত করুন।', 'Your field is not registered with the upazila office yet, so there is no satellite picture. Mark it on the map in "My farm".')}</Note>
           )}
 
-          <Card className="p-5 sm:p-6" data-tour="today-alerts">
+          <Card className="spotlight-card lift cv-auto p-5 sm:p-6" data-tour="today-alerts">
             <h2 className="text-[20px] font-bold">{T('সতর্কতা', 'Alerts')}</h2>
             <div className="mt-3 space-y-2.5">
               {wx && alerts.length === 0 && <Note tone="ok">{T('আগামী সাত দিনের পূর্বাভাসে বিশেষ কোনো সতর্কতা নেই।', 'No warnings in the seven-day forecast.')}</Note>}

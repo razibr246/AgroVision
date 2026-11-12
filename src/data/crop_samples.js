@@ -78,7 +78,7 @@ export const CROP_SAMPLES = [
         
         <!-- Label badge in corner -->
         <rect x="12" y="12" width="138" height="26" rx="6" fill="rgba(13,38,20,0.75)"/>
-        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">নমুনা: নাবি ধসা (টমেটো)</text>
+        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">Sample: Late blight</text>
       </svg>
     `),
   },
@@ -152,7 +152,7 @@ export const CROP_SAMPLES = [
         
         <!-- Label badge -->
         <rect x="12" y="12" width="138" height="26" rx="6" fill="rgba(13,38,20,0.75)"/>
-        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">নমুনা: জাব পোকা (সরিষা)</text>
+        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">Sample: Mustard aphids</text>
       </svg>
     `),
   },
@@ -214,7 +214,7 @@ export const CROP_SAMPLES = [
         
         <!-- Label badge -->
         <rect x="12" y="12" width="138" height="26" rx="6" fill="rgba(13,38,20,0.75)"/>
-        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">নমুনা: ব্লাস্ট রোগ (ধান)</text>
+        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">Sample: Rice blast</text>
       </svg>
     `),
   },
@@ -257,7 +257,7 @@ export const CROP_SAMPLES = [
           <ellipse cx="14" cy="6" rx="7" ry="3.5" fill="#523d20"/>
         </g>
         <rect x="12" y="12" width="138" height="26" rx="6" fill="rgba(13,38,20,0.75)"/>
-        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">নমুনা: ব্লাইট (মসুর ডাল)</text>
+        <text x="20" y="29" fill="#f8e6bd" font-family="sans-serif" font-size="12" font-weight="bold">Sample: Lentil blight</text>
       </svg>
     `),
   },
@@ -305,7 +305,7 @@ export const CROP_SAMPLES = [
         
         <!-- Label badge -->
         <rect x="12" y="12" width="138" height="26" rx="6" fill="rgba(13,38,20,0.75)"/>
-        <text x="20" y="29" fill="#dcebd3" font-family="sans-serif" font-size="12" font-weight="bold">নমুনা: সুস্থ ধান (আমন)</text>
+        <text x="20" y="29" fill="#dcebd3" font-family="sans-serif" font-size="12" font-weight="bold">Sample: Healthy rice</text>
       </svg>
     `),
   },

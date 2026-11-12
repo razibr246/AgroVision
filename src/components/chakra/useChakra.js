@@ -16,6 +16,7 @@ import { unionsOf } from '../../data/demo';
 import { createSession, greeting, respond } from '../../voice/brain';
 import { farmerSnapshot, officerSnapshot } from '../../voice/snapshot';
 import { createRecognizer, sttSupported, speakNatural, stopSpeaking } from '../../voice/speech';
+import { searchRAG } from '../../engine/chakraLLM';
 
 let uid = 0;
 const mk = (who, text, extra = {}) => ({ id: `c${++uid}`, who, text, ...extra });
@@ -76,10 +77,10 @@ export function useChakra(role) {
       return [{ ...local, recipients: [...new Set(members.map((m) => m.farmerId))], draft: { bn: advisoryText(local, meta, 'bn'), en: advisoryText(local, meta, 'en') }, sent: s.advisories.some((a) => a.cluster === h.id) }];
     });
     return officerTasks({
-      unions: officerUnions, today: store.today, requests: s.requests, hotspots,
+      unions: officerUnions, today: store.today, requests: s.requests, hotspots, lang: s.lang,
       replyFn: (r) => ({ bn: replyTemplate(r, (b) => b), en: replyTemplate(r, (b, e) => e) }), farmerName: (id) => store.farmerOf(id)?.name,
     });
-  }, [role, store, fctx, caseList, s.requests, s.advisories, officerUnions]);
+  }, [role, store, fctx, caseList, s.requests, s.advisories, s.lang, officerUnions]);
   const tasks = useMemo(() => all.filter((t) => !handled.has(t.id)).map((t) => ({ ...t, gate: gateFor(role, mode, t) })), [all, handled, role, mode]);
   // চক্র দল: the whole crew's briefing on the current state (questions run it again with only the members they need).
   const crew = useMemo(() => runCrew(role, fctx ?? { today: store.today }, { tasks }), [role, fctx, store.today, tasks]);
@@ -113,8 +114,8 @@ export function useChakra(role) {
     log(task.id, effects.map((e) => e.type).join('+') || 'notify', gate, 'done');
     return true;
   }, [dispatch, log, role, scope, toast, who]);
-  const approve = useCallback((task, edited) => { if (run(task, 'verdict', edited)) toast('অনুমোদন দিয়ে পাঠানো হয়েছে', 'Approved and sent'); }, [run, toast]);
-  const act = useCallback((task) => { if (run(task, task.gate ?? 'confirm')) toast('পাঠানো হয়েছে', 'Sent'); }, [run, toast]);
+  const approve = useCallback((task, edited) => { if (run(task, 'verdict', edited)) toast('ডেমো কাজটি সম্পন্ন হয়েছে; বাইরের কাউকে পাঠানো হয়নি', 'Demo action completed; nothing was sent externally'); }, [run, toast]);
+  const act = useCallback((task) => { if (run(task, task.gate ?? 'confirm')) toast('ডেমো কাজটি সম্পন্ন হয়েছে; বাইরের কাউকে পাঠানো হয়নি', 'Demo action completed; nothing was sent externally'); }, [run, toast]);
   const reject = useCallback((task, why = '') => log(task.id, 'reject', task.gate, `rejected${why ? `: ${sanitize(why, 120)}` : ''}`), [log]);
   const dismiss = useCallback((task) => log(task.id, 'dismiss', task.gate, 'seen'), [log]);
   const setMode = useCallback((m) => { dispatch({ type: 'chakraMode', role, mode: m }); log(null, `mode:${m}`, 'person', 'set'); }, [dispatch, log, role]);
@@ -132,6 +133,7 @@ export function useChakra(role) {
   const brainRole = role === 'farmer' ? 'farmer' : 'uao'; // the voice brain's name for the upazila officer
   const session = useRef(null);
   if (!session.current || session.current.role !== brainRole) session.current = createSession({ role: brainRole, lang: s.lang });
+  useEffect(() => { if (session.current) session.current.lang = s.lang; }, [s.lang]);
   const [messages, setMessages] = useState([]);
   const [phase, setPhase] = useState('idle'); // idle | listening | thinking | speaking
   const [thinkingDeep, setThinkingDeep] = useState(false); // the current question went to the largest model
@@ -259,6 +261,10 @@ export function useChakra(role) {
         // More to think with: every season option, soil, price seasons, the crop's problems, programmes, cases.
         const pack = knowledgePack({ options: c.decision?.options, chosen: c.chosen, soil: c.soil, cropNow: c.daysAfter >= 0 ? c.chosen.crop.id : 'aman', cases: caseList, farmer: role === 'farmer' ? c.farmer : null, upazila: role === 'farmer' ? c.upazila : c.officerUpazila });
         Object.assign(data, pack.sections);
+        const ragHits = searchRAG(text, { topK: 3 });
+        if (ragHits.length) {
+          data.rag_context = ragHits.map((h) => ({ id: h.id, type: h.type, title: h.title, bn: h.bn, en: h.en, score: h.score }));
+        }
         const deep = flags.current.deepOn || DEEP_Q.test(text);
         setThinkingDeep(deep);
         const r = await fetch('/api/agent', { signal: AbortSignal.timeout(deep ? 70000 : 32000), method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ role, lang, deep, message: text, history: messages.filter((m) => m.who === 'user' || m.who === 'bot').slice(-8), data }) });
@@ -286,7 +292,7 @@ export function useChakra(role) {
         log(null, e.type, 'confirm', 'done');
       }
     }
-    return reply(res.say, { chips: res.chips, nav: res.nav });
+    return reply(res.say, { chips: res.chips, nav: res.nav, tags: res.tags ?? ['MODEL', 'RULE'] });
   }, [T, ai, caseList, crew, dispatch, fctx, fromProposal, log, messages, offer, reply, role, run, scope, snap, tasks]);
   const sendRef = useRef(send);
   sendRef.current = send;
@@ -295,6 +301,7 @@ export function useChakra(role) {
   // browser play sound).
   const start = useCallback(() => {
     if (messages.length) return;
+    if (session.current) session.current.lang = ref.current.s.lang;
     const g = greeting(snap(), session.current);
     // The crew's three most important points, with a word on the agent when it is on.
     const brief = crew.top.length ? T(`${crew.say.bn}${flags.current.mode === 'agent' && role === 'farmer' ? ' এজেন্ট চালু আছে, জরুরি কিছু হলে আমি নিজেই অফিসে জানাব।' : ''}`,
