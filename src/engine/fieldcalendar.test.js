@@ -70,3 +70,16 @@ test('constraints: removed crops leave Field Future\'s options, the baseline sta
   assert.ok(!ff.best.rot.cycle.some((y) => exclude.includes(y.rabi) || exclude.includes(y.k1)));
   assert.equal(ff.habit.rot.cycle[0].rabi, 'boro');
 });
+
+import { HARMONIZE, UNITS, WHY_NO_FINE_GRID } from './harmonize.js';
+import { DATASETS } from './provenance.js';
+
+test('harmonize: every dataset in the register says how it reaches the field and the crop calendar', () => {
+  for (const d of DATASETS) {
+    const h = HARMONIZE[d.id];
+    assert.ok(h, `${d.id} has a harmonization entry`);
+    for (const k of ['place', 'time']) assert.ok(h[k]?.bn && h[k]?.en, `${d.id}.${k} in both languages`);
+  }
+  for (const id of Object.keys(HARMONIZE)) assert.ok(DATASETS.some((d) => d.id === id), `${id} is in the register`);
+  assert.ok(UNITS.place.en && UNITS.time.en && WHY_NO_FINE_GRID.en && WHY_NO_FINE_GRID.bn);
+});

@@ -19,6 +19,7 @@ import { RABI_CROPS, ROTATION_CROPS } from '../../engine/crops';
 import { reviewOf } from '../../data/reviews';
 import deltas from '../../data/climate/cmip6_deltas.json';
 import DataCoverage from '../../components/explain/DataCoverage';
+import HowCombined from '../../components/science/HowCombined';
 import TrendMap from '../../components/map/TrendMap';
 import SatelliteInspector from '../../components/science/SatelliteInspector';
 import OrbitConstellation from '../../components/science/OrbitConstellation';
@@ -223,6 +224,8 @@ export default function Science() {
         <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T('সাত উপজেলা আর প্রতিবেশী পাঁচ দেশের খামারে মাটির নিচের পানি, রবির সবুজ আর মাটির ভেজা ভাব কীভাবে বদলেছে। চালু করে বছরগুলো চলতে দেখুন।', 'How water underground, Rabi greenness and soil water have changed at the seven upazilas and the five neighbouring farms. Press play and watch the years go by.')}</p>
         <div className="mt-4 rounded-[22px] border border-border bg-white p-4"><TrendMap /></div>
       </section>
+
+      <HowCombined />
 
       <section id="coverage" className="mt-12 scroll-mt-28">
         <h2 className="flex items-center gap-2 text-[24px] font-bold"><Database size={20} className="text-primary-700" />{T('কোন তথ্য আছে, কোনটা নেই', 'Data coverage and gaps')}</h2>
