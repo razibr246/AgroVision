@@ -57,7 +57,7 @@ function useRotName() {
 }
 
 export default function FieldFuture() {
-  const { s, T, L, farmer, soil, clim, econ, chosen, rotation, upazila, activeParcel } = useStore();
+  const { s, T, L, farmer, soil, clim, econ, chosen, rotation, upazila, activeParcel, excludeAll } = useStore();
   const lang = s.lang;
   const rotName = useRotName();
   // What the satellite saw on this field: last Rabi's pattern and this monsoon's, from its Sentinel-2 green-cover curve.
@@ -75,8 +75,8 @@ export default function FieldFuture() {
   const ctx = useMemo(() => fieldContext({ clim, change, soil, plot: farmer, amanT: rotation.amanMeasured ? rotation.amanT : null, econ, soilTestValues }),
     [clim, change, soil, farmer, rotation.amanMeasured, rotation.amanT, econ, soilTestValues]);
   const planRabi = chosen.crop.id, planK1 = rotation.best?.crop.id ?? 'fallow';
-  const ff = useMemo(() => fieldFuture({ ctx, lastCrop, plan: { rabi: planRabi, k1: planK1 }, priorities: s.priorities, exclude: s.exclude ?? [] }),
-    [ctx, lastCrop, planRabi, planK1, s.priorities, s.exclude]);
+  const ff = useMemo(() => fieldFuture({ ctx, lastCrop, plan: { rabi: planRabi, k1: planK1 }, priorities: s.priorities, exclude: excludeAll }),
+    [ctx, lastCrop, planRabi, planK1, s.priorities, excludeAll]);
   const futureHeatSensitivity = useMemo(() => [
     { id: 'current', label: T('বর্তমান সীমা: ৩৫° · ৩ দিন', 'Current rule: 35 °C · 3 days'), result: ff },
     ...BORO_HEAT_SENSITIVITIES.map((variant) => {
@@ -170,7 +170,7 @@ export default function FieldFuture() {
       </div>
       {show === 'story' && <FieldStory ff={ff} ctx={ctx} onClose={() => setShow(null)} />}
       {show === 'poster' && <RotationPoster ff={ff} ctx={ctx} onClose={() => setShow(null)} />}
-      <StrategyCompare sumOf={sumOf} world={w} terrain={fieldTerrain(activeParcel?.id)} rotName={rotName} list={strategies}
+      <StrategyCompare ctx={ctx} sumOf={sumOf} world={w} terrain={fieldTerrain(activeParcel?.id)} rotName={rotName} list={strategies}
         onDetails={(id) => { setBrief(id); scrollToEl(document.getElementById('ff-why')); }} />
       <ParetoFrontier list={strategies} sumOf={sumOf} rotName={rotName} />
       <Compare ff={ff} ownE={ownE} second={second} sumOf={sumOf} ctx={ctx} rotName={rotName} />

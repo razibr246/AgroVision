@@ -28,15 +28,15 @@ const ICON = { rain: CloudRain, soil: Droplets, heat: Thermometer, ndvi: Leaf, w
 const STRAT_COLOR = { habit: '#6b7a72', best: '#2f6e2f', alt: '#2f8a8f', plan: '#b8761b' };
 
 export default function Signals() {
-  const { s, T, L, farmer, soil, clim, tm, econ, chosen, rotation, upazila, activeParcel, water } = useStore();
+  const { s, T, L, farmer, soil, clim, tm, econ, chosen, rotation, upazila, activeParcel, water, excludeAll } = useStore();
   const lang = s.lang;
   const n = (v, dp = 0) => (v == null ? '–' : num(v, lang, { dp }));
 
   // Field Future's ten-year runs for this field (the same call as /farmer/future).
   const ctx = useMemo(() => fieldContext({ clim, change: climateChange(deltas, upazila.id, 'ssp245'), soil, plot: farmer, amanT: rotation.amanMeasured ? rotation.amanT : null, econ }),
     [clim, upazila.id, soil, farmer, rotation.amanMeasured, rotation.amanT, econ]);
-  const ff = useMemo(() => fieldFuture({ ctx, lastCrop: farmer.last_crop, plan: { rabi: chosen.crop.id, k1: rotation.best?.crop.id ?? 'fallow' }, priorities: s.priorities, exclude: s.exclude ?? [] }),
-    [ctx, farmer.last_crop, chosen.crop.id, rotation.best, s.priorities, s.exclude]);
+  const ff = useMemo(() => fieldFuture({ ctx, lastCrop: farmer.last_crop, plan: { rabi: chosen.crop.id, k1: rotation.best?.crop.id ?? 'fallow' }, priorities: s.priorities, exclude: excludeAll }),
+    [ctx, farmer.last_crop, chosen.crop.id, rotation.best, s.priorities, excludeAll]);
   const signals = useMemo(() => fieldSignals({
     tm, clim, wet: rabiWetness(soilWetness, upazila.id), smap: smapNow(waterSat, upazila.id), grace: graceRecord(waterSat, upazila.id),
     land: landSummary(upazila.id), field: activeParcel ? fieldGreen(activeParcel.id, upazila.id) : null, habit: ff.habit, best: ff.best,

@@ -122,3 +122,31 @@ for products whose rain-fast times range from under an hour to a day.
 For each line: agree, or the corrected value with its source (a BARI/BRRI/DAE guide, a crop calendar, local
 experience), and your name and post in "Reviewed by". Corrections go into the files named at the top; the tests
 (`npm test`) show if a change breaks anything.
+
+## Farmer constraints (assumptions for local review)
+
+The farmer says what they have to work with (`/farmer/plan`, "What you have to work with"; `src/engine/constraints.js`).
+A crop that cannot work without a missing resource leaves the plan and Field Future; one that only gets harder is
+flagged. Water access is not here: it is the field's irrigation source, which the plan already reads. None of these
+has been checked locally; each is a general rule.
+
+| Constraint | Crop | Effect | Why (assumption) |
+| --- | --- | --- | --- |
+| No power tiller, none to hire | Wheat | Left out | Needs a ploughed seedbed soon after the Aman harvest, and threshing; by hand, sowing runs late into the spring heat |
+| No power tiller, none to hire | Mustard | Flagged | Can be broadcast into the moist field after Aman, but may come up unevenly without tillage |
+| No power tiller, none to hire | Boro | Flagged | Puddling by oxen or by hand is possible but heavy work |
+| Labour short | Tomato | Left out | Staking, regular watering and many pickings |
+| Labour short | Jute | Left out | Many hands to cut, ret and strip the fibre |
+| Labour short | Boro | Flagged | Many hands at transplanting and harvest |
+| Labour short | Mungbean | Flagged | Picked in several rounds |
+| No vegetable market nearby | Tomato | Left out | Spoils fast; cannot be sold at a fair price far away |
+| No water to ret jute | Jute | Left out | The stalks must soak for weeks to free the fibre |
+
+## When the field lies bare
+
+`src/engine/fieldcalendar.js` lays each rotation year's Rabi crop, Kharif-1 crop and T. Aman on the calendar, from
+the same sowing and harvest dates Field Future uses (T. Aman on the upazila's radar-measured transplanting day where
+it exists, 120 days to harvest). A day between a harvest and the next sowing counts as **bare**, or as **under straw**
+when the rotation keeps its straw. The strip under each strategy shows the twelve months from November and the bare
+days a year (averaged over a two-year cycle). It assumes the crops go in on those dates; seedbeds, weeds and
+volunteer growth are not counted.

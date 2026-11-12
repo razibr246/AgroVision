@@ -9,6 +9,7 @@ import { strategyBrief } from '../../engine/briefs';
 import { num } from '../../engine/dates';
 import { WATER_M3_PER_MM_BIGHA } from '../../engine/soilfuture';
 import { infiltrationChange } from '../../engine/fieldwater';
+import BareStrip from './BareStrip';
 
 const ROWS = [
   { k: 'why', icon: Lightbulb, bn: 'কেন এই পথ', en: 'Why it is here', tone: 'text-primary-700', n: 1 },
@@ -20,7 +21,7 @@ const ROWS = [
 const signed = (x, lang, dp = 1) => { const r = Math.round(x * 10 ** dp) / 10 ** dp; return `${r > 0 ? '+' : r < 0 ? '−' : ''}${num(Math.abs(r), lang, { dp })}`; };
 
 // list: [{ id, kind, e, name, tone }] with the habit first; onDetails(id) opens the full brief for that strategy.
-export default function StrategyCompare({ list, sumOf, world, terrain, rotName, onDetails }) {
+export default function StrategyCompare({ list, sumOf, world, terrain, rotName, onDetails, ctx = null }) {
   const { s, T, L, dispatch, soil } = useStore();
   const lang = s.lang;
   // the farmer home's four-step path counts this step as done once the comparison has been seen
@@ -68,6 +69,7 @@ export default function StrategyCompare({ list, sumOf, world, terrain, rotName, 
                   );
                 })()}
               </dl>
+              <BareStrip ctx={ctx} rot={c.e.rot} />
               {ROWS.map((r) => c.b[r.k].length > 0 && (
                 <div key={r.k} className="mt-2.5">
                   <h3 className={`flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wide ${r.tone}`}><r.icon size={14} />{L(r)}</h3>

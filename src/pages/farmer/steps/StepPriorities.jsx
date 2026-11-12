@@ -13,6 +13,7 @@ import { cropName } from '../../../engine/crops.js';
 import cropEconomics from '../../../data/market/crop_economics.json';
 import CropPhoto from '../../../components/CropPhoto';
 import WhyBar from '../../../components/explain/WhyBar';
+import ConstraintsCard from '../../../components/future/ConstraintsCard';
 
 const ICONS = { droplets: Droplets, coins: Coins, shield: Shield, sprout: Sprout, timer: Timer, cow: Beef, layers: Layers };
 export const W_LABEL = { C: { bn: 'আবহাওয়ার ঝুঁকি', en: 'Weather safety' }, W: { bn: 'সেচের পানি', en: 'Water' }, S: { bn: 'মাটির সঙ্গে মিল', en: 'Soil match' }, P: { bn: 'ফসলের দাম', en: 'Harvest value' }, R: { bn: 'ফসলচক্র', en: 'Rotation' }, G: { bn: 'দাম পড়ার ঝুঁকি', en: 'Price-drop risk' }, E: { bn: 'আগাম ফসল', en: 'Early harvest' } };
@@ -114,6 +115,8 @@ export default function StepPriorities() {
           })}
         </div>
       </div>
+
+      <ConstraintsCard className="mt-4" />
 
       <Card className="mt-4 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
