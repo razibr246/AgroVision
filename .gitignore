@@ -29,3 +29,11 @@ Thumbs.db
 .env*
 !.env.example
 tools/night-agent/memory/
+
+# Coding agents' working notes and orchestration files: never part of the product
+.agents/
+/PROJECT.md
+/TEST_INFRA.md
+/TEST_READY.md
+/ORIGINAL_REQUEST.md
+/scratch/
