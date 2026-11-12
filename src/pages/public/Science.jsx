@@ -263,7 +263,7 @@ export default function Science() {
                     <td className="px-3 py-2.5 font-semibold">{L(c.name)}</td>
                     <td className="px-3 py-2.5 tabular">{num(c.rules.length, lang)}</td>
                     <td className="px-3 py-2.5 text-[12.5px] text-ink/80">{c.rules.map((r) => L(r)).join(' · ')}</td>
-                    <td className="px-3 py-2.5 text-[12.5px]">{rv.length ? rv.map((r) => `${r.who}, ${r.when}`).join('; ') : <span className="font-semibold text-amber-800">{T('এখনো হয়নি', 'Not yet')}</span>}</td>
+                    <td className="px-3 py-2.5 text-[12.5px]">{rv.length ? rv.map((r) => `${r.who}, ${r.when}${r.crop === 'all' ? T(' (পুরো অ্যাপ, নিয়ম ধরে নয়)', ' (the app as a whole, not rule by rule)') : ''}`).join('; ') : <span className="font-semibold text-amber-800">{T('এখনো হয়নি', 'Not yet')}</span>}</td>
                   </tr>
                 );
               })}

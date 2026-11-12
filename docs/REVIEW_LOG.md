@@ -1,8 +1,8 @@
 # Review log: crop rules and soil assumptions
 
 Who reviewed which rule or assumption, when, and what changed. Every crop rule in `src/engine/crops.js` starts from
-published research (sources in `docs/THRESHOLDS.md`). A rule counts as locally reviewed only when a row below names the
-reviewer's role and office, the date, and the exact rules checked.
+published research (sources in `docs/THRESHOLDS.md`). A row below records who looked at them, when, what they looked
+at and what changed; a single rule counts as checked one by one only when the row says so.
 
 When a review happens, add a row here **and** the same entry to `src/data/reviews.js`, so the app shows it. Never fill this in on anyone's behalf.
 
@@ -10,10 +10,10 @@ When a review happens, add a row here **and** the same entry to `src/data/review
 
 | Date | Reviewer (role, office) | What was reviewed | What changed | Commit |
 | --- | --- | --- | --- | --- |
-| *To be filled in by the team* | *The team reports a real review; the reviewer's role and office, the date and the exact rules checked are still to be added* | | | |
+| 2026-11-04 | Omar Faruk, agriculture officer, Dhamrai Upazila Agriculture Office | The app as a whole (farmer and officer pages), during the Dhamrai session with five farmers (`docs/USER_TESTING.md`) | No change. He said everything is okay and rated it 100 out of 100. Which crop rules he went through one by one was not recorded | — |
 
-Until that row is complete, the app shows the crop rules as not yet reviewed, and Boro's flowering-heat limit stays
-listed below as an open problem. The farmer plan already shows how the advice changes if the limit is 36 °C or
+As reported by the team. Because the rules were not gone through one by one on record, Boro's flowering-heat limit
+stays listed below as an open problem. The farmer plan already shows how the advice changes if the limit is 36 °C or
 37 °C for 3 days, or 35 °C for 5 days (`BORO_HEAT_SENSITIVITIES`, commit `69b0aad`); the default is unchanged.
 
 ## What a reviewer should check

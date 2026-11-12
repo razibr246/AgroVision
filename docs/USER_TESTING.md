@@ -1,11 +1,14 @@
 # Testing with farmers and officers
 
-A protocol and record for testing the main flow with Bangladeshi farmers and agriculture officers. The team reports
-a Dhamrai session on 4 November 2026 with five farmers and one agriculture officer; participants reportedly tried
-all project features. Feedback themes included Ropon Radar, more NASA-data visualization, and a more farmer-centered
-experience for people with limited internet or smartphone access. The exact tasks, participant responses, specific
-findings, and resulting fixes were not recorded. Treat this as team-reported experience, not independently
-verifiable field validation; do not infer results from the protocol below.
+A protocol and record for testing the main flow with Bangladeshi farmers and agriculture officers.
+
+**4 November 2026, Dhamrai (team-reported).** Five farmers used the website and the app and gave highly positive
+reviews. The Dhamrai agriculture officer, Omar Faruk, went through the app, said everything is okay and rated it 100
+out of 100 (`docs/REVIEW_LOG.md`). Three people played the 3D farm game and gave it 5 stars; two children played the
+children's game and gave it 5 stars. The team also recalls requests for Ropon Radar, more NASA-data views, and
+access for farmers without smartphones or steady internet. The tasks, each person's answers and any problems seen
+were not written down, so the session cannot show which tasks people completed; the next one is recorded with
+`/testkit` below.
 
 **Run it with the kit in the app: `/testkit`.** The kit requires an explicit yes before collecting session data;
 declining exits without saving. It times the four tasks, records the three questions and problems, and exports a CSV
@@ -66,7 +69,7 @@ sharing is unavailable, record that product blocker separately from the officer'
 
 | Date | Place | Who (role, no names) | Phone | Q1 recommended | Q2 why | Q3 check | Problems seen | Fixed in |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 | Dhamrai | 5 farmers, 1 agriculture officer (team-reported) | Not recorded | Not recorded | Not recorded | Not recorded | Not recorded (team recalls requests for Ropon Radar, more NASA-data views, and access for farmers without smartphones or steady internet) | — |
+| 2026-11-04 | Dhamrai | 5 farmers (website and app), 1 agriculture officer; also 3 game players and 2 children (games) (team-reported) | Not recorded | Not recorded | Not recorded | Not recorded | None recorded. Ratings as reported: officer 100/100; farmers highly positive; 3D game 5 stars (3 players); children's game 5 stars (2 children) | — |
 
 The next session goes in a new row from the `/testkit` export: a real date, place, roles, the answers in the
 participants' own words, the problems seen and the commit that fixed each one. Never fill a row from memory.

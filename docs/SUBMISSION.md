@@ -53,9 +53,9 @@ sample farms in the USA, Brazil and Spain show the same farmer and officer pages
 Every number says what produced it: observed by a satellite, reported by a station, estimated by a model, a
 published record, a rule, AI, or sample. The weather (NASA POWER) and the soil (SoilGrids) are real data but model
 estimates at upazila and 250 m scale, not field measurements; satellite, price and yield records are real; the farmers
-and their plans are sample people. The crop thresholds are published starting values; the team reports a review
-by a local agriculture officer, and until its reviewer, date and scope are recorded in `docs/REVIEW_LOG.md` the app
-labels them as not yet reviewed. Each rotation strategy is shown with
+and their plans are sample people. The crop thresholds are published starting values. On 4 November 2026 the
+Dhamrai agriculture officer went through the app and said everything is okay; which rules he checked one by one was
+not recorded (`docs/REVIEW_LOG.md`). Each rotation strategy is shown with
 why it came up, its evidence, what it may offer, what is not known, its
 risks and what needs local review, and the app says plainly that the farmer and the agriculture officer decide.
 
@@ -99,8 +99,11 @@ risks and what needs local review, and the app says plainly that the farmer and 
   nearest BMD station's 1991–2020 normals.
 - **Published science, named:** ICBM soil carbon (Andrén & Kätterer 1997), FAO-56 crop water, the NRCS soil-health
   principles, IPCC 2019 Tier 1 paddy methane, robust decision making over 8 CMIP6 models × 5 FAOSTAT yield years.
-- **Honest about the rest:** the crop rules stay labelled "not yet reviewed" until the reported officer review is
-  written down with its reviewer, date and scope (`docs/REVIEW_LOG.md`). Boro's flowering-heat limit is a known open
+- **Tried in the field (team-reported):** in Dhamrai on 4 November 2026 five farmers used the website and the app
+  and gave highly positive reviews; the Dhamrai agriculture officer, Omar Faruk, said everything is okay (100 out of
+  100); three people played the 3D farm game and two children the children's game, each giving 5 stars. The tasks
+  and answers were not written down (`docs/USER_TESTING.md`), so this shows the reception, not task results.
+- **Honest about the rest:** the officer's review covered the app as a whole, not each rule on record. Boro's flowering-heat limit is a known open
   problem: it is crossed in nearly every recent season where Boro is the main crop, so it almost certainly
   over-warns; the plan shows how the advice changes at 36 °C, 37 °C or 5 days. Farmers are sample people, labelled
   as such on every screen.
@@ -111,8 +114,8 @@ Nothing in the app or this kit claims these are resolved.
 
 | Gap | Plan (about four weeks, one upazila) |
 | --- | --- |
-| The 4 November session was not recorded | Run the next session with `/testkit` (consent first, four timed tasks, three questions) and add its rows to `docs/USER_TESTING.md`: date, place, roles, answers in the participants' words, problems seen and the fix for each |
-| The officer review is not yet written down | Record the reported review in `docs/REVIEW_LOG.md` and `src/data/reviews.js` (reviewer's role and office, date, rules checked, what changed); then set Boro's flowering-heat limit with that reviewer |
+| The 4 November session's tasks and answers were not written down | Run the next session with `/testkit` (consent first, four timed tasks, three questions) and add its rows to `docs/USER_TESTING.md`: date, place, roles, answers in the participants' words, problems seen and the fix for each |
+| The officer's review was of the app as a whole | Go through `docs/THRESHOLDS.md` rule by rule with the Dhamrai officer or a BARI/BRRI agronomist, starting with Boro's flowering-heat limit, and record each in `docs/REVIEW_LOG.md` |
 | Soil is a model estimate | Soil tests (SRDI mobile lab) on 10 registered fields; compare pH and organic carbon with SoilGrids and publish the difference |
 | Yields are national averages | Farmers' recorded harvests for the same fields against FAOSTAT; the backtest's "bad years" against farmers' recall of bad seasons |
 | GRACE and SMAP come from colour-mapped GIBS tiles | Read the gridded products from NASA Earthdata instead (a token slot is in `.env.example`), so their sizes are exact rather than approximate |
@@ -121,16 +124,16 @@ Nothing in the app or this kit claims these are resolved.
 
 | Name | Role | What they did |
 | --- | --- | --- |
-| MD Jabir Hossain Sadi | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
-| Razib Miah | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
-| Meherun Necha Borsha | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
-| MD. Rashedul Islam Shihab | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
-| Minhajul Islam | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
-| Md Ariful Islam Abir | *to fill in* | *to fill in: only work this person did, with links (commits, files, the video)* |
+| MD Jabir Hossain Sadi | Team lead | Leads the whole team |
+| Razib Miah | Researcher, AI engineer | Web and game developer |
+| MD. Rashedul Islam Shihab | Developer | |
+| Minhajul Islam | App developer | |
+| Meherun Necha Borsha | Storyteller | |
+| Md Ariful Islam Abir | Video editor | |
 
 Six members, as on the [NASA Space Apps team page](https://www.spaceappschallenge.org/2026/find-a-team/brm-astrax/?tab=details).
-Each person fills in their own row before submission; Teamwork is scored on it. Most commits so far are under one
-account, so link the work each person did (their own commits, the files or designs they made, the video they cut).
+Teamwork is scored on this: before submitting, each person adds what they made, with a link (their commits, the files
+or designs, the story, the video). Most commits so far are under one account.
 
 ## Datasets used
 

@@ -12,6 +12,7 @@ import DecisionSandbox from '../../components/home/DecisionSandbox';
 import AgroAtmosphereCanvas from '../../components/home/AgroAtmosphereCanvas';
 import RiverWater, { hasWater } from '../../components/home/RiverWater';
 import FieldPinDemo from '../../components/home/FieldPinDemo';
+import FieldReview from '../../components/home/FieldReview';
 import { startRiver, stopRiver, closeRiver, setRiverLevel, riverSoundSupported } from '../../components/home/riverSound';
 import RainCheck from '../../components/charts/RainCheck';
 // The whole-country section carries 250 KB of district data; it loads on its own, after the top of the page.
@@ -260,6 +261,9 @@ export default function Home() {
 
       {/* People: the farmer photo with the officer support story, the live sample requests and what the officer sees. */}
       <OfficerSection />
+
+      {/* Tried in the field: the Dhamrai session of 4 November as the team reports it, and the team. */}
+      <FieldReview />
 
       {/* Voice + Aman radar: the two modules merged into the main app. */}
       <section id="voice-radar" className="scroll-mt-20 py-16 sm:py-20">
