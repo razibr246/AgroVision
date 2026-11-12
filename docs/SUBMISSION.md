@@ -35,6 +35,9 @@ scenarios for a selected demo field:
   wetness from NASA POWER since 2002, the water stored under the region from GRACE (falling under the Barind),
   this month's root-zone soil moisture from SMAP, and a climate account that sets paddy methane (IPCC 2019) against the carbon
   stored in the soil.
+- **When the field lies bare, and what the farmer can manage.** Every strategy shows the months its field is under
+  a crop, under straw or bare. The farmer says what they have to work with (a power tiller, labour, a vegetable
+  market, water to ret jute), and crops that cannot work without it leave the plan, with the reason.
 - **This season's step.** The rotation's first step (which crop, which date) is tested against 25 seasons of NASA
   weather and answered as KEEP, ADJUST or SHIFT, with today's field tasks, in Bangla, by voice or typing, on a
   phone.
@@ -58,6 +61,22 @@ Dhamrai agriculture officer went through the app and said everything is okay; wh
 not recorded (`docs/REVIEW_LOG.md`). Each rotation strategy is shown with
 why it came up, its evidence, what it may offer, what is not known, its
 risks and what needs local review, and the app says plainly that the farmer and the agriculture officer decide.
+
+## One field, in numbers (impact)
+
+Rahim's field in Godagari (a sample farmer on a real Barind location), Aman–Boro now against the best rotation
+Field Future finds (mustard → mungbean → T. Aman one year, tomato → jute → T. Aman the next, straw kept). Model
+estimates at national yields and today's prices, read from the live app on 12 November 2026:
+
+| | As now | Best rotation |
+| --- | --- | --- |
+| Irrigation a bigha a year | 1,053 m³ | **783 m³ (−26%)** |
+| Days a year the field lies bare | 130 | **20** |
+| Profit a bigha a year | ৳3,111 | ৳15,247 |
+| Soil carbon after ten years | as now | +0.9% |
+| 40 climate futures (8 models × 5 yield years) | | the soil ends better than as now in **all 40**; carbon does not fall at all in 38% of them |
+
+The best rotation needs labour for tomato and jute; with "labour: short" entered, the app picks another.
 
 ## Who it is for, and how many (impact)
 
