@@ -2,7 +2,7 @@
 
 Challenge: **Field Shift: Adapting Farms with NASA Data**. Project: **FieldShift 360**.
 Team: **BRM AstraX** (Barisal, Bangladesh).
-Live site: https://fieldshift360.vercel.app · Code: https://github.com/razibr246/fieldshift360
+Live site: https://fieldshift360.vercel.app/#/ · Code: https://github.com/razibr246/fieldshift360
 
 Checked against the official challenge statement (rotation strategies for soil health and changing conditions) on 22 October 2026; the line-by-line table is in the README.
 
