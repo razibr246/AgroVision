@@ -3145,3 +3145,32 @@ body.is-scrolling .public-atmosphere * {
   .voice-bar, .voice-mic::after, .voice-caret, .ropan-sweep { animation: none; }
   .ropan-cell { animation: none; opacity: .9; }
 }
+
+/* Home recommendation: an illustrated field carries the comparison from seasons to advice. */
+.recommendation-scene { background: #eaf1e8; }
+.recommendation-scene-glow {
+  background:
+    radial-gradient(ellipse at 77% 34%, rgba(255, 249, 219, .58), transparent 32%),
+    radial-gradient(ellipse at 8% 80%, rgba(123, 168, 118, .16), transparent 42%),
+    linear-gradient(145deg, #edf4ec 0%, #faf8ed 56%, #e8f0e4 100%);
+}
+.recommendation-live-dot { box-shadow: 0 0 0 0 rgba(62, 139, 80, .45); animation: recommendation-live 2.4s ease-out infinite; }
+.recommendation-trace { animation: recommendation-trace 8s linear infinite; }
+.recommendation-sprouts { transform-box: fill-box; transform-origin: center bottom; animation: recommendation-sway 5.5s ease-in-out infinite alternate; }
+.recommendation-signal { transform-box: fill-box; transform-origin: center; animation: recommendation-signal 3.6s ease-out infinite; }
+.recommendation-choice { background: rgba(255, 255, 255, .84); transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease; }
+.recommendation-choice:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(21, 51, 34, .16); }
+.recommendation-choice-mark { background: var(--choice-color); box-shadow: 0 0 0 3px var(--choice-tint); }
+.recommendation-choice-1 { animation: recommendation-card-in .8s .12s both; }
+.recommendation-choice-2 { animation: recommendation-card-in .8s .24s both; }
+.recommendation-choice-3 { animation: recommendation-card-in .8s .36s both; }
+@keyframes recommendation-live { 70% { box-shadow: 0 0 0 6px rgba(62, 139, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(62, 139, 80, 0); } }
+@keyframes recommendation-trace { to { stroke-dashoffset: -192; } }
+@keyframes recommendation-sway { from { transform: rotate(-.8deg); } to { transform: rotate(.8deg); } }
+@keyframes recommendation-signal { 0% { opacity: .8; transform: scale(.72); } 75%, 100% { opacity: 0; transform: scale(1.7); } }
+@keyframes recommendation-card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .recommendation-live-dot, .recommendation-trace, .recommendation-sprouts, .recommendation-signal,
+  .recommendation-choice-1, .recommendation-choice-2, .recommendation-choice-3 { animation: none; }
+  .recommendation-choice { transition: none; }
+}

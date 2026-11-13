@@ -13,6 +13,7 @@ import AgroAtmosphereCanvas from '../../components/home/AgroAtmosphereCanvas';
 import RiverWater, { hasWater } from '../../components/home/RiverWater';
 import FieldPinDemo from '../../components/home/FieldPinDemo';
 import FieldReview from '../../components/home/FieldReview';
+import RecommendationScene from '../../components/home/RecommendationScene';
 import OfficerLoopScene, { PHASES } from '../../components/home/OfficerLoopScene';
 import { startRiver, stopRiver, closeRiver, setRiverLevel, riverSoundSupported } from '../../components/home/riverSound';
 import RainCheck from '../../components/charts/RainCheck';
@@ -265,9 +266,9 @@ export default function Home() {
             </div>
             <div className="mt-5 flex flex-wrap items-center gap-2 text-[14px] text-muted"><TrendingDown size={16} className="text-paddy-700" />{T('সবাই একসঙ্গে একই ফসল লাগালে দাম পড়ে যায় — সেই ঝুঁকিও দেখানো হয়।', 'When everyone plants the same crop at once prices fall — that risk is shown too.')}</div>
           </div>
-          <figure data-reveal style={{ '--d': '120ms' }} className="order-1 overflow-hidden rounded-[22px] shadow-[var(--shadow-card)] lg:order-2">
-            <Photo name="seedlings" sizes="(min-width: 1024px) 600px, 100vw" />
-          </figure>
+          <div data-reveal style={{ '--d': '120ms' }} className="order-1 lg:order-2">
+            <RecommendationScene T={T} />
+          </div>
         </div>
       </section>
 
