@@ -13,6 +13,7 @@ import AgroAtmosphereCanvas from '../../components/home/AgroAtmosphereCanvas';
 import RiverWater, { hasWater } from '../../components/home/RiverWater';
 import FieldPinDemo from '../../components/home/FieldPinDemo';
 import FieldReview from '../../components/home/FieldReview';
+import OfficerLoopScene, { PHASES } from '../../components/home/OfficerLoopScene';
 import { startRiver, stopRiver, closeRiver, setRiverLevel, riverSoundSupported } from '../../components/home/riverSound';
 import RainCheck from '../../components/charts/RainCheck';
 // The whole-country section carries 250 KB of district data; it loads on its own, after the top of the page.
@@ -469,6 +470,7 @@ function OfficerSection() {
   const req = open.find((r) => r.text && r.village) ?? open[0];
   const hot = [...hotspots].sort((a, b) => b.members.length - a.members.length)[0];
   const unionName = (id) => { const u = UNIONS.find((x) => x.id === id); return u ? L({ bn: u.bn, en: u.en }) : id; };
+  const [phase, setPhase] = useState(null); // which step the scene is acting out, so its card lights up
   const flow = [
     [Camera, T('কৃষক জানান', 'The farmer reports'), T('ছবি, কথা আর জমির জায়গা', 'Photo, words and the field’s location')],
     [Eye, T('কর্মকর্তা দেখেন', 'The officer reviews'), T('জমির উপগ্রহ ও আবহাওয়ার তথ্যসহ', 'With the field’s satellite and weather record')],
@@ -482,9 +484,9 @@ function OfficerSection() {
   return (
     <section id="officer" className="scroll-mt-20 py-16 sm:py-20">
       <div className="page-shell grid items-stretch gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
-        <figure data-reveal className="relative min-h-[470px] overflow-hidden rounded-[26px] shadow-[var(--shadow-card)] sm:min-h-[480px]">
-          <Photo name="farmer" fill sizes="(min-width: 1024px) 620px, 100vw" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-950/75 via-primary-950/10 to-transparent" aria-hidden="true" />
+        <figure data-reveal className="relative aspect-[5/6] w-full max-h-[660px] overflow-hidden rounded-[26px] bg-[#dfe9cf] shadow-[var(--shadow-card)] ring-1 ring-black/5 sm:aspect-[6/5] lg:aspect-auto lg:min-h-[560px] lg:self-stretch">
+          <OfficerLoopScene onPhase={setPhase} />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-primary-950/55 to-transparent" aria-hidden="true" />
           {hot && (
             <div className="absolute right-4 top-4 flex max-w-[calc(100%-2rem)] items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 text-[13px] font-semibold text-ink shadow-md ring-1 ring-black/5 backdrop-blur-md">
               <span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:hidden" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" /></span>
@@ -512,8 +514,8 @@ function OfficerSection() {
           <p className="mt-3 text-[16.5px] leading-8 text-muted">{T('অ্যাপ সব প্রশ্নের উত্তর দেয় না, দেওয়ার কথাও না। পাতার দাগ নিয়ে সন্দেহ, সেচের পানি না পাওয়া, যেকোনো সমস্যা ছবি আর জায়গাসহ সরাসরি গোদাগাড়ী উপজেলা কৃষি অফিসে যায়।', 'An app cannot answer everything and should not try. Unsure about leaf spots, not getting irrigation water — any problem goes straight to the Godagari upazila agriculture office with a photo and location.')}</p>
           <ol className="mt-6 grid gap-2 sm:grid-cols-3">
             {flow.map(([Icon, h, d], i) => (
-              <li key={i} className="relative flex gap-3 rounded-2xl bg-primary-50/70 p-3 ring-1 ring-primary-100 sm:flex-col sm:gap-2">
-                <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-primary-700 shadow-sm"><Icon size={18} /><span className="absolute -right-1.5 -top-1.5 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-primary-700 px-1 text-[10.5px] font-bold text-white">{num(i + 1, lang)}</span></span>
+              <li key={i} aria-current={phase === PHASES[i] ? 'step' : undefined} className={`relative flex gap-3 rounded-2xl p-3 ring-1 transition-all duration-500 sm:flex-col sm:gap-2 ${phase === PHASES[i] ? 'bg-white shadow-md ring-primary-400' : 'bg-primary-50/70 ring-primary-100'}`}>
+                <span className={`relative grid h-9 w-9 shrink-0 place-items-center rounded-xl shadow-sm transition-colors duration-500 ${phase === PHASES[i] ? 'bg-primary-700 text-white' : 'bg-white text-primary-700'}`}><Icon size={18} /><span className="absolute -right-1.5 -top-1.5 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-primary-700 px-1 text-[10.5px] font-bold text-white">{num(i + 1, lang)}</span></span>
                 <span><span className="block text-[14.5px] font-semibold leading-6">{h}</span><span className="block text-[13px] leading-5 text-muted">{d}</span></span>
                 {i < flow.length - 1 && <ArrowRight size={16} className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 text-primary-400 sm:block" aria-hidden="true" />}
               </li>
