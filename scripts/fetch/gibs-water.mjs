@@ -37,6 +37,11 @@ for (const c of readdirSync(path.join(ROOT, 'src', 'data', 'abroad')).filter((f)
   const f = JSON.parse(readFileSync(path.join(ROOT, 'src', 'data', 'abroad', `${c}.json`))).points.farm;
   points[c] = [f.lat, f.lon];
 }
+let prior = null;
+try { prior = JSON.parse(readFileSync(EXISTING, 'utf8')); } catch { /* first generation has no prior file */ }
+const priorRetrieved = prior?.provenance?.retrieved?.slice(0, 10);
+const completePrior = priorRetrieved && Object.entries(points).every(([id, at]) =>
+  prior.points?.[id] && JSON.stringify(prior.points[id].at) === JSON.stringify(at));
 
 // ---- valid dates from the capabilities' time lists ----
 function datesOf(caps, layer) {
@@ -96,12 +101,17 @@ const out = {
     method: 'colour-mapped pixels turned back into values with the layer’s GIBS colour map; median of the 3×3 pixels (0.05°) around each point',
     retrieved: new Date().toISOString().slice(0, 10),
   },
-  points: Object.fromEntries(Object.entries(points).map(([id, at]) => [id, { at, grace: {}, smap: {} }])),
+  points: Object.fromEntries(Object.entries(points).map(([id, at]) => {
+    const p = completePrior && prior.points[id];
+    return [id, p ? { ...p, at, grace: { ...p.grace }, smap: { ...p.smap } } : { at, grace: {}, smap: {} }];
+  })),
 };
 for (const key of ['grace', 'smap']) {
   const L = LAYERS[key], map = await colourMap(L.cmap);
-  let dates = datesOf(caps, L.id);
+  const allDates = datesOf(caps, L.id);
+  let dates = allDates;
   if (key === 'smap') dates = dates.filter((d) => d.endsWith('-08') || d.endsWith('-22'));
+  if (completePrior) dates = dates.filter((d) => d > priorRetrieved);
   console.log(`${key}: ${dates.length} images`);
   const acc = {};
   let done = 0;
@@ -114,23 +124,19 @@ for (const key of ['grace', 'smap']) {
     for (const [id, at] of Object.entries(points)) {
       const box = inMain(at) ? BBOX : boxAround(at), small = inMain(at) ? null : await image(L.id, d, box, 3, 3);
       const v = inMain(at) ? sample(img, map, at) : small && sample(small, map, at, box);
-      if (v != null) ((acc[id] ??= {})[month] ??= []).push(v);
+      if (v != null && (completePrior || out.points[id][key][month] == null)) ((acc[id] ??= {})[month] ??= []).push(v);
     }
   });
   for (const [id, months] of Object.entries(acc)) {
     for (const m of Object.keys(months).sort()) {
       const v = months[m];
-      out.points[id][key][m] = Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 1000) / 1000;
+      const freshSum = v.reduce((a, b) => a + b, 0), previous = out.points[id][key][m];
+      const oldN = previous == null ? 0 : allDates.filter((d) => d.slice(0, 7) === m && d <= priorRetrieved).length;
+      out.points[id][key][m] = Math.round(((previous ?? 0) * oldN + freshSum) / (oldN + v.length) * 1000) / 1000;
     }
   }
 }
 // Keep the established series byte-for-byte stable. GIBS can shorten or recolour its
-// published history; adding a new farm must not rewrite the existing records.
-try {
-  const prior = JSON.parse(readFileSync(EXISTING, 'utf8'));
-  for (const [id, p] of Object.entries(prior.points || {})) {
-    if (out.points[id] && JSON.stringify(out.points[id].at) === JSON.stringify(p.at)) out.points[id] = p;
-  }
-} catch { /* first generation has no prior file */ }
+// published history; only observations newer than the last retrieval are requested.
 await writeFile(EXISTING, JSON.stringify(out));
 for (const [id, p] of Object.entries(out.points)) console.log(`  ${id}: GRACE ${Object.keys(p.grace).length} months, SMAP ${Object.keys(p.smap).length} months`);

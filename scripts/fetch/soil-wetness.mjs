@@ -15,7 +15,7 @@ import { UPAZILAS } from '../../src/data/upazilas.js';
 
 const API = 'https://power.larc.nasa.gov/api/temporal/monthly/point';
 const PARAMS = ['GWETROOT', 'GWETTOP'];
-const START = 2001, END = 2025;
+const START = 2001, END = new Date().getUTCFullYear();
 const OUT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'data', 'water', 'soil_wetness.json');
 const IDS = ['godagari', 'dhamrai', 'sitakunda', 'dacope', 'bakerganj', 'gangachara', 'gowainghat'];
 

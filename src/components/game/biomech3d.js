@@ -1080,7 +1080,11 @@ export function createBiomechLab(host, overlay, chart, opts = {}) {
       octx.fillStyle = 'rgba(255,255,255,0.9)'; octx.beginPath(); octx.roundRect(lx - 8, ly - 22, lw + 16, 46, 10); octx.fill();
       octx.fillStyle = g; octx.beginPath(); octx.roundRect(lx, ly, lw, 8, 4); octx.fill();
       octx.fillStyle = '#334155'; octx.font = `600 10px ${font}`; octx.textBaseline = 'alphabetic'; octx.fillText(Lb.legend ?? '', lx, ly - 7);
-      octx.fillText('0', lx, ly + 20); octx.fillText(`${fmt(65)}`, lx + lw * 0.65 - 6, ly + 20); octx.fillText(`${fmt(85)}`, lx + lw * 0.85 - 6, ly + 20); octx.fillText(`${fmt(100)}%`, lx + lw - 26, ly + 20);
+      // tick marks at the two thresholds; the end labels sit at the ends so the numbers never run together
+      octx.fillStyle = '#64748b'; for (const t of [0.65, 0.85]) octx.fillRect(lx + lw * t - 0.5, ly + 9, 1, 4);
+      octx.fillStyle = '#334155'; octx.textAlign = 'left'; octx.fillText('0', lx, ly + 20);
+      octx.textAlign = 'center'; octx.fillText(`${fmt(65)}`, lx + lw * 0.65, ly + 20);
+      octx.textAlign = 'right'; octx.fillText(`${fmt(100)}%`, lx + lw, ly + 20); octx.textAlign = 'left';
     } else if (mode === 'strata') {
       const footS = proj(v1.set(state.cutX, baseHeight(state.cutX, fw.z) - state.sink, fw.z));
       const per = (dm) => Math.abs(proj(v2.set(state.cutX, -dm, fw.z)).y - footS.y); // pixels for dm metres down

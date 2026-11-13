@@ -25,7 +25,9 @@ const OUT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..
 const lat = Number(arg('lat', 24.4667));
 const lon = Number(arg('lon', 88.3306));
 const start = arg('start', '20001001'); // Oct 2000 so the 2001 Rabi season is complete
-const end = arg('end', '20261015');
+const latestComplete = new Date();
+latestComplete.setUTCDate(latestComplete.getUTCDate() - 4); // POWER daily data usually trails by several days
+const end = arg('end', latestComplete.toISOString().slice(0, 10).replaceAll('-', ''));
 const iso = (k) => `${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`;
 
 // Rainfall is asked for apart from the rest, a year at a time: in October 2026 POWER answered PRECTOTCORR 24 times

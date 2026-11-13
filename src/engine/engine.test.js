@@ -313,7 +313,7 @@ test('Rabi soil wetness: NASA POWER GWETROOT for all seven upazilas, Nov–Mar s
   for (const id of ['godagari', 'dhamrai', 'sitakunda', 'dacope', 'bakerganj', 'gangachara', 'gowainghat']) {
     const r = rabiWetness(sw, id);
     assert.equal(r.first, 2002, `${id}: the first full Rabi season`);
-    assert.equal(r.series.length, 24, `${id}: 2002–2025`);
+    assert.equal(r.series.length, 25, `${id}: 2002–2026`);
     assert.ok(r.series.every((x) => x.root > 0 && x.root <= 1), `${id}: wetness is a fraction`);
     assert.ok(r.trend && r.trend.p >= 0 && r.trend.p <= 1);
   }
