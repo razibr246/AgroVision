@@ -44,8 +44,8 @@ export default function RopanRadarPulse() {
               <stop offset="1" stopColor="#7cc06a" stopOpacity="0" />
             </radialGradient>
           </defs>
-          {[0.32, 0.62, 0.92].map((r) => (
-            <circle key={r} cx={cx} cy={cy} r={r * (H / 2)} fill="none" stroke="#7cc06a" strokeOpacity="0.14" />
+          {[0.32, 0.62, 0.92].map((r, i) => (
+            <circle key={r} cx={cx} cy={cy} r={r * (H / 2)} fill="none" stroke="#7cc06a" strokeOpacity="0.14" className={`ropan-ring ropan-ring-${i + 1}`} />
           ))}
           {shapes.map((u) => (
             <path key={u.id} d={u.d} fill={CAT[u.cat].color} stroke="#0b2015" strokeWidth="0.6"
@@ -58,6 +58,7 @@ export default function RopanRadarPulse() {
             <path d={`M${cx},${cy} L${cx},${cy - H * 0.62} A${H * 0.62},${H * 0.62} 0 0 0 ${cx - H * 0.62 * Math.sin(0.6)},${cy - H * 0.62 * Math.cos(0.6)} Z`} fill="#7cc06a" fillOpacity="0.14" />
             <line x1={cx} y1={cy} x2={cx} y2={cy - H * 0.62} stroke="#b9e3a8" strokeWidth="1.4" strokeOpacity="0.85" />
           </g>
+          <circle className="ropan-origin-halo" cx={cx} cy={cy} r="8" fill="#e8a83e" fillOpacity=".18" />
           <circle cx={cx} cy={cy} r="2.4" fill="#e8a83e" />
         </svg>
 

@@ -3174,3 +3174,29 @@ body.is-scrolling .public-atmosphere * {
   .recommendation-choice-1, .recommendation-choice-2, .recommendation-choice-3 { animation: none; }
   .recommendation-choice { transition: none; }
 }
+
+/* Voice and Aman radar demos: make the information feel live while keeping it legible. */
+.voice-ask-aura {
+  background:
+    radial-gradient(ellipse at 5% 48%, rgba(77, 153, 75, .19), transparent 34%),
+    radial-gradient(ellipse at 76% 10%, rgba(128, 190, 106, .12), transparent 38%);
+  animation: voice-aura-drift 9s ease-in-out infinite alternate;
+}
+.voice-mic::before {
+  content: ''; position: absolute; inset: -8px; border: 1px solid rgba(124, 192, 106, .24); border-radius: 9999px;
+  animation: voiceRing 2.4s ease-out .8s infinite;
+}
+.voice-bar { position: relative; overflow: hidden; background: linear-gradient(180deg, #a4d889, #5da85b 55%, #3d8047); box-shadow: 0 0 8px rgba(124, 192, 106, .18); }
+.voice-bar:nth-child(3n) { opacity: .72; }
+.voice-bar:nth-child(4n) { opacity: .9; }
+.voice-bar.is-idle { box-shadow: none; }
+.ropan-ring { transform-box: view-box; transform-origin: center; animation: ropan-ring 4s ease-out infinite; }
+.ropan-ring-2 { animation-delay: 1.3s; }
+.ropan-ring-3 { animation-delay: 2.6s; }
+.ropan-origin-halo { transform-box: view-box; transform-origin: center; animation: ropan-origin 2.2s ease-out infinite; }
+@keyframes voice-aura-drift { from { opacity: .55; transform: scale(1); } to { opacity: 1; transform: scale(1.08); } }
+@keyframes ropan-ring { 0%, 100% { stroke-opacity: .1; } 50% { stroke-opacity: .34; } }
+@keyframes ropan-origin { 0% { opacity: .85; transform: scale(.65); } 80%, 100% { opacity: 0; transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) {
+  .voice-ask-aura, .voice-mic::before, .ropan-ring, .ropan-origin-halo { animation: none; }
+}

@@ -30,17 +30,18 @@ export default function VoiceAskDemo() {
 
   return (
     <div className="voice-ask relative flex min-h-[222px] flex-col justify-center overflow-hidden rounded-2xl border border-primary-900/10 bg-[#0b2015] p-5 text-white">
-      <div className="flex items-center gap-3">
+      <div className="voice-ask-aura pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="relative flex items-center gap-3">
         <span className="voice-mic relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-500 text-white">
           <Mic size={20} />
         </span>
         <div className="flex h-12 flex-1 items-center justify-between overflow-hidden" aria-hidden="true">
           {Array.from({ length: 44 }, (_, i) => (
-            <span key={i} className={`voice-bar ${typed ? 'is-idle' : ''}`} style={{ '--i': i, '--h': `${22 + ((i * 37) % 78)}%` }} />
+            <span key={i} className={`voice-bar ${typed ? 'is-idle' : ''}`} style={{ '--i': i, '--h': `${18 + Math.round((Math.sin((i / 43) * Math.PI) ** 1.4) * 70) + ((i * 37) % 16)}%` }} />
           ))}
         </div>
       </div>
-      <p className="mt-4 min-h-[30px] text-[20px] font-semibold text-primary-50" aria-live="polite">
+      <p className="relative mt-4 min-h-[30px] text-[20px] font-semibold text-primary-50" aria-live="polite">
         <span className="text-paddy-300">“</span>{[...text].slice(0, n).join('')}{!typed && <span className="voice-caret">|</span>}{typed && <span className="text-paddy-300">”</span>}
       </p>
       <div className={`mt-2 flex items-center gap-2 text-[12.5px] transition-opacity duration-300 ${last && typed ? 'opacity-100' : 'opacity-0'}`}>
