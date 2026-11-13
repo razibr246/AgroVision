@@ -18,13 +18,16 @@ Challenge: **Field Shift: Adapting Farms with NASA Data** · Team: **BRM AstraX*
 | 📝 **Submission kit** (project description, challenge mapping) | [docs/SUBMISSION.md](docs/SUBMISSION.md) |
 | 🔁 **Data register in the app** | [`/science#coverage`](https://fieldshift360.vercel.app/#/science#coverage) |
 
+[![The FieldShift 360 home page: "The right crop. At the right time."](docs/screenshots/home.jpg)](https://fieldshift360.vercel.app/#/)
+
 ---
 
 ## Contents
 
 1. [The problem](#the-problem)
 2. [What FieldShift 360 does](#what-fieldshift-360-does)
-3. [A five-minute tour for judges](#a-five-minute-tour-for-judges)
+3. [A look inside](#a-look-inside)
+4. [A five-minute tour for judges](#a-five-minute-tour-for-judges)
 4. [NASA and partner data](#nasa-and-partner-data)
 5. [Challenge statement, line by line](#challenge-statement-line-by-line)
 6. [How it works](#how-it-works)
@@ -68,6 +71,53 @@ A farmer needs to know what to plant *this* Rabi season **and** what sequence of
 - `/abroad/:cc`: the same farmer and officer pages for sample farms in India, Pakistan, Nepal, Bhutan, Myanmar, the USA, Brazil and Spain, on their own soil, weather, crops and support programmes.
 
 Seven upazilas, one in each division of Bangladesh, are covered by the full engine: Godagari, Dhamrai, Sitakunda, Dacope, Bakerganj, Gangachara and Gowainghat.
+
+## A look inside
+
+Every page below is live at [fieldshift360.vercel.app](https://fieldshift360.vercel.app/#/); click a picture to open it. The farmers shown are sample accounts.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/farmer"><img src="docs/screenshots/farmer-home.jpg" alt="Farmer home: this season's answer, KEEP / ADJUST / SHIFT, with the next step" /></a>
+<p align="center"><b>Farmer · home</b><br /><sub>This season's answer for the field (<i>Shift to another crop: lentil, sow 19 Nov</i>), today's weather and soil water, and the plan's next step. Every number carries its kind: model estimate, rule, station.</sub></p>
+</td>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/farmer/future"><img src="docs/screenshots/farmer-future.jpg" alt="Field Future: ten years of rotation for one field" /></a>
+<p align="center"><b>Farmer · Field Future</b><br /><sub>702 rotations run for ten years on the field's SoilGrids soil and 25 seasons of NASA weather: soil carbon, irrigation water, income, weather risk and pests, then re-ranked by the farmer's priorities and replayed in the 2040s.</sub></p>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/officer/radar"><img src="docs/screenshots/officer-radar.jpg" alt="Officer: Ropon Radar, rain onset and transplanting by upazila" /></a>
+<p align="center"><b>Officer · Ropon Radar</b><br /><sub>When the monsoon rain set in (GPM IMERG) and when Aman was actually transplanted (Sentinel-1 radar through the cloud), upazila by upazila, with what to tell the farmers this season.</sub></p>
+</td>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/science"><img src="docs/screenshots/science.jpg" alt="Science: from the satellite to your field" /></a>
+<p align="center"><b>Science · from the satellite to your field</b><br /><sub>A 3D simulation of the seven missions behind the data, the spectral and multi-scale labs, trend maps, the crop-stress ML benchmark and the full data register with every dataset's scale and limit.</sub></p>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/games"><img src="docs/screenshots/games.jpg" alt="Learn by playing: the games page" /></a>
+<p align="center"><b>Learn by playing</b><br /><sub>Six games in two parts: play as a farmer in 3D, then stories and challenges on real past years. Every game runs on real NASA weather.</sub></p>
+</td>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/farm"><img src="docs/screenshots/farm-game.jpg" alt="Harvest Horizon: a 3D farmer built with MakeHuman" /></a>
+<p align="center"><b>Harvest Horizon · 3D farm game</b><br /><sub>Fifteen farmers in nine countries, each a rigged MakeHuman model on their own land with their own crops and the hazard they fear most; walk the field, plant, manage water and pests, and live with the season. Plays in VR.</sub></p>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/kids"><img src="docs/screenshots/kids-game.jpg" alt="Tara and the Dream Fields: the children's game" /></a>
+<p align="center"><b>Tara and the Dream Fields · for children</b><br /><sub>Four story worlds with Tara, a little NASA satellite, as the guide: crops and living soil, satellites and NDVI, farm maths and farm money, with mini-games, science labs, a 3D dream in VR and badges.</sub></p>
+</td>
+<td width="50%" valign="top">
+<a href="https://fieldshift360.vercel.app/#/"><img src="docs/screenshots/home.jpg" alt="The home page" /></a>
+<p align="center"><b>Public · home</b><br /><sub>The decision in one line, live weather for Godagari, 25 seasons of change, the officer loop acted out, and a judge's demo button. Bangla and English, one tap apart.</sub></p>
+</td>
+</tr>
+</table>
 
 ## A five-minute tour for judges
 
