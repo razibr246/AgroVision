@@ -3339,3 +3339,30 @@ html { scrollbar-color: #638344 #edf1e9; }
   .play-season-scene, .ps-crops, .ps-fireflies circle, .ps-seeds circle, .ps-price-line, .ps-leaf,
   .ps-spots circle, .ps-well-level, .ps-storm-cloud, .ps-alert-rings circle { animation: none; }
 }
+
+/* Data section backdrop: satellite scan over field parcels, with separate observation traces. */
+.data-layers-scene { opacity: .94; }
+.data-contours { animation: data-contour-shift 18s ease-in-out infinite alternate; }
+.data-parcels path { animation: data-parcel-glow 7s ease-in-out infinite; }
+.data-parcels path:nth-child(2n) { animation-delay: -3.5s; }
+.data-satellite { animation: data-satellite-float 6s ease-in-out infinite; }
+.data-scan-beam { animation: data-beam 7s ease-in-out infinite alternate; }
+.data-scan-line { animation: data-line 7s ease-in-out infinite alternate; }
+.data-beacon { animation: play-glow 2s ease-in-out infinite; }
+.data-streams path { stroke-dasharray: 4 10; animation: data-stream 6s linear infinite; }
+.data-streams path:nth-child(2) { animation-delay: -2s; }
+.data-streams path:nth-child(3) { animation-delay: -4s; }
+.data-layer-pulses circle { animation: data-pulse 3s ease-in-out infinite; }
+.data-layer-pulses circle:nth-child(2) { animation-delay: 1s; }
+.data-layer-pulses circle:nth-child(3) { animation-delay: 2s; }
+@keyframes data-contour-shift { from { translate: -6px 0; opacity: .62; } to { translate: 8px 0; opacity: 1; } }
+@keyframes data-parcel-glow { 0%, 100% { fill-opacity: .44; } 50% { fill-opacity: .9; } }
+@keyframes data-satellite-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes data-beam { from { opacity: .16; } to { opacity: .42; } }
+@keyframes data-line { from { translate: -24px -16px; opacity: .35; } to { translate: 22px 16px; opacity: .95; } }
+@keyframes data-stream { to { stroke-dashoffset: -70; } }
+@keyframes data-pulse { 0%, 100% { opacity: .24; } 50% { opacity: .9; } }
+@media (prefers-reduced-motion: reduce) {
+  .data-contours, .data-parcels path, .data-satellite, .data-scan-beam, .data-scan-line,
+  .data-beacon, .data-streams path, .data-layer-pulses circle { animation: none; }
+}

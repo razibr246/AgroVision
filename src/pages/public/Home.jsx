@@ -9,6 +9,7 @@ import { onScroll } from '../../components/Motion';
 import AgroAtmosphereCanvas from '../../components/home/AgroAtmosphereCanvas';
 import RiverWater, { hasWater } from '../../components/home/RiverWater';
 import RecommendationScene from '../../components/home/RecommendationScene';
+import DataLayersScene from '../../components/home/DataLayersScene';
 import OfficerLoopScene, { PHASES } from '../../components/home/OfficerLoopScene';
 import { startRiver, stopRiver, closeRiver, setRiverLevel, riverSoundSupported } from '../../components/home/riverSound';
 const LiveWeather = lazy(() => import('../../components/charts/LiveWeather'));
@@ -294,7 +295,8 @@ export default function Home() {
       <div id="climate-shift" className="scroll-mt-20"><LazyMount height={720}><Suspense fallback={<div className="min-h-[680px]" />}><ClimateShift /></Suspense></LazyMount></div>
       {/* Data sources over the satellite patchwork. */}
       <section id="data" className="relative isolate scroll-mt-20 overflow-hidden py-16 text-white sm:py-24">
-        <div className="absolute inset-0 -z-10"><Photo name="satellite" fill sizes="100vw" decorative /><div className="absolute inset-0 bg-primary-950/85" /></div>
+        <DataLayersScene />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(8,28,19,.82)_0%,rgba(8,28,19,.56)_55%,rgba(8,28,19,.64)_100%)]" />
         <div className="page-shell grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
           <div data-reveal>
             <Satellite size={30} className="text-paddy-300" />
