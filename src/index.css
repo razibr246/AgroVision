@@ -3257,9 +3257,51 @@ html { scrollbar-color: #638344 #edf1e9; }
 @keyframes gcs-path { to { stroke-dashoffset: -60; } }
 @keyframes gcs-twinkle { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
 @keyframes gcs-gather { from { transform: translateY(1px); } to { transform: translateY(-1px); } }
-@keyframes gcs-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes gcs-breathe { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
 @media (prefers-reduced-motion: reduce) {
   .gcs-cloud, .gcs-satellite, .gcs-child, .gcs-flight-path, .gcs-fireflies circle,
   .gcs-people, .gcs-person, .gcs-field-glints circle, .gcs-beacon { animation: none; }
   .game-card-play { transition: none; }
+}
+.game-story-scene { opacity: .9; }
+.story-water-lines { animation: story-water 8s ease-in-out infinite alternate; }
+.story-crops { transform-box: view-box; transform-origin: center bottom; animation: story-crop 5.5s ease-in-out infinite alternate; }
+.story-notebook { animation: story-book 5s ease-in-out infinite; }
+.story-time-path { stroke-dasharray: 5 12; animation: story-time 8s linear infinite; }
+.story-time-dots circle { animation: story-dot 4s ease-in-out infinite; }
+.story-time-dots circle:nth-child(2) { animation-delay: .7s; }
+.story-time-dots circle:nth-child(3) { animation-delay: 1.4s; }
+.story-time-dots circle:nth-child(4) { animation-delay: 2.1s; }
+.story-time-dots circle:nth-child(5) { animation-delay: 2.8s; }
+.showdown-cloud { animation: showdown-cloud 16s ease-in-out infinite alternate; }
+.showdown-rain { animation: showdown-rain 4s ease-in infinite; }
+.showdown-weather { transform-box: view-box; transform-origin: center; animation: showdown-weather 5s ease-in-out infinite; }
+.showdown-weather-two { animation-delay: -2.2s; }
+.showdown-warning { transform-box: view-box; transform-origin: center; animation: showdown-warning 3.8s ease-out infinite; }
+.showdown-crops { transform-box: view-box; transform-origin: center bottom; animation: story-crop 5s ease-in-out infinite alternate; }
+.showdown-route { stroke-dasharray: 5 9; animation: story-time 5s linear infinite; }
+.seven-route { stroke-dasharray: 5 9; animation: story-time 6s linear infinite; }
+.seven-satellite { animation: seven-float 5.5s ease-in-out infinite; }
+.seven-cell-pulse { transform-box: view-box; transform-origin: center; opacity: 0; animation: seven-pulse 4.8s ease-out infinite; }
+.seven-cell-2 .seven-cell-pulse { animation-delay: .6s; }
+.seven-cell-3 .seven-cell-pulse { animation-delay: 1.2s; }
+.seven-cell-4 .seven-cell-pulse { animation-delay: 1.8s; }
+.seven-cell-5 .seven-cell-pulse { animation-delay: 2.4s; }
+.seven-cell-6 .seven-cell-pulse { animation-delay: 3s; }
+.seven-cell-7 .seven-cell-pulse { animation-delay: 3.6s; }
+@keyframes story-water { to { stroke-opacity: .55; } }
+@keyframes story-crop { from { transform: rotate(-.6deg); } to { transform: rotate(.6deg); } }
+@keyframes story-book { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+@keyframes story-time { to { stroke-dashoffset: -68; } }
+@keyframes story-dot { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes showdown-cloud { from { transform: translateX(-10px); } to { transform: translateX(20px); } }
+@keyframes showdown-rain { 0%, 100% { opacity: .35; transform: translateY(0); } 50% { opacity: .85; transform: translateY(5px); } }
+@keyframes showdown-weather { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes showdown-warning { 0% { opacity: .8; transform: scale(.82); } 80%, 100% { opacity: 0; transform: scale(1.35); } }
+@keyframes seven-pulse { 0% { opacity: .7; transform: scale(.65); } 100% { opacity: 0; transform: scale(1.45); } }
+@keyframes seven-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+@media (prefers-reduced-motion: reduce) {
+  .story-water-lines, .story-crops, .story-notebook, .story-time-path, .story-time-dots circle,
+  .showdown-cloud, .showdown-rain, .showdown-weather, .showdown-warning, .showdown-crops,
+  .showdown-route, .seven-route, .seven-satellite, .seven-cell-pulse { animation: none; }
 }

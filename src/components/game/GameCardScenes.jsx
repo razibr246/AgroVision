@@ -1,6 +1,37 @@
 /** Small, decorative scenes for the games hub cards. */
 export default function GameCardScene({ game }) {
-  return game === 'kids' ? <DreamFieldsScene /> : <FacesScene />;
+  if (game === 'kids') return <DreamFieldsScene />;
+  if (game === 'people') return <FacesScene />;
+  if (game === 'play') return <SeasonShowdownScene />;
+  return <SevenFieldsScene />;
+}
+
+export function GameStoryScene() {
+  return (
+    <svg viewBox="0 0 1440 620" preserveAspectRatio="xMidYMid slice" className="game-story-scene absolute inset-0 -z-10 h-full w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="story-sky" x1="720" y1="0" x2="720" y2="620" gradientUnits="userSpaceOnUse"><stop stopColor="#273d45"/><stop offset=".5" stopColor="#9b9a69"/><stop offset="1" stopColor="#d5ad68"/></linearGradient>
+        <linearGradient id="story-water" x1="710" y1="280" x2="730" y2="620" gradientUnits="userSpaceOnUse"><stop stopColor="#668f8a"/><stop offset="1" stopColor="#244e4c"/></linearGradient>
+        <radialGradient id="story-sun"><stop stopColor="#ffe9a5" stopOpacity=".84"/><stop offset="1" stopColor="#ffe9a5" stopOpacity="0"/></radialGradient>
+      </defs>
+      <path fill="url(#story-sky)" d="M0 0h1440v620H0z"/><circle cx="1124" cy="180" r="250" fill="url(#story-sun)"/><circle cx="1124" cy="180" r="43" fill="#ffe7a2" fillOpacity=".75"/>
+      <path d="M0 237c155-67 250-12 399-53 126-34 230 24 359-11 133-36 261-8 370-35 116-29 200 3 312-24v190H0V237Z" fill="#3c5b42"/>
+      <path d="M0 282c134-39 249 7 386-25 150-35 266 26 405-7 133-31 250-8 368-21 103-12 185 6 281-22v141H0V282Z" fill="#59764a"/>
+      <path d="M0 320h1440v300H0z" fill="url(#story-water)"/>
+      <g className="story-water-lines" stroke="#c3d9b3" strokeOpacity=".28" strokeWidth="2"><path d="M840 353c128-15 239 12 414-5m-517 45c166-15 325 14 575-5m-398 43c138-10 250 10 405-3m-548 47c182-16 345 9 576-5"/></g>
+      {/* Bridge, old family land and the river carried through the story. */}
+      <path d="M0 352h1440v29H0z" fill="#b29d77"/><path d="M0 380h1440v10H0z" fill="#3d4b42"/>
+      <g fill="#6b6555"><path d="M155 352V206h34v146Zm-22-146 39-30 39 30h-78Zm453 146V183h38v169Zm-25-169 44-34 44 34h-88Zm612 169V206h36v146Zm-22-146 40-31 40 31h-80Z"/></g>
+      <g stroke="#d5bd8e" strokeWidth="5" opacity=".86"><path d="M0 339h1440M0 321h1440"/><path d="M0 290v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62m90-62v62"/></g>
+      <g className="story-crops" fill="#a7c46a"><path d="M57 294v-35m0 21c-18 0-24-14-25-25 15 1 23 9 25 20m0-1c17-1 23-14 23-24-15 1-21 8-23 19"/><path d="M302 277v-34m0 20c-18 0-24-13-25-24 15 1 23 8 25 19m0-1c16-1 22-13 22-23-14 1-21 8-22 18"/><path d="M1310 282v-37m0 22c-19 0-25-14-26-26 16 1 24 9 26 21m0-1c17-2 23-15 23-25-15 1-22 8-23 19"/></g>
+      {/* A notebook and a ten-season trail sit in the foreground as the light moves. */}
+      <g className="story-notebook" transform="translate(1050 414) rotate(-8)">
+        <rect width="118" height="145" rx="8" fill="#e9d39d"/><path d="M12 0v145" stroke="#b78043" strokeWidth="5"/><path d="M26 33h74M26 53h66M26 73h72M26 93h54" stroke="#738360" strokeWidth="3" strokeLinecap="round"/><path d="M85 145v-29l12 10 12-10v29" fill="#c7694b"/>
+      </g>
+      <path className="story-time-path" d="M1060 574c-110-51-205-55-319-34-91 17-162 10-247-13" stroke="#f3cf79" strokeWidth="3" strokeDasharray="5 12" strokeLinecap="round"/>
+      <g className="story-time-dots" fill="#ffe6a0"><circle cx="1060" cy="574" r="5"/><circle cx="934" cy="546" r="4"/><circle cx="799" cy="541" r="4"/><circle cx="660" cy="527" r="4"/><circle cx="510" cy="527" r="5"/></g>
+    </svg>
+  );
 }
 
 function DreamFieldsScene() {
@@ -80,6 +111,58 @@ function FacesScene() {
         ))}
       </g>
       <g className="gcs-field-glints" fill="#f6db83"><circle cx="126" cy="408" r="2.5"/><circle cx="293" cy="447" r="2"/><circle cx="726" cy="392" r="2.5"/><circle cx="850" cy="451" r="2"/></g>
+    </svg>
+  );
+}
+
+function SeasonShowdownScene() {
+  return (
+    <svg viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice" className="game-card-scene game-card-showdown absolute inset-0 h-full w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="showdown-sky" x1="480" y1="0" x2="480" y2="540" gradientUnits="userSpaceOnUse"><stop stopColor="#e9a45e"/><stop offset=".48" stopColor="#e9c77e"/><stop offset="1" stopColor="#456d43"/></linearGradient>
+        <radialGradient id="showdown-sun"><stop stopColor="#fff1bd" stopOpacity=".9"/><stop offset="1" stopColor="#fff1bd" stopOpacity="0"/></radialGradient>
+      </defs>
+      <path fill="url(#showdown-sky)" d="M0 0h960v540H0z"/><circle cx="763" cy="164" r="178" fill="url(#showdown-sun)"/><circle cx="763" cy="164" r="33" fill="#fff0b9"/>
+      <path d="M0 302c102-60 193-38 282-54 111-21 197 15 300-5 115-22 218-9 378-45v342H0V302Z" fill="#72904f"/>
+      <path d="M0 371c164-61 294-25 430-53 145-29 313 8 530-54v276H0V371Z" fill="#426f43"/>
+      <g stroke="#c5d679" strokeOpacity=".58" strokeWidth="3"><path d="M0 413c186-45 331-23 480-43 166-22 309 4 480-40"/><path d="M0 465c187-41 330-16 481-36 168-22 308 3 479-32"/><path d="M0 518c188-35 331-9 481-28 170-21 308 1 479-25"/></g>
+      <g className="showdown-cloud" fill="#dce1d2" fillOpacity=".9"><ellipse cx="333" cy="153" rx="71" ry="20"/><ellipse cx="308" cy="147" rx="30" ry="25"/><ellipse cx="348" cy="141" rx="38" ry="30"/><ellipse cx="379" cy="152" rx="29" ry="20"/></g>
+      <g className="showdown-rain" stroke="#b5dce0" strokeWidth="4" strokeLinecap="round"><path d="m301 186-9 20m37-20-9 20m39-20-9 20m37-20-9 20"/></g>
+      <g className="showdown-crops" stroke="#c5df7d" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M116 450v-31m0 19c-19 0-25-14-26-26 16 1 24 9 26 21m0-1c17-2 23-15 23-25-15 1-22 8-23 20"/><path d="M249 426v-37m0 22c-20 0-26-15-27-28 17 1 25 10 27 23m0-1c18-2 24-16 24-27-15 1-23 9-24 21"/><path d="M688 436v-34m0 20c-19 0-25-14-26-26 16 1 24 9 26 21m0-1c17-2 23-15 23-25-14 1-22 8-23 20"/><path d="M841 400v-41m0 25c-22 0-29-17-30-31 18 1 28 11 30 26m0-2c19-2 26-17 26-30-16 1-24 9-26 23"/></g>
+      {/* Small weather emblems orbit the field: rain, sun and a warning cloud. */}
+      <g className="showdown-weather showdown-weather-one"><circle cx="184" cy="201" r="26" fill="#f5d47b" fillOpacity=".92"/><path d="M184 185v32m-16-16h32m-27-11 22 22m0-22-22 22" stroke="#fff4ca" strokeWidth="2.5" strokeLinecap="round"/></g>
+      <g className="showdown-weather showdown-weather-two"><path d="M584 196c0-15 12-26 27-26 12 0 21 7 25 17 13 0 23 10 23 22 0 13-10 22-24 22h-50c-13 0-23-9-23-21 0-10 8-19 22-21Z" fill="#5a6470"/><path d="m600 237-7 17m31-17-7 17m31-17-7 17" stroke="#d0e4e8" strokeWidth="4" strokeLinecap="round"/></g>
+      <circle className="showdown-warning" cx="640" cy="176" r="43" stroke="#f5d47b" strokeWidth="2" strokeDasharray="4 7"/>
+      <path className="showdown-route" d="M197 267c127-42 253-43 405-16" stroke="#fff2c3" strokeWidth="2" strokeDasharray="5 9" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function SevenFieldsScene() {
+  const cells = [[499, 126], [447, 191], [550, 212], [390, 274], [492, 292], [588, 318], [443, 382]];
+  return (
+    <svg viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice" className="game-card-scene game-card-seven absolute inset-0 h-full w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="seven-sky" x1="480" y1="0" x2="480" y2="540" gradientUnits="userSpaceOnUse"><stop stopColor="#557d82"/><stop offset=".6" stopColor="#b9b977"/><stop offset="1" stopColor="#486f47"/></linearGradient>
+        <linearGradient id="seven-map" x1="491" y1="128" x2="483" y2="421" gradientUnits="userSpaceOnUse"><stop stopColor="#d6cf83"/><stop offset="1" stopColor="#6d9e58"/></linearGradient>
+        <radialGradient id="seven-glow"><stop stopColor="#ffe49a" stopOpacity=".8"/><stop offset="1" stopColor="#ffe49a" stopOpacity="0"/></radialGradient>
+      </defs>
+      <path fill="url(#seven-sky)" d="M0 0h960v540H0z"/><circle cx="763" cy="146" r="200" fill="url(#seven-glow)"/>
+      <path d="M0 307c132-66 242-24 350-59 132-42 215 11 340-19 96-22 169 5 270-33v344H0V307Z" fill="#345c42"/>
+      <path d="M0 383c127-55 239-23 366-50 127-27 237 12 361-20 86-22 150-3 233-32v259H0V383Z" fill="#54804a"/>
+      {/* Seven linked field tiles, drawn as an abstract mission map rather than a geographic claim. */}
+      <path d="m505 103 104 51 21 94-35 98-83 91-95-51-42-93 39-104 91-86Z" fill="url(#seven-map)" stroke="#f3e4ae" strokeWidth="4" strokeLinejoin="round"/>
+      <g className="seven-grid" stroke="#f7edc7" strokeOpacity=".5" strokeWidth="2"><path d="m505 103-3 334m-127-244 255 55m-273 47 238 51m-176-198 201 202"/></g>
+      <path className="seven-route" d="M499 139 465 203l83 9-158 63 102 17 96 26-95 65" stroke="#fff0ae" strokeWidth="3" strokeDasharray="5 9" strokeLinecap="round" strokeLinejoin="round"/>
+      {cells.map(([x, y], i) => (
+        <g key={i} className={`seven-cell seven-cell-${i + 1}`}>
+          <circle cx={x} cy={y} r="17" fill={i === 3 ? '#d58d42' : i === 5 ? '#3f9291' : '#397849'} stroke="#f9f0ca" strokeWidth="3"/>
+          <circle cx={x} cy={y} r="5" fill="#fff7d9"/>
+          <circle className="seven-cell-pulse" cx={x} cy={y} r="24" stroke="#ffe7a0" strokeWidth="2"/>
+        </g>
+      ))}
+      <g className="seven-satellite" transform="translate(739 174)"><path d="M-35-8h-24v24h24m70-24h24v24H35" fill="#3d8290" stroke="#d4efdc" strokeWidth="3"/><rect x="-22" y="-19" width="44" height="45" rx="12" fill="#e8e5c8" stroke="#b5e1d1" strokeWidth="3"/><circle cx="-8" cy="1" r="3" fill="#42697a"/><circle cx="8" cy="1" r="3" fill="#42697a"/><path d="M-7 12q7 6 14 0" stroke="#ca8267" strokeWidth="2.5" strokeLinecap="round"/></g>
+      <g fill="#f7dc92"><circle cx="708" cy="287" r="3"/><circle cx="816" cy="352" r="2.5"/><circle cx="669" cy="401" r="2"/></g>
     </svg>
   );
 }

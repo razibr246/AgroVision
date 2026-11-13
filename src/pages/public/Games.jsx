@@ -11,7 +11,7 @@ import { useStore } from '../../store';
 import { scrollToEl } from '../../components/Motion';
 import BiomechanicsLab from '../../components/game/BiomechanicsLab';
 import HarvestHorizonScene from '../../components/game/HarvestHorizonScene';
-import GameCardScene from '../../components/game/GameCardScenes';
+import GameCardScene, { GameStoryScene } from '../../components/game/GameCardScenes';
 import usePageMeta from '../../components/usePageMeta';
 import { GAMES, SECTIONS, START_HERE } from '../../data/games';
 
@@ -35,10 +35,10 @@ function Card({ id, text, n }) {
     <Link to={g.to} style={{ '--n': n }} className="tool-card tool-deal cv-auto glass flat group flex flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white/80 shadow-md backdrop-blur-md transition-all duration-300 hover:border-primary-400/60 hover:shadow-2xl">
       <div className="relative aspect-[16/9] overflow-hidden">
         <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-smooth)] group-hover:scale-110">
-          {id === 'kids' || id === 'people' ? <GameCardScene game={id} /> : <Photo name={PHOTO[id]} fill sizes="(min-width: 768px) 600px, 100vw" decorative />}
+          {['kids', 'people', 'play', 'stories'].includes(id) ? <GameCardScene game={id} /> : <Photo name={PHOTO[id]} fill sizes="(min-width: 768px) 600px, 100vw" decorative />}
         </div>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,26,14,0)_30%,rgba(8,26,14,.8)_100%)]" />
-        {id !== 'kids' && id !== 'people' && IMAGES[PHOTO[id]]?.credit && <span className="absolute right-3 top-3 max-w-[75%] truncate rounded-full bg-black/35 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">{IMAGES[PHOTO[id]].credit.ai ? T('এআই ছবি', 'AI image') : <>{T('ছবি', 'Image')}: {IMAGES[PHOTO[id]].credit.artist} · {IMAGES[PHOTO[id]].credit.license}</>}</span>}
+        {!['kids', 'people', 'play', 'stories'].includes(id) && IMAGES[PHOTO[id]]?.credit && <span className="absolute right-3 top-3 max-w-[75%] truncate rounded-full bg-black/35 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">{IMAGES[PHOTO[id]].credit.ai ? T('এআই ছবি', 'AI image') : <>{T('ছবি', 'Image')}: {IMAGES[PHOTO[id]].credit.artist} · {IMAGES[PHOTO[id]].credit.license}</>}</span>}
         <span className="absolute bottom-4 left-5 grid h-14 w-14 place-items-center rounded-2xl bg-white/25 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.5),0_8px_20px_rgba(0,0,0,.3)] backdrop-blur-xl transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-primary-600/70"><Icon size={26} /></span>
       </div>
       <div className="flex flex-1 flex-col p-6">
@@ -138,7 +138,7 @@ export default function Games() {
       {/* Part 2: stories and challenges */}
       <SectionHead id="stories" icon={BookOpen} n={T('২', '2')} />
       <Link to={GAMES.saga.to} aria-labelledby="sec-stories" className="lift group relative isolate mt-5 flex min-h-[320px] items-end overflow-hidden rounded-[32px] bg-primary-950 text-white shadow-[var(--shadow-lift)]">
-        <div className="absolute inset-0 -z-10 transition-transform duration-[1.4s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-105"><Photo name="dhamraiBridge" fill sizes="100vw" decorative /></div>
+        <GameStoryScene />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(8,20,12,.92)_0%,rgba(8,20,12,.6)_55%,rgba(8,20,12,.15)_100%)]" />
         <div className="max-w-2xl p-7 sm:p-10">
           <p className="inline-flex items-center gap-2 rounded-full bg-paddy-300 px-3 py-1 text-[13px] font-bold text-primary-950"><BookOpen size={14} />{L(GAMES.saga.kind)} · {L(GAMES.saga.time)}</p>
