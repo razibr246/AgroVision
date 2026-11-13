@@ -4,13 +4,14 @@
 // weather), then the science lab. Names, audiences and times come from data/games.js.
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Swords, Sprout, ArrowRight, BookOpen, Gamepad2, MapPinned, Sparkles, Users, Droplets, Bug, CloudLightning, Coins, Clock, UserRound, Compass, FlaskConical } from 'lucide-react';
+import { Swords, Sprout, ArrowRight, BookOpen, Gamepad2, MapPinned, Sparkles, Users, Droplets, Bug, CloudLightning, Coins, Clock, UserRound, Compass, FlaskConical, Play } from 'lucide-react';
 import Photo from '../../components/Photo';
 import { IMAGES } from '../../assets/images';
 import { useStore } from '../../store';
 import { scrollToEl } from '../../components/Motion';
 import BiomechanicsLab from '../../components/game/BiomechanicsLab';
 import HarvestHorizonScene from '../../components/game/HarvestHorizonScene';
+import GameCardScene from '../../components/game/GameCardScenes';
 import usePageMeta from '../../components/usePageMeta';
 import { GAMES, SECTIONS, START_HERE } from '../../data/games';
 
@@ -33,9 +34,11 @@ function Card({ id, text, n }) {
   return (
     <Link to={g.to} style={{ '--n': n }} className="tool-card tool-deal cv-auto glass flat group flex flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white/80 shadow-md backdrop-blur-md transition-all duration-300 hover:border-primary-400/60 hover:shadow-2xl">
       <div className="relative aspect-[16/9] overflow-hidden">
-        <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-smooth)] group-hover:scale-110"><Photo name={PHOTO[id]} fill sizes="(min-width: 768px) 600px, 100vw" decorative /></div>
+        <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-smooth)] group-hover:scale-110">
+          {id === 'kids' || id === 'people' ? <GameCardScene game={id} /> : <Photo name={PHOTO[id]} fill sizes="(min-width: 768px) 600px, 100vw" decorative />}
+        </div>
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,26,14,0)_30%,rgba(8,26,14,.8)_100%)]" />
-        {IMAGES[PHOTO[id]]?.credit && <span className="absolute right-3 top-3 max-w-[75%] truncate rounded-full bg-black/35 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">{IMAGES[PHOTO[id]].credit.ai ? T('এআই ছবি', 'AI image') : <>{T('ছবি', 'Image')}: {IMAGES[PHOTO[id]].credit.artist} · {IMAGES[PHOTO[id]].credit.license}</>}</span>}
+        {id !== 'kids' && id !== 'people' && IMAGES[PHOTO[id]]?.credit && <span className="absolute right-3 top-3 max-w-[75%] truncate rounded-full bg-black/35 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">{IMAGES[PHOTO[id]].credit.ai ? T('এআই ছবি', 'AI image') : <>{T('ছবি', 'Image')}: {IMAGES[PHOTO[id]].credit.artist} · {IMAGES[PHOTO[id]].credit.license}</>}</span>}
         <span className="absolute bottom-4 left-5 grid h-14 w-14 place-items-center rounded-2xl bg-white/25 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.5),0_8px_20px_rgba(0,0,0,.3)] backdrop-blur-xl transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-primary-600/70"><Icon size={26} /></span>
       </div>
       <div className="flex flex-1 flex-col p-6">
@@ -43,7 +46,7 @@ function Card({ id, text, n }) {
         <h3 className="font-display mt-1 text-[26px] font-bold tracking-tight text-ink transition-colors group-hover:text-primary-800">{L(g.name)}</h3>
         <div className="mt-2"><Chips g={g} /></div>
         <p className="mt-3 text-[15px] leading-7 text-ink/75">{text}</p>
-        <span className="mt-auto inline-flex items-center gap-2 pt-4 font-semibold text-primary-700 transition-colors group-hover:text-primary-800">{T('খেলুন', 'Play')}<ArrowRight size={17} className="transition-transform duration-300 group-hover:translate-x-1.5" /></span>
+        <span className="game-card-play mt-auto inline-flex w-fit items-center gap-2 rounded-full bg-primary-700 px-5 py-2.5 pt-2.5 text-[15px] font-bold text-white shadow-[0_6px_16px_rgba(36,90,40,.2)] transition-all duration-300 group-hover:gap-3 group-hover:bg-primary-800 group-hover:shadow-[0_9px_22px_rgba(36,90,40,.28)] group-focus-visible:ring-4 group-focus-visible:ring-primary-200"><Play size={15} className="fill-current" />{T('খেলুন', 'Play')}<ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5" /></span>
       </div>
     </Link>
   );
