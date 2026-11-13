@@ -10,6 +10,7 @@ import { IMAGES } from '../../assets/images';
 import { useStore } from '../../store';
 import { scrollToEl } from '../../components/Motion';
 import BiomechanicsLab from '../../components/game/BiomechanicsLab';
+import HarvestHorizonScene from '../../components/game/HarvestHorizonScene';
 import usePageMeta from '../../components/usePageMeta';
 import { GAMES, SECTIONS, START_HERE } from '../../data/games';
 
@@ -111,7 +112,7 @@ export default function Games() {
       {/* Part 1: the people games */}
       <SectionHead id="people" icon={Gamepad2} n={T('১', '1')} />
       <section aria-labelledby="sec-people" className="relative isolate mt-5 overflow-hidden rounded-[30px] bg-primary-950 text-white shadow-[var(--shadow-lift)]">
-        <div className="absolute inset-0 -z-10 opacity-45"><Photo name="farmGame" fill sizes="100vw" decorative /></div>
+        <HarvestHorizonScene />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary-950 via-primary-950/90 to-primary-950/45" />
         <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end lg:p-10">
           <div className="max-w-3xl">

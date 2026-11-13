@@ -3211,3 +3211,21 @@ input, textarea, [contenteditable="true"] { cursor: text; }
 html { scrollbar-color: #638344 #edf1e9; }
 ::-webkit-scrollbar-thumb { background: linear-gradient(160deg, #43863a 5%, #638344 62%, #d08f26 100%); }
 ::-webkit-scrollbar-thumb:hover { background: linear-gradient(160deg, #2f6e2f 5%, #54783a 55%, #b77818 100%); }
+
+/* Harvest Horizon teaser: a quiet animated view into the game world. */
+.harvest-horizon-scene { opacity: .92; }
+.hh-cloud { transform-box: view-box; animation: hh-cloud-drift 32s ease-in-out infinite alternate; }
+.hh-cloud-two { animation-duration: 41s; animation-delay: -16s; }
+.hh-crops { transform-box: view-box; transform-origin: 50% 100%; animation: hh-crop-sway 5s ease-in-out infinite alternate; }
+.hh-crops-back { animation-delay: -2.2s; animation-duration: 6.5s; }
+.hh-farmer { transform-box: view-box; transform-origin: center bottom; animation: hh-farmer-idle 2.8s ease-in-out infinite; }
+.hh-firefly { animation: hh-firefly 3.8s ease-in-out infinite; }
+.hh-firefly-two { animation-delay: -1.6s; }
+.hh-firefly-three { animation-delay: -2.8s; }
+@keyframes hh-cloud-drift { from { transform: translateX(-12px); } to { transform: translateX(24px); } }
+@keyframes hh-crop-sway { from { transform: rotate(-.7deg); } to { transform: rotate(.7deg); } }
+@keyframes hh-farmer-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes hh-firefly { 0%, 100% { opacity: .22; } 50% { opacity: .95; } }
+@media (prefers-reduced-motion: reduce) {
+  .hh-cloud, .hh-crops, .hh-farmer, .hh-firefly { animation: none; }
+}
