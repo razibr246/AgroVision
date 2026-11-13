@@ -3203,9 +3203,9 @@ body.is-scrolling .public-atmosphere * {
 
 /* FieldShift cursor and scroll accents: native input and scroll behavior stay intact. */
 body {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3v23l6.4-6.2 4.4 9.1 4.1-2-4.3-9.1H25L5 3Z' fill='%23245a28' stroke='%23edc067' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpath d='m8 8 11.3 8.5h-5.8l4.3 9' fill='none' stroke='%238dbe78' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, auto;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2v18l5-4.8 3.5 7 3.2-1.6-3.4-7.1H20L4 2Z' fill='%23245a28' stroke='%23edc067' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
 }
-a[href], button:not(:disabled), [role="button"], summary { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3v23l6.4-6.2 4.4 9.1 4.1-2-4.3-9.1H25L5 3Z' fill='%2343863a' stroke='%23edc067' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='m8 8 11.3 8.5h-5.8l4.3 9' fill='none' stroke='%23f8e6bd' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, pointer; }
+a[href], button:not(:disabled), [role="button"], summary { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 11V5.5a1.7 1.7 0 0 1 3.4 0V10 8.4a1.7 1.7 0 0 1 3.4 0V10a1.7 1.7 0 0 1 3.4 0v1.8a1.7 1.7 0 0 1 3.4 0v4.1c0 4.1-2.5 6.6-6.5 6.6h-1.8c-2 0-3.4-.8-4.7-2.4L4 16.4a1.8 1.8 0 0 1 2.6-2.5L7 14V11Z' fill='%2343863a' stroke='%23edc067' stroke-width='1.35' stroke-linejoin='round' stroke-linecap='round'/%3E%3Cpath d='M8.7 5.8v4.8m3.4-2.1v2.1m3.4-1.7v1.7' fill='none' stroke='%23f8e6bd' stroke-width='.8' stroke-linecap='round'/%3E%3C/svg%3E") 8 5, pointer; }
 button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 input, textarea, [contenteditable="true"] { cursor: text; }
 html { scrollbar-color: #638344 #edf1e9; }

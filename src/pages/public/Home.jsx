@@ -6,17 +6,17 @@ import BrandMark from '../../components/brand/BrandMark';
 import { IMAGES } from '../../assets/images';
 import Photo from '../../components/Photo';
 import { onScroll } from '../../components/Motion';
-import SeasonRibbon from '../../components/charts/SeasonRibbon';
-import LiveWeather from '../../components/charts/LiveWeather';
-import DecisionSandbox from '../../components/home/DecisionSandbox';
 import AgroAtmosphereCanvas from '../../components/home/AgroAtmosphereCanvas';
 import RiverWater, { hasWater } from '../../components/home/RiverWater';
-import FieldPinDemo from '../../components/home/FieldPinDemo';
-import FieldReview from '../../components/home/FieldReview';
 import RecommendationScene from '../../components/home/RecommendationScene';
 import OfficerLoopScene, { PHASES } from '../../components/home/OfficerLoopScene';
 import { startRiver, stopRiver, closeRiver, setRiverLevel, riverSoundSupported } from '../../components/home/riverSound';
-import RainCheck from '../../components/charts/RainCheck';
+const LiveWeather = lazy(() => import('../../components/charts/LiveWeather'));
+const DecisionSandbox = lazy(() => import('../../components/home/DecisionSandbox'));
+const FieldPinDemo = lazy(() => import('../../components/home/FieldPinDemo'));
+const FieldReview = lazy(() => import('../../components/home/FieldReview'));
+const RainCheck = lazy(() => import('../../components/charts/RainCheck'));
+const ClimateShift = lazy(() => import('../../components/charts/ClimateShift'));
 // The whole-country section carries 250 KB of district data; it loads on its own, after the top of the page.
 const CountryCrops = lazy(() => import('../../components/charts/CountryCrops'));
 // The ten-year rotation teaser runs the Field Future engine; it loads on its own too.
@@ -25,7 +25,6 @@ const ImpactReach = lazy(() => import('../../components/charts/ImpactReach'));
 const NasaEyes = lazy(() => import('../../components/NasaEyes'));
 const RopanRadarPulse = lazy(() => import('../../components/home/RopanRadarPulse'));
 const VoiceAskDemo = lazy(() => import('../../components/home/VoiceAskDemo'));
-import ClimateShift from '../../components/charts/ClimateShift';
 import { LazyMount } from '../../components/SectionNav';
 import NeighbourPhotos from '../../components/NeighbourPhotos';
 import { useStore } from '../../store';
@@ -222,7 +221,7 @@ export default function Home() {
             <div className="relative aspect-[16/11] sm:aspect-[16/8] lg:aspect-auto lg:h-[max(600px,50vw)] lg:max-h-[680px]">
               <Photo name="landParcels" fill focus="50% 50%" sizes="(min-width: 1200px) 1200px, 100vw" />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(13,38,20,0)_55%,rgba(13,38,20,.7)_100%)] lg:bg-[linear-gradient(270deg,rgba(13,38,20,0)_45%,rgba(13,38,20,.78)_100%)]" />
-              <FieldPinDemo />
+              <Suspense fallback={null}><FieldPinDemo /></Suspense>
             </div>
             <div className="relative bg-primary-950 p-6 text-white sm:p-8 lg:absolute lg:inset-y-6 lg:left-6 lg:flex lg:w-[35%] lg:flex-col lg:justify-center lg:rounded-[24px] lg:border lg:border-white/15 lg:bg-primary-950/55 lg:p-7 lg:shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_20px_50px_-20px_rgba(0,0,0,.6)] lg:backdrop-blur-xl xl:p-8">
               <p className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-[12.5px] font-semibold text-amber-200 ring-1 ring-white/15"><MapPinned size={14} />{T('প্রথম ধাপ', 'First step')}</p>
@@ -280,15 +279,19 @@ export default function Home() {
             <h2 className="mt-4 text-[32px] font-bold sm:text-[40px]">{T('আজকের আবহাওয়া আর সিদ্ধান্ত, এখনই', 'Today’s weather and the decision, live')}</h2>
             <p className="mt-3 text-[16.5px] leading-8 text-muted">{T('প্রথমে আপনার জায়গার আজকের আবহাওয়া। তার নিচে এলাকা, চাওয়া আর আগের ফসল বদলে দেখুন সুপারিশ কীভাবে বদলায়; হিসাবটা আপনার ব্রাউজারেই চলে।', 'First, today’s weather where you are. Under it, change the place, the goal or the last crop and watch the advice change; the working runs in your browser.')}</p>
           </div>
-          <LiveWeather className="mt-8" />
-          <DecisionSandbox />
+          <LazyMount height={700}>
+            <Suspense fallback={<div className="mt-8 min-h-[620px] rounded-2xl bg-primary-50/60" />}>
+              <LiveWeather className="mt-8" />
+              <DecisionSandbox />
+            </Suspense>
+          </LazyMount>
         </div>
       </section>
 
       <LazyMount height={640}><Suspense fallback={<section className="py-14"><div className="page-shell min-h-[600px]" /></section>}><RotationTeaser /></Suspense></LazyMount>
 
       {/* Climate risk: the drought/flood split photo beside 25 seasons of NASA data for Godagari or Dhamrai. */}
-      <div id="climate-shift" className="scroll-mt-20"><LazyMount height={720}><ClimateShift /></LazyMount></div>
+      <div id="climate-shift" className="scroll-mt-20"><LazyMount height={720}><Suspense fallback={<div className="min-h-[680px]" />}><ClimateShift /></Suspense></LazyMount></div>
       {/* Data sources over the satellite patchwork. */}
       <section id="data" className="relative isolate scroll-mt-20 overflow-hidden py-16 text-white sm:py-24">
         <div className="absolute inset-0 -z-10"><Photo name="satellite" fill sizes="100vw" decorative /><div className="absolute inset-0 bg-primary-950/85" /></div>
@@ -325,7 +328,7 @@ export default function Home() {
               </tbody>
             </table>
           </div>
-          <RainCheck />
+          <Suspense fallback={<div className="min-h-[150px] rounded-2xl bg-white/5" />}><RainCheck /></Suspense>
           </div>
         </div>
       </section>
@@ -337,7 +340,7 @@ export default function Home() {
       <OfficerSection />
 
       {/* Tried in the field: the Dhamrai session of 4 November as the team reports it, and the team. */}
-      <FieldReview />
+      <LazyMount id="reviews" height={620}><Suspense fallback={<div className="min-h-[580px]" />}><FieldReview /></Suspense></LazyMount>
 
       {/* Voice + Aman radar: the two modules merged into the main app. */}
       <section id="voice-radar" className="scroll-mt-20 py-16 sm:py-20">
