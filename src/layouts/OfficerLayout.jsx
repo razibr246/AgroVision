@@ -12,7 +12,7 @@ import { num } from '../engine/dates';
 import { unionsOf } from '../data/demo';
 import ChakraAgent from '../components/chakra/ChakraAgent';
 import { openCommandPalette } from '../components/CommandPalette';
-import { MacTrafficLights, MacNavPills, MacPortalToggle, MacPortalDock } from '../components/MacOSPortalChrome';
+import { MacNavPills, MacPortalToggle, MacPortalDock } from '../components/MacOSPortalChrome';
 import { useAuth } from '../auth/AuthProvider';
 
 // The white highlight behind the current page's link glides from item to item instead of jumping.
@@ -72,14 +72,6 @@ function Sidebar({ onNavigate }) {
   return (
     <div className="officer-sidebar flex h-full flex-col overflow-y-auto overscroll-contain bg-[#163020] text-white shadow-[inset_-1px_0_0_rgba(255,255,255,.08)]">
       <div className="officer-sidebar-brand border-b border-white/10 p-5">
-        {macosPortal && (
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <MacTrafficLights decorative />
-            <span className="rounded-full border border-white/15 bg-white/[.08] px-2 py-0.5 text-[10.5px] font-semibold text-white/75 backdrop-blur-xs">
-              {T('ম্যাক পোর্টাল', 'macOS')}
-            </span>
-          </div>
-        )}
         <Link to="/" onClick={onNavigate}><BrandMark inverse /></Link>
         {macosPortal && (
           <button
