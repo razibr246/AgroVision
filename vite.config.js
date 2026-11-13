@@ -143,6 +143,26 @@ const slimClimate = () => ({
   },
 });
 
+// First paint: the app waits for Godagari's NASA climate (bootClimate in main.jsx) before it renders, and the hero
+// text needs the Latin Inter font. Both are only discovered after the main script has run, one round trip late, so
+// the built index.html preloads them next to the main script instead.
+const preloadFirstPaint = () => ({
+  name: 'preload-first-paint',
+  apply: 'build',
+  transformIndexHtml: {
+    order: 'post',
+    handler(html, { bundle }) {
+      if (!bundle) return html;
+      const tags = [];
+      for (const [name, out] of Object.entries(bundle)) {
+        if (out.type === 'chunk' && /climate_godagari/.test(name)) tags.push({ tag: 'link', attrs: { rel: 'modulepreload', crossorigin: true, href: `./${name}` }, injectTo: 'head' });
+        if (out.type === 'asset' && /inter-latin-opsz-normal.*\.woff2$/.test(name)) tags.push({ tag: 'link', attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: true, href: `./${name}` }, injectTo: 'head' });
+      }
+      return tags;
+    },
+  },
+});
+
 // npm run build        -> static site in dist/ (hash routing, works on any static host)
 // npm run build:single -> inline app JS/CSS in one HTML; public assets and the MapLibre worker remain alongside it
 const manualChunks = (id) => {
@@ -159,7 +179,7 @@ const manualChunks = (id) => {
 };
 
 export default defineConfig(({ mode }) => ({
-  plugins: [slimClimate(), react(), tailwindcss(), brandHtml(), dropGitHistory(), devPlansApi(), devMessagesApi(), devAbroadApi(), devDoctorApi(loadEnv(mode, process.cwd(), '')), ...(mode === 'single' ? [viteSingleFile()] : [])],
+  plugins: [slimClimate(), react(), tailwindcss(), brandHtml(), preloadFirstPaint(), dropGitHistory(), devPlansApi(), devMessagesApi(), devAbroadApi(), devDoctorApi(loadEnv(mode, process.cwd(), '')), ...(mode === 'single' ? [viteSingleFile()] : [])],
   base: './',
   build: mode === 'single'
     ? { outDir: 'dist-single', chunkSizeWarningLimit: 6000 }
