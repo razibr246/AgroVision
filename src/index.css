@@ -3305,3 +3305,37 @@ html { scrollbar-color: #638344 #edf1e9; }
   .showdown-cloud, .showdown-rain, .showdown-weather, .showdown-warning, .showdown-crops,
   .showdown-route, .seven-route, .seven-satellite, .seven-cell-pulse { animation: none; }
 }
+
+/* Month-by-month story game scenes: the field, weather and challenge evolve together. */
+.play-season-scene { animation: play-season-reveal 900ms cubic-bezier(.2,.8,.2,1) both; }
+.play-season-scene.is-thumbnail { animation-duration: 650ms; }
+.ps-crops { transform-box: view-box; transform-origin: center bottom; animation: play-crop-sway 4.8s ease-in-out infinite alternate; }
+.ps-village { opacity: .85; }
+.ps-fireflies circle { animation: play-glow 3.5s ease-in-out infinite; }
+.ps-fireflies circle:nth-child(2) { animation-delay: -1.3s; }
+.ps-fireflies circle:nth-child(3) { animation-delay: -2.1s; }
+.ps-seeds circle { animation: play-seed-fall 3.4s ease-in-out infinite; }
+.ps-seeds circle:nth-child(2n) { animation-delay: -1.7s; }
+.ps-price-line { stroke-dasharray: 3 1; animation: play-price-drop 4.2s ease-in-out infinite; }
+.ps-leaf { transform-box: view-box; transform-origin: 490px 410px; animation: play-leaf-tilt 3.5s ease-in-out infinite alternate; }
+.ps-spots circle { animation: play-spot 2.5s ease-in-out infinite alternate; }
+.ps-spots circle:nth-child(2n) { animation-delay: -1.2s; }
+.ps-well-level { transform-box: view-box; transform-origin: 50% 100%; animation: play-water-level 5s ease-in-out infinite alternate; }
+.ps-storm-cloud { animation: play-storm-roll 4.5s ease-in-out infinite alternate; }
+.ps-alert-rings circle { transform-box: view-box; transform-origin: 504px 314px; animation: play-alert 3.2s ease-out infinite; }
+.ps-alert-rings circle:nth-child(2) { animation-delay: 1.05s; }
+.ps-alert-rings circle:nth-child(3) { animation-delay: 2.1s; }
+@keyframes play-season-reveal { from { opacity: .2; transform: scale(1.035); filter: saturate(.65); } to { opacity: 1; transform: scale(1); filter: saturate(1); } }
+@keyframes play-crop-sway { from { transform: rotate(-.5deg); } to { transform: rotate(.5deg); } }
+@keyframes play-glow { 0%, 100% { opacity: .28; } 50% { opacity: .92; } }
+@keyframes play-seed-fall { 0%, 100% { transform: translateY(-3px); opacity: .35; } 50% { transform: translateY(5px); opacity: 1; } }
+@keyframes play-price-drop { 0%, 24% { stroke-dashoffset: 0; } 58%, 100% { stroke-dashoffset: -8; } }
+@keyframes play-leaf-tilt { from { rotate: -1deg; } to { rotate: 2deg; } }
+@keyframes play-spot { from { opacity: .45; } to { opacity: .95; } }
+@keyframes play-water-level { from { transform: scaleY(.58); } to { transform: scaleY(.3); } }
+@keyframes play-storm-roll { from { translate: -8px 0; } to { translate: 12px 4px; } }
+@keyframes play-alert { 0% { opacity: .8; transform: scale(.7); } 100% { opacity: 0; transform: scale(1.38); } }
+@media (prefers-reduced-motion: reduce) {
+  .play-season-scene, .ps-crops, .ps-fireflies circle, .ps-seeds circle, .ps-price-line, .ps-leaf,
+  .ps-spots circle, .ps-well-level, .ps-storm-cloud, .ps-alert-rings circle { animation: none; }
+}

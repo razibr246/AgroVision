@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sprout, TrendingDown, ScanLine, Droplets, CloudSun, LifeBuoy, History, Coins, Swords, Star, RotateCcw, ArrowRight, Check, X, Sparkles, ExternalLink, Lightbulb, Satellite, Trophy } from 'lucide-react';
-import Photo from '../../components/Photo';
+import PlaySeasonScene from '../../components/game/PlaySeasonScene';
 import { useStore, clim as godagariClim } from '../../store';
 import { Tags } from '../../components/ui';
 import { chapterFacts, seasonTotals } from '../../engine/play';
@@ -71,10 +71,10 @@ export default function Play() {
             <Meters m={m} delta={delta} />
           </div>
 
-          {/* The scene: photo, weather effect, and the problem told word by word. */}
+          {/* Each Rabi month transitions to its own illustrated game scene and live weather effect. */}
           <section key={sc.id} className="scene-in relative mt-4 isolate overflow-hidden rounded-[30px] bg-primary-950 shadow-[var(--shadow-lift)]">
             <div className="absolute inset-0 -z-10">
-              <div className="kenburns absolute inset-0" style={{ '--kb-from': 'scale(1.12)', '--kb-to': 'scale(1.02)' }}><Photo name={sc.photo} fill focus={sc.focus} sizes="(min-width: 1200px) 1200px, 100vw" decorative /></div>
+              <PlaySeasonScene scene={sc} />
               <SceneFx fx={sc.fx} />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,26,14,.25)_0%,rgba(8,26,14,.35)_40%,rgba(8,26,14,.88)_100%)]" />
             </div>
@@ -344,7 +344,7 @@ function StartScreen({ onStart }) {
           const Icon = TOOL_ICON[sc.tool];
           return (
             <li key={sc.id} className="hand-card relative isolate overflow-hidden rounded-[20px] bg-primary-950 p-3.5 text-white" style={{ '--n': k, '--rot': '0deg' }}>
-              <div className="absolute inset-0 -z-10 opacity-60"><Photo name={sc.photo} fill focus={sc.focus} sizes="220px" decorative /></div>
+              <PlaySeasonScene scene={sc} thumbnail />
               <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,26,14,.2),rgba(8,26,14,.88))]" />
               <span className="flex items-center justify-between text-[12px] font-semibold text-white/80">{T(`অধ্যায় ${num(k + 1, 'bn')}`, `Chapter ${k + 1}`)}<Icon size={15} className="text-paddy-300" /></span>
               <span className="mt-6 block text-[13px] font-semibold text-paddy-300">{L(sc.month)}</span>
