@@ -21,7 +21,18 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect width=%2240%22 height=%2240%22 rx=%2210%22 fill=%22%230d3b2b%22/%3E%3Cpath d=%22M20 9C14 15 14 24 20 31C26 24 26 15 20 9Z%22 fill=%22%237cc06a%22/%3E%3Ccircle cx=%2230%22 cy=%2212%22 r=%222.4%22 fill=%22%23e8a83e%22/%3E%3C/svg%3E" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-mark" role="status" aria-label="Loading FieldShift 360">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="boot-orbit" cx="24" cy="24" r="18" fill="none" stroke="#43863a" stroke-width="2.5"/><path d="M24 11c-7 7-7 17 0 25 7-8 7-18 0-25Z" fill="#8dbe78"/><circle cx="36" cy="13" r="3.2" fill="#edc067"/></svg>
+      </div>
+    </div>
+    <style>
+      .boot-mark{position:fixed;inset:0;display:grid;place-items:center;background:#f5f7f2;z-index:9999}
+      .boot-mark svg{width:54px;height:54px;filter:drop-shadow(0 5px 14px rgba(36,90,40,.16))}
+      .boot-orbit{transform-origin:24px 24px;animation:boot-spin 2.4s linear infinite}
+      @keyframes boot-spin{to{transform:rotate(360deg)}}
+      @media(prefers-reduced-motion:reduce){.boot-orbit{animation:none}}
+    </style>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

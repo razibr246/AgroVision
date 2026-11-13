@@ -3200,3 +3200,14 @@ body.is-scrolling .public-atmosphere * {
 @media (prefers-reduced-motion: reduce) {
   .voice-ask-aura, .voice-mic::before, .ropan-ring, .ropan-origin-halo { animation: none; }
 }
+
+/* FieldShift cursor and scroll accents: native input and scroll behavior stay intact. */
+body {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3v23l6.4-6.2 4.4 9.1 4.1-2-4.3-9.1H25L5 3Z' fill='%23245a28' stroke='%23edc067' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpath d='m8 8 11.3 8.5h-5.8l4.3 9' fill='none' stroke='%238dbe78' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, auto;
+}
+a[href], button:not(:disabled), [role="button"], summary { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M5 3v23l6.4-6.2 4.4 9.1 4.1-2-4.3-9.1H25L5 3Z' fill='%2343863a' stroke='%23edc067' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='m8 8 11.3 8.5h-5.8l4.3 9' fill='none' stroke='%23f8e6bd' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") 4 3, pointer; }
+button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+input, textarea, [contenteditable="true"] { cursor: text; }
+html { scrollbar-color: #638344 #edf1e9; }
+::-webkit-scrollbar-thumb { background: linear-gradient(160deg, #43863a 5%, #638344 62%, #d08f26 100%); }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(160deg, #2f6e2f 5%, #54783a 55%, #b77818 100%); }
