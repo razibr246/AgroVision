@@ -745,7 +745,7 @@ export async function boot() {
 /* ───────────── explore mode ───────────── */
 export function startExplore(model) {
   document.body.className = "mode-explore paper-grid";
-  // `?embed=1`: shown inside another app (FieldShift 360) — drop the outer navigation, tighten the padding.
+  // `?embed=1`: shown inside another app (AgroVision) — drop the outer navigation, tighten the padding.
   if (new URLSearchParams(location.search).has("embed")) document.body.classList.add("embed");
   const state = { u: model.featured, year: 2025, vhYear: model.featuredPixel.year, pixel: 0, tab: "s1" };
   const fp = seasonOf(model.featured, model.featuredPixel.year);

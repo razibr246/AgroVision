@@ -126,14 +126,14 @@ function poloPiqueTexture(look) {
 }
 
 // A real smartphone (Razib's): a thin rounded slab, aluminium edges, a dark glass face whose screen shows the
-// FieldShift app (a field map, a moisture bar, an alert), and a camera bump on the back. 74 x 160 x 8 mm.
+// AgroVision app (a field map, a moisture bar, an alert), and a camera bump on the back. 74 x 160 x 8 mm.
 let phoneTex = null;
 function phoneScreen() {
   if (phoneTex || typeof document === 'undefined') return phoneTex;
   const c = document.createElement('canvas'); c.width = 256; c.height = 552; const x = c.getContext('2d');
   x.fillStyle = '#0b1a12'; x.fillRect(0, 0, 256, 552);
   x.fillStyle = '#123524'; x.fillRect(0, 0, 256, 60);
-  x.fillStyle = '#e8f5e9'; x.font = 'bold 26px system-ui, sans-serif'; x.fillText('FieldShift', 18, 40);
+  x.fillStyle = '#e8f5e9'; x.font = 'bold 26px system-ui, sans-serif'; x.fillText('AgroVision', 18, 40);
   for (let r = 0; r < 3; r++) for (let k = 0; k < 6; k++) { x.fillStyle = ['#3f9d4a', '#9cc54a', '#d8b444', '#5fb36a'][(r * 6 + k * 5) % 4]; x.fillRect(18 + k * 37, 84 + r * 64, 33, 58); }
   x.fillStyle = '#9fb3a8'; x.font = '16px system-ui, sans-serif'; x.fillText('Soil moisture', 18, 300);
   x.fillStyle = '#25433a'; x.fillRect(18, 312, 220, 16); x.fillStyle = '#4fc3f7'; x.fillRect(18, 312, 142, 16);

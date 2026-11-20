@@ -214,7 +214,7 @@ new lines
 >>>>>>> REPLACE
 An EMPTY SEARCH adds the new lines at the END of the file (use it to add a test or a new function), or creates
 the file if it does not exist. Last line: SUMMARY: one sentence naming what the user will notice.`;
-const rules = () => `You are a careful senior developer on FieldShift 360. Project rules for your part of it:\n${read(RULES_FILE)}\n${FORMAT}`;
+const rules = () => `You are a careful senior developer on AgroVision. Project rules for your part of it:\n${read(RULES_FILE)}\n${FORMAT}`;
 
 const unfence = (ls) => { const a = [...ls]; while (a.length && /^\s*```\w*\s*$/.test(a[0])) a.shift(); while (a.length && /^\s*```\s*$/.test(a[a.length - 1])) a.pop(); return a.join('\n'); };
 function parse(out) {

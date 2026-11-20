@@ -40,7 +40,7 @@ export default function TestKit() {
     if (!save(next)) { toast('এই যন্ত্রে সেশন রাখা যায়নি। স্থান খালি করে আবার চেষ্টা করুন।', 'Could not save this session on the device. Free storage and try again.'); return; }
     setSessions(next); setCur(null); setTimer(null); toast('সেশন রাখা হলো', 'Session saved');
   };
-  const download = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCsv(sessions)], { type: 'text/csv' })); a.download = `fieldshift-user-tests-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); };
+  const download = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCsv(sessions)], { type: 'text/csv' })); a.download = `agrovision-user-tests-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); };
   const copyRows = async () => { try { await navigator.clipboard.writeText(toMarkdownRows(sessions)); toast('পরীক্ষার ফলাফলের সারি কপি হয়েছে', 'Rows for docs/USER_TESTING.md copied'); } catch { /* clipboard blocked */ } };
   const pill = (on) => `rounded-full px-3.5 py-2 text-[14px] font-semibold ring-1 transition ${on ? 'bg-primary-700 text-white ring-primary-700' : 'bg-white text-ink/80 ring-border hover:ring-primary-300'}`;
 

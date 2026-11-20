@@ -54,7 +54,7 @@ script A lines up with it. Bangla timings; English runs about 10% longer.
 | 3 | 18.0 – 32.5 s | "The best rotation", its crops, the green line drawn over the grey, the change | 3 |
 | 4 | 32.5 – 41.9 s | Two cards counting up: irrigation saved per bigha a year, and the cut in net greenhouse gas | 4 |
 | 5 | 41.9 – 53.9 s | "In the 2040s, in NASA's climate models": two bars, as now against the best rotation | 5 |
-| 6 | 53.9 – 62.3 s | "The decision is yours", the officer's name, FieldShift 360, the sources and "a sample farmer" | 6 |
+| 6 | 53.9 – 62.3 s | "The decision is yours", the officer's name, AgroVision, the sources and "a sample farmer" | 6 |
 
 ## D. Generation prompt
 
@@ -86,7 +86,7 @@ For a tool that takes plain instructions instead of SSML:
 Joining the voice to the saved video (the file "ভিডিও নামান" downloads):
 
 ```bash
-ffmpeg -i fieldshift-razib-10-years.webm -i narration.mp3 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest razib-story.mp4
+ffmpeg -i agrovision-razib-10-years.webm -i narration.mp3 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest razib-story.mp4
 ```
 
 ## E. Quality checklist

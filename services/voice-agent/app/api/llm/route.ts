@@ -22,7 +22,7 @@ export async function POST(req: Request) {
      const authenticatedUser = (body.authenticatedUser as SessionUser | null) || null;
      const indigenousLanguage = body.indigenousLanguage === "marma" || body.indigenousLanguage === "chakma" ? body.indigenousLanguage : "bn";
 
-     // AGENT_DOMAIN=field (or body.domain === "field") switches the same pipeline to the FieldShift farming/officer agent.
+     // AGENT_DOMAIN=field (or body.domain === "field") switches the same pipeline to the AgroVision farming/officer agent.
      const fieldMode = process.env.AGENT_DOMAIN === "field" || body.domain === "field";
      const fieldRole = body.fieldRole === "saao" || body.fieldRole === "uao" ? body.fieldRole : "farmer";
      const agentStream = fieldMode

@@ -1,4 +1,4 @@
-# Data in FieldShift 360
+# Data in AgroVision
 
 The full inventory (real or sample, source, URL, date fetched, where used) is in [DATA_SOURCES.md](DATA_SOURCES.md).
 Soil is real: ISRIC SoilGrids 2.0 per union and field (`npm run data:soil`) and SRDI fertilizer recommendations

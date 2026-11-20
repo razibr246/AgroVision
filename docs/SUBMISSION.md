@@ -1,14 +1,14 @@
 # NASA Space Apps 2026 submission kit
 
-Challenge: **Field Shift: Adapting Farms with NASA Data**. Project: **FieldShift 360**.
+Challenge: **Field Shift: Adapting Farms with NASA Data**. Project: **AgroVision**.
 Team: **BRM AstraX** (Barisal, Bangladesh).
-Live site: https://fieldshift360.vercel.app/#/ · Code: https://github.com/razibr246/fieldshift360
+Live site: https://agrovision.vercel.app/#/ · Code: https://github.com/razibr246/agrovision
 
 Checked against the official challenge statement (rotation strategies for soil health and changing conditions) on 22 October 2026; the line-by-line table is in the README.
 
 ## Project description (for the Space Apps project page)
 
-**FieldShift 360 helps Bangladesh's smallholder farmers explore crop rotations that may improve soil health and
+**AgroVision helps Bangladesh's smallholder farmers explore crop rotations that may improve soil health and
 resilience, using NASA Earth observations, crop characteristics, a model estimate of soil (ISRIC SoilGrids,
 250 m; not a soil test), and farmer priorities.** This prototype uses sample farmer accounts and demo fields.
 NASA POWER weather is upazila-scale, and Sentinel-2 crop sequences are inferred from green-cover observations;
@@ -16,7 +16,7 @@ neither is a field-level ground measurement.
 
 The crop calendar farmers inherited no longer fits the weather. On the Barind around Godagari the risk is drought,
 spring heat and a falling water table; on the low land of Dhamrai it is floods and waterlogging; elsewhere salt,
-flash floods and cold waves. Most advice stops at one season. FieldShift 360 lets users explore ten-year
+flash floods and cold waves. Most advice stops at one season. AgroVision lets users explore ten-year
 scenarios for a selected demo field:
 
 - **Starting from satellite observations.** Sentinel-2 green-cover observations are used to infer a likely crop
@@ -81,7 +81,7 @@ The best rotation needs labour for tomato and jute; with "labour: short" entered
 ## Who it is for, and how many (impact)
 
 - **16.88 million farm households** in Bangladesh (BBS Agriculture Census 2019) choose what to plant every season;
-  FieldShift 360 is built for them, their union officers (SAAO) and upazila officers (UAO).
+  AgroVision is built for them, their union officers (SAAO) and upazila officers (UAO).
 - **4.85 million ha of Boro rice** (BBS 2022-23), the country's thirstiest crop and the biggest chance to save
   groundwater; GRACE shows the water stored in the region round Godagari falling about 8.9 cm a decade (2003–2021,
   a regional figure read from saturating colour tiles, so its size is approximate).
@@ -214,7 +214,7 @@ for a live demo. Both videos need burned-in English subtitles and no faces or vo
 
 ## Slide notes (short deck)
 
-1. **Title.** FieldShift 360: comparing crop rotations for soil health and a changing climate. NASA data for
+1. **Title.** AgroVision: comparing crop rotations for soil health and a changing climate. NASA data for
    Bangladesh's smallholders. Team, challenge name.
 2. **The problem.** Shifting heat, changing rain, water shortages, extreme weather and tired soil; advice that
    stops at one season. Photo: cracked earth beside a flooded field.

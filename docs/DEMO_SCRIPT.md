@@ -1,9 +1,9 @@
-# FieldShift 360: three-minute judging demo
+# AgroVision: three-minute judging demo
 
 **Challenge:** Field Shift: Adapting Farms with NASA Data  
-**Project:** FieldShift 360  
-**Live application:** https://fieldshift360.vercel.app
-**Repository:** https://github.com/razibr246/fieldshift360
+**Project:** AgroVision  
+**Live application:** https://agrovision.vercel.app
+**Repository:** https://github.com/razibr246/agrovision
 
 Use this timing only if it matches the event's submission rules. Rehearse on the actual device and deployment before
 recording. The farmer and field shown are samples, not real participants or a field trial.
@@ -26,7 +26,7 @@ recording. The farmer and field shown are samples, not real participants or a fi
 | 1:40–2:05 | Show the Field Future climate comparison and, if present on the live build, how leading alternatives fare across eight climate models and five yield years. | সেরা বিকল্পগুলো আটটি জলবায়ু মডেল ও পাঁচটি ফলন বছরের সমন্বয়ে আবার চালানো হয়। এগুলো মডেল-পরিস্থিতি; ফলনের সম্ভাবনা বা মাঠে প্রমাণিত ফল নয়। | Leading alternatives are replayed across eight climate models and five yield years. These are model scenarios, not yield probabilities or field-validated outcomes. |
 | 2:05–2:35 | Return to the first seasonal step. Show the proposed crop/date and the checks before acting. | পরামর্শটি নির্দেশ নয়। বীজ, বাজার, সেচের পানি, জমির মাটি এবং স্থানীয় কৃষি কর্মকর্তার মতামত মিলিয়ে তারপর সিদ্ধান্ত নিতে হবে। | This is decision support, not an instruction. Check seed, market, irrigation, field soil and local agricultural advice before acting. |
 | 2:35–2:55 | Show the science limits and review status. State the owner-reported agronomist comment and explain that its scope is not documented; also describe the Dhamrai test as team-reported. | প্রকল্পের মালিক জানিয়েছেন, একজন স্থানীয় কৃষিবিদ ফসলের নির্দেশনা ঠিক বলেছেন; তবে কে, কবে, কোন নিয়ম দেখে বলেছেন তার নথি নেই। দল জানিয়েছে, ৪ নভেম্বর ধামরাইয়ে পাঁচজন কৃষক ও একজন কর্মকর্তা অ্যাপটি দেখেছেন; কাজের বিস্তারিত ফলও নথিভুক্ত হয়নি। | The owner reports that a local agronomist said the guidance was correct, but the reviewer, date and rules checked are not on record. The team reports five farmers and one officer tried the app in Dhamrai on 4 November; task results were not documented. |
-| 2:55–3:00 | End on project name and working URL. | FieldShift 360—মহাকাশের তথ্যকে কৃষকের সিদ্ধান্তে কাজে লাগানোর একটি যাচাই-প্রয়োজনীয় প্রোটোটাইপ। | FieldShift 360: a prototype using Earth-observation data to support farm decisions, with local validation still needed. |
+| 2:55–3:00 | End on project name and working URL. | AgroVision—মহাকাশের তথ্যকে কৃষকের সিদ্ধান্তে কাজে লাগানোর একটি যাচাই-প্রয়োজনীয় প্রোটোটাইপ। | AgroVision: a prototype using Earth-observation data to support farm decisions, with local validation still needed. |
 
 ## Recording notes
 

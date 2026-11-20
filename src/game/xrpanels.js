@@ -1,5 +1,5 @@
 // What each world-space panel says in VR (three/xr.js draws them, xrlogic.js lays them out): the seed shed, the
-// FieldShift kiosk, the mission questions, the agriculture office, the Chakra helper's jobs, the VR menu, the wrist,
+// AgroVision kiosk, the mission questions, the agriculture office, the Chakra helper's jobs, the VR menu, the wrist,
 // the end-of-season report and the out-of-money card. The same game state and the same rules as the page's panels
 // (FarmGame.jsx, OfficePanel.jsx), in the player's language. Pure: no three.js and no React.
 import { priceOf, quizOf, canMax, dayOf, clock, ripeAt, agriScorecard } from './sim.js';
@@ -7,7 +7,7 @@ import { QUESTS, SAT_LAYERS } from './regions.js';
 import { FERT, priceTrend } from './village.js';
 import { officeOf, farmTroubles, officePrograms, SERVICES, canUse, initOffice } from './office.js';
 import { helperJobs } from './helper.js';
-import { seasonReport } from './fieldshift.js';
+import { seasonReport } from './agrovision.js';
 import { num } from '../engine/dates.js';
 
 const q = (bn, en) => ({ bn, en });
@@ -45,7 +45,7 @@ export function kioskSpec(g, lang, facts = []) {
   for (const f of facts.slice(0, 3)) rows.push({ text: `${T(f.title)} (${f.sat}, ${f.tag === 'REAL' ? T('আসল উপগ্রহ রেকর্ড', 'real satellite record') : f.tag}): ${T(f.value)}`, size: 'small' });
   const perks = Object.values(R.quiz ?? {}).filter((x) => g.perks[x.perk]).map((x) => T(x.perkText));
   if (perks.length) rows.push({ text: `${T('আপনার অর্জন', 'Earned')}: ${perks.join(' · ')}`, size: 'small' });
-  return { id: 'kiosk', title: `FieldShift · ${T(R.names.kiosk)}`, sub: T('উপসহকারী কৃষি কর্মকর্তা: "নাসা উপগ্রহ ও আবহাওয়ার রেকর্ড দেখে পরামর্শ নিন।"', 'Extension officer: "Get advice from NASA satellite and weather records."'), rows, foot: [close(lang)] };
+  return { id: 'kiosk', title: `AgroVision · ${T(R.names.kiosk)}`, sub: T('উপসহকারী কৃষি কর্মকর্তা: "নাসা উপগ্রহ ও আবহাওয়ার রেকর্ড দেখে পরামর্শ নিন।"', 'Extension officer: "Get advice from NASA satellite and weather records."'), rows, foot: [close(lang)] };
 }
 
 // pick: the option chosen, or null before the player answers
@@ -57,7 +57,7 @@ export function quizSpec(g, lang, pick = null) {
     rows.push({ text: `${Q.options[pick].ok ? T('ঠিক!', 'Right!') : T('ঠিক হয়নি।', 'Not quite.')} ${T(Q.why)}`, tone: Q.options[pick].ok ? 'good' : 'warn' });
     if (Q.options[pick].ok && Q.perkText) rows.push({ text: T(Q.perkText), tone: 'good', size: 'small' });
   }
-  return { id: 'quiz', title: T(Q.q), sub: T('FieldShift-এর প্রশ্ন', 'A question from FieldShift'), rows, foot: pick === null ? [] : [{ id: 'quiz:done', label: T('মাঠে ফিরি', 'Back to the field'), tone: 'go' }] };
+  return { id: 'quiz', title: T(Q.q), sub: T('AgroVision-এর প্রশ্ন', 'A question from AgroVision'), rows, foot: pick === null ? [] : [{ id: 'quiz:done', label: T('মাঠে ফিরি', 'Back to the field'), tone: 'go' }] };
 }
 
 const SOIL_LV = [q('কম', 'low'), q('মাঝারি', 'fair'), q('ভালো', 'good')];
@@ -115,7 +115,7 @@ export function menuSpec(g, lang, s, { sat = false, layer = 'health' } = {}) {
   if (sat) rows.push({ buttons: SAT_LAYERS.map((l) => ({ id: `layer:${l.id}`, label: T(l), tone: layer === l.id ? 'go' : null })), cols: SAT_LAYERS.length > 4 ? 3 : SAT_LAYERS.length });
   rows.push({ buttons: [
     { id: 'open:helper', label: T('চক্র এজেন্ট', 'Chakra Agent') },
-    { id: 'open:kiosk', label: 'FieldShift' },
+    { id: 'open:kiosk', label: 'AgroVision' },
     { id: 'lang', label: lang === 'en' ? 'বাংলা' : 'English' },
     { id: 'exit', label: T('VR থেকে বের হোন', 'Leave VR'), tone: 'bad' },
   ], cols: 4 });
@@ -156,7 +156,7 @@ export function reportSpec(g, lang) {
 
 export function brokeSpec(g, lang) {
   const T = tr(lang);
-  return { id: 'broke', title: T('টাকা আর বীজ — দুটোই শেষ', 'Out of money and seed'), rows: [{ text: T('খরচের আগে হিসাব — এটাই FieldShift-এর মূল কথা। আবার শুরু করতে VR থেকে বের হোন।', 'Plan before you spend — that is the heart of FieldShift. Leave VR to start again.') }], foot: [{ id: 'exit', label: T('VR থেকে বের হোন', 'Leave VR'), tone: 'go' }] };
+  return { id: 'broke', title: T('টাকা আর বীজ — দুটোই শেষ', 'Out of money and seed'), rows: [{ text: T('খরচের আগে হিসাব — এটাই AgroVision-এর মূল কথা। আবার শুরু করতে VR থেকে বের হোন।', 'Plan before you spend — that is the heart of AgroVision. Leave VR to start again.') }], foot: [{ id: 'exit', label: T('VR থেকে বের হোন', 'Leave VR'), tone: 'go' }] };
 }
 
 // the short messages that float in front of the player: what the farmer says, toasts, alerts and new missions

@@ -1,4 +1,4 @@
-// Function-calling tool for the FieldShift voice agent (Vercel AI SDK, Zod), the farming counterpart of legal-tools.ts.
+// Function-calling tool for the AgroVision voice agent (Vercel AI SDK, Zod), the farming counterpart of legal-tools.ts.
 // One tool on purpose: the brain already routes farmer and officer intents, handles yes/no confirmation and returns
 // the exact reducer actions the screens use. The LLM's job is to listen, call this, and speak the result.
 import { tool } from "ai";
@@ -10,7 +10,7 @@ export function createFieldTools(sessionId: string) {
   return {
     askFieldAssistant: tool({
       description:
-        "Answer a farmer's or agriculture officer's spoken request from the FieldShift snapshot: what to plant, planting date, water today, weather, harvest, price-drop risk, next crop, soil, problem reports, officer briefings, area alerts, replies, escalation, radar. Always call this for anything about crops or the officer's work, then speak the returned text.",
+        "Answer a farmer's or agriculture officer's spoken request from the AgroVision snapshot: what to plant, planting date, water today, weather, harvest, price-drop risk, next crop, soil, problem reports, officer briefings, area alerts, replies, escalation, radar. Always call this for anything about crops or the officer's work, then speak the returned text.",
       inputSchema: z.object({
         utterance: z.string().describe("The person's words exactly as transcribed, in Bangla or English"),
       }),

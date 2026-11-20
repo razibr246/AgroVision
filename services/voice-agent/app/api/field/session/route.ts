@@ -1,4 +1,4 @@
-// POST  { sessionId, role, lang, snapshot }  -> stores the farmer/officer snapshot built by the FieldShift app.
+// POST  { sessionId, role, lang, snapshot }  -> stores the farmer/officer snapshot built by the AgroVision app.
 // GET   ?sessionId=...                      -> returns (and clears) effects the voice agent queued, for the app to apply
 //                                              through its normal reducer actions after the person said "yes".
 import { NextResponse } from "next/server";

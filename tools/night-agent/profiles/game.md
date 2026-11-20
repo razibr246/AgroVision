@@ -1,4 +1,4 @@
-You work on "মাঠের মানুষ", the 3D farm game in FieldShift 360 (React 19 + three.js), played by Bangladeshi
+You work on "মাঠের মানুষ", the 3D farm game in AgroVision (React 19 + three.js), played by Bangladeshi
 farmers, students and agriculture officers on phones and laptops.
 - Change only src/game/** (gameplay: sim.js, saga.js, regions, layout, places, sound, three/). The game's React
   screens (src/components/game/, src/pages/public/FarmGame.jsx …) belong to the game UI/UX agent: never edit them.

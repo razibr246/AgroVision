@@ -1,6 +1,6 @@
 // "মাঠের মানুষ" — a 3D third-person farm game. Pick one of the five neighbouring-country farmers from the app
 // (India, Pakistan, Nepal, Bhutan, Myanmar), hear their story, drop from satellite height onto their own land, and
-// farm a season through heat, pests, a storm with a closing safe zone, and a price crash — with FieldShift's
+// farm a season through heat, pests, a storm with a closing safe zone, and a price crash — with AgroVision's
 // warnings on the phone. The 3D world lives in src/game/three; the rules in src/game/sim.js.
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { scrollToTop } from '../../components/Motion';
 import { num } from '../../engine/dates';
 import { bnOf } from '../../engine/text';
 import { REGIONS, FARMER_IDS, BD_IDS, ABROAD_IDS, QUESTS, SAT_LAYERS, STEP_LABEL } from '../../game/regions';
-import { sliderMods, seasonReport, nextTry } from '../../game/fieldshift';
+import { sliderMods, seasonReport, nextTry } from '../../game/agrovision';
 import { FERT, buyFertilizer, fertilize, priceTrend } from '../../game/village';
 import { SAVE_KEY, saveState, restoreState } from '../../game/savegame';
 import GameHelper from '../../components/chakra/GameHelper';
@@ -19,7 +19,7 @@ import ChakraLogo from '../../components/chakra/ChakraLogo';
 import { JOBS } from '../../game/helper';
 import { SETTINGS_KEY, SETTING_RANGES, DEFAULT_SETTINGS, parseSettings, cleanSetting, isDefault } from '../../game/settings';
 import { CAREER_KEY, emptyCareer, recordSeason, rankOf, startPerks, ACHIEVEMENTS, UNLOCKS, RANKS } from '../../game/career';
-// the FieldShift station brings the place's NASA records and the rotation engine: loaded when it is first opened
+// the AgroVision station brings the place's NASA records and the rotation engine: loaded when it is first opened
 const FieldStation = lazy(() => import('../../components/game/FieldStation'));
 import { PLACES } from '../../game/places';
 import { createGame, buy, note, answerQuiz, priceOf, dayOf, isNight, clock, quizOf, canMax, target, ripeAt, LEVELS, agriScorecard } from '../../game/sim';
@@ -277,7 +277,7 @@ function BriefScreen({ who, onDone, onBack }) {
           </div>
           <div className="glass flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[22px] px-4 py-3 text-[13px] text-ink/75">
             <span className="flex items-center gap-1.5 font-semibold text-ink"><Keyboard size={14} />{T('নিয়ন্ত্রণ', 'Controls')}</span>
-            <span>WASD / ↑↓←→ {T('হাঁটা', 'walk')}</span><span>Shift / R {T('ধরে দৌড় / টগল', 'hold to run / toggle')}</span><span>E / F / Space {T('কাজ', 'act')}</span><span>G {T('অভিবাদন', 'greet')}</span><span>T {T('দম নেওয়া (+৩৫%)', 'rest (+35%)')}</span><span>H {T('মাটি পরখ', 'check soil')}</span><span>{T('মাউস টেনে চারপাশ দেখা', 'drag to look')}</span><span>{T('১–৪ বীজ', '1–4 seed')}</span><span>N {T('উপগ্রহ', 'satellite')}</span><span>Esc {T('বিরতি', 'pause')}</span><span>C {T('চক্র এজেন্ট (সহকারী)', 'Chakra Agent (helper)')}</span><span>{T('গেমপ্যাড: A কাজ · B পেছনে · X উপগ্রহ · Y FieldShift · LB/RB বীজ · Start বিরতি', 'Gamepad: A act · B back · X satellite · Y FieldShift · LB/RB seed · Start pause')}</span>
+            <span>WASD / ↑↓←→ {T('হাঁটা', 'walk')}</span><span>Shift / R {T('ধরে দৌড় / টগল', 'hold to run / toggle')}</span><span>E / F / Space {T('কাজ', 'act')}</span><span>G {T('অভিবাদন', 'greet')}</span><span>T {T('দম নেওয়া (+৩৫%)', 'rest (+35%)')}</span><span>H {T('মাটি পরখ', 'check soil')}</span><span>{T('মাউস টেনে চারপাশ দেখা', 'drag to look')}</span><span>{T('১–৪ বীজ', '1–4 seed')}</span><span>N {T('উপগ্রহ', 'satellite')}</span><span>Esc {T('বিরতি', 'pause')}</span><span>C {T('চক্র এজেন্ট (সহকারী)', 'Chakra Agent (helper)')}</span><span>{T('গেমপ্যাড: A কাজ · B পেছনে · X উপগ্রহ · Y AgroVision · LB/RB বীজ · Start বিরতি', 'Gamepad: A act · B back · X satellite · Y AgroVision · LB/RB seed · Start pause')}</span>
           </div>
         </div>
       </div>
@@ -472,10 +472,10 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       x.font = `700 ${26 * u}px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif`;
       x.fillText(`${L(R.farmer)} · ${L(R.place)}`, pad, c.height - pad - 26 * u);
       x.font = `500 ${16 * u}px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif`; x.fillStyle = 'rgba(255,255,255,.8)';
-      x.fillText(`${L(GAMES.farm.name)} · ${T(`দিন ${num(dayOf(g), 'bn')}`, `Day ${dayOf(g)}`)} · FieldShift 360`, pad, c.height - pad);
+      x.fillText(`${L(GAMES.farm.name)} · ${T(`দিন ${num(dayOf(g), 'bn')}`, `Day ${dayOf(g)}`)} · AgroVision`, pad, c.height - pad);
       const out = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.92));
       if (!out) throw new Error('Blob creation failed');
-      const name = `fieldshift-${(R.farmer.en || 'farm').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-day${dayOf(g)}.jpg`;
+      const name = `agrovision-${(R.farmer.en || 'farm').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-day${dayOf(g)}.jpg`;
       const file = typeof File === 'function' ? new File([out], name, { type: 'image/jpeg' }) : null;
       if (touch && file && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: L(GAMES.farm.name) }).catch(() => {}); return; }
       const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
@@ -555,7 +555,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       {/* a headset's browser: play the whole game in VR */}
       {modes.includes('vr') && !xr && !intro && <PlayVR T={T} onPlay={() => goXR('vr')} />}
 
-      {/* top right: minimap, the zone timer, FieldShift alerts */}
+      {/* top right: minimap, the zone timer, AgroVision alerts */}
       <div className={`absolute right-3 top-3 flex flex-col items-end gap-2 transition-opacity sm:w-[200px] ${touch ? 'w-[min(32vw,150px)]' : 'w-[min(42vw,184px)]'} ${intro ? 'opacity-0' : ''}`}>
         <div className="g3-hud relative w-full overflow-hidden rounded-2xl p-1">
           <canvas ref={mapRef} width={360} height={360} className="block aspect-square w-full cursor-pointer rounded-xl" aria-label={T('মানচিত্র: যেখানে চাপবেন, কৃষক রাস্তা ধরে সেখানে হাঁটবেন', 'Map: tap a place and the farmer walks there along the paths')} title={T('মানচিত্রে চাপুন, কৃষক সেখানে হাঁটবেন', 'Tap the map to walk there')} />
@@ -567,7 +567,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
             <RoundBtn wide onClick={() => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } })} label={lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}><span className="text-[11.5px] font-bold">{lang === 'bn' ? 'English' : 'বাংলা'}</span></RoundBtn>
             <RoundBtn onClick={() => setPaused(true)} label={T('বিরতি', 'Pause')}><Pause size={17} /></RoundBtn>
             <RoundBtn onClick={() => setSat(st.current?.toggleSat() ?? false)} on={sat} label={T('উপগ্রহ', 'Satellite')}><Satellite size={17} /></RoundBtn>
-            <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="FieldShift"><Smartphone size={17} /></RoundBtn>
+            <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="AgroVision"><Smartphone size={17} /></RoundBtn>
             <RoundBtn onClick={() => setHelperOpen((o) => !o)} on={helperOpen || !!helperRun} label={T('চক্র এজেন্ট', 'Chakra Agent')}><ChakraLogo size={21} spin={!!helperRun} /></RoundBtn>
             <RoundBtn onClick={() => setPhoto(true)} label={T('ছবি তোলা', 'Photo mode')}><Camera size={17} /></RoundBtn>
             {xrBtns(17)}
@@ -583,7 +583,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         <div className="pointer-events-none flex w-[min(78vw,300px)] flex-col gap-1.5">
           {alerts.map((a) => (
             <div key={a.id} role="status" aria-live={a.tone === 'hot' ? 'assertive' : 'polite'} className={`alert-in g3-hud rounded-xl px-3 py-2 ${a.tone === 'hot' ? 'ring-1 ring-red-400/70' : a.tone === 'ok' ? 'ring-1 ring-emerald-300/60' : 'ring-1 ring-amber-300/60'}`}>
-              <p className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-emerald-300"><Smartphone size={11} />FieldShift</p>
+              <p className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wider text-emerald-300"><Smartphone size={11} />AgroVision</p>
               <p className="text-[13.5px] font-semibold leading-snug">{L(a.title)}</p>
               <p className="text-[12px] leading-5 text-white/75">{L(a.body)}</p>
             </div>
@@ -778,7 +778,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         {xrBtns(18)}
         <RoundBtn wide onClick={() => dispatch({ type: 'set', patch: { lang: lang === 'bn' ? 'en' : 'bn' } })} label={lang === 'bn' ? 'Switch to English' : 'বাংলায় দেখুন'}><span className="text-[11.5px] font-bold">{lang === 'bn' ? 'English' : 'বাংলা'}</span></RoundBtn>
         <RoundBtn onClick={() => setSat(st.current?.toggleSat() ?? false)} on={sat} label={T('উপগ্রহের চোখ (N)', 'Satellite view (N)')}><Satellite size={18} /></RoundBtn>
-        <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="FieldShift"><Smartphone size={18} /></RoundBtn>
+        <RoundBtn onClick={() => { note(g, 'advised'); setPanel('kiosk'); g.paused = true; }} label="AgroVision"><Smartphone size={18} /></RoundBtn>
         <RoundBtn onClick={() => setMute(!muted)} label={muted ? T('শব্দ চালু', 'Sound on') : T('শব্দ বন্ধ', 'Sound off')}>{muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</RoundBtn>
         <RoundBtn onClick={() => setMusicOn(!music)} on={music} label={music ? T('সুর বন্ধ', 'Music off') : T('সুর চালু', 'Music on')}><Music size={18} /></RoundBtn>
         <RoundBtn onClick={() => setHelperOpen((o) => !o)} on={helperOpen || !!helperRun} label={T('চক্র এজেন্ট — সহকারী (C)', 'Chakra Agent — helper (C)')}><ChakraLogo size={22} spin={!!helperRun} /></RoundBtn>
@@ -848,7 +848,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
       {intro && (
         <div className="g3-intro absolute inset-0 flex flex-col items-center justify-between p-6">
           <div className="g3-drop mt-[13vh] text-center">
-            <p className="flex items-center justify-center gap-2 text-[12px] font-bold uppercase tracking-[.38em] text-emerald-300"><Satellite size={14} className="animate-pulse" />{T('FieldShift উপগ্রহ থেকে নামছেন', 'Dropping in from the FieldShift satellite')}</p>
+            <p className="flex items-center justify-center gap-2 text-[12px] font-bold uppercase tracking-[.38em] text-emerald-300"><Satellite size={14} className="animate-pulse" />{T('AgroVision উপগ্রহ থেকে নামছেন', 'Dropping in from the AgroVision satellite')}</p>
             <p className="font-display mt-2 text-[36px] font-extrabold leading-tight drop-shadow-[0_4px_22px_rgba(0,0,0,.55)] sm:text-[54px]">{R.flag} {L(R.place)}</p>
             <p className="mt-1 text-[16px] font-semibold text-white/85">{L(R.place.area)}</p>
             <p className="mt-2 flex items-center justify-center gap-1.5 text-[12px] text-white/50"><MapPin size={11} />{L(R.farmer)} · {L(R.farmer.trait)}</p>
@@ -897,7 +897,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
         <div className="absolute inset-0 grid place-items-center bg-black/55 p-4 backdrop-blur-sm">
           <div role="alertdialog" aria-modal="true" aria-labelledby="game-broke-title" tabIndex={-1} className="g3-panel max-w-sm rounded-[24px] p-6 text-center">
             <p id="game-broke-title" className="font-display text-[22px] font-semibold">{T('টাকা আর বীজ — দুটোই শেষ', 'Out of money and seed')}</p>
-            <p className="mt-2 text-[15px] text-white/75">{T('খরচের আগে হিসাব — এটাই FieldShift-এর মূল কথা। আবার চেষ্টা করুন!', 'Plan before you spend — that is the heart of FieldShift. Try again!')}</p>
+            <p className="mt-2 text-[15px] text-white/75">{T('খরচের আগে হিসাব — এটাই AgroVision-এর মূল কথা। আবার চেষ্টা করুন!', 'Plan before you spend — that is the heart of AgroVision. Try again!')}</p>
             <button type="button" onClick={onRestart} className="btn-gloss mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-white"><RotateCcw size={16} />{T('আবার শুরু', 'Restart')}</button>
           </div>
         </div>
@@ -908,7 +908,7 @@ export function GameStage({ who, mods: modsIn, whatIf = null, onWhatIf = null, r
 
 function promptText(tg, R, T, L, hud) {
   if (!tg) return null;
-  if (tg.kind === 'station') return { shed: T('বীজ কিনুন', 'Buy seed'), water: T('বালতি ভরুন', 'Fill the can'), market: hud.basketN ? T('ফসল বিক্রি করুন', 'Sell the crop') : T('ঝুড়ি খালি', 'Basket empty'), kiosk: T('FieldShift খুলুন', 'Open FieldShift') }[tg.id] + ` · ${L(R.names[tg.id])}`;
+  if (tg.kind === 'station') return { shed: T('বীজ কিনুন', 'Buy seed'), water: T('বালতি ভরুন', 'Fill the can'), market: hud.basketN ? T('ফসল বিক্রি করুন', 'Sell the crop') : T('ঝুড়ি খালি', 'Basket empty'), kiosk: T('AgroVision খুলুন', 'Open AgroVision') }[tg.id] + ` · ${L(R.names[tg.id])}`;
   const c = tg.crop ? L(tg.crop) : '';
   return {
     spray: R.pestWord.en === 'wild boar' ? T('শূকর তাড়ান', 'Chase off the boar') : T('ব্যবস্থা নিন', 'Treat the plot'), clear: T('মরা গাছ সরান', 'Clear the dead plants'),
@@ -1040,7 +1040,7 @@ function TouchControls({ stage, prompt, running, setRunning }) {
             {prompt?.includes('তুলুন') || prompt?.includes('Harvest') ? <Sprout size={26} /> :
               prompt?.includes('পানি') || prompt?.includes('Water') ? <Droplets size={26} /> :
                 prompt?.includes('বিক্রি') || prompt?.includes('Sell') ? <Coins size={26} /> :
-                  prompt?.includes('FieldShift') ? <Smartphone size={26} /> :
+                  prompt?.includes('AgroVision') ? <Smartphone size={26} /> :
                     <Hand size={26} />}
             {prompt ? prompt.split(' · ')[0] : T('কাজ', 'Act')}
           </span>
@@ -1058,7 +1058,7 @@ function Panel({ kind, g, hud, R, onClose, onQuizDone, onWhatIf }) {
   const next = QUESTS[g.quest];
   return (
     <div className="absolute inset-0 grid place-items-center overflow-y-auto bg-black/45 p-3 backdrop-blur-[3px]">
-      <div role="dialog" aria-modal="true" aria-label={kind === 'shop' ? L(R.names.shed) : kind === 'kiosk' ? `FieldShift · ${L(R.names.kiosk)}` : T('FieldShift-এর প্রশ্ন', 'FieldShift question')} tabIndex={-1} className={`outcome-in g3-panel w-full rounded-[26px] p-5 sm:p-6 ${kind === 'kiosk' ? 'max-w-3xl' : 'max-w-xl'}`}>
+      <div role="dialog" aria-modal="true" aria-label={kind === 'shop' ? L(R.names.shed) : kind === 'kiosk' ? `AgroVision · ${L(R.names.kiosk)}` : T('AgroVision-এর প্রশ্ন', 'AgroVision question')} tabIndex={-1} className={`outcome-in g3-panel w-full rounded-[26px] p-5 sm:p-6 ${kind === 'kiosk' ? 'max-w-3xl' : 'max-w-xl'}`}>
         {kind === 'shop' && (<>
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-3">
@@ -1114,7 +1114,7 @@ function Panel({ kind, g, hud, R, onClose, onQuizDone, onWhatIf }) {
               <span className="grid h-11 w-11 place-items-center rounded-2xl bg-sky-400/20 text-[22px] ring-1 ring-sky-400/40">🏛️</span>
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="font-display text-[21px] font-semibold">FieldShift · {L(R.names.kiosk)}</p>
+                  <p className="font-display text-[21px] font-semibold">AgroVision · {L(R.names.kiosk)}</p>
                   <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/20 px-2 py-0.5 text-[11px] font-semibold text-sky-300 ring-1 ring-sky-500/30">🏛️ {T('উপসহকারী কৃষি কর্মকর্তা', 'SAAO Officer')}</span>
                 </div>
                 <p className="text-[12.5px] font-medium text-sky-300">
@@ -1143,7 +1143,7 @@ function Panel({ kind, g, hud, R, onClose, onQuizDone, onWhatIf }) {
           </div>
         </>)}
         {kind === 'quiz' && Q && (<>
-          <p className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-emerald-300"><Smartphone size={14} />{T('FieldShift-এর প্রশ্ন', 'A question from FieldShift')}</p>
+          <p className="flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-wider text-emerald-300"><Smartphone size={14} />{T('AgroVision-এর প্রশ্ন', 'A question from AgroVision')}</p>
           <p className="font-display mt-2 text-[20px] font-semibold leading-snug tracking-[-0.015em]"><Words text={L(Q.q)} step={30} /></p>
           <div className="mt-4 space-y-2">
             {Q.options.map((o, k) => {
@@ -1254,7 +1254,7 @@ function EndScreen({ who, r, onReplay, onPick, onWhatIf }) {
   const tries = r?.report ? nextTry(r.report, R) : [];
   const c = r?.count ?? {};
   const badges = [
-    { icon: Satellite, earned: c.satViews > 0 && c.advised > 0, name: T('FieldShift খোঁজারু', 'FieldShift scout'), why: T('উপগ্রহ আর কিয়স্ক—দুটোই দেখুন', 'Check both the satellite view and the kiosk') },
+    { icon: Satellite, earned: c.satViews > 0 && c.advised > 0, name: T('AgroVision খোঁজারু', 'AgroVision scout'), why: T('উপগ্রহ আর কিয়স্ক—দুটোই দেখুন', 'Check both the satellite view and the kiosk') },
     { icon: Droplets, earned: c.waterLayer > 0 && c.watered >= 3, name: T('পানি-সচেতন', 'Water wise'), why: T('পানির চাপ দেখে অন্তত ৩টি চারা সেচ দিন', 'Use the water stress view, then water 3 seedlings') },
     { icon: Sprout, earned: (r?.report?.rotated ?? 0) > 0 && (r?.report?.legumes ?? 0) > 0, name: T('মাটি গড়ি', 'Soil builder'), why: T('ফসল বদলান এবং একটি ডাল ফসল তুলুন', 'Rotate a crop and harvest a pulse') },
     { icon: Star, earned: totalAnswers > 0 && correctAnswers === totalAnswers, name: T('জ্ঞানী চাষি', 'Knowledge grower'), why: T('সব কৃষি প্রশ্নের সঠিক উত্তর দিন', 'Answer every farm question correctly') },
@@ -1347,7 +1347,7 @@ function EndScreen({ who, r, onReplay, onPick, onWhatIf }) {
             ))}
           </div>
           <ul className="mt-3 space-y-1.5 text-[14.5px] leading-6 text-ink/80">{r.report.tips.map((t, k) => <li key={k} className="flex gap-2"><Sprout size={16} className="mt-1 shrink-0 text-primary-600" />{L(t)}</li>)}</ul>
-          <p className="mt-3 rounded-2xl bg-paddy-50 p-3 text-[13.5px] leading-6 text-ink/75">{T('খেলার জমি ছোট আর মৌসুম ছোট। আসল জমির ফসলচক্র দশ বছরের নাসা আবহাওয়ায় দেখতে খেলার ভেতরের FieldShift কিয়স্কে যান, আর বোনার আগে কৃষি কর্মকর্তার সঙ্গে কথা বলুন।', 'The game’s field and season are short. To see rotations for the real land over ten years of NASA weather, open the FieldShift kiosk in the game, and talk to an agriculture officer before sowing.')}</p>
+          <p className="mt-3 rounded-2xl bg-paddy-50 p-3 text-[13.5px] leading-6 text-ink/75">{T('খেলার জমি ছোট আর মৌসুম ছোট। আসল জমির ফসলচক্র দশ বছরের নাসা আবহাওয়ায় দেখতে খেলার ভেতরের AgroVision কিয়স্কে যান, আর বোনার আগে কৃষি কর্মকর্তার সঙ্গে কথা বলুন।', 'The game’s field and season are short. To see rotations for the real land over ten years of NASA weather, open the AgroVision kiosk in the game, and talk to an agriculture officer before sowing.')}</p>
         </div>
       )}
       <div className="glass mt-5 rounded-[24px] p-5">

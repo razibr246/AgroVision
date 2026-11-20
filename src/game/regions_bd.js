@@ -6,7 +6,7 @@ const q = (bn, en) => ({ bn, en });
 const ok = (bn, en) => ({ bn, en, ok: true });
 const glutQuiz = (crop, where) => ({
   q: q(`সবাই একসঙ্গে ${crop.bn} তুলে ${where.bn} আনছে, দাম অর্ধেকে নেমেছে। কী করবেন?`, `Everyone is bringing ${crop.en} to ${where.en} at once and the price has halved. What do you do?`),
-  options: [q('যত দামেই হোক আজই সব বেচে দেওয়া', 'Sell everything today at any price'), ok('FieldShift-এ দাম দেখে কয়েক দিন অপেক্ষা, অন্য ফসল আগে বেচা', 'Check prices on FieldShift, wait a few days, sell other crops first'), q(`পরের বার আরও বেশি ${crop.bn} লাগানো`, `Plant even more ${crop.en} next time`)],
+  options: [q('যত দামেই হোক আজই সব বেচে দেওয়া', 'Sell everything today at any price'), ok('AgroVision-এ দাম দেখে কয়েক দিন অপেক্ষা, অন্য ফসল আগে বেচা', 'Check prices on AgroVision, wait a few days, sell other crops first'), q(`পরের বার আরও বেশি ${crop.bn} লাগানো`, `Plant even more ${crop.en} next time`)],
   why: q('সবার ফসল একসঙ্গে বাজারে এলে দাম পড়ে। একটু অপেক্ষা বা অন্য ফসল — দুটোই লাভ বাঁচায়।', 'When everyone sells at once the price falls. Waiting a little, or selling another crop, protects the profit.'),
   perk: 'market', perkText: q('বাজারের খবর: দাম পড়া অর্ধেক সময় থাকবে', 'Market news: the price drop lasts half as long'),
 });
@@ -72,7 +72,7 @@ export const REGIONS_BD = {
       water: AWD,
       heat: FLOWER_HEAT,
       pests: {
-        q: q('পাশের ছয় কৃষকের সরিষায়ও জাব পোকা — FieldShift এলাকাভিত্তিক সতর্কতা দিয়েছে। কী করবেন?', 'Six neighbours’ mustard has aphids too — FieldShift has raised an area alert. What do you do?'),
+        q: q('পাশের ছয় কৃষকের সরিষায়ও জাব পোকা — AgroVision এলাকাভিত্তিক সতর্কতা দিয়েছে। কী করবেন?', 'Six neighbours’ mustard has aphids too — AgroVision has raised an area alert. What do you do?'),
         options: [q('নিজের জমিতে প্রতিদিন কড়া ওষুধ', 'Strong spray on your own plot every day'), ok('কর্মকর্তার পরামর্শে পাড়ার সবাই একসঙ্গে ব্যবস্থা, হলুদ আঠালো ফাঁদ', 'Act together with the neighbours on the officer’s advice, with yellow sticky traps'), q('মৌমাছি আসবে বলে কিছু না করা', 'Do nothing for the sake of the bees')],
         why: q('জাব পোকা এক জমি থেকে আরেক জমিতে উড়ে যায় — একজন ব্যবস্থা নিলে পাশ থেকে আবার আসে। সবাই একসঙ্গে নিলে তবেই কাজ হয়।', 'Aphids fly from field to field — treat one and they return from the next. Only acting together works.'),
         perk: 'neem', perkText: q('সবাই মিলে: পোকা ধীরে ছড়াবে', 'All together: pests spread more slowly'),
@@ -89,10 +89,10 @@ export const REGIONS_BD = {
       q('আমি {name}। ধামরাইয়ের চৌহাটে চারটি জমি — উপজেলা অফিসে নিবন্ধিত, প্রতিটি উপগ্রহে দেখা যায়।', 'I am {name}. Four fields at Chauhat in Dhamrai — on the upazila register, each watched by satellite.'),
       q('ঢাকা এত কাছে যে রাতে মাঠ থেকে কারখানার আলো দেখা যায়।', 'Dhaka is so close that the factory lights show over the fields at night.'),
       q('বর্ষায় নালা বন্ধ হয়ে জমিতে পানি দাঁড়ায়, শীতে সরিষায় জাব পোকা ঝাঁক বেঁধে আসে।', 'In the monsoon blocked drains leave water standing; in winter aphids swarm the mustard.'),
-      q('ফোনে FieldShift রাখি — পোকার এলাকাভিত্তিক সতর্কতা আর জমির পানি সব এক জায়গায়।', 'I keep FieldShift on my phone — area pest alerts and every plot’s water in one place.'),
+      q('ফোনে AgroVision রাখি — পোকার এলাকাভিত্তিক সতর্কতা আর জমির পানি সব এক জায়গায়।', 'I keep AgroVision on my phone — area pest alerts and every plot’s water in one place.'),
       q('চলুন, এই রবিতে শহরের বাজারে নিরাপদ সবজি পাঠাই!', 'Let us send safe vegetables to the city markets this Rabi!'),
     ],
-    lines: LINES({ hello: q('আসসালামু আলাইকুম! ফোনে FieldShift খোলা, চলেন!', 'Salaam! FieldShift is open — let us go!'), idle: q('দেখি তো আজকের পূর্বাভাস কী…', 'Let me check today’s forecast…'), storm: q('বৃষ্টি আসছে! ফসল তুলে স্কুলে যাই।', 'Rain is coming! Crop in, then to the school.'), pest: q('জাব পোকা! পাড়ার সবাইকে জানাই।', 'Aphids! Tell the neighbours.'), win: q('স্মার্ট চাষ, স্মার্ট লাভ!', 'Smart farming, smart profit!') }),
+    lines: LINES({ hello: q('আসসালামু আলাইকুম! ফোনে AgroVision খোলা, চলেন!', 'Salaam! AgroVision is open — let us go!'), idle: q('দেখি তো আজকের পূর্বাভাস কী…', 'Let me check today’s forecast…'), storm: q('বৃষ্টি আসছে! ফসল তুলে স্কুলে যাই।', 'Rain is coming! Crop in, then to the school.'), pest: q('জাব পোকা! পাড়ার সবাইকে জানাই।', 'Aphids! Tell the neighbours.'), win: q('স্মার্ট চাষ, স্মার্ট লাভ!', 'Smart farming, smart profit!') }),
   },
 
   rahimu: {
@@ -130,7 +130,7 @@ export const REGIONS_BD = {
       heat: MULCH(q('খড়ের ঢাকনা রোদ আটকায়, মাটির পানি উড়ে যাওয়া কমায়। দুপুরের সেচের বেশিরভাগ পানি বাষ্প হয়ে যায়।', 'A straw cover blocks the sun and slows evaporation. Most midday irrigation water just evaporates.')),
       pests: {
         q: q('টমেটোর পাতায় বাদামি দাগ ছড়াচ্ছে। প্রথমে কী করবেন?', 'Brown spots are spreading on the tomato leaves. What first?'),
-        options: [q('দোকানের সবচেয়ে কড়া ওষুধ সব জমিতে', 'The strongest shop chemical on every plot'), ok('পাতার ছবি FieldShift-এর ফসলের ডাক্তারে, তারপর কর্মকর্তার পরামর্শমতো শুধু আক্রান্ত জমিতে', 'A photo to FieldShift’s crop doctor, then the officer’s treatment on the affected plots only'), q('কিছুদিন অপেক্ষা', 'Wait a few days')],
+        options: [q('দোকানের সবচেয়ে কড়া ওষুধ সব জমিতে', 'The strongest shop chemical on every plot'), ok('পাতার ছবি AgroVision-এর ফসলের ডাক্তারে, তারপর কর্মকর্তার পরামর্শমতো শুধু আক্রান্ত জমিতে', 'A photo to AgroVision’s crop doctor, then the officer’s treatment on the affected plots only'), q('কিছুদিন অপেক্ষা', 'Wait a few days')],
         why: q('আগে চিনে নিলে ঠিক জায়গায় ঠিক ব্যবস্থা — খরচ কম, উপকারী পোকাও বাঁচে। দেরি করলে পাশের জমিতে ছড়ায়।', 'Identify first, then treat only where needed — cheaper, and the helpful insects survive. Wait, and it spreads.'),
         perk: 'neem', perkText: q('ঠিক ব্যবস্থা: রোগ ধীরে ছড়াবে', 'Right treatment: it spreads more slowly'),
       },
@@ -146,7 +146,7 @@ export const REGIONS_BD = {
       q('আমি {name}। দেওপাড়ার লাল খিয়ার মাটিতে আমার চারটি জমি — বাপ-দাদার আমল থেকে।', 'I am {name}. My four fields are in the red Barind soil of Deopara — they were my father’s and his father’s.'),
       q('গ্রীষ্মে মাটি ফেটে যায়। বোরোর ফুল আসে ৩৫ ডিগ্রির ওপরের গরমে।', 'In the hot season the soil cracks. The Boro flowers in heat over 35 degrees.'),
       q('গভীর নলকূপের পানি প্রতি বছর আরও নিচে নামছে। দাদার আমলের হিসাব আর মেলে না।', 'The deep-well water sinks lower every year. Grandfather’s calendar no longer adds up.'),
-      q('ছেলে বলল, FieldShift নাসার বহু বছরের আবহাওয়ার রেকর্ড মিলিয়ে বীজ বোনা আর সেচের পরিকল্পনা করতে সাহায্য করে।', 'My son says FieldShift uses long-term NASA weather records to help plan sowing and irrigation.'),
+      q('ছেলে বলল, AgroVision নাসার বহু বছরের আবহাওয়ার রেকর্ড মিলিয়ে বীজ বোনা আর সেচের পরিকল্পনা করতে সাহায্য করে।', 'My son says AgroVision uses long-term NASA weather records to help plan sowing and irrigation.'),
       q('এই রবি মৌসুমে চলুন একসঙ্গে চেষ্টা করি — মাঠ বাঁচাই, লাভও করি!', 'This Rabi season, let us try together — save the field, and make a profit!'),
     ],
     lines: LINES({ storm: q('কালবৈশাখী! ফসল তুলে স্কুলঘরে যাই।', 'A nor’wester! Crop in, then to the school.'), dry: q('বালতি খালি — নলকূপে যাই।', 'The can is empty — to the well.') }),
@@ -203,7 +203,7 @@ export const REGIONS_BD = {
         perk: 'neem', perkText: q('ফাঁদ আর ঠিক ওষুধ: পোকা ধীরে ছড়াবে', 'Traps and the right spray: pests spread more slowly'),
       },
       storm: {
-        q: q('FieldShift-এর মেঘভাঙা বৃষ্টির সতর্কতা: ৪৮ ঘণ্টার মধ্যে নিম্নচাপ, পাহাড় থেকে ঢল নামতে পারে। কী করবেন?', 'FieldShift’s cloudburst alert: a depression within 48 hours, and the hills may send down a torrent. What do you do?'),
+        q: q('AgroVision-এর মেঘভাঙা বৃষ্টির সতর্কতা: ৪৮ ঘণ্টার মধ্যে নিম্নচাপ, পাহাড় থেকে ঢল নামতে পারে। কী করবেন?', 'AgroVision’s cloudburst alert: a depression within 48 hours, and the hills may send down a torrent. What do you do?'),
         options: [ok('জমির চারপাশে নালা কেটে, পাকা ফসল তুলে, নিজে আশ্রয়কেন্দ্রে', 'Dig drains round the field, bring in the ripe crop, and go to the shelter'), q('পাহাড়ের ঢালে মাচা পাহারা দেওয়া', 'Stay on the slope to guard the trellis'), q('কিছু না করে অপেক্ষা', 'Wait and do nothing')],
         why: q('চারপাশের নালা ঢলের পানি জমি থেকে সরিয়ে নেয়। দিদারুল এভাবেই নিম্নচাপের আগে জমি বাঁচিয়েছিলেন।', 'Perimeter drains carry the torrent away from the field. That is how Didarul saved his land before the depression.'),
         perk: 'drains', perkText: q('নালা কাটা হলো: অর্ধেক পাকা ফসল বাঁচবে', 'Drains dug: half the ripe crop survives'),
@@ -214,7 +214,7 @@ export const REGIONS_BD = {
       q('আমি {name}। কুড়ি বছর ধরে সৈয়দপুরে আমার শীতের শিম ছিল গর্বের জিনিস।', 'I am {name}. For twenty years my winter beans were the pride of Syedpur.'),
       q('তিন বছর আগে অক্টোবরের মেঘভাঙা বৃষ্টিতে পাহাড় থেকে ঢল নামল, মাচা ভেসে গেল।', 'Three years ago an October cloudburst sent a torrent down the hills and washed my trellises away.'),
       q('তারপর তোলার ঠিক আগে পোকা ৭০ ভাগ শিম ফাঁপা করে দিল। জাহাজভাঙা কারখানায় কাজের কথা ভাবছিলাম।', 'Then, just before harvest, borers hollowed out 70% of the pods. I was ready to work in the ship-breaking yards.'),
-      q('সেই সপ্তাহেই উপজেলা কৃষি অফিসার এলেন FieldShift নিয়ে।', 'That week the upazila agriculture officer came with FieldShift.'),
+      q('সেই সপ্তাহেই উপজেলা কৃষি অফিসার এলেন AgroVision নিয়ে।', 'That week the upazila agriculture officer came with AgroVision.'),
       q('এবার উঁচু বেড, নালা আর ঠিক সময় — চলুন, শিম আবার গর্বের হোক!', 'This time raised beds, drains and the right timing — let the beans be our pride again!'),
     ],
     lines: LINES({ storm: q('ঢল নামবে! নালা কেটে আশ্রয়কেন্দ্রে যাই।', 'A torrent is coming! Drains dug, then to the shelter.'), pest: q('মারুকা পোকা! কর্মকর্তাকে ছবি পাঠাই।', 'Pod borer! A photo to the officer.') }),
@@ -328,7 +328,7 @@ export const REGIONS_BD = {
       q('আমি {name}। নদীঘেরা বাকেরগঞ্জে পানিই সব ঠিক করে।', 'I am {name}. In river-ringed Bakerganj, the water decides everything.'),
       q('নদীতে পলি জমে জোয়ারের ধরন বদলে গেছে। দিনে দুবার জোয়ার জমির ওপর দিয়ে বয়ে যায়।', 'Silt has changed the tides. Twice a day the water runs over the fields.'),
       q('এক শরতে ফসল পানি সামলে টিকল — তারপর রাতারাতি মাজরা পোকা মাঠ সাদা শীষে ভরে দিল।', 'One autumn the crop survived the water — then overnight the stem borers filled the field with white heads.'),
-      q('উপজেলা কৃষি অফিসার দেখালেন FieldShift-এর জোয়ার আর পোকার আগাম সতর্কতা।', 'The upazila agriculture officer showed me FieldShift’s early warnings for the tides and the pests.'),
+      q('উপজেলা কৃষি অফিসার দেখালেন AgroVision-এর জোয়ার আর পোকার আগাম সতর্কতা।', 'The upazila agriculture officer showed me AgroVision’s early warnings for the tides and the pests.'),
       q('চলুন, এবার পানি আর পোকা — দুটোকেই হারাই!', 'Let us beat both the water and the pests this time!'),
     ],
     lines: LINES({ storm: q('কোটাল আসছে! ফসল কেটে বাঁধে উঠি!', 'The spring tide! Cut the crop and up on the embankment!'), pest: q('মাজরা পোকা! আলোর ফাঁদ বসাই।', 'Stem borers! Set the light trap.'), dry: q('বালতি খালি — খালে যাই।', 'The can is empty — to the canal.') }),
@@ -368,7 +368,7 @@ export const REGIONS_BD = {
       },
       heat: MULCH(q('ফাল্গুনের শুকনো বাতাসে চরের মাটি দ্রুত শুকায়; খড়ের ঢাকনা পানি ধরে রাখে।', 'The dry spring wind dries the char fast; a straw cover holds the water in.')),
       pests: {
-        q: q('FieldShift-এর সতর্কতা: ৪৮ ঘণ্টার মধ্যে কুয়াশা আর গুঁড়ি বৃষ্টি — আলুর মড়কের আবহাওয়া। কী করবেন?', 'FieldShift warns of fog and drizzle within 48 hours — late-blight weather. What do you do?'),
+        q: q('AgroVision-এর সতর্কতা: ৪৮ ঘণ্টার মধ্যে কুয়াশা আর গুঁড়ি বৃষ্টি — আলুর মড়কের আবহাওয়া। কী করবেন?', 'AgroVision warns of fog and drizzle within 48 hours — late-blight weather. What do you do?'),
         options: [q('পাতা কালো হলে তখন দেখা যাবে', 'Wait until the leaves turn black'), ok('কর্মকর্তার পরামর্শে আগেভাগেই প্রতিরোধক ছত্রাকনাশক, আক্রান্ত গাছ তুলে ফেলা', 'A preventive fungicide on the officer’s advice before it strikes, and pull out any infected plants'), q('বেশি সেচ দেওয়া', 'Irrigate more')],
         why: q('মড়ক ৭২ ঘণ্টায় পুরো মাঠ কালো করে দিতে পারে। রোগ আসার আগে প্রতিরোধই একমাত্র উপায়।', 'Late blight can blacken a whole field in 72 hours. Prevention before it arrives is the only way.'),
         perk: 'neem', perkText: q('আগাম প্রতিরোধ: রোগ ধীরে ছড়াবে', 'Prevention first: blight spreads more slowly'),
@@ -381,7 +381,7 @@ export const REGIONS_BD = {
       },
       profit: {
         q: q('আলু তোলার মৌসুমে হাটে দাম তলানিতে। কী করবেন?', 'At lifting time the potato price at market is at rock bottom. What do you do?'),
-        options: [q('কাটার দিনই সব বেচে দেওয়া', 'Sell it all the day you lift it'), ok('শীতল ঘরে রেখে, FieldShift-এ দাম দেখে কয়েক সপ্তাহ পরে বেচা', 'Keep it in the cool chamber and sell weeks later, watching prices on FieldShift'), q('পরের বছর আলু বাদ', 'Give up potatoes next year')],
+        options: [q('কাটার দিনই সব বেচে দেওয়া', 'Sell it all the day you lift it'), ok('শীতল ঘরে রেখে, AgroVision-এ দাম দেখে কয়েক সপ্তাহ পরে বেচা', 'Keep it in the cool chamber and sell weeks later, watching prices on AgroVision'), q('পরের বছর আলু বাদ', 'Give up potatoes next year')],
         why: q('সবাই একসঙ্গে বেচে বলে তোলার সময় দাম পড়ে। শীতল ঘরে রাখলে পরে অনেক ভালো দাম মেলে।', 'Prices fall at lifting time because everyone sells at once. Stored cool, potatoes fetch far more later.'),
         perk: 'market', perkText: q('শীতল ঘর: দাম পড়া অর্ধেক সময় থাকবে', 'Cool chamber: the price drop lasts half as long'),
       },
@@ -447,7 +447,7 @@ export const REGIONS_BD = {
       q('আমি {name}। চার বছর আগে স্বামী শয্যাশায়ী হলে আমি নিজেই গোয়াইনঘাটের কাদামাঠে নামলাম।', 'I am {name}. When my husband was bedridden four years ago, I went into Gowainghat’s muddy fields myself.'),
       q('লাঙল আর বাজারে মেয়েদের নিয়ে কানাকানি শুনেছি — তবু থামিনি।', 'I heard the whispers about women at the plough and in the market — I did not stop.'),
       q('দুই বছর আগে, কাটার দশ দিন আগে, মাঝরাতে পাহাড়ি ঢল বাঁধ ভেঙে নামল। ছয় ঘণ্টায় সারা বছরের খাবার গেল।', 'Two years ago, ten days before harvest, a flash flood broke the dyke at midnight. Six hours took our year of food.'),
-      q('পাহাড়ের পানি যেন আর সন্তানদের ভবিষ্যৎ কেড়ে নিতে না পারে, তাই FieldShift-এ যোগ দিলাম।', 'So that the hill water never takes my children’s future again, I joined FieldShift.'),
+      q('পাহাড়ের পানি যেন আর সন্তানদের ভবিষ্যৎ কেড়ে নিতে না পারে, তাই AgroVision-এ যোগ দিলাম।', 'So that the hill water never takes my children’s future again, I joined AgroVision.'),
       q('এবার ঢলের আগেই ধান ঘরে তুলব। চলুন!', 'This time the rice comes home before the flood. Let us go!'),
     ],
     lines: LINES({ hello: q('আসসালামু আলাইকুম! আজ অনেক কাজ, চলেন।', 'Salaam! Lots to do today, come on.'), idle: q('দেখি তো মেঘালয়ে আজ কত বৃষ্টি…', 'Let me check the rain in Meghalaya today…'), storm: q('ঢল আসছে! ধান কেটে টিলায় উঠি!', 'The flood is coming! Cut the rice and up the hill!'), pest: q('ব্লাস্ট! কর্মকর্তাকে ছবি পাঠাই।', 'Blast! A photo to the officer.'), dry: q('বালতি খালি, পাম্পে যাই।', 'Can is empty, to the pump.'), win: q('হিসাব মিলেছে, সন্তানদের মুখে হাসি!', 'The sums add up — and my children are smiling!') }),

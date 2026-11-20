@@ -1,4 +1,4 @@
-// E2E Test Suite: FieldShift Kids – Learn, Play & Grow (তারার স্বপ্ন-খামার / Tara's Dream Farm)
+// E2E Test Suite: AgroVision Kids – Learn, Play & Grow (তারার স্বপ্ন-খামার / Tara's Dream Farm)
 // Opaque-box requirement-driven testing covering Tiers 1–4 across all 11 features, boundary cases,
 // pairwise interactions, and realistic application scenarios.
 //

@@ -52,7 +52,7 @@ except ImportError:
 
 
 def get(url):
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (fieldshift360-data-build)'})
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (agrovision-data-build)'})
     try:
         with urllib.request.urlopen(req, timeout=120, context=CTX) as r:
             return r.read()

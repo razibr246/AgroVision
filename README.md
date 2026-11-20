@@ -1,9 +1,9 @@
-# FieldShift 360
+# AgroVision
 
 [![NASA Space Apps 2026](https://img.shields.io/badge/NASA%20Space%20Apps-2026-0B3D91?style=flat-square&logo=nasa&logoColor=white)](https://www.spaceappschallenge.org/)
 [![Tests](https://img.shields.io/badge/npm%20test-1007%20passing-15803d?style=flat-square&logo=node.js&logoColor=white)](#verification)
 [![Runs in the browser](https://img.shields.io/badge/compute-100%25%20in%20the%20browser-0284c7?style=flat-square)](#how-it-works)
-[![বাংলা · English](https://img.shields.io/badge/language-বাংলা%20%C2%B7%20English-b45309?style=flat-square)](https://fieldshift360.vercel.app/#/)
+[![বাংলা · English](https://img.shields.io/badge/language-বাংলা%20%C2%B7%20English-b45309?style=flat-square)](https://agrovision.vercel.app/#/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-6b7280?style=flat-square)](LICENSE)
 
 **A crop-rotation decision tool for Bangladesh's smallholder farmers and upazila agriculture officers, built on 25 seasons of NASA Earth observations.** It answers one question for one field: *as the weather shifts, which rotation keeps the soil healthy, uses less water and still pays, and what is this season's first step?*
@@ -12,20 +12,20 @@ Challenge: **Field Shift: Adapting Farms with NASA Data** · Team: **BRM AstraX*
 
 | | |
 | --- | --- |
-| 🌐 **Live app** | [fieldshift360.vercel.app](https://fieldshift360.vercel.app/#/) |
+| 🌐 **Live app** | [agrovision.vercel.app](https://agrovision.vercel.app/#/) |
 | 🎬 **Judge's 5-minute tour** | [below](#a-five-minute-tour-for-judges) |
 | 📊 **Evidence sheet** (every dataset, scale, limit, validation) | [docs/EVIDENCE.md](docs/EVIDENCE.md) |
 | 📝 **Submission kit** (project description, challenge mapping) | [docs/SUBMISSION.md](docs/SUBMISSION.md) |
-| 🔁 **Data register in the app** | [`/science#coverage`](https://fieldshift360.vercel.app/#/science#coverage) |
+| 🔁 **Data register in the app** | [`/science#coverage`](https://agrovision.vercel.app/#/science#coverage) |
 
-[![The FieldShift 360 home page: "The right crop. At the right time."](docs/screenshots/home.jpg)](https://fieldshift360.vercel.app/#/)
+[![The AgroVision home page: "The right crop. At the right time."](docs/screenshots/home.jpg)](https://agrovision.vercel.app/#/)
 
 ---
 
 ## Contents
 
 1. [The problem](#the-problem)
-2. [What FieldShift 360 does](#what-fieldshift-360-does)
+2. [What AgroVision does](#what-agrovision-360-does)
 3. [A look inside](#a-look-inside)
 4. [A five-minute tour for judges](#a-five-minute-tour-for-judges)
 4. [NASA and partner data](#nasa-and-partner-data)
@@ -47,7 +47,7 @@ The crop calendar Bangladeshi farmers inherited no longer fits the weather. On t
 
 A farmer needs to know what to plant *this* Rabi season **and** what sequence of crops will keep the field productive for the next ten years. An upazila officer needs to see the same thing for hundreds of farmers at once.
 
-## What FieldShift 360 does
+## What AgroVision does
 
 **For a farmer** (`/farmer/*`, Bangla first, voice and SMS mode included)
 
@@ -74,46 +74,46 @@ Seven upazilas, one in each division of Bangladesh, are covered by the full engi
 
 ## A look inside
 
-Every page below is live at [fieldshift360.vercel.app](https://fieldshift360.vercel.app/#/); click a picture to open it. The farmers shown are sample accounts.
+Every page below is live at [agrovision.vercel.app](https://agrovision.vercel.app/#/); click a picture to open it. The farmers shown are sample accounts.
 
 <table>
 <tr>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/farmer"><img src="docs/screenshots/farmer-home.jpg" alt="Farmer home: this season's answer, KEEP / ADJUST / SHIFT, with the next step" /></a>
+<a href="https://agrovision.vercel.app/#/farmer"><img src="docs/screenshots/farmer-home.jpg" alt="Farmer home: this season's answer, KEEP / ADJUST / SHIFT, with the next step" /></a>
 <p align="center"><b>Farmer · home</b><br /><sub>This season's answer for the field (<i>Shift to another crop: lentil, sow 19 Nov</i>), today's weather and soil water, and the plan's next step. Every number carries its kind: model estimate, rule, station.</sub></p>
 </td>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/farmer/future"><img src="docs/screenshots/farmer-future.jpg" alt="Field Future: ten years of rotation for one field" /></a>
+<a href="https://agrovision.vercel.app/#/farmer/future"><img src="docs/screenshots/farmer-future.jpg" alt="Field Future: ten years of rotation for one field" /></a>
 <p align="center"><b>Farmer · Field Future</b><br /><sub>702 rotations run for ten years on the field's SoilGrids soil and 25 seasons of NASA weather: soil carbon, irrigation water, income, weather risk and pests, then re-ranked by the farmer's priorities and replayed in the 2040s.</sub></p>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/officer/radar"><img src="docs/screenshots/officer-radar.jpg" alt="Officer: Ropon Radar, rain onset and transplanting by upazila" /></a>
+<a href="https://agrovision.vercel.app/#/officer/radar"><img src="docs/screenshots/officer-radar.jpg" alt="Officer: Ropon Radar, rain onset and transplanting by upazila" /></a>
 <p align="center"><b>Officer · Ropon Radar</b><br /><sub>When the monsoon rain set in (GPM IMERG) and when Aman was actually transplanted (Sentinel-1 radar through the cloud), upazila by upazila, with what to tell the farmers this season.</sub></p>
 </td>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/science"><img src="docs/screenshots/science.jpg" alt="Science: from the satellite to your field" /></a>
+<a href="https://agrovision.vercel.app/#/science"><img src="docs/screenshots/science.jpg" alt="Science: from the satellite to your field" /></a>
 <p align="center"><b>Science · from the satellite to your field</b><br /><sub>A 3D simulation of the seven missions behind the data, the spectral and multi-scale labs, trend maps, the crop-stress ML benchmark and the full data register with every dataset's scale and limit.</sub></p>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/games"><img src="docs/screenshots/games.jpg" alt="Learn by playing: the games page" /></a>
+<a href="https://agrovision.vercel.app/#/games"><img src="docs/screenshots/games.jpg" alt="Learn by playing: the games page" /></a>
 <p align="center"><b>Learn by playing</b><br /><sub>Six games in two parts: play as a farmer in 3D, then stories and challenges on real past years. Every game runs on real NASA weather.</sub></p>
 </td>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/farm"><img src="docs/screenshots/farm-game.jpg" alt="Harvest Horizon: a 3D farmer built with MakeHuman" /></a>
+<a href="https://agrovision.vercel.app/#/farm"><img src="docs/screenshots/farm-game.jpg" alt="Harvest Horizon: a 3D farmer built with MakeHuman" /></a>
 <p align="center"><b>Harvest Horizon · 3D farm game</b><br /><sub>Fifteen farmers in nine countries, each a rigged MakeHuman model on their own land with their own crops and the hazard they fear most; walk the field, plant, manage water and pests, and live with the season. Plays in VR.</sub></p>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/kids"><img src="docs/screenshots/kids-game.jpg" alt="Tara and the Dream Fields: the children's game" /></a>
+<a href="https://agrovision.vercel.app/#/kids"><img src="docs/screenshots/kids-game.jpg" alt="Tara and the Dream Fields: the children's game" /></a>
 <p align="center"><b>Tara and the Dream Fields · for children</b><br /><sub>Four story worlds with Tara, a little NASA satellite, as the guide: crops and living soil, satellites and NDVI, farm maths and farm money, with mini-games, science labs, a 3D dream in VR and badges.</sub></p>
 </td>
 <td width="50%" valign="top">
-<a href="https://fieldshift360.vercel.app/#/"><img src="docs/screenshots/home.jpg" alt="The home page" /></a>
+<a href="https://agrovision.vercel.app/#/"><img src="docs/screenshots/home.jpg" alt="The home page" /></a>
 <p align="center"><b>Public · home</b><br /><sub>The decision in one line, live weather for Godagari, 25 seasons of change, the officer loop acted out, and a judge's demo button. Bangla and English, one tap apart.</sub></p>
 </td>
 </tr>
@@ -125,11 +125,11 @@ Everything runs in the browser from committed data: no sign-in, no key, nothing 
 
 | Min | Open | What to look for |
 | --- | --- | --- |
-| 0–1 | [`/`](https://fieldshift360.vercel.app/#/) | The landing page: the live weather for Godagari, 25 seasons of change, and the decision sandbox. Switch **বাংলা / English** in the header. |
-| 1–2 | [`/farmer/future`](https://fieldshift360.vercel.app/#/farmer/future) | Ten years for one field. Change a priority (less water, better soil) and watch the ranking move. Open a strategy's **why** card: evidence, benefit, gap, risk. Scroll to the eight-model 2040s test. |
-| 2–3 | [`/farmer/plan`](https://fieldshift360.vercel.app/#/farmer/plan) | This season's step: KEEP / ADJUST / SHIFT, tested against 25 seasons, with the crop rule that decided it. |
-| 3–4 | [`/officer/radar`](https://fieldshift360.vercel.app/#/officer/radar) | Rain onset (GPM IMERG) versus transplanting (Sentinel-1) by upazila, year by year. |
-| 4–5 | [`/science#coverage`](https://fieldshift360.vercel.app/#/science#coverage) | Every dataset, what kind of evidence it is, its scale and its limit. Then `/kids` or `/farm` if there is a minute left. |
+| 0–1 | [`/`](https://agrovision.vercel.app/#/) | The landing page: the live weather for Godagari, 25 seasons of change, and the decision sandbox. Switch **বাংলা / English** in the header. |
+| 1–2 | [`/farmer/future`](https://agrovision.vercel.app/#/farmer/future) | Ten years for one field. Change a priority (less water, better soil) and watch the ranking move. Open a strategy's **why** card: evidence, benefit, gap, risk. Scroll to the eight-model 2040s test. |
+| 2–3 | [`/farmer/plan`](https://agrovision.vercel.app/#/farmer/plan) | This season's step: KEEP / ADJUST / SHIFT, tested against 25 seasons, with the crop rule that decided it. |
+| 3–4 | [`/officer/radar`](https://agrovision.vercel.app/#/officer/radar) | Rain onset (GPM IMERG) versus transplanting (Sentinel-1) by upazila, year by year. |
+| 4–5 | [`/science#coverage`](https://agrovision.vercel.app/#/science#coverage) | Every dataset, what kind of evidence it is, its scale and its limit. Then `/kids` or `/farm` if there is a minute left. |
 
 Hover any number's label (`SAT`, `STATION`, `MODEL`, `RECORD`, `RULE`, `AI`, `DEMO`) to see what produced it.
 
@@ -158,7 +158,7 @@ Every number in the app carries one of these kinds as a label, and the register 
 
 ## Challenge statement, line by line
 
-| The challenge asks for | Where FieldShift 360 answers it |
+| The challenge asks for | Where AgroVision answers it |
 | --- | --- |
 | A decision tool for crop rotation | `/farmer/future` ranks every feasible rotation for the field; `/farmer/plan` turns it into this season's step |
 | NASA Earth observations | the 14 datasets above; audit at `/science#coverage` |
@@ -240,8 +240,8 @@ The in-app test kit (`/testkit`) records the next sessions with consent first, t
 Needs Node 18 or newer.
 
 ```bash
-git clone https://github.com/razibr246/fieldshift360.git
-cd fieldshift360
+git clone https://github.com/razibr246/agrovision.git
+cd agrovision
 npm install
 npm run dev            # http://localhost:5173  (in-memory stand-ins for the shared boards)
 npm test               # all Node suites

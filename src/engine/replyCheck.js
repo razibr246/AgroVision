@@ -98,7 +98,7 @@ const problem = (id, level, bn, en) => ({ id, level, bn, en });
 // → { ok, problems, proposals (bad targets removed), ceiling, limits }
 // R7: the answer must be in the language the person's app is set to. Counted in words (a Bangla word has a Bangla
 // letter, an English word a Latin one), so an English answer may carry a Bangla name and a Bangla one an English name
-// ("FieldShift 360", "Landsat"), but not whole sentences of the other language.
+// ("AgroVision", "Landsat"), but not whole sentences of the other language.
 export function replyLanguage(text) {
   const words = String(text ?? '').split(/\s+/);
   const bn = words.filter((w) => /[\u0980-\u09E5\u09F0-\u09FF]/.test(w)).length;

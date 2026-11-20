@@ -45,7 +45,7 @@ export default function StoryLevel() {
           <div className="space-y-3.5">
             <Boss icon={Swords} tone="text-red-700 bg-red-100/80 shadow-2xs" k={T('পরিবেশের দানব', 'Environmental boss')} v={L(lv.hazard)} />
             <Boss icon={Bug} tone="text-paddy-700 bg-paddy-100/80 shadow-2xs" k={T('রোগ-পোকার দানব', 'Biological boss')} v={L(lv.bio)} />
-            <Boss icon={Sparkles} tone="text-primary-700 bg-primary-100/80 shadow-2xs" k={T('FieldShift আর কর্মকর্তার পাওয়ার-আপ', 'FieldShift and officer power-up')} v={L(lv.power)} />
+            <Boss icon={Sparkles} tone="text-primary-700 bg-primary-100/80 shadow-2xs" k={T('AgroVision আর কর্মকর্তার পাওয়ার-আপ', 'AgroVision and officer power-up')} v={L(lv.power)} />
           </div>
           {UPAZILAS[lv.upz] && <OfficerCard u={UPAZILAS[lv.upz]} />}
           {m && <div className="mt-5 border-t border-border/80 pt-4">
@@ -76,7 +76,7 @@ export default function StoryLevel() {
       ))}
       {lv.resolution && (
         <section className="mt-8 rounded-[28px] border border-primary-300/80 bg-gradient-to-br from-primary-50/90 to-primary-100/50 p-6 sm:p-7 shadow-sm">
-          <h2 className="flex items-center gap-2.5 font-display text-[22px] font-bold text-primary-950"><HeartHandshake size={22} className="text-primary-700" />{T('FieldShift আর উপজেলা কৃষি অফিসার যা বদলালেন', 'What FieldShift and the upazila officer changed')}</h2>
+          <h2 className="flex items-center gap-2.5 font-display text-[22px] font-bold text-primary-950"><HeartHandshake size={22} className="text-primary-700" />{T('AgroVision আর উপজেলা কৃষি অফিসার যা বদলালেন', 'What AgroVision and the upazila officer changed')}</h2>
           <p className="mt-3 text-[16px] leading-8 text-primary-950/90">{L(lv.resolution)}</p>
         </section>
       )}
@@ -434,7 +434,7 @@ function Result({ r, m, lv, onAll }) {
       <div className="flex items-center gap-4">
         <ScoreRing value={Math.min(100, r.total)} size={84} color={r.danger ? '#b3261e' : lv.tone} />
         <div>
-          <div className="text-[13px] font-semibold text-muted">{T(`FieldShift স্কোর, ${yr(r.year, lang)}`, `FieldShift Score, ${r.year}`)}</div>
+          <div className="text-[13px] font-semibold text-muted">{T(`AgroVision স্কোর, ${yr(r.year, lang)}`, `AgroVision Score, ${r.year}`)}</div>
           <div className="font-display text-[30px] font-bold tabular">{num(r.total, lang)}{r.total > 100 && <span className="ml-1 text-[14px] text-primary-700">{T('বোনাসসহ', 'with bonus')}</span>}</div>
           {r.blind && <div className="text-[12.5px] font-semibold text-red-700">{T('অন্ধ স্প্রে: −১৫', 'Blind spraying: −15')}</div>}
           {r.bonus && !r.danger && <div className="text-[12.5px] font-semibold text-primary-700">{T('সতর্কতা মেনে কাজ: ×১.১', 'Acted on the alert: ×1.1')}</div>}

@@ -302,7 +302,7 @@ export default function MultiScaleGridVisualizer() {
         <div className="rounded-2xl border border-primary-200 bg-primary-50/70 p-4">
           <div className="flex items-center gap-2 text-primary-950 font-bold text-[15px]">
             <CheckCircle2 size={17} className="text-primary-700" />
-            {T('ফিল্ডশিফ্ট ৩৬০ যেভাবে সমন্বয় করে:', 'How FieldShift 360 Harmonises This:')}
+            {T('এগ্রোভিশন যেভাবে সমন্বয় করে:', 'How AgroVision Harmonises This:')}
           </div>
           <p className="mt-2 text-[14px] leading-relaxed text-primary-950/90 font-medium">
             {lang === 'bn' ? currentScale.honestMethodBn : currentScale.honestMethodEn}

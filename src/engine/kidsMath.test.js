@@ -1,5 +1,5 @@
 /**
- * FieldShift Kids – Learn, Play & Grow
+ * AgroVision Kids – Learn, Play & Grow
  * Agricultural Mathematics & Calculation Engine Test Suite
  *
  * Comprehensive Node.js unit tests (node:test, node:assert/strict) covering:

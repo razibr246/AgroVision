@@ -1,4 +1,4 @@
-// Pure NPC mind and behavioral simulation for FieldShift 360:
+// Pure NPC mind and behavioral simulation for AgroVision:
 // Simulates human biological needs (energy, hunger, thirst, social, duty, comfort), daily circadian routines
 // (dawn field check, morning trade, midday shaded rest, afternoon work, dusk gathering, night shelter),
 // memory of player interactions, social affinity, emotional states, proactive obstacle avoidance,

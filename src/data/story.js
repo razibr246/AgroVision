@@ -1,5 +1,5 @@
 // "মাঠের লড়াই" — a learn-by-playing story. One Rabi season with Rahim Uddin in Deopara: six real problems a
-// Barind farmer meets, and at each one the player picks either the old habit or one of FieldShift 360's tools
+// Barind farmer meets, and at each one the player picks either the old habit or one of AgroVision's tools
 // (হাতিয়ার). Effects move three meters: crop health (0–100), profit in taka, and water left (0–100).
 // The numbers are illustrative, not measured; they only show the direction and rough size of each outcome.
 
@@ -32,7 +32,7 @@ export const SCENES = [
     },
     tool: 'plan',
     win: {
-      text: { bn: 'FieldShift ২৫ মৌসুমের নাসা আবহাওয়া আর দেওপাড়ার মাটি মিলিয়ে বলল: সরিষা, ১৬ কার্তিক। পানি লাগবে বোরোর চার ভাগের এক ভাগ।', en: 'FieldShift weighed 25 seasons of NASA weather against Deopara\'s soil: mustard, sown on 16 Kartik. A quarter of the water Boro needs.' },
+      text: { bn: 'AgroVision ২৫ মৌসুমের নাসা আবহাওয়া আর দেওপাড়ার মাটি মিলিয়ে বলল: সরিষা, ১৬ কার্তিক। পানি লাগবে বোরোর চার ভাগের এক ভাগ।', en: 'AgroVision weighed 25 seasons of NASA weather against Deopara\'s soil: mustard, sown on 16 Kartik. A quarter of the water Boro needs.' },
       fx: { crop: 10, money: 4000, water: 15 },
     },
     hint: { bn: 'এটা পরে কাজে লাগবে। এখন দরকার পুরো মৌসুমের হিসাব — কোন ফসল, কবে।', en: 'Useful later. Right now you need the whole season worked out: which crop, and when.' },

@@ -1,5 +1,5 @@
 // Science Page: Interactive NASA Satellite Constellation & Sensor Telemetry Inspector.
-// Provides engineering-level transparency into the 8 orbital missions powering FieldShift 360,
+// Provides engineering-level transparency into the 8 orbital missions powering AgroVision,
 // detailing sensor payloads, orbital dynamics, spatial-temporal resolutions, and their role in the in-browser decision engine.
 import { useState } from 'react';
 import { Satellite, Radio, Layers, Orbit, Globe2, ExternalLink, Activity, Sparkles, CheckCircle2 } from 'lucide-react';
@@ -138,8 +138,8 @@ export default function SatelliteInspector() {
 
       <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">
         {T(
-          'ফিল্ডশিফ্ট ৩৬০ সরাসরি নাসার বৈজ্ঞানিক স্যাটেলাইট ফ্লিটের কাঁচা ডেটাস্ট্রিম গ্রহণ করে। নিচে ক্লিক করে প্রতিটি উপগ্রহের অরবিটাল উচ্চতা, সেন্সর ব্যান্ড এবং সিদ্ধান্ত ইঞ্জিনে তার নিখুঁত প্রয়োগ দেখুন:',
-          'FieldShift 360 directly ingests and harmonizes orbital telemetry from NASA and partner missions. Inspect the exact sensor payloads, orbital altitudes, frequency bands, and deterministic roles below:'
+          'এগ্রোভিশন সরাসরি নাসার বৈজ্ঞানিক স্যাটেলাইট ফ্লিটের কাঁচা ডেটাস্ট্রিম গ্রহণ করে। নিচে ক্লিক করে প্রতিটি উপগ্রহের অরবিটাল উচ্চতা, সেন্সর ব্যান্ড এবং সিদ্ধান্ত ইঞ্জিনে তার নিখুঁত প্রয়োগ দেখুন:',
+          'AgroVision directly ingests and harmonizes orbital telemetry from NASA and partner missions. Inspect the exact sensor payloads, orbital altitudes, frequency bands, and deterministic roles below:'
         )}
       </p>
 
@@ -219,7 +219,7 @@ export default function SatelliteInspector() {
         {/* In-Browser Engine Application Banner */}
         <div className="mt-4 rounded-2xl border border-primary-200 bg-primary-50/70 p-4">
           <div className="text-[12.5px] font-bold uppercase tracking-wider text-primary-900">
-            {T('ফিল্ডশিফ্ট ৩৬০ ইঞ্জিনে সুনির্দিষ্ট প্রয়োগ:', 'Deterministic Application in FieldShift 360:')}
+            {T('এগ্রোভিশন ইঞ্জিনে সুনির্দিষ্ট প্রয়োগ:', 'Deterministic Application in AgroVision:')}
           </div>
           <p className="mt-1 text-[14px] leading-6 font-medium text-primary-950">
             {T(active.roleBn, active.roleEn)}

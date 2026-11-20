@@ -1,8 +1,8 @@
-// FieldShift 360 offline support: after the first visit the app opens without internet.
+// AgroVision offline support: after the first visit the app opens without internet.
 // - The page itself: network first (so updates arrive), the saved copy when offline.
 // - Built files in assets/ (their names change with every build): saved on first use, then served from the cache.
 // Live data (weather, NASA, map tiles) is not cached here; the app already falls back to saved data for those.
-const CACHE = 'fieldshift-v1';
+const CACHE = 'agrovision-v1';
 const SCOPE = new URL(self.registration.scope).pathname;
 const SHELL = [SCOPE, `${SCOPE}index.html`];
 

@@ -1,4 +1,4 @@
-// In-memory store of the FieldShift snapshot and dialogue state per voice session (same lifetime model as docket-store.ts).
+// In-memory store of the AgroVision snapshot and dialogue state per voice session (same lifetime model as docket-store.ts).
 // The web app (or a telephony gateway with a farmer/officer lookup) POSTs a fresh snapshot to /api/field/session; the
 // brain answers from it, and any state-changing effects wait here until the client pulls and applies them.
 import { createSession } from "./shared/brain";

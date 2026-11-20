@@ -33,7 +33,7 @@ const AGRO_PARTICLES = [
 ];
 
 /**
- * FarmerAtmosphere — Agro-climatic atmospheric backdrop for the FieldShift 360 farmer portal.
+ * FarmerAtmosphere — Agro-climatic atmospheric backdrop for the AgroVision farmer portal.
  * Blends smooth diurnal & weather-adaptive gradients (Aman emerald, sunrise mustard, river mist, Barind clay)
  * with tactile agrarian topography, precision satellite field grid lines, and subtle GPU-composited particles
  * on a strict-containment layer so foreground Liquid Glass never re-blurs unnecessarily.

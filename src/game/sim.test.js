@@ -19,7 +19,7 @@ function play(id, budget = 60 * 40) {
   let t = 0, stuck = 0, lastX = 0, lastZ = 0, lastBuy = null;
   while (!g.won && t < budget) {
     t += DT;
-    // a player who uses FieldShift: looks from space, checks the kiosk, opens the water-stress layer when asked
+    // a player who uses AgroVision: looks from space, checks the kiosk, opens the water-stress layer when asked
     const need = QUESTS[g.quest]?.need ?? {};
     for (const k of ['satViews', 'advised', 'waterLayer']) if (need[k] && !g.count[k]) note(g, k);
     if (need.officeVisits && !g.count.officeVisits) { note(g, 'officeVisits'); useService(g, 'soiltest'); } // a player who visits the office
@@ -145,7 +145,7 @@ test('running into a wall stops the farmer with a thud', async () => {
   assert.ok(Math.hypot(g.me.x - b.x, g.me.z - b.z) >= b.r + 0.34, 'not inside the tree');
 });
 
-// ── FieldShift's rotation lessons, and the station's real data for every farmer's place ──
+// ── AgroVision's rotation lessons, and the station's real data for every farmer's place ──
 const onPlot = (g, p) => { g.me.x = p.x; g.me.z = p.z; g.me.act = null; };
 const sowHarvest = (g, p, k) => { g.seeds[k] = 1; g.sel = k; onPlot(g, p); act(g); p.g = 1; g.me.act = null; act(g); };
 
@@ -164,7 +164,7 @@ test('the same crop twice on a plot is a repeat and the pest wave finds it; a di
 });
 
 test('a legume enriches the soil and bare plots lose topsoil in the storm', async () => {
-  const { seasonReport } = await import('./fieldshift.js');
+  const { seasonReport } = await import('./agrovision.js');
   const g = createGame('rahimu'); g.nextQuestAt = 1e9;
   const p = g.plots[0];
   sowHarvest(g, p, 'lentil');
@@ -177,8 +177,8 @@ test('a legume enriches the soil and bare plots lose topsoil in the storm', asyn
   assert.equal(r.legumes, 1); assert.ok(r.tips.length >= 1 && r.tips[0].bn && r.tips[0].en);
 });
 
-test('every farmer’s FieldShift station has real NASA cards for their own place', async () => {
-  const { placeOf, spaceFacts } = await import('./fieldshift.js');
+test('every farmer’s AgroVision station has real NASA cards for their own place', async () => {
+  const { placeOf, spaceFacts } = await import('./agrovision.js');
   const { readFileSync } = await import('node:fs');
   for (const id of FARMER_IDS) {
     const pl = placeOf(REGIONS[id], id);
@@ -190,7 +190,7 @@ test('every farmer’s FieldShift station has real NASA cards for their own plac
 });
 
 test('the what-if sliders reach both rotation engines, and the season gets hotter and drier', async () => {
-  const { sliderChange, sliderMods } = await import('./fieldshift.js');
+  const { sliderChange, sliderMods } = await import('./agrovision.js');
   const { abroadRotations } = await import('../engine/rotationAbroad.js');
   const { readFileSync } = await import('node:fs');
   assert.equal(sliderChange(0, 0), null);
@@ -210,7 +210,7 @@ test('the what-if sliders reach both rotation engines, and the season gets hotte
 test('every neighbour’s rotation option has its irrigation water and harvest value, and the brief names old prices', async () => {
   const { abroadRotations, cropAbroad } = await import('../engine/rotationAbroad.js');
   const { climateChange } = await import('../engine/soilfuture.js');
-  const { abroadBrief } = await import('./fieldshift.js');
+  const { abroadBrief } = await import('./agrovision.js');
   const { readFileSync } = await import('node:fs');
   const read = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url)));
   const SY = read('../data/soil/abroad_soil_yields.json').countries, PR = read('../data/market/abroad_prices.json').countries, deltas = read('../data/climate/cmip6_deltas.json');
@@ -235,13 +235,13 @@ test('every mission names its farming problem and the NASA record that answers i
   note(g, 'satViews'); for (let k = 0; k < 60; k++) update(g, DT, {});
   assert.equal(QUESTS[g.quest].id, 'buy');
   buy(g, 'mustard', 3); for (let k = 0; k < 60; k++) update(g, DT, {});
-  assert.equal(QUESTS[g.quest].id, 'buy', 'seed bought without checking FieldShift does not count');
+  assert.equal(QUESTS[g.quest].id, 'buy', 'seed bought without checking AgroVision does not count');
   note(g, 'advised'); for (let k = 0; k < 60; k++) update(g, DT, {});
   assert.equal(QUESTS[g.quest].id, 'plant');
 });
 
 test('before sowing, the prompt knows a rotation from a repeat; the season ends with strategies to try next', async () => {
-  const { seasonReport, nextTry } = await import('./fieldshift.js');
+  const { seasonReport, nextTry } = await import('./agrovision.js');
   const { target } = await import('./sim.js');
   const g = createGame('rahimu'); g.nextQuestAt = 1e9;
   const p = g.plots[0];

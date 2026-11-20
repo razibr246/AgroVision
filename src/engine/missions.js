@@ -19,8 +19,8 @@
 //   Chattogram October cloudburst: ≥150 mm of IMERG rain in three days, 1 Oct–15 Nov. Pod-borer year: ≥15 days with
 //              Tmin ≥18 °C and RH ≥75% at flowering (15 Nov–15 Jan).
 // What each choice does to yield is a STARTING VALUE from the extension literature, not a measurement, and is labelled
-// so on the page. The score follows the FieldShift Score: 0.25 yield + 0.20 soil + 0.20 resilience + 0.20 IPM +
-// 0.15 market, −15 for blind spraying, ×1.1 for acting on a FieldShift alert; and four Danger Ends.
+// so on the page. The score follows the AgroVision Score: 0.25 yield + 0.20 soil + 0.20 resilience + 0.20 IPM +
+// 0.15 market, −15 for blind spraying, ×1.1 for acting on a AgroVision alert; and four Danger Ends.
 import { hargreaves } from './agroclimate.js';
 import { ROTATION_CROPS } from './crops.js';
 
@@ -68,7 +68,7 @@ export function limeDose(ph, clay = 25) {
 }
 export const T_HA_TO_KG_BIGHA = 133.6;
 
-// The FieldShift Score.
+// The AgroVision Score.
 export const WEIGHTS = { Y: 0.25, E: 0.20, C: 0.20, B: 0.20, M: 0.15 };
 export function scoreOf(p, { blind = false, bonus = false } = {}) {
   const base = Object.entries(WEIGHTS).reduce((a, [k, w]) => a + w * clamp(p[k]), 0);

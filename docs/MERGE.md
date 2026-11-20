@@ -2,11 +2,11 @@
 
 ## Principle
 
-FieldShift 360 is the product. The other two are modules that serve the same two people, a **smallholder farmer** and an **agriculture officer** (SAAO at union level, UAO at upazila level), in Bangladesh. Nothing was deleted: every original file is still present. Changes to originals are small and listed below.
+AgroVision is the product. The other two are modules that serve the same two people, a **smallholder farmer** and an **agriculture officer** (SAAO at union level, UAO at upazila level), in Bangladesh. Nothing was deleted: every original file is still present. Changes to originals are small and listed below.
 
 ## Mapping
 
-| Legal Voice Agent idea | FieldShift equivalent |
+| Legal Voice Agent idea | AgroVision equivalent |
 | --- | --- |
 | Citizen calls the helpline | Farmer asks the field assistant |
 | Case docket / complaint intake | Problem report becomes a help request (`type: help`, `via: voice`) |
@@ -18,9 +18,9 @@ FieldShift 360 is the product. The other two are modules that serve the same two
 | IVR 1/2/3 menu, DTMF | Keys 1-6 per role, mapped to the same utterances (`lib/agent/field/field-prompt.ts`) |
 | 999 emergency escalation | Danger-to-life words go to 999 before any crop logic |
 
-| Ropon Radar idea | FieldShift equivalent |
+| Ropon Radar idea | AgroVision equivalent |
 | --- | --- |
-| Rain onset vs transplant gap (Aman, Rangpur) | The monsoon half of the year. FieldShift plans Rabi, Ropon watches Aman. Same officers, same farmers, complementary seasons |
+| Rain onset vs transplant gap (Aman, Rangpur) | The monsoon half of the year. AgroVision plans Rabi, Ropon watches Aman. Same officers, same farmers, complementary seasons |
 | Bangla and English strings, SMS lengths | Same bilingual approach; radar summary uses the radar's own Bangla upazila names |
 
 ## One brain, two places
@@ -33,7 +33,7 @@ FieldShift 360 is the product. The other two are modules that serve the same two
 
 ## Changes to original files
 
-FieldShift: `App.jsx` (3 routes), `OfficerLayout.jsx` and `FarmerLayout.jsx` (nav items; farmer bottom bar now shows Voice and moves Doctor into "More"), `Home.jsx` (one section), `UpazilaSupply.jsx` (default advice text moved to `data/advice.js`), `RequestDetail.jsx` and `shared.jsx` (reply-template and advisory-text builders moved to `engine/advice.js`, behaviour unchanged), `package.json` (scripts).
+AgroVision: `App.jsx` (3 routes), `OfficerLayout.jsx` and `FarmerLayout.jsx` (nav items; farmer bottom bar now shows Voice and moves Doctor into "More"), `Home.jsx` (one section), `UpazilaSupply.jsx` (default advice text moved to `data/advice.js`), `RequestDetail.jsx` and `shared.jsx` (reply-template and advisory-text builders moved to `engine/advice.js`, behaviour unchanged), `package.json` (scripts).
 
 Ropon Radar: `js/data.js` (`loadGeo` accepts a district), `js/scenes.js` (`?embed=1`), `css/main.css` (embed and small-screen rules).
 

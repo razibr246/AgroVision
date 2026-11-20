@@ -120,7 +120,7 @@ def get(url, name, tries=6, text=False, wait=10):
     timeout = 10 if tries <= 2 else 300
     for i in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'fieldshift360-data-build'}), timeout=timeout) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'agrovision-data-build'}), timeout=timeout) as r:
                 body = r.read().decode()
             NB.mkdir(parents=True, exist_ok=True)
             path.write_text(body)

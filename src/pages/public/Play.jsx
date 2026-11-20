@@ -1,5 +1,5 @@
-// "মাঠের লড়াই" — learn FieldShift 360 by playing one season as Rahim. Each chapter brings a real problem; the player
-// answers with the old habit or with one of FieldShift's tools (হাতিয়ার) and sees what happens to crop, profit and water.
+// "মাঠের লড়াই" — learn AgroVision by playing one season as Rahim. Each chapter brings a real problem; the player
+// answers with the old habit or with one of AgroVision's tools (হাতিয়ার) and sees what happens to crop, profit and water.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sprout, TrendingDown, ScanLine, Droplets, CloudSun, LifeBuoy, History, Coins, Swords, Star, RotateCcw, ArrowRight, Check, X, Sparkles, ExternalLink, Lightbulb, Satellite, Trophy } from 'lucide-react';
@@ -100,7 +100,7 @@ export default function Play() {
               </button>
               <div className="mt-6 flex items-center gap-2">
                 <Swords size={18} className="text-primary-700" />
-                <p className="text-[15px] font-semibold text-primary-800">{T('অথবা FieldShift-এর একটা হাতিয়ার বেছে নিন', 'Or pick one of FieldShift\'s tools')}</p>
+                <p className="text-[15px] font-semibold text-primary-800">{T('অথবা AgroVision-এর একটা হাতিয়ার বেছে নিন', 'Or pick one of AgroVision\'s tools')}</p>
               </div>
               {hint && (
                 <p key={shake} className="hint-in mt-3 flex items-start gap-2 rounded-2xl bg-paddy-50/90 px-4 py-3 text-[14.5px] leading-6 text-paddy-700 ring-1 ring-paddy-300/50">
@@ -228,7 +228,7 @@ function Outcome({ sc, stage, last, onNext }) {
       <div className={`outcome-in relative overflow-hidden rounded-[24px] p-5 ${win ? 'glass win-glow lg:col-span-2' : 'glass'}`} style={{ animationDelay: win ? '0ms' : '450ms' }}>
         {win && <Confetti />}
         <p className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-primary-700">
-          {win ? <><Sparkles size={15} />{T('ঠিক হাতিয়ার!', 'The right tool!')}</> : <><Lightbulb size={15} />{T('FieldShift থাকলে যা হতো', 'What FieldShift would have done')}</>}
+          {win ? <><Sparkles size={15} />{T('ঠিক হাতিয়ার!', 'The right tool!')}</> : <><Lightbulb size={15} />{T('AgroVision থাকলে যা হতো', 'What AgroVision would have done')}</>}
         </p>
         <div className="mt-3 flex items-start gap-3">
           <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${TOOL_TINT[sc.tool]} text-white shadow-[inset_0_1px_0_rgba(255,255,255,.4)] ${win ? 'pop-in' : ''}`}><Icon size={23} /></span>
@@ -314,8 +314,8 @@ function StartScreen({ onStart }) {
           <span className="block bg-[linear-gradient(100deg,#245a28_0%,#43863a_45%,#237479_100%)] bg-clip-text pb-2 text-transparent">{T('এক মৌসুমের গল্প', 'One season\'s story')}</span>
         </h1>
         <p className="mt-4 max-w-[34rem] text-[18px] leading-[1.65] text-ink/70 sm:text-[20px]">
-          {T('রহিম ভাইয়ের সঙ্গে একটা রবি মৌসুম পার করুন। প্রতি মাসে আসবে একটা সত্যিকারের সমস্যা — খরা, কুয়াশা, পোকা, দাম পড়া। আগের অভ্যাসে চলবেন, নাকি FieldShift-এর হাতিয়ার কাজে লাগাবেন?',
-            'Live one Rabi season with Rahim. Every month brings a real problem — drought, fog, pests, a price crash. Will you follow the old habit, or reach for a FieldShift tool?')}
+          {T('রহিম ভাইয়ের সঙ্গে একটা রবি মৌসুম পার করুন। প্রতি মাসে আসবে একটা সত্যিকারের সমস্যা — খরা, কুয়াশা, পোকা, দাম পড়া। আগের অভ্যাসে চলবেন, নাকি AgroVision-এর হাতিয়ার কাজে লাগাবেন?',
+            'Live one Rabi season with Rahim. Every month brings a real problem — drought, fog, pests, a price crash. Will you follow the old habit, or reach for a AgroVision tool?')}
         </p>
         <div className="mt-7 flex flex-wrap items-center gap-4">
           <button type="button" onClick={onStart} className="btn-gloss inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[17px] font-semibold text-white"><Swords size={19} />{T('খেলা শুরু করুন', 'Start the game')}</button>

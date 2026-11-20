@@ -1,4 +1,4 @@
-# FieldShift 360: guide for mentors and judges
+# AgroVision: guide for mentors and judges
 
 A short, checked guide to what the project is, what it uses, and what is and is not proven. Every claim below
 points to a file or a script in this repository; if a claim and the code disagree, the code is right and this guide
@@ -6,12 +6,12 @@ is wrong. The fuller record is [`EVIDENCE.md`](EVIDENCE.md); the submission text
 
 - Challenge: **Field Shift: Adapting Farms with NASA Data** (NASA Space Apps 2026)
 - Team: **BRM AstraX**, Barishal, Bangladesh (members and roles: [`SUBMISSION.md`](SUBMISSION.md#team-and-roles))
-- Live site: https://fieldshift360.vercel.app · Code: https://github.com/razibr246/fieldshift360
+- Live site: https://agrovision.vercel.app · Code: https://github.com/razibr246/agrovision
 
 ## 1. In one paragraph
 
 Bangladesh's farmers choose the Rabi crop and its sowing day by habit, but in 25 years of NASA POWER data the cold
-nights, the hot days and the Rabi rain have all moved. For one field, FieldShift 360 replays five Rabi crops at three
+nights, the hot days and the Rabi rain have all moved. For one field, AgroVision replays five Rabi crops at three
 sowing dates through those 25 seasons, adds a model estimate of the soil (ISRIC SoilGrids, not a soil test), water,
 prices and the farmer's priorities, and answers **keep, change the date, or shift**, with the reason. It then runs
 every feasible rotation on that field for ten years (soil carbon, water, profit, risk) and re-tests the best ones in

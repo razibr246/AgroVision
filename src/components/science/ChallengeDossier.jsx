@@ -126,8 +126,8 @@ export default function ChallengeDossier() {
 
       <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">
         {T(
-          'নাসার অফিসিয়াল চ্যালেঞ্জ বিবরণী "Field Shift: Adapting Farms with NASA Data"-এর প্রতিটি বাক্যের সঙ্গে ফিল্ডশিফ্ট ৩৬০-এর সরাসরি কোড, টেস্ট ও ডেটাসেট ম্যাপিং:',
-          'Direct line-by-line verification of the official NASA Space Apps 2026 challenge brief against FieldShift 360’s mathematical engines, test suites, and data models:'
+          'নাসার অফিসিয়াল চ্যালেঞ্জ বিবরণীর প্রতিটি বাক্যের সঙ্গে এগ্রোভিশনের সরাসরি কোড, টেস্ট ও ডেটাসেট ম্যাপিং:',
+          'Direct line-by-line verification of the official NASA Space Apps 2026 challenge brief against AgroVision’s mathematical engines, test suites, and data models:'
         )}
       </p>
 
@@ -158,7 +158,7 @@ export default function ChallengeDossier() {
 
             <div className="mt-3.5 pl-11">
               <p className="text-[14px] leading-6 text-ink/90">
-                <b>{T('ফিল্ডশিফ্ট ৩৬০ বাস্তবায়ন:', 'FieldShift 360 Implementation:')}</b>{' '}
+                <b>{T('এগ্রোভিশন বাস্তবায়ন:', 'AgroVision Implementation:')}</b>{' '}
                 {T(crit.solutionBn, crit.solutionEn)}
               </p>
               <div className="mt-2.5 flex items-center gap-2 text-[12.5px] font-mono text-muted">

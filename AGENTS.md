@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-FieldShift 360: a NASA Space Apps 2026 crop-rotation decision tool for Bangladeshi smallholders and agriculture
+AgroVision: a NASA Space Apps 2026 crop-rotation decision tool for Bangladeshi smallholders and agriculture
 officers. A Vite + React 19 single-page app (HashRouter, Tailwind v4, recharts, Leaflet/MapLibre) that computes
 everything in the browser from committed data; `README.md` maps each line of the challenge statement to a page.
 This is the one guide for every coding agent (`CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` point here).

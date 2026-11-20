@@ -600,7 +600,7 @@ for (const [t, postings] of Object.entries(invertedIndex)) {
 
 // 10. Output Final Knowledge Base
 const knowledgeBase = {
-  about: 'Chakra Agent Trained Offline Large Agronomic Knowledge & RAG Model (FieldShift 360)',
+  about: 'Chakra Agent Trained Offline Large Agronomic Knowledge & RAG Model (AgroVision)',
   version: '2.0.0-rag-trained',
   generatedAt: new Date().toISOString(),
   parcels: parcelsIndex,

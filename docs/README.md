@@ -1,6 +1,6 @@
 # Documentation
 
-Start with the project [`README`](../README.md): what FieldShift 360 is, the challenge line by line, how to run it.
+Start with the project [`README`](../README.md): what AgroVision is, the challenge line by line, how to run it.
 Then, by what you need:
 
 ## For judges and the submission
@@ -30,7 +30,7 @@ Then, by what you need:
 | --- | --- |
 | [`VOICE.md`](VOICE.md) | The Bangla voice and SMS assistant for farmers and officers |
 | [`STORY_VOICE.md`](STORY_VOICE.md) | The field story's narration: script, voice direction, scene timings and a ready voice prompt |
-| [`MERGE.md`](MERGE.md) | How FieldShift 360, Ropon Radar and the voice agent were brought into one repository |
+| [`MERGE.md`](MERGE.md) | How AgroVision, Ropon Radar and the voice agent were brought into one repository |
 
 For code: [`AGENTS.md`](../AGENTS.md) (the guide for every developer and coding agent), [`scripts/README.md`](../scripts/README.md)
 (every data and photo script) and [`src/data/README.md`](../src/data/README.md) (every data folder).

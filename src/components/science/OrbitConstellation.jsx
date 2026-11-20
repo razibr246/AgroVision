@@ -2251,7 +2251,7 @@ export default function OrbitConstellation() {
             <div className="p-3.5 rounded-xl bg-primary-950/60 border border-primary-800/50">
               <span className="font-semibold text-primary-100 block flex items-center gap-1.5">
                 <Sparkles size={14} className="text-primary-300" />
-                {T('ফিল্ডশিফ্ট ৩৬০-এ বাস্তব প্রয়োগ:', 'Application in FieldShift 360:')}
+                {T('এগ্রোভিশনে বাস্তব প্রয়োগ:', 'Application in AgroVision:')}
               </span>
               <span className="text-primary-50/80 mt-1 block leading-relaxed">
                 {lang === 'bn' ? activeMission.appUsageBn : activeMission.appUsageEn}

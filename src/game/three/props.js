@@ -1,5 +1,5 @@
 // Low-poly builders for everything that stands in the five worlds: houses in each local style, the seed shop and the
-// FieldShift kiosk, water sources, markets, shelters, trees, animals and landmarks. Each builder returns a Group whose
+// AgroVision kiosk, water sources, markets, shelters, trees, animals and landmarks. Each builder returns a Group whose
 // origin is on the ground at the object's centre, facing +z. Things that move (flags, animals, flowing water) are
 // tagged in userData so world.js can animate them; everything else is merged into a few big meshes after building.
 import * as THREE from 'three';
@@ -102,7 +102,7 @@ const leafTex = () => canvasTex('fsleaf', 64, 64, (c, w, h) => {
   c.fillStyle = '#123d24'; c.fillRect(0, 0, w, h);
   c.save(); c.translate(32, 30); c.rotate(-0.6); c.fillStyle = '#7fd36b'; c.beginPath(); c.ellipse(0, 0, 18, 9, 0, 0, Math.PI * 2); c.fill();
   c.strokeStyle = '#123d24'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(-16, 0); c.lineTo(16, 0); c.stroke(); c.restore();
-  c.fillStyle = '#e9f5e3'; c.font = 'bold 9px sans-serif'; c.textAlign = 'center'; c.fillText('FieldShift', 32, 56);
+  c.fillStyle = '#e9f5e3'; c.font = 'bold 9px sans-serif'; c.textAlign = 'center'; c.fillText('AgroVision', 32, 56);
 });
 
 // ---- houses ----
@@ -209,7 +209,7 @@ function stilthouse() {
   return g;
 }
 
-// ---- the seed shop and the FieldShift kiosk ----
+// ---- the seed shop and the AgroVision kiosk ----
 function shed(p) {
   const g = G();
   const [wn, wt] = { brick: ['brick', '#ffffff'], mud: ['mud', '#cfae7c'], thatch: ['bamboo', '#ffffff'], bhutan: ['lime', '#f2ede2'] }[p.style] ?? ['bamboo', '#ffffff'];

@@ -285,7 +285,7 @@ body.mode-explore { overflow-y: auto; }
 }
 body.still * { transition-duration: 0ms !important; animation: none !important; }
 
-/* ───────────── embedded in FieldShift 360 (?embed=1) and small screens ───────────── */
+/* ───────────── embedded in AgroVision (?embed=1) and small screens ───────────── */
 body.embed .explore { padding: 20px 24px 80px; }
 body.embed .explore-head .links a { display: none; }
 body.embed .explore-head { padding-bottom: 12px; }

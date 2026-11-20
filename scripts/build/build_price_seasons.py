@@ -47,7 +47,7 @@ except ImportError:
 
 jar = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar), urllib.request.HTTPSHandler(context=CTX))
-opener.addheaders = [('User-Agent', 'Mozilla/5.0 (fieldshift360-data-build)')]
+opener.addheaders = [('User-Agent', 'Mozilla/5.0 (agrovision-data-build)')]
 _token = None
 
 

@@ -173,7 +173,7 @@ const POEM = {
   bn: { lines: ['আবার আসিব ফিরে ধানসিড়িটির তীরে — এই বাংলায়', 'হয়তো মানুষ নয় — হয়তো বা শঙ্খচিল শালিখের বেশে;', 'হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে', 'কুয়াশার বুকে ভেসে একদিন আসিব এ কাঁঠাল-ছায়ায়;'],
     by: '— জীবনানন্দ দাশ, “আবার আসিব ফিরে”, রূপসী বাংলা' },
   en: { lines: ['I will come back to the Dhansiri’s banks — to this Bengal,', 'perhaps not as a man — perhaps as a kite or a myna;', 'perhaps as a crow at dawn, to this land of Kartik’s new rice,', 'drifting on the mist one day into this jackfruit shade;'],
-    by: '— Jibanananda Das, “Abar Ashibo Phire”, Ruposhi Bangla (translation: FieldShift)' },
+    by: '— Jibanananda Das, “Abar Ashibo Phire”, Ruposhi Bangla (translation: AgroVision)' },
 };
 function Poem() {
   const { s } = useStore();

@@ -1,5 +1,5 @@
 /**
- * FieldShift Kids – Learn, Play & Grow (তারার স্বপ্ন-খামার / Tara's Dream Farm)
+ * AgroVision Kids – Learn, Play & Grow (তারার স্বপ্ন-খামার / Tara's Dream Farm)
  * Pure Agricultural Mathematics & Calculation Engine
  *
  * Implements genuine Bangladesh agricultural formulas, BARI/BRRI seed rates,

@@ -24,7 +24,7 @@ export default function BrandMark({ compact = false, inverse = false, sub, size 
       {!compact && (
         <span className="leading-none">
           <span className={`font-display block text-[21px] font-bold tracking-[-0.015em] transition-colors duration-200 ${inverse ? 'text-white' : 'text-ink group-hover:text-primary-900'}`}>
-            {PROJECT_NAME_PARTS.main}{PROJECT_NAME_PARTS.accent && <span className={inverse ? 'text-paddy-300' : 'text-primary-600'}> {PROJECT_NAME_PARTS.accent}</span>}
+            {PROJECT_NAME_PARTS.main}{PROJECT_NAME_PARTS.accent && <span className={inverse ? 'text-paddy-300' : 'text-primary-600'}>{PROJECT_NAME_PARTS.space ? ' ' : ''}{PROJECT_NAME_PARTS.accent}</span>}
           </span>
           {sub && <span className={`mt-1 block text-[12px] font-medium ${inverse ? 'text-primary-200' : 'text-muted'}`}>{sub}</span>}
         </span>

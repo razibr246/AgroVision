@@ -14,7 +14,7 @@ stands on its own.
 ## Common rules (paste above every prompt)
 
 ```text
-You are working in the FieldShift 360 repository (Vite + React 19, three.js). Before anything else:
+You are working in the AgroVision repository (Vite + React 19, three.js). Before anything else:
 
 1. Read AGENTS.md and follow it. Run `git status` and `git diff` on every file you plan to touch: other agents edit
    this repo at the same time. Change only the lines you need; never write a whole file back from an older copy;
@@ -201,7 +201,7 @@ Do:
 - Reactions: they hurry home before the storm, fan themselves in the heatwave, point at pests, crowd the market
   during the price crash. Never block the player's path to a station or plot.
 - Speech: short Bangla-first lines that teach something true about the place or the season (from regions.js and the
-  real records in game/fieldshift.js), shown when the player is near; never spam; one line at a time.
+  real records in game/agrovision.js), shown when the player is near; never spam; one line at a time.
 - Variety: villagers' faces, builds and clothes vary within the local style; no two neighbours side by side look
   identical.
 - Performance: villagers far from the camera update less often and use fewer parts (a simple LOD).

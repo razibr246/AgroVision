@@ -1,8 +1,8 @@
-// The FieldShift station inside "মাঠের মানুষ": the village kiosk (and the phone button) open the same decision-support
+// The AgroVision station inside "মাঠের মানুষ": the village kiosk (and the phone button) open the same decision-support
 // tool the app gives a farmer, for the player's own real place. Four tabs:
 //   Today       the weather and prices of the season being played (the kiosk as it was)
 //   From space  that place in NASA records: bare months, ground heat, evapotranspiration, soil moisture, stored water,
-//               the monsoon's start or the year's rain, frost and heat, and satellites against the ground (game/fieldshift.js)
+//               the monsoon's start or the year's rain, frost and heat, and satellites against the ground (game/agrovision.js)
 //   Rotations   at least three rotation strategies, farming as now among them, from Field Future (Bangladesh,
 //               engine/soilfuture.js) or the neighbours' engine (engine/rotationAbroad.js), ranked by the priorities and
 //               limits the player sets, each with why, evidence, benefits, gaps and what to check locally
@@ -18,7 +18,7 @@ import { abroadRotations, cropAbroad } from '../../engine/rotationAbroad';
 import { unionsOf } from '../../data/demo';
 import priceSeasons from '../../data/market/price_seasons.json';
 import cropEconomics from '../../data/market/crop_economics.json';
-import { placeOf, spaceFacts, sliderChange, sliderMods, abroadBrief, FARM_OF } from '../../game/fieldshift';
+import { placeOf, spaceFacts, sliderChange, sliderMods, abroadBrief, FARM_OF } from '../../game/agrovision';
 
 const ABROAD = import.meta.glob('../../data/abroad/*.json', { import: 'default' });
 const median = (a) => { const v = [...a].sort((x, y) => x - y); return v[v.length >> 1]; };
@@ -105,7 +105,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
         .then(([d, sy, pr]) => {
           if (!current) return;
           const soil = sy.default.countries[place.id], prices = pr.default.countries[place.id];
-          if (!d.points?.farm?.normals || !soil || !prices) throw new Error(`incomplete FieldShift records for ${place.id}`);
+          if (!d.points?.farm?.normals || !soil || !prices) throw new Error(`incomplete AgroVision records for ${place.id}`);
           setAbroad({ normals: d.points.farm.normals, ...soil, prices });
         })
         .catch(() => { if (current) setAbroad(false); });
@@ -257,7 +257,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
             <Brief b={abroadBrief(at, habitO, (k) => cropAbroad(k).name, world === 'fut', abroad.prices)} />
           </>);
         })())}
-        <p className="mt-3 flex items-start gap-2 rounded-2xl bg-amber-400/10 p-3 text-[13.5px] leading-6 text-amber-100"><Users size={16} className="mt-1 shrink-0" />{T('FieldShift পথ দেখায়, সিদ্ধান্ত আপনার। নতুন ফসল বোনার আগে উপজেলা কৃষি কর্মকর্তা আর অভিজ্ঞ কৃষকের সঙ্গে মিলিয়ে নিন।', 'FieldShift shows the options; the decision is yours. Check with your agriculture officer and experienced farmers before sowing a new crop.')}</p>
+        <p className="mt-3 flex items-start gap-2 rounded-2xl bg-amber-400/10 p-3 text-[13.5px] leading-6 text-amber-100"><Users size={16} className="mt-1 shrink-0" />{T('AgroVision পথ দেখায়, সিদ্ধান্ত আপনার। নতুন ফসল বোনার আগে উপজেলা কৃষি কর্মকর্তা আর অভিজ্ঞ কৃষকের সঙ্গে মিলিয়ে নিন।', 'AgroVision shows the options; the decision is yours. Check with your agriculture officer and experienced farmers before sowing a new crop.')}</p>
       </>)}
 
       {tab === 'what' && (<>
@@ -355,7 +355,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
         {/* Human-in-the-loop Reminder */}
         <p className="mt-3 flex items-start gap-2 rounded-2xl bg-emerald-400/10 p-3 text-[13.5px] leading-6 text-emerald-100 ring-1 ring-emerald-300/20">
           <Users size={16} className="mt-1 shrink-0 text-emerald-300" />
-          {T('সিদ্ধান্ত কৃষকের: এই টুল মহাকাশ তথ্য ও বিজ্ঞানের মাধ্যমে সম্ভাব্য পথ দেখায়, কিন্তু কৃষকের বাস্তব অভিজ্ঞতা এবং উপজেলা কৃষি কর্মকর্তার মাঠ পর্যায়ের পরামর্শের বিকল্প নয়।', 'Farmer in Control: FieldShift synthesises NASA space data to illuminate possibilities, but never replaces the farmer’s hands-on experience or extension officer’s ground wisdom.')}
+          {T('সিদ্ধান্ত কৃষকের: এই টুল মহাকাশ তথ্য ও বিজ্ঞানের মাধ্যমে সম্ভাব্য পথ দেখায়, কিন্তু কৃষকের বাস্তব অভিজ্ঞতা এবং উপজেলা কৃষি কর্মকর্তার মাঠ পর্যায়ের পরামর্শের বিকল্প নয়।', 'Farmer in Control: AgroVision synthesises NASA space data to illuminate possibilities, but never replaces the farmer’s hands-on experience or extension officer’s ground wisdom.')}
         </p>
       </>)}
     </div>

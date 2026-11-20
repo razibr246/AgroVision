@@ -564,7 +564,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
 
   const MOVE = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
   // A gamepad in the standard layout: left stick walks, right stick looks, A acts, either trigger runs; B, X, Y, the
-  // shoulders and Start go to the HUD as 'pad' events (back, satellite, FieldShift, seed left and right, pause).
+  // shoulders and Start go to the HUD as 'pad' events (back, satellite, AgroVision, seed left and right, pause).
   const pad = { x: 0, y: 0, run: false, held: new Set() };
   const PAD_EVENTS = { 1: 'back', 2: 'sat', 3: 'kiosk', 4: 'prev', 5: 'next', 9: 'pause' };
   function readPad(dt) {
@@ -1005,7 +1005,7 @@ export function createStage({ canvas, overlay, minimap, compass, g, lang, onEven
               shed: lang === 'bn' ? 'বীজের দোকান' : 'Seed shed',
               water: lang === 'bn' ? 'সেচ পাম্প' : 'Water pump',
               market: lang === 'bn' ? (g.basket && Object.values(g.basket).some(Boolean) ? 'ফসল বিক্রি' : 'হাটবাজার') : (g.basket && Object.values(g.basket).some(Boolean) ? 'Sell harvest' : 'Market'),
-              kiosk: lang === 'bn' ? 'FieldShift কিওস্ক' : 'FieldShift Kiosk',
+              kiosk: lang === 'bn' ? 'AgroVision কিওস্ক' : 'AgroVision Kiosk',
             };
             actionTxt = stActs[curTarget.id] ?? (lang === 'bn' ? 'দেখুন' : 'Open');
           }

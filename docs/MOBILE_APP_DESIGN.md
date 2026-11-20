@@ -1,4 +1,4 @@
-# FieldShift 360 Mobile: Design Specification (phases 1–5, no code yet)
+# AgroVision Mobile: Design Specification (phases 1–5, no code yet)
 
 Status: **draft for review**. No Figma file or prototype exists yet. This document is the Figma-ready specification:
 every frame, token and flow below can be built in Figma one to one. Nothing here has been user-tested; personas are
@@ -7,7 +7,7 @@ working assumptions from the web app's own farmer and officer roles, to be check
 
 ## 1. Concept and objectives
 
-FieldShift 360 Mobile puts the web app's season decision, field tasks, crop doctor and officer inbox in a phone,
+AgroVision Mobile puts the web app's season decision, field tasks, crop doctor and officer inbox in a phone,
 Bangla first, usable outdoors on a low-end Android with a weak connection.
 
 Objectives:
@@ -219,7 +219,7 @@ Ways to get the Figma file:
    until the Figma file exists.
 3. You or a designer build the Figma file from sections 4–7; I can write a frame-by-frame brief per screen.
 
-Open questions: Is this the FieldShift 360 mobile app, or a different app? Farmers first, or officers first? Android
+Open questions: Is this the AgroVision mobile app, or a different app? Farmers first, or officers first? Android
 only for v1? Is SMS-based login acceptable and which gateway? Who is the approving officer for advisories?
 
 The "production-ready mobile application" is not something I can deliver before design sign-off, and I haven't

@@ -1,6 +1,6 @@
 /**
  * Comprehensive E2E Test Suite for 3D Character Anatomy, Attire, Rigging & Farm Gameplay
- * Covers all 12 authentic regional characters in FieldShift 360 ("ফসলের দিগন্ত")
+ * Covers all 12 authentic regional characters in AgroVision ("ফসলের দিগন্ত")
  * 
  * Tiers:
  * - Tier 1: Feature Coverage (5+ tests per feature across F01-F20 = 100 tests)

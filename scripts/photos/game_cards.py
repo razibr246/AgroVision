@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'src/assets/images'
 TMP = ROOT / '.cache/game-cards'
 TMP.mkdir(parents=True, exist_ok=True)
-UA = {'User-Agent': 'FieldShift360-photos/1.0 (NASA Space Apps project)'}
+UA = {'User-Agent': 'AgroVision-photos/1.0 (NASA Space Apps project)'}
 
 def get(url):
     return urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=180).read()

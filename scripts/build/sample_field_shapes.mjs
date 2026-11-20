@@ -16,7 +16,7 @@ import { measure, polygonFrom } from '../../src/engine/landgeom.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer';
-const UA = { 'User-Agent': 'fieldshift-360-build/1.0' };
+const UA = { 'User-Agent': 'agrovision-360-build/1.0' };
 const arg = (k) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const DEBUG = arg('--debug'), CACHE = arg('--cache'), ONLY = arg('--only')?.split(',');
 const MAX_PX = 900;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { segmentsByLanguage, sentenceLang } from './langseg.js';
 
 test('a Bangla reply with an English name in it stays one Bangla part', () => {
-  assert.deepEqual(segmentsByLanguage('ফোনে FieldShift 360 খোলো। Landsat দিয়ে মাঠ দেখি।').map((s) => s.lang), ['bn']);
+  assert.deepEqual(segmentsByLanguage('ফোনে AgroVision খোলো। Landsat দিয়ে মাঠ দেখি।').map((s) => s.lang), ['bn']);
 });
 
 test('a mixed reply is cut into Bangla and English parts in order', () => {

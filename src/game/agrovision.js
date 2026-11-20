@@ -1,4 +1,4 @@
-// FieldShift inside "মাঠের মানুষ": what the game's FieldShift station shows about the player's own place, built only
+// AgroVision inside "মাঠের মানুষ": what the game's AgroVision station shows about the player's own place, built only
 // from the app's real records and engine. Each game farmer farms a real place: the seven Bangladesh farmers their
 // upazila, the five neighbours their country's farm point. For that place:
 //   from space   MODIS NDVI (the green cycle, when fields lie bare, Rabi seasons of vegetation stress), MODIS ground
@@ -290,7 +290,7 @@ export function nextTry(report, R) {
   if (report.repeats > 0 || report.rotated === 0) out.push({ id: 'rotate', title: q('প্রতিটি জমিতে ফসল বদলান', 'Change the crop on every plot'), why: q(`এবার ${num(report.repeats, 'bn')} বার একই ফসল আবার বুনেছেন; ফসল বদলালে পোকা আগে আসে না।`, `You sowed the same crop again ${report.repeats} times; rotating keeps the pests from striking first.`) });
   if (!report.legumes && legume) out.push({ id: 'legume', title: q(`${legume.bn} বুনে মাটি উর্বর করুন`, `Grow ${legume.en} to feed the soil`), why: q('ডালের শিকড় বাতাসের নাইট্রোজেন ধরে; পরের ফসল তাড়াতাড়ি বাড়ে।', 'A pulse’s roots fix nitrogen from the air; the next crop grows faster.') });
   if (report.eroded > 0) out.push({ id: 'cover', title: q('ঝড়ের আগে খালি জমি ঢাকুন', 'Cover bare plots before the storm'), why: q(`ঝড়ে ${num(report.eroded, 'bn')}টি খালি জমির মাটি ধুয়ে গেছে।`, `The storm washed the soil off ${report.eroded} bare plots.`) });
-  if (report.lost > 1 || report.hurt) out.push({ id: 'warn', title: q('সতর্কতা এলেই আগে ব্যবস্থা নিন', 'Act as soon as the warning comes'), why: q(`এবার ${num(report.lost, 'bn')}টি গাছ হারিয়েছেন; FieldShift-এর সতর্কতা আর উপগ্রহ দৃশ্য আগেই বিপদ দেখায়।`, `You lost ${report.lost} plants; FieldShift’s warnings and the satellite view show the danger early.`) });
+  if (report.lost > 1 || report.hurt) out.push({ id: 'warn', title: q('সতর্কতা এলেই আগে ব্যবস্থা নিন', 'Act as soon as the warning comes'), why: q(`এবার ${num(report.lost, 'bn')}টি গাছ হারিয়েছেন; AgroVision-এর সতর্কতা আর উপগ্রহ দৃশ্য আগেই বিপদ দেখায়।`, `You lost ${report.lost} plants; AgroVision’s warnings and the satellite view show the danger early.`) });
   out.splice(2);
   out.push({ id: 'heat', title: q('২ °সে গরম মৌসুমে খেলুন', 'Play a season 2 °C hotter'), why: q('নাসার মডেল যে গরম দশকের কথা বলে, সেই আবহাওয়ায় একই কৌশল টেকে কি?', 'Does the same strategy hold in the warmer decade NASA’s models describe?'), whatIf: { dT: 2, rain: -10 } });
   return out;

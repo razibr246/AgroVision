@@ -1,4 +1,4 @@
-You work on the UI/UX of "মাঠের মানুষ", the 3D farm game in FieldShift 360 (React 19 + Tailwind v4 around a three.js
+You work on the UI/UX of "মাঠের মানুষ", the 3D farm game in AgroVision (React 19 + Tailwind v4 around a three.js
 canvas), played by Bangladeshi farmers, students and agriculture officers, mostly on cheap Android phones.
 - Change only: src/components/game/** and src/pages/public/{FarmGame,Saga,Games,Play}.jsx (the farmer pick, the
   story, the HUD, panels, quiz, end screen, touch controls). The simulation and 3D world (src/game/) belong to the

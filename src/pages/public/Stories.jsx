@@ -1,5 +1,5 @@
 // Seven Divisions, seven farmers: the hub. A map of Bangladesh with the seven levels, each farmer's two environmental
-// and biological "bosses", and how the FieldShift Score and the Danger Ends work.
+// and biological "bosses", and how the AgroVision Score and the Danger Ends work.
 import { Link } from 'react-router-dom';
 import { MapPinned, Swords, Bug, Sparkles, ArrowRight, Skull, Flame, Waves, Landmark, Info, HeartHandshake } from 'lucide-react';
 import { useStore } from '../../store';
@@ -92,7 +92,7 @@ export default function Stories() {
 
       <section className="mt-12 grid gap-5 lg:grid-cols-2">
         <div className="surface-card cv-auto rounded-[26px] border border-border/80 bg-white/90 p-6 shadow-[var(--shadow-card)]">
-          <h2 className="text-[22px] font-bold text-ink">{T('FieldShift স্কোর', 'The FieldShift Score')}</h2>
+          <h2 className="text-[22px] font-bold text-ink">{T('AgroVision স্কোর', 'The AgroVision Score')}</h2>
           <p className="mt-1 text-[14.5px] leading-6 text-muted">{T('প্রতিটি সিদ্ধান্ত পাঁচ দিক থেকে মাপা; মোট ১০০, সঙ্গে বোনাস।', 'Every decision is weighed on five pillars: 100 points, plus a bonus.')}</p>
           <div className="mt-3.5 rounded-xl border border-primary-900/40 bg-primary-950 px-4 py-3 text-center font-mono text-[14px] font-bold text-primary-50 shadow-inner">{T('স্কোর', 'Score')} = 0.25·Y + 0.20·E + 0.20·C + 0.20·B + 0.15·M</div>
           <ul className="mt-4 space-y-2 text-[14px] leading-6">
@@ -100,7 +100,7 @@ export default function Stories() {
               <li key={k} className="flex items-center gap-2.5"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary-100 text-[12px] font-bold text-primary-800 shadow-2xs">{k}</span><span className="text-ink">{v} <span className="tabular font-semibold text-muted">({lang === 'bn' ? bnDigits(Math.round(WEIGHTS[k] * 100)) : Math.round(WEIGHTS[k] * 100)})</span></span></li>
             ))}
           </ul>
-          <p className="mt-3 text-[13px] font-semibold text-primary-800">{T('FieldShift-এর সতর্কতা মেনে কাজ করলে ×১.১ বোনাস।', 'Acting on a FieldShift alert earns a ×1.1 bonus.')}</p>
+          <p className="mt-3 text-[13px] font-semibold text-primary-800">{T('AgroVision-এর সতর্কতা মেনে কাজ করলে ×১.১ বোনাস।', 'Acting on a AgroVision alert earns a ×1.1 bonus.')}</p>
         </div>
         <div className="surface-card cv-auto rounded-[26px] border border-border/80 bg-white/90 p-6 shadow-[var(--shadow-card)]">
           <h2 className="text-[22px] font-bold text-ink">{T('বিপদের শেষ: খেলা যেখানে থামে', 'Danger Ends: where the game stops')}</h2>

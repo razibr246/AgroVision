@@ -45,7 +45,7 @@ def http(url, body=None, tries=6):
     for i in range(tries):
         try:
             req = urllib.request.Request(url, data=json.dumps(body).encode() if body is not None else None,
-                                         headers={'Content-Type': 'application/json', 'User-Agent': 'fieldshift360-data-build'})
+                                         headers={'Content-Type': 'application/json', 'User-Agent': 'agrovision-data-build'})
             with urllib.request.urlopen(req, timeout=180) as r:
                 return r.read()
         except urllib.error.HTTPError as e:

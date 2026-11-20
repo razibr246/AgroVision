@@ -241,7 +241,7 @@ export default function KidsHeader({
         </div>
       </div>
 
-      {/* Live FieldShift Weather & Satellite Soil Insight Banner */}
+      {/* Live AgroVision Weather & Satellite Soil Insight Banner */}
       <div className="flex flex-col gap-2 rounded-2xl border border-sky-200 bg-sky-50/90 px-4 py-3 text-xs text-slate-800 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
           <span className="inline-flex items-center gap-1.5 font-bold text-sky-900">

@@ -391,7 +391,7 @@ export function Country() {
       <div className="flex gap-2.5 rounded-2xl bg-white/70 p-4 text-[13.5px] leading-6 text-muted ring-1 ring-white/80">
         <Info size={18} className="mt-0.5 shrink-0" />
         <div>
-          {T('দপ্তর আর (যেখানে দেখানো) প্রধানের নাম আসল, সরকারি পাতা থেকে। কিন্তু এই পাতাগুলো FieldShift-এর নমুনা — ওই দপ্তরের নিজের ব্যবস্থা নয়, আর তাঁরা এর সঙ্গে যুক্ত নন।', 'The offices and (where shown) the head’s name are real, from official pages. But these pages are a FieldShift sample — not the offices’ own system, and they are not involved with it.')}
+          {T('দপ্তর আর (যেখানে দেখানো) প্রধানের নাম আসল, সরকারি পাতা থেকে। কিন্তু এই পাতাগুলো AgroVision-এর নমুনা — ওই দপ্তরের নিজের ব্যবস্থা নয়, আর তাঁরা এর সঙ্গে যুক্ত নন।', 'The offices and (where shown) the head’s name are real, from official pages. But these pages are a AgroVision sample — not the offices’ own system, and they are not involved with it.')}
           <div className="mt-2"><Sources list={[{ label: 'ERA5 (Copernicus/ECMWF) via Open-Meteo', url: 'https://open-meteo.com/en/docs/historical-weather-api' }, { label: 'NASA FIRMS', url: 'https://firms.modaps.eosdis.nasa.gov/' }, { label: 'NASA GIBS', url: 'https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api' }, { label: 'geoBoundaries', url: 'https://www.geoboundaries.org/' }]} /></div>
         </div>
       </div>

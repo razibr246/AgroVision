@@ -6,7 +6,7 @@
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="7" stdDeviation="12" flood-color="#14201a" flood-opacity=".10"/></filter>
   </defs>
   <rect width="1600" height="1120" class="bg"/>
-  <text x="64" y="66" class="title" style="font-size:30px">FieldShift 360 · Mobile app</text>
+  <text x="64" y="66" class="title" style="font-size:30px">AgroVision · Mobile app</text>
   <text x="64" y="96" class="body muted">Farmer-first concept · Bangla default · Android 360 × 800 · Figma import board</text>
   <rect x="1260" y="46" width="276" height="38" rx="19" class="greenbg"/><text x="1282" y="70" class="tiny green">DESIGN DIRECTION · DRAFT</text>
 

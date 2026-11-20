@@ -38,7 +38,7 @@ def get(url, name):
     for i in range(5):
         try:
             _last[0] = time.time()
-            j = json.load(urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'fieldshift360-data-build'}), timeout=120))
+            j = json.load(urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'agrovision-data-build'}), timeout=120))
             SG.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(j))
             return j

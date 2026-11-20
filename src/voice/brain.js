@@ -1,4 +1,4 @@
-// FieldShift Voice brain: a pure, role-aware dialogue engine.
+// AgroVision Voice brain: a pure, role-aware dialogue engine.
 //
 //   respond(text, snapshot, session) -> { say, rows?, chips, effects, session }
 //
@@ -82,7 +82,7 @@ export function greeting(snap, session) {
   if (isOfficer(session)) {
     const o = snap.officer;
     const title = session.role === 'uao' ? T('উপজেলা কৃষি অফিসার', 'upazila agriculture officer') : T('উপসহকারী কৃষি কর্মকর্তা', 'sub-assistant agriculture officer');
-    return out(session, T(`আসসালামু আলাইকুম, ${L(o.name, lang)}। আমি ফিল্ডশিফট ভয়েস সহকারী। আজকের অবস্থা শুনতে "আজকের অবস্থা" বলুন, অথবা অনুরোধ, সতর্কতা, কবে কত ফসল উঠবে, যা জানতে চান বলুন।`, `Assalamu alaikum, ${L(o.name, lang)}, ${title}. I am the FieldShift voice assistant. Say "today's briefing", or ask about requests, alerts or harvest timing.`), {
+    return out(session, T(`আসসালামু আলাইকুম, ${L(o.name, lang)}। আমি এগ্রোভিশন ভয়েস সহকারী। আজকের অবস্থা শুনতে "আজকের অবস্থা" বলুন, অথবা অনুরোধ, সতর্কতা, কবে কত ফসল উঠবে, যা জানতে চান বলুন।`, `Assalamu alaikum, ${L(o.name, lang)}, ${title}. I am the AgroVision voice assistant. Say "today's briefing", or ask about requests, alerts or harvest timing.`), {
       chips: officerChips(session),
     });
   }

@@ -4,7 +4,7 @@ import { doyOf } from "./detect.js";
 import { createRng } from "./prng.js";
 import { fmtDate, fmtNum, t } from "./i18n.js";
 
-/** Palette as literal colours (for D3 interpolation); mirrors css/fieldshift.css (the FieldShift 360 theme). */
+/** Palette as literal colours (for D3 interpolation); mirrors css/agrovision.css (the AgroVision theme). */
 export const C = {
   paper: "#f3f6f0", paperDeep: "#eaf1e5", ink: "#13261b", muted: "#566a5e",
   water: "#1c5f64", paddy: "#43863a", silt: "#d08f26", siltInk: "#87580e", brick: "#a8552a",

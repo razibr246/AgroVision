@@ -1,5 +1,5 @@
 // How datasets of very different sizes and time steps are put together (the challenge's "harmonize to a common
-// analysis grid"). FieldShift does not resample everything onto one fine grid: a 50 km weather cell or a 300 km
+// analysis grid"). AgroVision does not resample everything onto one fine grid: a 50 km weather cell or a 300 km
 // GRACE footprint has no detail at 30 m, and downscaling it would invent that detail. Instead every dataset is
 // reduced to the same two keys, by aggregation: the PLACE (the field, or the cell it sits in) and the TIME (a crop's
 // growth stage, its season, or a year). Each entry says how its dataset gets there. Ids match provenance.js.

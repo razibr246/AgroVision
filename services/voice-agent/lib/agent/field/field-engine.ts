@@ -1,4 +1,4 @@
-// FieldShift voice agent engine: the farming counterpart of runLegalAgentSession in core/agent-engine.ts.
+// AgroVision voice agent engine: the farming counterpart of runLegalAgentSession in core/agent-engine.ts.
 // Select it with AGENT_DOMAIN=field. Same Groq/OpenAI-compatible model, same streaming, different persona and tool.
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, isStepCount, type ModelMessage } from "ai";

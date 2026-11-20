@@ -5,7 +5,7 @@
 // every year, a pilot in a few districts, announced but not yet in force, or one to check because its project period
 // may have ended. Who it is for (`rule`) is read by engine/support.js:
 //   maxDec   largest holding in decimals (BBS census: marginal 5–49, small 50–249, medium 250–749)
-//   crops    one of the farmer's crops this year must be in the list (FieldShift crop ids)
+//   crops    one of the farmer's crops this year must be in the list (AgroVision crop ids)
 //   areas    the upazila's area type must be one of these ('coastal', 'haor', 'barind')
 //   districts  the field's district must be one of these (English names, as in data/upazilas.js)
 //   irrigation the field's water source must be one of these (engine/crops.js IRRIGATION)

@@ -1,6 +1,6 @@
 # FS360 agents (24/7)
 
-Two AI agents keep improving FieldShift 360 on this Mac, day and night, with a local model (Ollama: free, no
+Two AI agents keep improving AgroVision on this Mac, day and night, with a local model (Ollama: free, no
 cloud) or Claude Code. They never edit your checkout and never push. Each works in its own git worktree, and only
 changes that pass every check are kept, as commits on a branch per day. You look and decide what to take.
 

@@ -29,7 +29,6 @@ const VoiceAskDemo = lazy(() => import('../../components/home/VoiceAskDemo'));
 import { LazyMount } from '../../components/SectionNav';
 import NeighbourPhotos from '../../components/NeighbourPhotos';
 import { useStore } from '../../store';
-import { startTour } from '../../components/tour/DemoTour';
 import { num, fmtDate, fmtBangla, banglaDate, daysBetween, bnDigits } from '../../engine/dates';
 import { THEN, NOW } from '../../engine/climate';
 import { PROJECT_NAME, PROJECT_TAGLINE, PROJECT_EVENT, PROJECT_TEAM } from '../../config/brand';
@@ -93,59 +92,6 @@ export default function Home() {
               </Button>
             </div>
 
-            {/* NASA Space Apps 2026 Fast-Track Judging Card (Ultra-Glassmorphic & Animated) */}
-            <div className="mt-5 w-fit max-w-[44rem] hero-nasa-glass p-3 sm:p-4 select-none">
-              {/* Space Apps identity, drawn in the supplied orbital style and the project's field greens. */}
-              <div className="flex items-center gap-3">
-                {/* Same tile and type as the FieldShift 360 logo (components/brand/BrandMark.jsx): dark field green, leaf-green
-                    planet, gold satellite; name in the display face with the accent in green. */}
-                <svg aria-hidden="true" viewBox="0 0 54 54" className="h-10 w-10 shrink-0 rounded-[11px] bg-[#153a1d] p-1.5 shadow-sm sm:h-11 sm:w-11" fill="none">
-                  <circle cx="24" cy="31" r="17.5" stroke="#8dbe78" strokeWidth="2.4" />
-                  <circle cx="39" cy="14" r="5.4" fill="#edc067" />
-                  <path d="M37 8 42 1M43 10l6-6M45 15l8-3M41 8l3-7" stroke="#edc067" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-                <div className="min-w-0 leading-none">
-                  <p className="font-display text-[19px] font-bold tracking-[-0.015em] text-ink sm:text-[21px]">{T('স্পেস অ্যাপস', 'Space Apps')} <span className="text-primary-600">{lang === 'bn' ? bnDigits(2026) : '2026'}</span></p>
-                  <p className="mt-1 text-[12px] font-medium text-muted">{T('নাসা চ্যালেঞ্জ', 'NASA Challenge')}</p>
-                </div>
-                <span className="ml-auto hidden h-10 w-px bg-primary-900/15 sm:block" />
-                <p className="hidden max-w-[15rem] text-[12px] font-semibold leading-snug text-primary-950/80 sm:block">
-                  {T('মহাকাশের তথ্য, মাঠের সিদ্ধান্তে', 'Space data for better field decisions')}
-                </p>
-              </div>
-              <p className="mt-2 text-[12px] font-semibold leading-snug text-primary-950/85 sm:hidden">
-                {T('মহাকাশের তথ্য, মাঠের সিদ্ধান্তে', 'Space data for better field decisions')}
-              </p>
-
-              {/* Row 2: Judge Demo Action & Data Evidence */}
-              <div className="mt-3 flex flex-wrap items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => startTour(dispatch, navigate)}
-                  className="group inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,#1e5429_0%,#11381b_100%)] hover:bg-[linear-gradient(135deg,#246332_0%,#164422_100%)] px-4.5 py-2 text-[13.5px] sm:text-[14px] font-bold text-white shadow-[0_4px_14px_rgba(17,56,27,0.35),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer ring-1 ring-white/20"
-                >
-                  <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-400/20 text-emerald-300 ring-1 ring-emerald-400/40 group-hover:scale-110 group-hover:bg-emerald-400 group-hover:text-primary-950 transition-all">
-                    <Play size={11} className="fill-current ml-0.5" />
-                  </span>
-                  <span>{T('বিচারক ডেমো (৪ মিনিট)', 'Judge Demo (4 min)')}</span>
-                </button>
-
-                <Link
-                  to="/science#coverage"
-                  className="glass-pill inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] sm:text-[13px] font-semibold text-primary-900 hover:text-primary-950 hover:bg-white/90 hover:border-primary-400/40 transition-all shadow-xs"
-                >
-                  <Satellite size={13.5} className="text-primary-700" />
-                  <span>{T('উপাত্তের প্রমাণ', 'Data Evidence')}</span>
-                  <ArrowRight size={13} className="text-primary-600 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-
-                {/* Live Real Data provenance pill */}
-                <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-black/[0.04] px-2.5 py-1 text-[11px] font-semibold text-ink/65 border border-black/[0.06]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
-                  {T('হিসাব চলে ব্রাউজারে · খোলা তথ্য', 'The working runs in your browser · open data')}
-                </span>
-              </div>
-            </div>
 
             {/* Quick-Jump Action Ribbon: Generous, spread out toward bottom */}
             <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-2 text-[12.5px] font-semibold">
@@ -378,7 +324,7 @@ export default function Home() {
               <div>
                 <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Swords size={15} />{T('খেলে শিখুন', 'Learn by playing')}</p>
                 <h2 className="mt-4 text-[32px] font-semibold tracking-[-0.025em] sm:text-[42px]">{T(`${GAMES.play.name.bn}: এক মৌসুমের গল্প`, `${GAMES.play.name.en}: one season's story`)}</h2>
-                <p className="mt-3 max-w-xl text-[17px] leading-8 text-ink/70">{T('খরা, কুয়াশা, পোকা, দাম পড়া — রহিম ভাইয়ের মাঠে ছয় মাসে ছয়টা বিপদ। আগের অভ্যাসে চলবেন, নাকি FieldShift-এর হাতিয়ার দিয়ে লড়বেন? খেলতে খেলতেই শিখে যান কোন সমস্যায় কোন পাতা।', 'Drought, fog, pests, a price crash — six problems in six months on Rahim\'s field. Follow the old habit, or fight back with FieldShift\'s tools? Learn which page solves which problem, just by playing.')}</p>
+                <p className="mt-3 max-w-xl text-[17px] leading-8 text-ink/70">{T('খরা, কুয়াশা, পোকা, দাম পড়া — রহিম ভাইয়ের মাঠে ছয় মাসে ছয়টা বিপদ। আগের অভ্যাসে চলবেন, নাকি AgroVision-এর হাতিয়ার দিয়ে লড়বেন? খেলতে খেলতেই শিখে যান কোন সমস্যায় কোন পাতা।', 'Drought, fog, pests, a price crash — six problems in six months on Rahim\'s field. Follow the old habit, or fight back with AgroVision\'s tools? Learn which page solves which problem, just by playing.')}</p>
                 <div className="mt-6 flex flex-wrap gap-3"><Link to="/farm" className="btn-gloss inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold text-white transition-transform hover:scale-105 active:scale-95"><Sprout size={18} />{T(`৩ডি খামারের খেলা — ${GAMES.farm.name.bn}`, `3D farm game — ${GAMES.farm.name.en}`)}</Link><Link to="/play" className="glass-pill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold transition-transform hover:scale-105 active:scale-95"><Swords size={18} />{L(GAMES.play.name)}</Link></div>
               </div>
               <div className="flex flex-wrap justify-center gap-2.5 lg:justify-end">
@@ -429,7 +375,7 @@ function AtAGlance() {
   const { T, L } = useStore();
   const cards = [
     [CloudSun, 'from-amber-100 to-amber-50 text-amber-700', T('সমস্যা', 'The problem'), T('কৃষক রবির ফসল আর লাগানোর দিন বাছেন অভ্যাসে, কিন্তু আবহাওয়া আর আগের মতো নেই: ২৫ বছরের নাসার তথ্যে শীত, গরম আর বৃষ্টি তিনটিই সরে গেছে। একটি ভুল বাছাইয়ে পুরো মৌসুম নষ্ট হয়।', 'Farmers pick the Rabi crop and its sowing day by habit, but the weather has moved: in 25 years of NASA data the cold, the heat and the rain have all shifted. One wrong choice costs a whole season.')],
-    [Sprout, 'from-primary-100 to-primary-50 text-primary-700', T('আমাদের উত্তর', 'What FieldShift does'), T('একটি জমির জন্য পাঁচটি রবি ফসল, প্রতিটি তিন তারিখে, ২৫ মৌসুমের নাসার আবহাওয়ায় চালিয়ে দেখে; সঙ্গে মাটি, সেচ, দাম আর কৃষকের চাওয়া। তারপর বলে: একই ফসল, সময় বদল, না অন্য ফসল, আর কেন। পরের দশ বছরের ফসলচক্রও হিসাব করে।', 'For one field it replays five Rabi crops at three sowing dates through 25 seasons of NASA weather, adds the soil, water, prices and the farmer’s priorities, and says keep, change the date or shift, with the reason. Then it works out the next ten years of rotation.')],
+    [Sprout, 'from-primary-100 to-primary-50 text-primary-700', T('আমাদের উত্তর', 'What AgroVision does'), T('একটি জমির জন্য পাঁচটি রবি ফসল, প্রতিটি তিন তারিখে, ২৫ মৌসুমের নাসার আবহাওয়ায় চালিয়ে দেখে; সঙ্গে মাটি, সেচ, দাম আর কৃষকের চাওয়া। তারপর বলে: একই ফসল, সময় বদল, না অন্য ফসল, আর কেন। পরের দশ বছরের ফসলচক্রও হিসাব করে।', 'For one field it replays five Rabi crops at three sowing dates through 25 seasons of NASA weather, adds the soil, water, prices and the farmer’s priorities, and says keep, change the date or shift, with the reason. Then it works out the next ten years of rotation.')],
     [ShieldCheck, 'from-sky-100 to-sky-50 text-sky-700', T('কারা ব্যবহার করেন', 'Who it is for'), T(`কৃষক (বাংলা বা ইংরেজিতে, কথা বলে, বা বাটন ফোনে এসএমএসে) আর উপজেলা কৃষি অফিসার, যিনি তাঁদের প্রশ্নের উত্তর দেন। একই হাতিয়ার আরও ${num(ABROAD_ORDER.length, 'bn')}টি দেশের মাঠের জন্য, তাদের নিজের ফসল আর সমস্যায়।`, `Farmers (in English or Bangla, by voice, or by SMS on a basic phone) and the upazila agriculture officer who answers them. The same tools cover fields in ${ABROAD_ORDER.length} more countries, with their own crops and problems.`)],
   ];
   const nasa = ['POWER', 'GPM IMERG', 'MODIS', 'SMAP', 'GRACE', 'NEX-GDDP-CMIP6', 'SRTM', 'SEDAC', 'HLS · GIBS', 'FIRMS'];

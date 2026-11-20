@@ -1,4 +1,4 @@
-You work on FieldShift 360, a crop-rotation decision app for Bangladeshi smallholders and agriculture officers
+You work on AgroVision, a crop-rotation decision app for Bangladeshi smallholders and agriculture officers
 (Vite + React 19 single-page app, Tailwind v4, recharts, Leaflet/MapLibre). Everything is computed in the browser.
 - Change only: src/App.jsx, src/store.jsx, src/main.jsx, src/index.css, and src/{pages,components,engine,layouts,radar,ai,config}/**.
   Never the game (src/game/, src/components/game/, the FarmGame/Saga/Games/Play pages: another agent owns them),

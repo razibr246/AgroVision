@@ -29,7 +29,7 @@ const ok = (bn, en) => ({ bn, en, ok: true });
 // The market question is the same idea everywhere: when everyone sells at once, wait and sell in stages.
 const glutQuiz = (crop, where) => ({
   q: q(`সবাই একসঙ্গে ${crop.bn} তুলে ${where.bn} আনছে, দাম অর্ধেকে নেমেছে। কী করবেন?`, `Everyone is bringing ${crop.en} to ${where.en} at once and the price has halved. What do you do?`),
-  options: [q('যত দামেই হোক আজই সব বেচে দেওয়া', 'Sell everything today at any price'), ok('FieldShift-এ দাম দেখে কয়েক দিন অপেক্ষা, অন্য ফসল আগে বেচা', 'Check prices on FieldShift, wait a few days, sell other crops first'), q(`পরের বার আরও বেশি ${crop.bn} লাগানো`, `Plant even more ${crop.en} next time`)],
+  options: [q('যত দামেই হোক আজই সব বেচে দেওয়া', 'Sell everything today at any price'), ok('AgroVision-এ দাম দেখে কয়েক দিন অপেক্ষা, অন্য ফসল আগে বেচা', 'Check prices on AgroVision, wait a few days, sell other crops first'), q(`পরের বার আরও বেশি ${crop.bn} লাগানো`, `Plant even more ${crop.en} next time`)],
   why: q('সবার ফসল একসঙ্গে বাজারে এলে দাম পড়ে। একটু অপেক্ষা বা অন্য ফসল — দুটোই লাভ বাঁচায়।', 'When everyone sells at once the price falls. Waiting a little, or selling another crop, protects the profit.'),
   perk: 'market', perkText: q('বাজারের খবর: দাম পড়া অর্ধেক সময় থাকবে', 'Market news: the price drop lasts half as long'),
 });
@@ -108,7 +108,7 @@ const ABROAD = {
       q('সত শ্রী আকাল! আমি {name}। সাংরুরের বদরুখাঁ গ্রামে ১০ একরে ধান আর গম করি।', 'Sat Sri Akal! I am {name}. I farm 10 acres of rice and wheat in Badrukhan, Sangrur.'),
       q('এখন অক্টোবর — ধান কাটা শেষ, জমিতে খড়। গম বুনতে হবে ১৫ নভেম্বরের মধ্যে।', 'It is October — the paddy is cut and the straw lies on the field. The wheat must go in by 15 November.'),
       q('পাড়ার অনেকে খড়ে আগুন দেয়; ধোঁয়া দিল্লি পর্যন্ত যায়। আর নলকূপের পানি প্রতি বছর আরও নিচে।', 'Plenty of neighbours set the straw alight; the smoke reaches Delhi. And the tubewell water is lower every year.'),
-      q('FieldShift নাসার বহু বছরের আবহাওয়ার রেকর্ড মিলিয়ে বীজ বোনা আর সেচের পরিকল্পনা করতে সাহায্য করে।', 'FieldShift uses long-term NASA weather records to help plan sowing and irrigation.'),
+      q('AgroVision নাসার বহু বছরের আবহাওয়ার রেকর্ড মিলিয়ে বীজ বোনা আর সেচের পরিকল্পনা করতে সাহায্য করে।', 'AgroVision uses long-term NASA weather records to help plan sowing and irrigation.'),
       q('চলুন, এবার খড় না পুড়িয়েই ভালো ফসল তুলি!', 'Come on — a good crop this time, without burning the straw!'),
     ],
     lines: {
@@ -189,7 +189,7 @@ const ABROAD = {
       q('আসসালামু আলাইকুম! আমি {name}। দাদুর গোঠ খারানিতে ৮ একরে ধান আর গম করি।', 'Assalamu alaikum! I am {name}. I farm 8 acres of rice and wheat at Goth Kharani, Dadu.'),
       q('পানি আসে সিন্ধু নদের খাল দিয়ে, পালা করে। পশ্চিমে কিরথার পাহাড়।', 'The water comes down the Indus canals, by turns. The Kirthar hills stand to the west.'),
       q('২০২২-এর আগস্টে আকাশ ভেঙে বৃষ্টি নেমেছিল; আমাদের গ্রাম মাসের পর মাস পানির নিচে ছিল।', 'In August 2022 the sky broke open; our village was under water for months.'),
-      q('আর মে-জুনে এখানে গরম ৫০ ডিগ্রি ছাড়ায়। FieldShift গরম আর বন্যার খবর আগেই দেয়।', 'And in May and June the heat here passes 50 degrees. FieldShift warns me of the heat and the floods ahead.'),
+      q('আর মে-জুনে এখানে গরম ৫০ ডিগ্রি ছাড়ায়। AgroVision গরম আর বন্যার খবর আগেই দেয়।', 'And in May and June the heat here passes 50 degrees. AgroVision warns me of the heat and the floods ahead.'),
       q('এবার ধান তোলা হয়েছে, গম বোনার পালা। ইনশাআল্লাহ, ভালো মৌসুম হবে!', 'The rice is in; now it is time for wheat. God willing, a good season!'),
     ],
     lines: {
@@ -270,7 +270,7 @@ const ABROAD = {
       q('নমস্তে! আমি {name}, কৈলালীর দুর্গাউলি গ্রামের থারু কৃষক।', 'Namaste! I am {name}, a Tharu farmer from Durgauli in Kailali.'),
       q('দেড় বিঘা জমি, পাশে শালবন। রাতে হাতি আসে, তাই মাচানে বসে পাহারা দিতে হয়।', 'One and a half bigha, with the sal forest next door. Elephants come at night, so we keep watch from the machan.'),
       q('২০২১-এর অক্টোবরে কাটা ধান মাঠেই ছিল — তিন দিনের বৃষ্টিতে সব ভিজে গজিয়ে গেল।', 'In October 2021 our cut paddy was still in the field — three days of rain soaked and sprouted it all.'),
-      q('এখন ফোনে FieldShift রাখি, আকাশের খবর আগে দেখি, তারপর কাটি।', 'Now I keep FieldShift on my phone and look at the sky ahead before I cut.'),
+      q('এখন ফোনে AgroVision রাখি, আকাশের খবর আগে দেখি, তারপর কাটি।', 'Now I keep AgroVision on my phone and look at the sky ahead before I cut.'),
       q('এবার গম, মসুর আর টমেটো — চলুন, হিসাব মিলিয়ে চাষ করি!', 'This time wheat, lentil and tomato — let us farm with the sums right!'),
     ],
     lines: {
@@ -352,7 +352,7 @@ const ABROAD = {
       q('পশ্চিম ভুটানের রীতিতে জমি এসেছে মায়ের কাছ থেকে। নিচে দুই নদীর মিলনে পুনাখা জং।', 'By western Bhutan’s custom the land came to me from my mother. Below, where two rivers meet, stands Punakha Dzong.'),
       q('রাতে বুনো শূকর আসে ধান খেতে, তাই পাহারা দিতে হয়।', 'Wild boar come for the paddy at night, so it has to be guarded.'),
       q('আর উপত্যকার মাথায় লুনানার হিমবাহ-হ্রদ। ১৯৯৪-এ একটা হ্রদ ফেটে বন্যা নেমেছিল।', 'And at the head of the valley lie the glacial lakes of Lunana. In 1994 one burst and a flood came down.'),
-      q('FieldShift আমার ফোনে নদী আর আকাশের খবর আগেই পাঠায়। চলুন, শুরু করি!', 'FieldShift sends the river and sky news to my phone ahead of time. Let us begin!'),
+      q('AgroVision আমার ফোনে নদী আর আকাশের খবর আগেই পাঠায়। চলুন, শুরু করি!', 'AgroVision sends the river and sky news to my phone ahead of time. Let us begin!'),
     ],
     lines: {
       hello: q('কুজুজাংপো লা! চলুন, মাঠে।', 'Kuzuzangpo la! To the field.'),
@@ -432,7 +432,7 @@ const ABROAD = {
       q('মিংগালাবা! আমি {name}। মধ্য শুষ্ক অঞ্চলের সিংগুতে ৬ একরে তিল, চীনাবাদাম, অড়হর আর ছোলা করি।', 'Mingalaba! I am {name}. I farm 6 acres of sesame, groundnut, pigeon pea and chickpea at Singu in the Central Dry Zone.'),
       q('সেচ নেই, সবই বৃষ্টির ভরসা। বর্ষা শেষে মাটির ভেজাতেই ছোলা বুনি।', 'There is no irrigation; it all rests on the rain. When the monsoon ends I sow chickpea into the soil’s moisture.'),
       q('পাঁচ কিলোমিটার দক্ষিণে চকে ২০২৪-এর এপ্রিলে ৪৮.২ ডিগ্রি — মিয়ানমারে এপ্রিলের সর্বোচ্চ।', 'Five kilometres south at Chauk it reached 48.2 degrees in April 2024 — Myanmar’s hottest April day on record.'),
-      q('আর সেই বছরই ইয়াগির বন্যা। FieldShift এখন গরম আর পানির খবর আগেই দেয়।', 'And that same year came the Yagi floods. FieldShift now warns me of heat and water ahead.'),
+      q('আর সেই বছরই ইয়াগির বন্যা। AgroVision এখন গরম আর পানির খবর আগেই দেয়।', 'And that same year came the Yagi floods. AgroVision now warns me of heat and water ahead.'),
       q('চলুন, মাটির ভেজা থাকতে থাকতেই বুনে ফেলি!', 'Come — let us sow while the soil is still moist!'),
     ],
     lines: {
@@ -521,7 +521,7 @@ const ABROAD = {
       q('হাই! আমি {name}। নেভাডার ডায়মন্ড ভ্যালিতে ১২৫ একরের পিভটে আলফালফা খড় করি।', 'Hi! I’m {name}. I grow alfalfa hay on a 125-acre pivot in Diamond Valley, Nevada.'),
       q('দেশের সবচেয়ে শুকনো রাজ্য — পানি আসে মাটির নিচ থেকে, আর উপত্যকা থেকে তোলা হয় ফেরার চেয়ে অনেক বেশি।', 'It’s the driest state — our water comes from underground, and the valley pumps far more than comes back.'),
       q('তাই আইন করে প্রতি বছর পাম্পিং কমছে। কম পানিতে কয়টা কাটা হবে, নাকি সেইনফয়েন বা টেফের মতো কম-পানির ফসল?', 'So pumping is cut by law every year. How many cuttings on less water — or a lower-water crop like sainfoin or teff?'),
-      q('FieldShift নাসার আবহাওয়া আর উপগ্রহের পানির হিসাব মিলিয়ে সিদ্ধান্ত নিতে সাহায্য করে।', 'FieldShift brings NASA weather and satellite water data together to help me decide.'),
+      q('AgroVision নাসার আবহাওয়া আর উপগ্রহের পানির হিসাব মিলিয়ে সিদ্ধান্ত নিতে সাহায্য করে।', 'AgroVision brings NASA weather and satellite water data together to help me decide.'),
       q('চলুন, কম পানিতে ভালো মৌসুম করি!', 'Let’s make a good season on less water!'),
     ],
     lines: {
@@ -607,14 +607,14 @@ export const BD_IDS = Object.keys(REGIONS_BD), ABROAD_IDS = Object.keys(ABROAD);
 
 // The season, in order. A step with `quiz` asks that region's question first (if it has one).
 // The season's missions are learning scenarios. `need` counts player actions (sim.js g.count); `problem` describes a
-// real farming challenge and `how` explains the relevant FieldShift data or game mechanic. The satellite-style map itself
-// is simulated; real local records are shown in the FieldShift kiosk.
+// real farming challenge and `how` explains the relevant AgroVision data or game mechanic. The satellite-style map itself
+// is simulated; real local records are shown in the AgroVision kiosk.
 const m = (bn, en) => ({ bn, en });
 export const QUESTS = [
   { id: 'scan', need: { satViews: 1 }, go: 'field', bn: 'উপগ্রহের চোখে মাঠ দেখুন', en: 'See your field through the satellite’s eyes',
     problem: m('কোন জমি খালি, কোনটা চাপে আছে, চোখে বোঝা যায় না।', 'By eye you cannot tell which plots are bare or under stress.'),
-    how: m('খেলার মানচিত্রে রং সিমুলেটেড, বাস্তব উপগ্রহ মাপ নয়। আসল Landsat/MODIS রেকর্ড দেখতে FieldShift কিয়স্ক খুলুন।', 'Map colours are simulated, not satellite measurements. Open the FieldShift kiosk for real Landsat/MODIS records.') },
-  { id: 'buy', need: { advised: 1, bought: 3 }, go: 'kiosk', bn: 'FieldShift দেখে ঠিক বীজ কিনুন (৩টি)', en: 'Check FieldShift, then buy the right seeds (3)',
+    how: m('খেলার মানচিত্রে রং সিমুলেটেড, বাস্তব উপগ্রহ মাপ নয়। আসল Landsat/MODIS রেকর্ড দেখতে AgroVision কিয়স্ক খুলুন।', 'Map colours are simulated, not satellite measurements. Open the AgroVision kiosk for real Landsat/MODIS records.') },
+  { id: 'buy', need: { advised: 1, bought: 3 }, go: 'kiosk', bn: 'AgroVision দেখে ঠিক বীজ কিনুন (৩টি)', en: 'Check AgroVision, then buy the right seeds (3)',
     problem: m('অভ্যাসে প্রতি বছর একই ফসল: মাটি ক্লান্ত হয়, পানি বেশি লাগে।', 'Habit grows the same crop every year: the soil tires and it needs more water.'),
     how: m('কিয়স্কের "ফসলচক্র": নাসার ২৫ মৌসুমের আবহাওয়ায় প্রতিটি পথের পানি, আয় আর মাটির হিসাব। তারপর দোকানে বীজ।', 'The kiosk’s Rotations: each option’s water, income and soil on 25 seasons of NASA weather. Then buy seed at the shop.') },
   { id: 'plant', quiz: 'plant', need: { planted: 3 }, go: 'field', bn: 'খালি জমি ঢাকুন: ৩টি জমিতে বুনুন', en: 'Cover the bare soil: sow 3 plots',
@@ -622,13 +622,13 @@ export const QUESTS = [
     how: m('আসল MODIS NDVI এলাকার সবুজের পরিবর্তন দেখায়; এই খেলার জমির রং সিমুলেটেড। বাস্তব রেকর্ড কিয়স্কে দেখুন।', 'Real MODIS NDVI tracks vegetation over an area; this game field’s colours are simulated. See the kiosk for real records.') },
   { id: 'water', quiz: 'water', need: { waterLayer: 1, watered: 3 }, go: 'field', bn: 'পানির চাপ খুঁজে ৩টি চারায় পানি দিন', en: 'Find the water stress, then water 3 seedlings',
     problem: m('পানি কম, পাম্পের খরচ বেশি: সব জমিতে নয়, যেখানে দরকার সেখানেই পানি।', 'Water is short and pumping is costly: water where it is needed, not everywhere.'),
-    how: m('খেলার "পানির চাপ" স্তর সিমুলেটেড। আসল এলাকার SMAP মাটির আর্দ্রতার রেকর্ড FieldShift কিয়স্কে দেখুন।', 'The game’s Water stress layer is simulated. See the FieldShift kiosk for real local SMAP soil-moisture records.') },
+    how: m('খেলার "পানির চাপ" স্তর সিমুলেটেড। আসল এলাকার SMAP মাটির আর্দ্রতার রেকর্ড AgroVision কিয়স্কে দেখুন।', 'The game’s Water stress layer is simulated. See the AgroVision kiosk for real local SMAP soil-moisture records.') },
   { id: 'harvest', need: { harvested: 3, rotated: 1 }, go: 'field', bn: 'ফসল তুলে সেই জমিতে অন্য ফসল বুনুন', en: 'Harvest 3, then sow a different crop where one grew',
     problem: m('একই জমিতে একই ফসল বারবার: সেই ফসলের রোগ-পোকা জমে থাকে, মাটির খাদ্য ফুরায়।', 'The same crop on the same plot again and again: its pests wait in the soil and its food runs out.'),
     how: m('খেলার "মাটির স্বাস্থ্য" স্তর ফসলচক্রে বদলায়; এটি মাপা মাটির তথ্য নয়। আসল SoilGrids তথ্য কিয়স্কে দেখুন।', 'The game’s Soil health layer changes with crop rotation; it is not measured soil data. See the kiosk for real SoilGrids records.') },
   { id: 'sell', need: { sold: 1 }, go: 'market', bn: 'হাটে ফসল বিক্রি করুন', en: 'Sell your harvest at the market',
     problem: m('ফসল ঘরে পড়ে থাকলে নষ্ট হয়, টাকা আটকে থাকে।', 'A harvest left at home spoils and ties up the money.'),
-    how: m('FieldShift কিয়স্কে আজকের বাজারদর দেখে বেচুন।', 'Check today’s prices at the FieldShift kiosk before you sell.') },
+    how: m('AgroVision কিয়স্কে আজকের বাজারদর দেখে বেচুন।', 'Check today’s prices at the AgroVision kiosk before you sell.') },
   { id: 'office', need: { officeVisits: 1, soilTests: 1 }, go: 'office', bn: 'কৃষি অফিসে গিয়ে মাটি পরীক্ষা করান', en: 'Visit the agriculture office and get your soil tested',
     problem: m('কোন জমিতে কী সার লাগবে, কোন সরকারি সাহায্য পাওয়া যায়, অনেকেই জানেন না; আন্দাজে সার দিলে টাকা যায়, মাটিও নষ্ট হয়।', 'Many farmers don’t know which plot needs what, or which government help they can get; fertiliser by guesswork wastes money and harms the soil.'),
     how: m('কৃষি কর্মকর্তা বিনা মূল্যে মাটি পরীক্ষা করেন, মাঠের সমস্যার পরামর্শ দেন, আর দেশের আসল সহায়তা কর্মসূচি (উৎসসহ) দেখান।', 'The agriculture officer tests the soil for free, advises on the field’s problems, and shows the country’s real support programmes, with sources.') },
@@ -640,21 +640,21 @@ export const QUESTS = [
     how: m('সিমুলেটেড ফসল-স্বাস্থ্য স্তরে হলুদ-লাল জমি খুঁজুন; একই ফসল বারবার বুনলে খেলায় পোকার ঝুঁকি বাড়ে।', 'Find yellow and red plots on the simulated Crop health layer; repeating a crop raises pest risk in the game.') },
   { id: 'storm', quiz: 'storm', event: 'storm', go: 'safe', bn: 'পাকা ফসল তুলে নিরাপদ জায়গায় পৌঁছান', en: 'Bring in the ripe crop and reach safety',
     problem: m('বৃষ্টি অনিশ্চিত, চরম আবহাওয়া বাড়ছে: মাঠের পাকা ফসল আর খালি জমির মাটি দুটোই যায়।', 'Rain is less predictable and extremes are rising: ripe crop and bare soil are both lost.'),
-    how: m('GPM IMERG-এর বৃষ্টি আর FieldShift-এর আগাম সতর্কতা: সময় থাকতে ফসল তুলুন, জমি ঢেকে রাখুন।', 'GPM IMERG rain and FieldShift’s early warning: harvest in time and keep the soil covered.') },
+    how: m('GPM IMERG-এর বৃষ্টি আর AgroVision-এর আগাম সতর্কতা: সময় থাকতে ফসল তুলুন, জমি ঢেকে রাখুন।', 'GPM IMERG rain and AgroVision’s early warning: harvest in time and keep the soil covered.') },
   { id: 'profit', quiz: 'profit', need: { earned: 1000 }, event: 'glut', go: 'market', bn: 'মৌসুমে মোট {cur}১,০০০ বিক্রি করুন', en: 'Sell {cur}1,000 in total this season',
     problem: m('সবাই একই ফসল একসঙ্গে বেচলে দাম পড়ে যায়।', 'When everyone sells the same crop at once, the price falls.'),
-    how: m('FieldShift-এর ফসলচক্র: আলাদা ফসল, আলাদা সময়ে তুললে দাম বাঁচে।', 'FieldShift’s rotations: different crops, harvested at different times, keep the price.') },
+    how: m('AgroVision-এর ফসলচক্র: আলাদা ফসল, আলাদা সময়ে তুললে দাম বাঁচে।', 'AgroVision’s rotations: different crops, harvested at different times, keep the price.') },
 ];
 
 
 // Each mission step as the player reads it on the mission card, beside a tick when it is done.
 export const STEP_LABEL = {
-  satViews: m('উপগ্রহ দৃশ্য খুলুন', 'Open the satellite view'), advised: m('FieldShift দেখুন', 'Check FieldShift'), bought: m('বীজ কিনুন', 'Buy seed'),
+  satViews: m('উপগ্রহ দৃশ্য খুলুন', 'Open the satellite view'), advised: m('AgroVision দেখুন', 'Check AgroVision'), bought: m('বীজ কিনুন', 'Buy seed'),
   planted: m('জমিতে বুনুন', 'Sow plots'), waterLayer: m('"পানির চাপ" স্তর খুলুন', 'Open the Water stress layer'), watered: m('চারায় পানি দিন', 'Water seedlings'),
   harvested: m('পাকা ফসল তুলুন', 'Harvest ripe crops'), officeVisits: m('কৃষি অফিসে যান', 'Go to the agriculture office'), soilTests: m('মাটি পরীক্ষা করান', 'Get the soil tested'), rotated: m('অন্য ফসল বুনুন', 'Sow a different crop'), sold: m('হাটে বিক্রি', 'Sell at the market'), earned: m('মোট বিক্রি', 'Total sold'),
 };
 
-// The satellite-style game view uses simulated colours. Real local NASA and SoilGrids records appear in the FieldShift kiosk.
+// The satellite-style game view uses simulated colours. Real local NASA and SoilGrids records appear in the AgroVision kiosk.
 export const SAT_LAYERS = [
   { id: 'health', sat: 'SIM · inspired by Landsat / MODIS NDVI', bn: 'ফসলের স্বাস্থ্য', en: 'Crop health', legend: [['#2e9d3a', 'সুস্থ', 'Healthy'], ['#c9c23a', 'চাপে আছে', 'Stressed'], ['#d6452f', 'বিপদে', 'In danger']] },
   { id: 'water', sat: 'SIM · inspired by SMAP L4', bn: 'পানির চাপ', en: 'Water stress', legend: [['#2f7fd0', 'ভেজা', 'Moist'], ['#c9c23a', 'শুকাচ্ছে', 'Drying'], ['#d6452f', 'পানির চাপের জায়গা', 'Water-stress hotspot']] },

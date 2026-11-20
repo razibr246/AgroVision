@@ -98,11 +98,11 @@ export function dreamFor(id, region, land = null) {
       { id: 'health', kind: 'game', game: 'health', mood: 'play', title: q('গাছের স্বাস্থ্য স্ক্যান', 'Crop health scan'), lines: [
         line('tara', 'play', 'আমার ল্যান্ডস্যাট (Landsat) চোখে বিশেষ অদৃশ্য আলো—ইনফ্রারেড (Infrared) ধরা পড়ে! ওপর থেকে দেখি কোন কোন গাছ দুর্বল বা হলুদ হয়ে গেছে।', 'My Landsat satellite has infrared eyes that see invisible light! From up here I can spot which crops are weak or yellowing.'),
         line('tara', 'play', 'অসুস্থ গাছগুলোতে চাপো, ল্যান্ডস্যাটের সবুজ আলো ফেলে ওদের সুস্থ আর সতেজ বানাও!', 'Tap the stressed plants to shine Landsat’s green light and nurse them back to vibrant health!'),
-      ], win: line('tara', 'joy', 'চমৎকার! পুরো মাঠ এখন সবুজ রত্নের মতো জ্বলছে! FieldShift 360 এভাবেই গাছ অসুস্থ হওয়ার শুরুতেই কৃষককে সতর্ক করে।', 'Brilliant! The whole field is glowing emerald green! FieldShift 360 alerts farmers at the earliest sign of crop stress so they can act in time.') },
+      ], win: line('tara', 'joy', 'চমৎকার! পুরো মাঠ এখন সবুজ রত্নের মতো জ্বলছে! AgroVision এভাবেই গাছ অসুস্থ হওয়ার শুরুতেই কৃষককে সতর্ক করে।', 'Brilliant! The whole field is glowing emerald green! AgroVision alerts farmers at the earliest sign of crop stress so they can act in time.') },
       { id: 'cool', kind: 'game', game: 'cool', mood: 'play', title: q('মাঠ ঠান্ডা করো', 'Cool the heatwave'), lines: [
         line('tara', 'play', 'আমার বন্ধু ইকোস্ট্রেস (ECOSTRESS) মহাকাশ থেকে জমির জ্বর বা উত্তাপ মাপে! দুপুরের চড়া রোদে মাঠের তাপমাত্রা ৪২° তেতে উঠেছে!', 'My friend ECOSTRESS measures the land’s fever from space! In the midday heat the ground is baking at 42 °C!'),
         line('tara', 'play', 'মাটির গরম বিন্দুগুলোতে চাপো আর কুয়াশা ঢালো: তাপমাত্রা ৩০°-এর নিচে নামাও, নইলে ধানের ফুল পুড়ে যাবে!', 'Tap the hot spots to sprinkle cool mist and shade: bring the temperature below 30 °C or the blossoms will burn!'),
-      ], win: line('tara', 'joy', 'মাঠ একদম ঠান্ডা আর নিরাপদ! ধানের কচি ফুলগুলো বেঁচে গেল! FieldShift 360 তাপপ্রবাহ আসার ৩ দিন আগেই এই ঠান্ডা সুরক্ষার পরামর্শ দেয়।', 'The field is wonderfully cool and safe! The tender rice flowers are saved! FieldShift 360 sends heatwave warnings 3 days early to protect the harvest.') },
+      ], win: line('tara', 'joy', 'মাঠ একদম ঠান্ডা আর নিরাপদ! ধানের কচি ফুলগুলো বেঁচে গেল! AgroVision তাপপ্রবাহ আসার ৩ দিন আগেই এই ঠান্ডা সুরক্ষার পরামর্শ দেয়।', 'The field is wonderfully cool and safe! The tender rice flowers are saved! AgroVision sends heatwave warnings 3 days early to protect the harvest.') },
       { id: 'water', kind: 'game', game: 'water', mood: 'play', title: q('কতটুকু পানি?', 'How much water?'), lines: [
         line('tara', 'play', 'SMAP উপগ্রহ মাটির নিচের পানি মাপে। পাম্প চালাও, কিন্তু সবুজ দাগে থামো: কম দিলে মাটি ফাটে, বেশি দিলে…', 'The SMAP satellite measures the water in the soil. Run the pump, but stop in the green: too little and the soil cracks, too much and…'),
         line('frog', 'play', 'ঘ্যাঙর-ঘ্যাং! বেশি দিলে আমার পুকুর হয়ে যাবে, হি হি!', 'Ribbit! Too much and it turns into my pond, hee hee!'),
@@ -113,7 +113,7 @@ export function dreamFor(id, region, land = null) {
         line('child', 'sad', `${call.bn}… কেঁদো না। তোমার তো দোষ ছিল না।`, `${call.en}… don’t cry. It wasn’t your fault.`),
         line('tara', 'sad', 'ঠিক বলেছ। আগে থেকে দেখতে না পেলে সবচেয়ে ভালো কৃষকও হেরে যান।', 'That’s right. If you can’t see it coming, even the best farmer loses.'),
       ], action: { kind: 'comfort', prompt: q(`${call.bn}র হাত ধরো`, `Hold ${call.en}’s hand`) } },
-      { id: 'with', kind: 'door', mood: 'joy', title: q('দ্বিতীয় দরজা: ফিল্ডশিফট ৩৬০ আর নাসার চোখ থাকলে', 'Door two: with FieldShift 360 and NASA’s eyes'), lines: [
+      { id: 'with', kind: 'door', mood: 'joy', title: q('দ্বিতীয় দরজা: এগ্রোভিশন আর নাসার চোখ থাকলে', 'Door two: with AgroVision and NASA’s eyes'), lines: [
         line('tara', 'joy', 'এবার একই মৌসুম, কিন্তু তিন দিন আগে ফোনে সতর্কতা এল।', 'Now the same season, but a warning came on the phone three days early.'),
         line('parent', 'joy', 'নালা কেটেছি, পাকা ফসল আগে কেটে ঘরে তুলেছি, আর খালি মাটিতে ডাল দিয়েছি। কৃষি কর্মকর্তাও বলেছিলেন!', 'I dug the drains, brought the ripe crop in early, and sowed pulses on the bare soil. The agriculture officer said so too!'),
         line('child', 'joy', 'হুররে! আমরা বেঁচে গেছি!', 'Hooray! We made it!'),
@@ -121,7 +121,7 @@ export function dreamFor(id, region, land = null) {
       ], action: { kind: 'dance', prompt: q('সবাই মিলে নাচো!', 'Dance together!') } },
       { id: 'morning', kind: 'story', mood: 'morning', title: q('সকাল', 'Morning'), lines: [
         line('child', 'morning', `${call.bn}! ${call.bn}! আমি স্বপ্নে নাসার উপগ্রহ দেখেছি!`, `${call.en}! ${call.en}! I saw a NASA satellite in my dream!`),
-        line('child', 'morning', 'ফোনে ফিল্ডশিফট ৩৬০ খোলো, আর কৃষি অফিসে জিজ্ঞেস করো। ঝড়ের আগে জানা যায়!', 'Open FieldShift 360 on the phone, and ask the agriculture office. You can know before the storm!'),
+        line('child', 'morning', 'ফোনে এগ্রোভিশন খোলো, আর কৃষি অফিসে জিজ্ঞেস করো। ঝড়ের আগে জানা যায়!', 'Open AgroVision on the phone, and ask the agriculture office. You can know before the storm!'),
         line('parent', 'joy', `আমার ছোট্ট বিজ্ঞানী! চল, আজই দেখি।`, 'My little scientist! Come on, let’s look today.'),
       ], action: { kind: 'run', prompt: q(`${call.bn}র কাছে দৌড়াও`, `Run to ${call.en}`) } },
     ],

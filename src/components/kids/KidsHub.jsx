@@ -182,7 +182,7 @@ export default function KidsHub({ dreamSlot }) {
         {/* Main Portal Navigation ("আমি তারার স্বপ্ন-খামারে কী খেলব?") */}
         <nav
           ref={tabsRef}
-          aria-label={T('তারা আর স্বপ্নের মাঠ বিভাগ', 'FieldShift Kids Hub Tabs')}
+          aria-label={T('তারা আর স্বপ্নের মাঠ বিভাগ', 'AgroVision Kids Hub Tabs')}
           className="rounded-3xl border border-slate-200 bg-white p-3 shadow-xs"
         >
           <div className="mb-2 flex items-center gap-1.5 px-1 text-xs font-extrabold text-emerald-900">

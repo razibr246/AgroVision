@@ -44,7 +44,7 @@ export default function BadgeGallery({ profile }) {
     ctx.font = 'bold 34px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(
-      s.lang === 'bn' ? 'FieldShift 360 শিশু বিভাগ — তারা আর স্বপ্নের মাঠ' : 'FieldShift 360 Kids — Tara and the Dream Fields',
+      s.lang === 'bn' ? 'AgroVision শিশু বিভাগ — তারা আর স্বপ্নের মাঠ' : 'AgroVision Kids — Tara and the Dream Fields',
       w / 2,
       118
     );
@@ -100,7 +100,7 @@ export default function BadgeGallery({ profile }) {
     ctx.font = 'bold 20px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(
-      s.lang === 'bn' ? '🛰️ তারা উপগ্রহ ও FieldShift 360' : '🛰️ Tara Satellite & FieldShift 360',
+      s.lang === 'bn' ? '🛰️ তারা উপগ্রহ ও AgroVision' : '🛰️ Tara Satellite & AgroVision',
       96,
       h - 88
     );
@@ -116,7 +116,7 @@ export default function BadgeGallery({ profile }) {
     const url = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = url;
-    a.download = `fieldshift-kids-certificate-${Date.now()}.png`;
+    a.download = `agrovision-kids-certificate-${Date.now()}.png`;
     a.click();
   };
 
@@ -187,7 +187,7 @@ export default function BadgeGallery({ profile }) {
       <div className="rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-base font-extrabold text-slate-900">
-            {T('তোমার প্রিন্টযোগ্য সনদপত্র', 'Your Printable FieldShift Certificate')}
+            {T('তোমার প্রিন্টযোগ্য সনদপত্র', 'Your Printable AgroVision Certificate')}
           </h3>
           <button
             type="button"

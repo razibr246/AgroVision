@@ -1,4 +1,4 @@
-# Copilot instructions for FieldShift 360
+# Copilot instructions for AgroVision
 
 Read [AGENTS.md](../AGENTS.md) first. It is the repository's single source of truth for commands, repo layout, data rules, and behavior constraints.
 

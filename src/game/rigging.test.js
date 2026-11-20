@@ -2,7 +2,7 @@
  * Automated Headless 3D Rigging Regression Test Suite (F19, F20)
  * Verifies joint hierarchy, anatomical range-of-motion bounds, knee/hip ball-and-socket continuity,
  * skirt containment, cervical-cranial look-at IK conservation, and action envelope smoothness
- * across all 15 authentic regional farmer characters in FieldShift 360 ("ফসলের দিগন্ত").
+ * across all 15 authentic regional farmer characters in AgroVision ("ফসলের দিগন্ত").
  */
 
 import test from 'node:test';

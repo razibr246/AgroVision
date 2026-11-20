@@ -168,7 +168,7 @@ class MeshBuilder:
     def write_obj(self, filepath):
         os.makedirs(os.path.dirname(os.path.abspath(filepath)), exist_ok=True)
         with open(filepath, 'w') as f:
-            f.write("# FieldShift 360 AAA Character Base Mesh\n")
+            f.write("# AgroVision AAA Character Base Mesh\n")
             f.write("# Proportions: 7.75 Heads Tall, 1.82 m Height, Neutral A-Pose\n")
             f.write(f"# Vertices: {len(self.vertices)}, Quads: {len([face for face in self.faces if len(face[1]) == 4])}\n\n")
 

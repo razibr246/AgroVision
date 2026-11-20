@@ -1,5 +1,5 @@
 // The simulation for "মাঠের মানুষ": the farmer walking and running about the farm, the 18 plots, the season's
-// challenges with FieldShift's warnings, the storm's safe zone and the market. No drawing here; the 3D stage reads
+// challenges with AgroVision's warnings, the storm's safe zone and the market. No drawing here; the 3D stage reads
 // the state every frame and turns the events in `g.out` into sound, particles and HUD messages.
 import { DAY, PLOT, GAP, FCOLS, FROWS, FIELD_W, FIELD_D, REGIONS, QUESTS } from './regions.js';
 import { layoutFor, resolve, inWater } from './layout.js';
@@ -308,7 +308,7 @@ function useStation(g, id) {
   }
 }
 
-// Track learning-game views: the satellite-style map ('satViews'), the real-data FieldShift kiosk or phone ('advised'),
+// Track learning-game views: the satellite-style map ('satViews'), the real-data AgroVision kiosk or phone ('advised'),
 // and the simulated water-stress layer ('waterLayer'). Missions count these like any other step.
 export function note(g, k) { g.count[k] = (g.count[k] ?? 0) + 1; }
 

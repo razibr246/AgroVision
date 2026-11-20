@@ -34,7 +34,7 @@ export default function CarbonFinance({ ff, ctx, w, rotName }) {
 
   const handleDownloadScenario = () => {
     const scenario = {
-      type: 'fieldshift360-modelled-ghg-comparison',
+      type: 'agrovision-modelled-ghg-comparison',
       status: 'illustrative-model-output-not-mrv',
       generatedAt: new Date().toISOString(),
       climateContext: period,
@@ -65,7 +65,7 @@ export default function CarbonFinance({ ff, ctx, w, rotName }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'FieldShift360_modelled_GHG_scenario.json';
+    link.download = 'AgroVision_modelled_GHG_scenario.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

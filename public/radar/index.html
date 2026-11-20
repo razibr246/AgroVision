@@ -7,7 +7,7 @@
 <meta name="description" content="Prototype: radar-detected Aman transplanting vs. usable-rain onset, Rangpur. Illustrative demo data.">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="css/fieldshift.css">
+<link rel="stylesheet" href="css/agrovision.css">
 <script src="vendor/d3.v7.min.js"></script>
 </head>
 <body>
@@ -18,7 +18,7 @@
 <script>
   try {
     const q = new URLSearchParams(location.search).get('lang');
-    const saved = localStorage.getItem('fieldshift-360.lang');
+    const saved = localStorage.getItem('agrovision.lang');
     const lang = q === 'bn' || q === 'en' ? q : saved === 'bn' ? 'bn' : 'en';
     document.documentElement.lang = lang;
     if (lang === 'bn') {

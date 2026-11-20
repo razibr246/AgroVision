@@ -18,7 +18,7 @@ def fetch(url: str, name: str) -> Path:
     path = CACHE / name
     if not path.exists() or path.stat().st_size == 0:
         print(f'  downloading {name} ...')
-        req = urllib.request.Request(url, headers={'User-Agent': 'fieldshift360-data-build'})
+        req = urllib.request.Request(url, headers={'User-Agent': 'agrovision-data-build'})
         with urllib.request.urlopen(req, timeout=600) as r, open(path, 'wb') as f:
             while chunk := r.read(1 << 20):
                 f.write(chunk)

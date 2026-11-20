@@ -148,7 +148,7 @@ export default function Games() {
         </div>
       </Link>
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <Card id="play" n={0} text={T('এক রবি মৌসুমের ছয়টি সত্যিকারের বিপদ। প্রতিবার বেছে নিন — আগের অভ্যাস, নাকি FieldShift-এর ঠিক হাতিয়ার। প্রথমবার এলে এখান থেকেই শুরু করুন।', 'Six real problems across one Rabi season. Each time choose — the old habit, or the right FieldShift tool. If you are new, start here.')} />
+        <Card id="play" n={0} text={T('এক রবি মৌসুমের ছয়টি সত্যিকারের বিপদ। প্রতিবার বেছে নিন — আগের অভ্যাস, নাকি AgroVision-এর ঠিক হাতিয়ার। প্রথমবার এলে এখান থেকেই শুরু করুন।', 'Six real problems across one Rabi season. Each time choose — the old habit, or the right AgroVision tool. If you are new, start here.')} />
         <Card id="stories" n={1} text={T('সিলেটের পাহাড়ি ঢল, খুলনার লবণ, বরিশালের জোয়ার, রংপুরের কুয়াশা-ব্লাইট, চট্টগ্রামের মেঘভাঙা বৃষ্টি। আপনার সিদ্ধান্ত চলে সেই এলাকার একটি আসল পুরোনো বছরে।', 'Sylhet’s flash floods, Khulna’s salt, Barishal’s tides, Rangpur’s fog and blight, Chattogram’s cloudbursts. Your choices are played through a real past year of that place.')} />
       </div>
 

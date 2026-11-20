@@ -31,7 +31,7 @@ PICK = [
 
 
 def get(url):
-    req = urllib.request.Request(url.replace('http://', 'https://'), headers={'User-Agent': 'FieldShift360/1.0'})
+    req = urllib.request.Request(url.replace('http://', 'https://'), headers={'User-Agent': 'AgroVision/1.0'})
     with urllib.request.urlopen(req, timeout=120) as r:
         return r.read()
 

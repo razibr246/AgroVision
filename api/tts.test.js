@@ -110,7 +110,7 @@ test('uses the designed Bangladeshi female voice through the Interactions API', 
     GEMINI_API_KEY: 'test-key',
     GEMINI_TTS_MODEL: undefined,
     GEMINI_TTS_VOICE: undefined,
-    GEMINI_TTS_VOICE_BN: 'voice_fieldshift_bangla_female',
+    GEMINI_TTS_VOICE_BN: 'voice_agrovision_bangla_female',
   }, async () => {
     let request;
     const modelWav = Buffer.from('RIFFdesigned voice sample');
@@ -128,7 +128,7 @@ test('uses the designed Bangladeshi female voice through the Interactions API', 
     const payload = JSON.parse(request.options.body);
     assert.equal(request.url, 'https://generativelanguage.googleapis.com/v1beta/interactions');
     assert.equal(payload.model, 'gemini-3.8-flash-tts');
-    assert.deepEqual(payload.generation_config.speech_config, [{ voice: 'voice_fieldshift_bangla_female' }]);
+    assert.deepEqual(payload.generation_config.speech_config, [{ voice: 'voice_agrovision_bangla_female' }]);
     assert.equal(payload.input[0].content[0].text, 'শুভ সকাল');
     assert.equal(payload.input[0].content[0].annotations, undefined);
     assert.deepEqual(Buffer.from(res.body.audio, 'base64'), modelWav);
