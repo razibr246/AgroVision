@@ -10,6 +10,10 @@ AGENTS.md to the file being edited wins: `services/voice-agent/AGENTS.md` applie
 in the chat overrides both. When you learn something every agent needs (a command, a trap, a rule), add it here.
 The product name lives in `src/config/brand.js` (`PROJECT_NAME`, `PROJECT_NAME_PARTS`); use it rather than typing
 the name, and note that renaming changes `STORAGE_PREFIX`, so saved demo state starts fresh.
+The logo (27 Nov 2026) is the sun rising behind an A made of two field rows, with a gold channel for the crossbar.
+Its geometry lives in `src/components/brand/BrandMark.jsx` (`MARK`, with intro/hover motion in `index.css`
+`.agros-mark`), `public/icon.svg`, the boot splash in `index.html` and `scripts/build/brand/icons.html`, which renders
+the PNG icons and `public/og-image.png`; change them together. Social tags need `SITE_URL` or Vercel's production URL.
 
 ## Commands
 

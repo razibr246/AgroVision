@@ -3249,3 +3249,23 @@ html { scrollbar-color: #638344 #edf1e9; }
   .data-contours, .data-parcels path, .data-satellite, .data-scan-beam, .data-scan-line,
   .data-beacon, .data-streams path, .data-layer-pulses circle { animation: none; }
 }
+
+/* Agros mark motion (components/brand/BrandMark.jsx). Intro, once: the sun rises over the horizon, the two field rows
+   grow down from where they meet, the irrigation channel fills from the middle. Hover: the sun warms. Coordinates are
+   the mark's 64-unit grid (transform-box: view-box). Still under reduced motion. */
+.agros-mark .am-sun, .agros-mark .am-row, .agros-mark .am-bar { transform-box: view-box; }
+.agros-mark .am-sun { transform-origin: 32px 28px; transition: filter .35s ease, transform .45s cubic-bezier(.34,1.4,.64,1); }
+.agros-mark .am-row { transform-origin: 32px 14px; }
+.agros-mark .am-bar { transform-origin: 32px 43.4px; }
+.agros-mark--intro .am-sun { animation: am-sun-rise .9s cubic-bezier(.22,1,.36,1) both; }
+.agros-mark--intro .am-row--l { animation: am-row-grow .75s cubic-bezier(.22,1,.36,1) .28s both; }
+.agros-mark--intro .am-row--r { animation: am-row-grow .75s cubic-bezier(.22,1,.36,1) .38s both; }
+.agros-mark--intro .am-bar { animation: am-bar-fill .5s cubic-bezier(.22,1,.36,1) .85s both; }
+.group:hover .agros-mark .am-sun, .agros-mark:hover .am-sun { filter: brightness(1.12) saturate(1.15); transform: translateY(-1.2px); }
+@keyframes am-sun-rise { from { transform: translateY(15px); } to { transform: none; } }
+@keyframes am-row-grow { from { transform: scaleY(0); } to { transform: none; } }
+@keyframes am-bar-fill { from { transform: scaleX(0); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .agros-mark .am-sun, .agros-mark .am-row, .agros-mark .am-bar { animation: none !important; transition: none !important; }
+  .group:hover .agros-mark .am-sun, .agros-mark:hover .am-sun { transform: none; }
+}

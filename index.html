@@ -3,12 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0d3b2b" />
+    <meta name="theme-color" content="#0d2614" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="./icon.svg" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
     <meta name="description" content="%PROJECT_DESCRIPTION%" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="%PROJECT_NAME%" />
     <meta property="og:title" content="%PROJECT_NAME%" />
     <meta property="og:description" content="%PROJECT_DESCRIPTION%" />
+    <!--%SOCIAL_URLS%-->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="%PROJECT_NAME%" />
+    <meta name="twitter:description" content="%PROJECT_DESCRIPTION%" />
     <title>%PROJECT_NAME%</title>
     <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin />
     <link rel="dns-prefetch" href="https://server.arcgisonline.com" />
@@ -18,20 +26,27 @@
     <link rel="dns-prefetch" href="https://tiles.openfreemap.org" />
     <link rel="preconnect" href="https://gibs.earthdata.nasa.gov" crossorigin />
     <link rel="dns-prefetch" href="https://gibs.earthdata.nasa.gov" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect width=%2240%22 height=%2240%22 rx=%2210%22 fill=%22%230d3b2b%22/%3E%3Cpath d=%22M20 9C14 15 14 24 20 31C26 24 26 15 20 9Z%22 fill=%22%237cc06a%22/%3E%3Ccircle cx=%2230%22 cy=%2212%22 r=%222.4%22 fill=%22%23e8a83e%22/%3E%3C/svg%3E" />
   </head>
   <body>
     <div id="root">
       <div class="boot-mark" role="status" aria-label="Loading Agros">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="boot-orbit" cx="24" cy="24" r="18" fill="none" stroke="#43863a" stroke-width="2.5"/><path d="M24 11c-7 7-7 17 0 25 7-8 7-18 0-25Z" fill="#8dbe78"/><circle cx="36" cy="13" r="3.2" fill="#edc067"/></svg>
+        <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="bb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#174a2c"/><stop offset="1" stop-color="#0a2413"/></linearGradient><linearGradient id="br" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8ee9f"/><stop offset="1" stop-color="#4f9a44"/></linearGradient><linearGradient id="bs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8d98a"/><stop offset="1" stop-color="#e3a63c"/></linearGradient><clipPath id="bk"><rect width="64" height="28.05"/></clipPath></defs><rect width="64" height="64" rx="16" fill="url(#bb)"/><g clip-path="url(#bk)"><path class="bm-sun" d="M17 28a15 15 0 0 1 30 0Z" fill="url(#bs)"/></g><path class="bm-row" d="M32 14 11.5 53h10.2L32 32.5Z" fill="url(#br)"/><path class="bm-row bm-row2" d="M32 14 52.5 53H42.3L32 32.5Z" fill="url(#br)"/><rect class="bm-bar" x="24.6" y="41.6" width="14.8" height="3.6" rx="1.8" fill="#edc067"/></svg>
       </div>
     </div>
     <style>
+      /* Boot splash: the Agros mark (src/components/brand/BrandMark.jsx) rising, then the sun breathing until the app paints. */
       .boot-mark{position:fixed;inset:0;display:grid;place-items:center;background:#f5f7f2;z-index:9999}
-      .boot-mark svg{width:54px;height:54px;filter:drop-shadow(0 5px 14px rgba(36,90,40,.16))}
-      .boot-orbit{transform-origin:24px 24px;animation:boot-spin 2.4s linear infinite}
-      @keyframes boot-spin{to{transform:rotate(360deg)}}
-      @media(prefers-reduced-motion:reduce){.boot-orbit{animation:none}}
+      .boot-mark svg{width:64px;height:64px;filter:drop-shadow(0 8px 20px rgba(13,38,20,.22))}
+      .boot-mark svg *{transform-box:view-box}
+      .bm-sun{transform-origin:32px 28px;animation:bm-rise .9s cubic-bezier(.22,1,.36,1) both,bm-breathe 2.2s ease-in-out .9s infinite}
+      .bm-row{transform-origin:32px 14px;animation:bm-grow .75s cubic-bezier(.22,1,.36,1) .28s both}
+      .bm-row2{animation-delay:.38s}
+      .bm-bar{transform-origin:32px 43.4px;animation:bm-fill .5s cubic-bezier(.22,1,.36,1) .85s both}
+      @keyframes bm-rise{from{transform:translateY(15px)}to{transform:none}}
+      @keyframes bm-breathe{50%{transform:translateY(-1.4px);filter:brightness(1.12)}}
+      @keyframes bm-grow{from{transform:scaleY(0)}to{transform:none}}
+      @keyframes bm-fill{from{transform:scaleX(0)}to{transform:none}}
+      @media(prefers-reduced-motion:reduce){.boot-mark svg *{animation:none!important}}
     </style>
     <script type="module" src="/src/main.jsx"></script>
   </body>

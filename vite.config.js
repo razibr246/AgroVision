@@ -6,10 +6,24 @@ import { rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PROJECT_NAME, PROJECT_DESCRIPTION } from './src/config/brand.js';
 
-// Fills %PROJECT_NAME% / %PROJECT_DESCRIPTION% in index.html from src/config/brand.js.
+// Fills %PROJECT_NAME% / %PROJECT_DESCRIPTION% in index.html from src/config/brand.js, and the social-preview URLs.
+// Link previews need an absolute address: SITE_URL if set (e.g. https://agros.example), otherwise Vercel's
+// VERCEL_PROJECT_PRODUCTION_URL (set at build, a bare domain). With neither, the og:url / og:image tags are left out
+// rather than written with a relative path crawlers ignore. The image is public/og-image.png (scripts/build/brand/icons.html).
+const SITE_URL = (process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '')).replace(/\/+$/, '');
+const socialUrls = SITE_URL ? [
+  `<meta property="og:url" content="${SITE_URL}/" />`,
+  `<link rel="canonical" href="${SITE_URL}/" />`,
+  `<meta property="og:image" content="${SITE_URL}/og-image.png" />`,
+  '<meta property="og:image:width" content="1200" />',
+  '<meta property="og:image:height" content="630" />',
+  `<meta property="og:image:alt" content="${PROJECT_NAME}: the sun rising behind an A made of two field rows" />`,
+  `<meta name="twitter:image" content="${SITE_URL}/og-image.png" />`,
+].join('\n    ') : '';
 const brandHtml = () => ({
   name: 'brand-html',
-  transformIndexHtml: (html) => html.replaceAll('%PROJECT_NAME%', PROJECT_NAME).replaceAll('%PROJECT_DESCRIPTION%', PROJECT_DESCRIPTION),
+  transformIndexHtml: (html) => html.replaceAll('%PROJECT_NAME%', PROJECT_NAME).replaceAll('%PROJECT_DESCRIPTION%', PROJECT_DESCRIPTION)
+    .replace('<!--%SOCIAL_URLS%-->', socialUrls),
 });
 
 // public/radar/ is a copy of the radar project, including its .git history. Vite copies public/ as is, so take the

@@ -1,14 +1,37 @@
 {
-  "name": "AgroVision",
-  "short_name": "AgroVision",
-  "description": "Crop-rotation and climate-smart farming decision tool across all seven divisions of Bangladesh and international benchmarks, powered by 25 years of NASA Earth observation data.",
+  "name": "Agros",
+  "short_name": "Agros",
+  "description": "Climate-smart crop advice for Bangladesh: what to plant, when to water and what weather is coming, from NASA Earth data and your own field. Bangla first.",
   "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f3f6f0",
-  "theme_color": "#0d3b2b",
+  "theme_color": "#0d2614",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

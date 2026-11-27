@@ -1,0 +1,60 @@
+<!doctype html>
+<!-- Source of every raster brand asset in public/: the PNG icons and the social preview image. The mark's geometry is
+     the same as src/components/brand/BrandMark.jsx (MARK) and public/icon.svg; change all three together.
+     Render (headless Chrome): serve this file, then for each element with data-out screenshot it at device scale 1,
+     with a transparent background where data-transparent is set, to public/<data-out>. -->
+<html lang="en"><head><meta charset="utf-8"><title>Agros brand assets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Noto+Sans+Bengali:wght@500;600&display=block" rel="stylesheet" />
+<style>
+  body { margin: 0; padding: 20px; background: #888; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  [data-out] { display: block; flex: none; }
+  .og { width: 1200px; height: 630px; position: relative; overflow: hidden; color: #f2f7ee; font-family: Inter, sans-serif;
+        background: radial-gradient(900px 520px at 78% -10%, rgba(237,192,103,.28), transparent 60%), linear-gradient(160deg, #174a2c 0%, #0d2b18 55%, #081c0f 100%); }
+  .og .rows { position: absolute; inset: auto 0 0 0; height: 200px; opacity: .2; }
+  .og .inner { position: absolute; left: 88px; top: 92px; right: 88px; display: flex; gap: 52px; align-items: center; }
+  .og h1 { margin: 0; font-size: 104px; font-weight: 800; letter-spacing: -.035em; line-height: 1; }
+  .og h1 span { color: #edc067; }
+  .og .en { margin: 22px 0 0; font-size: 34px; font-weight: 600; line-height: 1.25; letter-spacing: -.01em; max-width: 720px; }
+  .og .bn { margin: 14px 0 0; font: 500 25px/1.45 'Noto Sans Bengali', sans-serif; color: #c9dcc1; max-width: 760px; }
+  .og .foot { position: absolute; left: 88px; bottom: 64px; font-size: 22px; font-weight: 600; color: #a9c79e; letter-spacing: .01em; }
+</style></head><body>
+<template id="mark"><svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#174a2c"/><stop offset="1" stop-color="#0a2413"/></linearGradient>
+    <linearGradient id="row" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8ee9f"/><stop offset="1" stop-color="#4f9a44"/></linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8d98a"/><stop offset="1" stop-color="#e3a63c"/></linearGradient>
+  </defs>
+  <path d="M17 28a15 15 0 0 1 30 0Z" fill="url(#sun)"/>
+  <path d="M32 14 11.5 53h10.2L32 32.5Z" fill="url(#row)"/>
+  <path d="M32 14 52.5 53H42.3L32 32.5Z" fill="url(#row)"/>
+  <rect x="24.6" y="41.6" width="14.8" height="3.6" rx="1.8" fill="#edc067"/>
+</svg></template>
+<script>
+  // The mark sits inside <svg> in the template so the browser parses it as SVG (self-closing paths stay siblings).
+  const mark = document.getElementById('mark').content.querySelector('svg').innerHTML;
+  // tile: rounded square (transparent corners); bleed: full square for platforms that round or mask it themselves;
+  // safe: full square with the mark shrunk into the maskable safe zone (centre 80%).
+  const [defs, shapes] = mark.split('</defs>');
+  const icon = (size, kind) => {
+    const r = kind === 'tile' ? 16 : 0, k = kind === 'safe' ? 0.74 : 1, o = 32 - 32 * k;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 64 64">${defs}</defs>`
+      + `<rect width="64" height="64" rx="${r}" fill="url(#bg)"/><g transform="translate(${o} ${o}) scale(${k})">${shapes}</g></svg>`;
+  };
+  const out = [
+    ['favicon-32.png', 32, 'tile', true], ['icon-192.png', 192, 'tile', true], ['icon-512.png', 512, 'tile', true],
+    ['apple-touch-icon.png', 180, 'bleed', false], ['icon-maskable-512.png', 512, 'safe', false],
+  ];
+  for (const [file, size, kind, transparent] of out) {
+    const d = document.createElement('div'); d.dataset.out = file; if (transparent) d.dataset.transparent = '';
+    d.style.width = d.style.height = size + 'px'; d.innerHTML = icon(size, kind); document.body.appendChild(d);
+  }
+  const og = document.createElement('div'); og.className = 'og'; og.dataset.out = 'og-image.png';
+  og.innerHTML = `<svg class="rows" viewBox="0 0 1200 200" preserveAspectRatio="none">${Array.from({ length: 13 }, (_, i) => `<path d="M600 0 L${-300 + i * 150} 200" stroke="#8fcf74" stroke-width="2"/>`).join('')}</svg>
+    <div class="inner">${icon(240, 'tile')}<div><h1>Agro<span>s</span></h1>
+    <p class="en">What to plant this Rabi and what comes next, worked out for your own field</p>
+    <p class="bn">এই রবিতে কী লাগাবেন, পরের মৌসুমে কী, আপনার জমির জন্য হিসাব</p></div></div>
+    <div class="foot">NASA Earth data · Bangladesh, seven divisions · Bangla first</div>`;
+  document.body.appendChild(og);
+</script>
+</body></html>

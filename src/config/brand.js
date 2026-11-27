@@ -13,10 +13,11 @@ export const PROJECT_TAGLINE = {
   en: 'What to plant this Rabi and what comes next — worked out for your own field',
 };
 
+// Used for the meta description and link previews: keep it under about 155 characters so search results show it whole.
 export const PROJECT_DESCRIPTION =
-  `${PROJECT_NAME} helps smallholder farmers and agriculture officers across all seven divisions of Bangladesh and international benchmarks decide whether to keep, adjust or shift crops, using 25 seasons of NASA climate data, local soil, crop needs and the farmer’s own priorities.`;
+  `Climate-smart crop advice for Bangladesh’s farmers and agriculture officers: what to plant, when to water and what weather is coming, from NASA Earth data.`;
 
-export const PROJECT_REGION = { bn: 'বাংলাদেশের ৭ বিভাগ ও আন্তর্জাতিক মানদণ্ড', en: 'Bangladesh (7 divisions) and international benchmarks' };
+export const PROJECT_REGION = { bn: 'বাংলাদেশের ৭ বিভাগ', en: 'Bangladesh, all seven divisions' };
 export const PROJECT_EVENT = { bn: 'নাসা স্পেস অ্যাপস ২০২৬', en: 'NASA Space Apps 2026' };
 
 // Storage key prefix derived from the name, so a rename does not mix old saved demo state.

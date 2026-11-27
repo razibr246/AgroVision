@@ -1,26 +1,44 @@
-// Logo: a rice leaf with a satellite on its orbit — the field seen from space.
-// The name comes from src/config/brand.js; nothing here hardcodes it.
+// Logo: the sun rising behind the A of Agros, whose two legs are field rows meeting at the horizon, with a gold
+// irrigation channel for the crossbar. From the sky down to one field: the app's whole idea in one mark.
+// Geometry on a 64-unit grid; the same shapes are in public/icon.svg, the PNG icons (scripts/build/render_icons.mjs)
+// and the boot splash in index.html, so change them together. The name comes from src/config/brand.js.
+// Motion (index.css, .agros-mark): on first paint the sun rises, the rows grow down from the horizon and the channel
+// fills; on hover the sun glows. Nothing moves under prefers-reduced-motion.
+import { useId } from 'react';
 import { PROJECT_NAME, PROJECT_NAME_PARTS } from '../../config/brand';
 
-export function LogoGlyph({ size = 40, inverse = false }) {
-  const bg = inverse ? '#f0f6ec' : '#153a1d';
-  const leaf = inverse ? '#2f6e2f' : '#8dbe78';
-  const vein = inverse ? '#f0f6ec' : '#153a1d';
+export const MARK = {
+  sun: 'M17 28a15 15 0 0 1 30 0Z',
+  legLeft: 'M32 14 11.5 53h10.2L32 32.5Z',
+  legRight: 'M32 14 52.5 53H42.3L32 32.5Z',
+  bar: { x: 24.6, y: 41.6, width: 14.8, height: 3.6, rx: 1.8 },
+};
+
+export function LogoGlyph({ size = 40, animate = false, title }) {
+  const id = useId().replace(/:/g, '');
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true" className="shrink-0 transition-transform duration-300 ease-[cubic-bezier(.34,1.4,.64,1)] group-hover:scale-105 group-hover:rotate-1">
-      <rect width="40" height="40" rx="11" fill={bg} />
-      <path d="M8.5 27.5C10.5 17 18.5 10 31 9.5C30 21.5 22.5 29.5 12 30.5Z" fill={leaf} />
-      <path d="M10.5 29C15 23 20.5 17.5 27 13" stroke={vein} strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      <ellipse cx="20" cy="20" rx="16.5" ry="7" transform="rotate(-28 20 20)" fill="none" stroke="#edc067" strokeWidth="1.3" strokeDasharray="2.2 2.4" opacity=".9" />
-      <circle cx="33.2" cy="11.2" r="2.3" fill="#edc067" />
+    <svg width={size} height={size} viewBox="0 0 64 64" role={title ? 'img' : undefined} aria-hidden={title ? undefined : true}
+      className={`agros-mark shrink-0 ${animate ? 'agros-mark--intro' : ''}`}>
+      {title && <title>{title}</title>}
+      <defs>
+        <linearGradient id={`${id}bg`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#174a2c" /><stop offset="1" stopColor="#0a2413" /></linearGradient>
+        <linearGradient id={`${id}row`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c8ee9f" /><stop offset="1" stopColor="#4f9a44" /></linearGradient>
+        <linearGradient id={`${id}sun`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f8d98a" /><stop offset="1" stopColor="#e3a63c" /></linearGradient>
+        <clipPath id={`${id}sky`}><rect width="64" height="28.05" /></clipPath>
+      </defs>
+      <rect width="64" height="64" rx="16" fill={`url(#${id}bg)`} />
+      <g clipPath={`url(#${id}sky)`}><path className="am-sun" d={MARK.sun} fill={`url(#${id}sun)`} /></g>
+      <path className="am-row am-row--l" d={MARK.legLeft} fill={`url(#${id}row)`} />
+      <path className="am-row am-row--r" d={MARK.legRight} fill={`url(#${id}row)`} />
+      <rect className="am-bar" {...MARK.bar} fill="#edc067" />
     </svg>
   );
 }
 
-export default function BrandMark({ compact = false, inverse = false, sub, size = 40 }) {
+export default function BrandMark({ compact = false, inverse = false, sub, size = 40, animate = true }) {
   return (
     <span className="group flex items-center gap-2.5 transition-transform duration-200 active:scale-95" aria-label={PROJECT_NAME}>
-      <LogoGlyph inverse={inverse} size={size} />
+      <LogoGlyph size={size} animate={animate} />
       {!compact && (
         <span className="leading-none">
           <span className={`font-display block text-[21px] font-bold tracking-[-0.015em] transition-colors duration-200 ${inverse ? 'text-white' : 'text-ink group-hover:text-primary-900'}`}>
