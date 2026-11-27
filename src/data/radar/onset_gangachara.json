@@ -19,7 +19,9 @@
     2025
    ],
    "finalTo": 2025,
-   "thresholdFrom": "mean 5-day June–September rain over the reference years"
+   "thresholdFrom": "mean 5-day June–September rain over the reference years",
+   "rainSpikeFilter": true,
+   "rainSpikeConcentration": 0.7
   },
   "primary": "imerg",
   "sources": {
@@ -53,8 +55,8 @@
   "climateFile": "src/data/climate/climate_gangachara.json",
   "lat": 25.85,
   "lon": 89.2167,
-  "rainThrough": "2026-10-15",
-  "generated": "2026-10-22"
+  "rainThrough": "2026-11-23",
+  "generated": "2026-11-27"
  },
  "years": [
   {

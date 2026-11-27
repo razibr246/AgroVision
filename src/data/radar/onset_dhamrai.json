@@ -19,7 +19,9 @@
     2025
    ],
    "finalTo": 2025,
-   "thresholdFrom": "mean 5-day June–September rain over the reference years"
+   "thresholdFrom": "mean 5-day June–September rain over the reference years",
+   "rainSpikeFilter": true,
+   "rainSpikeConcentration": 0.7
   },
   "primary": "imerg",
   "sources": {
@@ -30,9 +32,9 @@
     "trend": {
      "n": 25,
      "perDecade": -1.5,
-     "S": -40,
-     "z": -0.914,
-     "p": 0.3605,
+     "S": -42,
+     "z": -0.961,
+     "p": 0.3364,
      "significant": false
     }
    },
@@ -53,8 +55,8 @@
   "climateFile": "src/data/climate/climate_dhamrai.json",
   "lat": 23.93,
   "lon": 90.14,
-  "rainThrough": "2026-10-15",
-  "generated": "2026-10-28"
+  "rainThrough": "2026-11-23",
+  "generated": "2026-11-27"
  },
  "years": [
   {
@@ -138,8 +140,8 @@
   {
    "year": 2007,
    "imerg": {
-    "date": "2007-05-20",
-    "doy": 140,
+    "date": "2007-05-21",
+    "doy": 141,
     "complete": true
    },
    "power": {

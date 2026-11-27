@@ -1,7 +1,7 @@
 {
   "about": "Chakra Agent Trained Offline Large Agronomic Knowledge & RAG Model (Agros)",
   "version": "2.0.0-rag-trained",
-  "generatedAt": "2026-11-27T08:24:15.954Z",
+  "generatedAt": "2026-11-27T08:41:31.731Z",
   "parcels": {
     "DHM-CH-0142": {
       "id": "DHM-CH-0142",
@@ -86,12 +86,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.788,
-        "ndmi": 0.363,
-        "ndwi": -0.661,
-        "status": "vigorous",
-        "prevNdvi": 0.822,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.219,
+        "ndmi": -0.065,
+        "ndwi": -0.274,
+        "status": "bare_or_harvested",
+        "prevNdvi": 0.222,
         "pixelCount": 30
       },
       "fertilizer": {
@@ -423,12 +423,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.821,
-        "ndmi": 0.33,
-        "ndwi": -0.699,
-        "status": "vigorous",
-        "prevNdvi": 0.852,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.353,
+        "ndmi": -0.166,
+        "ndwi": -0.472,
+        "status": "sparse_or_stressed",
+        "prevNdvi": 0.646,
         "pixelCount": 56
       },
       "fertilizer": {
@@ -760,12 +760,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.784,
-        "ndmi": 0.341,
-        "ndwi": -0.652,
-        "status": "vigorous",
-        "prevNdvi": 0.819,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.575,
+        "ndmi": 0.089,
+        "ndwi": -0.551,
+        "status": "developing",
+        "prevNdvi": 0.653,
         "pixelCount": 72
       },
       "fertilizer": {
@@ -1127,12 +1127,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.69,
-        "ndmi": 0.284,
-        "ndwi": -0.585,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.595,
+        "ndmi": 0.069,
+        "ndwi": -0.569,
         "status": "developing",
-        "prevNdvi": 0.709,
+        "prevNdvi": 0.543,
         "pixelCount": 90
       },
       "fertilizer": {
@@ -1494,12 +1494,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-15",
-        "ndvi": 0.761,
-        "ndmi": 0.219,
-        "ndwi": -0.666,
-        "status": "vigorous",
-        "prevNdvi": 0.694,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.591,
+        "ndmi": 0.162,
+        "ndwi": -0.544,
+        "status": "developing",
+        "prevNdvi": 0.592,
         "pixelCount": 42
       },
       "fertilizer": {
@@ -1831,12 +1831,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-15",
-        "ndvi": 0.907,
-        "ndmi": 0.399,
-        "ndwi": -0.81,
-        "status": "vigorous",
-        "prevNdvi": 0.846,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.315,
+        "ndmi": -0.073,
+        "ndwi": -0.454,
+        "status": "sparse_or_stressed",
+        "prevNdvi": 0.319,
         "pixelCount": 56
       },
       "fertilizer": {
@@ -2168,12 +2168,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-15",
-        "ndvi": 0.876,
-        "ndmi": 0.398,
-        "ndwi": -0.777,
-        "status": "vigorous",
-        "prevNdvi": 0.883,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.325,
+        "ndmi": -0.069,
+        "ndwi": -0.432,
+        "status": "sparse_or_stressed",
+        "prevNdvi": 0.317,
         "pixelCount": 64
       },
       "fertilizer": {
@@ -2505,12 +2505,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-15",
-        "ndvi": 0.206,
-        "ndmi": -0.101,
-        "ndwi": -0.251,
-        "status": "bare_or_harvested",
-        "prevNdvi": 0.124,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.48,
+        "ndmi": 0.166,
+        "ndwi": -0.424,
+        "status": "developing",
+        "prevNdvi": 0.469,
         "pixelCount": 90
       },
       "fertilizer": {
@@ -2842,12 +2842,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.723,
-        "ndmi": 0.208,
-        "ndwi": -0.622,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.76,
+        "ndmi": 0.273,
+        "ndwi": -0.667,
         "status": "vigorous",
-        "prevNdvi": 0.715,
+        "prevNdvi": 0.746,
         "pixelCount": 81
       },
       "fertilizer": {
@@ -3179,12 +3179,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.872,
-        "ndmi": 0.373,
-        "ndwi": -0.751,
-        "status": "vigorous",
-        "prevNdvi": 0.885,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.646,
+        "ndmi": 0.184,
+        "ndwi": -0.601,
+        "status": "developing",
+        "prevNdvi": 0.745,
         "pixelCount": 56
       },
       "fertilizer": {
@@ -3516,12 +3516,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-12",
-        "ndvi": 0.743,
-        "ndmi": 0.347,
-        "ndwi": -0.592,
-        "status": "vigorous",
-        "prevNdvi": 0.566,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.697,
+        "ndmi": 0.395,
+        "ndwi": -0.583,
+        "status": "developing",
+        "prevNdvi": 0.822,
         "pixelCount": 90
       },
       "fertilizer": {
@@ -3806,12 +3806,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-12",
-        "ndvi": 0.81,
-        "ndmi": 0.39,
-        "ndwi": -0.683,
-        "status": "vigorous",
-        "prevNdvi": 0.563,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.696,
+        "ndmi": 0.404,
+        "ndwi": -0.591,
+        "status": "developing",
+        "prevNdvi": 0.845,
         "pixelCount": 56
       },
       "fertilizer": {
@@ -4096,12 +4096,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.836,
-        "ndmi": 0.281,
-        "ndwi": -0.69,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.758,
+        "ndmi": 0.303,
+        "ndwi": -0.662,
         "status": "vigorous",
-        "prevNdvi": 0.822,
+        "prevNdvi": 0.74,
         "pixelCount": 81
       },
       "fertilizer": {
@@ -4386,12 +4386,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.806,
-        "ndmi": 0.257,
-        "ndwi": -0.658,
-        "status": "vigorous",
-        "prevNdvi": 0.663,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.64,
+        "ndmi": 0.212,
+        "ndwi": -0.575,
+        "status": "developing",
+        "prevNdvi": 0.701,
         "pixelCount": 36
       },
       "fertilizer": {
@@ -4676,12 +4676,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.756,
-        "ndmi": 0.214,
-        "ndwi": -0.61,
-        "status": "vigorous",
-        "prevNdvi": 0.749,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.656,
+        "ndmi": 0.234,
+        "ndwi": -0.564,
+        "status": "developing",
+        "prevNdvi": 0.671,
         "pixelCount": 25
       },
       "fertilizer": {
@@ -4966,12 +4966,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.804,
-        "ndmi": 0.375,
-        "ndwi": -0.701,
-        "status": "vigorous",
-        "prevNdvi": 0.828,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.519,
+        "ndmi": 0.058,
+        "ndwi": -0.504,
+        "status": "developing",
+        "prevNdvi": 0.559,
         "pixelCount": 81
       },
       "fertilizer": {
@@ -5333,12 +5333,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.065,
-        "ndmi": -0.167,
-        "ndwi": -0.067,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.054,
+        "ndmi": -0.193,
+        "ndwi": -0.081,
         "status": "bare_or_harvested",
-        "prevNdvi": 0.055,
+        "prevNdvi": 0.073,
         "pixelCount": 64
       },
       "fertilizer": {
@@ -5700,12 +5700,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.696,
-        "ndmi": 0.328,
-        "ndwi": -0.568,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.574,
+        "ndmi": 0.145,
+        "ndwi": -0.555,
         "status": "developing",
-        "prevNdvi": 0.811,
+        "prevNdvi": 0.562,
         "pixelCount": 72
       },
       "fertilizer": {
@@ -6067,12 +6067,12 @@
         }
       },
       "satellite": {
-        "latestDate": "2026-10-17",
-        "ndvi": 0.696,
-        "ndmi": 0.266,
-        "ndwi": -0.58,
+        "latestDate": "2026-11-26",
+        "ndvi": 0.454,
+        "ndmi": 0.035,
+        "ndwi": -0.501,
         "status": "developing",
-        "prevNdvi": 0.807,
+        "prevNdvi": 0.652,
         "pixelCount": 42
       },
       "fertilizer": {
@@ -8543,8 +8543,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel DHM-CH-0142 (বাড়ির পূবের জমি / Field east of the house)",
-        "bn": "জমির দাগ নম্বর DHM-CH-0142 (\"বাড়ির পূবের জমি\"), মালিক রাজিব মিয়া, গ্রাম চৌহাট, ইউনিয়ন চৌহাট, উপজেলা ধামরাই। মোট জমি ৫০ শতক (১.৫২ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৪.০২৩৩, ৯০.০৭৯। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ২.৮৮%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.১ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭৮৮ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ২০.৭ লিটার।",
-        "en": "Parcel ID DHM-CH-0142 (\"Field east of the house\"), owner Razib Miah, village Chauhat, union Chauhat, upazila Dhamrai. Area 50 decimals (1.52 bighas). Irrigation: Shallow tube well. Coordinates 24.0233, 90.079. Soil: pH 5.8, organic matter 2.88%, CEC 23.1 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.788 (vigorous). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 20.7 litres.",
+        "bn": "জমির দাগ নম্বর DHM-CH-0142 (\"বাড়ির পূবের জমি\"), মালিক রাজিব মিয়া, গ্রাম চৌহাট, ইউনিয়ন চৌহাট, উপজেলা ধামরাই। মোট জমি ৫০ শতক (১.৫২ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৪.০২৩৩, ৯০.০৭৯। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ২.৮৮%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.১ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.২১৯ (ফাঁকা বা কাটা জমি)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ২০.৭ লিটার।",
+        "en": "Parcel ID DHM-CH-0142 (\"Field east of the house\"), owner Razib Miah, village Chauhat, union Chauhat, upazila Dhamrai. Area 50 decimals (1.52 bighas). Irrigation: Shallow tube well. Coordinates 24.0233, 90.079. Soil: pH 5.8, organic matter 2.88%, CEC 23.1 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.219 (bare or harvested). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 20.7 litres.",
         "tags": [
           "parcel",
           "DHM-CH-0142",
@@ -8575,8 +8575,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel DHM-CH-0377 (নিকলার বড় জমি / The big field at Nikla)",
-        "bn": "জমির দাগ নম্বর DHM-CH-0377 (\"নিকলার বড় জমি\"), মালিক রাজিব মিয়া, গ্রাম নিকলা, ইউনিয়ন চৌহাট, উপজেলা ধামরাই। মোট জমি ৯৯ শতক (৩ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৪.০০৮৬, ৯০.০৩৫৪। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ৩.৭২%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৪.৯ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৮২১ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৭.১ টন/হেক্টর, ডিজেল সাশ্রয় ৪০.৮ লিটার।",
-        "en": "Parcel ID DHM-CH-0377 (\"The big field at Nikla\"), owner Razib Miah, village Nikla, union Chauhat, upazila Dhamrai. Area 99 decimals (3 bighas). Irrigation: Shallow tube well. Coordinates 24.0086, 90.0354. Soil: pH 5.8, organic matter 3.72%, CEC 24.9 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.821 (vigorous). Estimated 10-year carbon sequestration 7.1 t C/ha, diesel saved 40.8 litres.",
+        "bn": "জমির দাগ নম্বর DHM-CH-0377 (\"নিকলার বড় জমি\"), মালিক রাজিব মিয়া, গ্রাম নিকলা, ইউনিয়ন চৌহাট, উপজেলা ধামরাই। মোট জমি ৯৯ শতক (৩ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৪.০০৮৬, ৯০.০৩৫৪। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ৩.৭২%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৪.৯ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৩৫৩ (হালকা বা চাপে থাকা ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৭.১ টন/হেক্টর, ডিজেল সাশ্রয় ৪০.৮ লিটার।",
+        "en": "Parcel ID DHM-CH-0377 (\"The big field at Nikla\"), owner Razib Miah, village Nikla, union Chauhat, upazila Dhamrai. Area 99 decimals (3 bighas). Irrigation: Shallow tube well. Coordinates 24.0086, 90.0354. Soil: pH 5.8, organic matter 3.72%, CEC 24.9 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.353 (sparse or stressed). Estimated 10-year carbon sequestration 7.1 t C/ha, diesel saved 40.8 litres.",
         "tags": [
           "parcel",
           "DHM-CH-0377",
@@ -8607,8 +8607,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel DHM-BL-0218 (বালিয়ার মাঠের জমি / The Balia field)",
-        "bn": "জমির দাগ নম্বর DHM-BL-0218 (\"বালিয়ার মাঠের জমি\"), মালিক রাজিব মিয়া, গ্রাম মধ্যপাড়া, ইউনিয়ন বালিয়া, উপজেলা ধামরাই। মোট জমি ১৩২ শতক (৪ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৩.৯৯০৫, ৯০.০৭৫৬। মাটি: পিএইচ ৫.৭, জৈব পদার্থ ৩.৯৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৪.৯ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭৮৪ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৭.৩ টন/হেক্টর, ডিজেল সাশ্রয় ৫৪.৪ লিটার।",
-        "en": "Parcel ID DHM-BL-0218 (\"The Balia field\"), owner Razib Miah, village Madhyapara, union Balia, upazila Dhamrai. Area 132 decimals (4 bighas). Irrigation: Shallow tube well. Coordinates 23.9905, 90.0756. Soil: pH 5.7, organic matter 3.95%, CEC 24.9 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.784 (vigorous). Estimated 10-year carbon sequestration 7.3 t C/ha, diesel saved 54.4 litres.",
+        "bn": "জমির দাগ নম্বর DHM-BL-0218 (\"বালিয়ার মাঠের জমি\"), মালিক রাজিব মিয়া, গ্রাম মধ্যপাড়া, ইউনিয়ন বালিয়া, উপজেলা ধামরাই। মোট জমি ১৩২ শতক (৪ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৩.৯৯০৫, ৯০.০৭৫৬। মাটি: পিএইচ ৫.৭, জৈব পদার্থ ৩.৯৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৪.৯ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৫৭৫ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৭.৩ টন/হেক্টর, ডিজেল সাশ্রয় ৫৪.৪ লিটার।",
+        "en": "Parcel ID DHM-BL-0218 (\"The Balia field\"), owner Razib Miah, village Madhyapara, union Balia, upazila Dhamrai. Area 132 decimals (4 bighas). Irrigation: Shallow tube well. Coordinates 23.9905, 90.0756. Soil: pH 5.7, organic matter 3.95%, CEC 24.9 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.575 (developing). Estimated 10-year carbon sequestration 7.3 t C/ha, diesel saved 54.4 litres.",
         "tags": [
           "parcel",
           "DHM-BL-0218",
@@ -8639,8 +8639,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel DHM-JD-0093 (যাদবপুরের জমি / The Jadabpur field)",
-        "bn": "জমির দাগ নম্বর DHM-JD-0093 (\"যাদবপুরের জমি\"), মালিক রাজিব মিয়া, গ্রাম মধ্যপাড়া, ইউনিয়ন যাদবপুর, উপজেলা ধামরাই। মোট জমি ১৬৫ শতক (৫ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.০০৬৬, ৯০.১১৩৫। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ৩%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২২.৯ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৯ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৬.৩ টন/হেক্টর, ডিজেল সাশ্রয় ৬৮ লিটার।",
-        "en": "Parcel ID DHM-JD-0093 (\"The Jadabpur field\"), owner Razib Miah, village Madhyapara, union Jadabpur, upazila Dhamrai. Area 165 decimals (5 bighas). Irrigation: Deep tube well. Coordinates 24.0066, 90.1135. Soil: pH 5.8, organic matter 3%, CEC 22.9 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.69 (developing). Estimated 10-year carbon sequestration 6.3 t C/ha, diesel saved 68 litres.",
+        "bn": "জমির দাগ নম্বর DHM-JD-0093 (\"যাদবপুরের জমি\"), মালিক রাজিব মিয়া, গ্রাম মধ্যপাড়া, ইউনিয়ন যাদবপুর, উপজেলা ধামরাই। মোট জমি ১৬৫ শতক (৫ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.০০৬৬, ৯০.১১৩৫। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ৩%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২২.৯ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৫৯৫ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৬.৩ টন/হেক্টর, ডিজেল সাশ্রয় ৬৮ লিটার।",
+        "en": "Parcel ID DHM-JD-0093 (\"The Jadabpur field\"), owner Razib Miah, village Madhyapara, union Jadabpur, upazila Dhamrai. Area 165 decimals (5 bighas). Irrigation: Deep tube well. Coordinates 24.0066, 90.1135. Soil: pH 5.8, organic matter 3%, CEC 22.9 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.595 (developing). Estimated 10-year carbon sequestration 6.3 t C/ha, diesel saved 68 litres.",
         "tags": [
           "parcel",
           "DHM-JD-0093",
@@ -8671,8 +8671,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GDG-DP-0311 (পূর্বপাড়ার জমি / The Purbapara field)",
-        "bn": "জমির দাগ নম্বর GDG-DP-0311 (\"পূর্বপাড়ার জমি\"), মালিক রহিম উদ্দিন, গ্রাম পূর্বপাড়া, ইউনিয়ন দেওপাড়া, উপজেলা গোদাগাড়ী। মোট জমি ৬৬ শতক (২ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.৪১২৫, ৮৮.৫০২৩। মাটি: পিএইচ ৭.২, জৈব পদার্থ ২.০৬%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৮ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল মাটি। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭৬১ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৩ টন/হেক্টর, ডিজেল সাশ্রয় ২৭.২ লিটার।",
-        "en": "Parcel ID GDG-DP-0311 (\"The Purbapara field\"), owner Rahim Uddin, village Purbapara, union Deopara, upazila Godagari. Area 66 decimals (2 bighas). Irrigation: Deep tube well. Coordinates 24.4125, 88.5023. Soil: pH 7.2, organic matter 2.06%, CEC 23.8 cmol(+)/kg, texture clay. Sentinel-2 NDVI 0.761 (vigorous). Estimated 10-year carbon sequestration 5.3 t C/ha, diesel saved 27.2 litres.",
+        "bn": "জমির দাগ নম্বর GDG-DP-0311 (\"পূর্বপাড়ার জমি\"), মালিক রহিম উদ্দিন, গ্রাম পূর্বপাড়া, ইউনিয়ন দেওপাড়া, উপজেলা গোদাগাড়ী। মোট জমি ৬৬ শতক (২ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.৪১২৫, ৮৮.৫০২৩। মাটি: পিএইচ ৭.২, জৈব পদার্থ ২.০৬%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৮ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল মাটি। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৫৯১ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৩ টন/হেক্টর, ডিজেল সাশ্রয় ২৭.২ লিটার।",
+        "en": "Parcel ID GDG-DP-0311 (\"The Purbapara field\"), owner Rahim Uddin, village Purbapara, union Deopara, upazila Godagari. Area 66 decimals (2 bighas). Irrigation: Deep tube well. Coordinates 24.4125, 88.5023. Soil: pH 7.2, organic matter 2.06%, CEC 23.8 cmol(+)/kg, texture clay. Sentinel-2 NDVI 0.591 (developing). Estimated 10-year carbon sequestration 5.3 t C/ha, diesel saved 27.2 litres.",
         "tags": [
           "parcel",
           "GDG-DP-0311",
@@ -8703,8 +8703,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GDG-DP-0587 (পশ্চিম মাঠের জমি / The west field)",
-        "bn": "জমির দাগ নম্বর GDG-DP-0587 (\"পশ্চিম মাঠের জমি\"), মালিক রহিম উদ্দিন, গ্রাম পশ্চিমপাড়া, ইউনিয়ন দেওপাড়া, উপজেলা গোদাগাড়ী। মোট জমি ৯৯ শতক (৩ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.৪২৫, ৮৮.৪৮। মাটি: পিএইচ ৬.৯, জৈব পদার্থ ১.৯৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৪ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৯০৭ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.২ টন/হেক্টর, ডিজেল সাশ্রয় ৪০.৮ লিটার।",
-        "en": "Parcel ID GDG-DP-0587 (\"The west field\"), owner Rahim Uddin, village Paschimpara, union Deopara, upazila Godagari. Area 99 decimals (3 bighas). Irrigation: Deep tube well. Coordinates 24.425, 88.48. Soil: pH 6.9, organic matter 1.95%, CEC 23.4 cmol(+)/kg, texture silty clay. Sentinel-2 NDVI 0.907 (vigorous). Estimated 10-year carbon sequestration 5.2 t C/ha, diesel saved 40.8 litres.",
+        "bn": "জমির দাগ নম্বর GDG-DP-0587 (\"পশ্চিম মাঠের জমি\"), মালিক রহিম উদ্দিন, গ্রাম পশ্চিমপাড়া, ইউনিয়ন দেওপাড়া, উপজেলা গোদাগাড়ী। মোট জমি ৯৯ শতক (৩ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.৪২৫, ৮৮.৪৮। মাটি: পিএইচ ৬.৯, জৈব পদার্থ ১.৯৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৪ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৩১৫ (হালকা বা চাপে থাকা ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.২ টন/হেক্টর, ডিজেল সাশ্রয় ৪০.৮ লিটার।",
+        "en": "Parcel ID GDG-DP-0587 (\"The west field\"), owner Rahim Uddin, village Paschimpara, union Deopara, upazila Godagari. Area 99 decimals (3 bighas). Irrigation: Deep tube well. Coordinates 24.425, 88.48. Soil: pH 6.9, organic matter 1.95%, CEC 23.4 cmol(+)/kg, texture silty clay. Sentinel-2 NDVI 0.315 (sparse or stressed). Estimated 10-year carbon sequestration 5.2 t C/ha, diesel saved 40.8 litres.",
         "tags": [
           "parcel",
           "GDG-DP-0587",
@@ -8735,8 +8735,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GDG-GG-0144 (গোগ্রামের জমি / The Gogram field)",
-        "bn": "জমির দাগ নম্বর GDG-GG-0144 (\"গোগ্রামের জমি\"), মালিক রহিম উদ্দিন, গ্রাম মধ্যপাড়া, ইউনিয়ন গোগ্রাম, উপজেলা গোদাগাড়ী। মোট জমি ১৩২ শতক (৪ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.৪৪৮, ৮৮.৪৩৫। মাটি: পিএইচ ৬.৮, জৈব পদার্থ ২.২%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৮ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল মাটি। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৮৭৬ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ৫৪.৪ লিটার।",
-        "en": "Parcel ID GDG-GG-0144 (\"The Gogram field\"), owner Rahim Uddin, village Madhyapara, union Gogram, upazila Godagari. Area 132 decimals (4 bighas). Irrigation: Deep tube well. Coordinates 24.448, 88.435. Soil: pH 6.8, organic matter 2.2%, CEC 23.8 cmol(+)/kg, texture clay. Sentinel-2 NDVI 0.876 (vigorous). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 54.4 litres.",
+        "bn": "জমির দাগ নম্বর GDG-GG-0144 (\"গোগ্রামের জমি\"), মালিক রহিম উদ্দিন, গ্রাম মধ্যপাড়া, ইউনিয়ন গোগ্রাম, উপজেলা গোদাগাড়ী। মোট জমি ১৩২ শতক (৪ বিঘা)। সেচ ব্যবস্থা: গভীর নলকূপ। অবস্থান ২৪.৪৪৮, ৮৮.৪৩৫। মাটি: পিএইচ ৬.৮, জৈব পদার্থ ২.২%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৮ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল মাটি। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৩২৫ (হালকা বা চাপে থাকা ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ৫৪.৪ লিটার।",
+        "en": "Parcel ID GDG-GG-0144 (\"The Gogram field\"), owner Rahim Uddin, village Madhyapara, union Gogram, upazila Godagari. Area 132 decimals (4 bighas). Irrigation: Deep tube well. Coordinates 24.448, 88.435. Soil: pH 6.8, organic matter 2.2%, CEC 23.8 cmol(+)/kg, texture clay. Sentinel-2 NDVI 0.325 (sparse or stressed). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 54.4 litres.",
         "tags": [
           "parcel",
           "GDG-GG-0144",
@@ -8767,8 +8767,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GDG-CA-0062 (চরের জমি / The char field)",
-        "bn": "জমির দাগ নম্বর GDG-CA-0062 (\"চরের জমি\"), মালিক রহিম উদ্দিন, গ্রাম মধ্যপাড়া, ইউনিয়ন চর আষাড়িয়াদহ, উপজেলা গোদাগাড়ী। মোট জমি ১৬৫ শতক (৫ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২৪.৪১৪, ৮৮.৩৩৬৬। মাটি: পিএইচ ৬.৮, জৈব পদার্থ ১.৯৮%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২০.৮ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.২০৬ (ফাঁকা বা কাটা জমি)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৪.৬ টন/হেক্টর, ডিজেল সাশ্রয় ৬৮ লিটার।",
-        "en": "Parcel ID GDG-CA-0062 (\"The char field\"), owner Rahim Uddin, village Madhyapara, union Char Ashariadaha, upazila Godagari. Area 165 decimals (5 bighas). Irrigation: Pond / no irrigation. Coordinates 24.414, 88.3366. Soil: pH 6.8, organic matter 1.98%, CEC 20.8 cmol(+)/kg, texture silty clay loam. Sentinel-2 NDVI 0.206 (bare or harvested). Estimated 10-year carbon sequestration 4.6 t C/ha, diesel saved 68 litres.",
+        "bn": "জমির দাগ নম্বর GDG-CA-0062 (\"চরের জমি\"), মালিক রহিম উদ্দিন, গ্রাম মধ্যপাড়া, ইউনিয়ন চর আষাড়িয়াদহ, উপজেলা গোদাগাড়ী। মোট জমি ১৬৫ শতক (৫ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২৪.৪১৪, ৮৮.৩৩৬৬। মাটি: পিএইচ ৬.৮, জৈব পদার্থ ১.৯৮%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২০.৮ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৪৮ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৪.৬ টন/হেক্টর, ডিজেল সাশ্রয় ৬৮ লিটার।",
+        "en": "Parcel ID GDG-CA-0062 (\"The char field\"), owner Rahim Uddin, village Madhyapara, union Char Ashariadaha, upazila Godagari. Area 165 decimals (5 bighas). Irrigation: Pond / no irrigation. Coordinates 24.414, 88.3366. Soil: pH 6.8, organic matter 1.98%, CEC 20.8 cmol(+)/kg, texture silty clay loam. Sentinel-2 NDVI 0.48 (developing). Estimated 10-year carbon sequestration 4.6 t C/ha, diesel saved 68 litres.",
         "tags": [
           "parcel",
           "GDG-CA-0062",
@@ -8799,8 +8799,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel SIT-SA-0101 (উপকূলের নিচু আমন জমি / The low coastal Aman field)",
-        "bn": "জমির দাগ নম্বর SIT-SA-0101 (\"উপকূলের নিচু আমন জমি\"), মালিক মো. দিদারুল আলম, গ্রাম জাফরনগর, ইউনিয়ন সৈয়দপুর, উপজেলা সীতাকুণ্ড। মোট জমি ১৪০ শতক (৪.২৪ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২২.৬৩, ৯১.৬০৫। মাটি: পিএইচ ৫.৩, জৈব পদার্থ ২.৫৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২০.৩ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭২৩ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.২ টন/হেক্টর, ডিজেল সাশ্রয় ৫৭.৬ লিটার।",
-        "en": "Parcel ID SIT-SA-0101 (\"The low coastal Aman field\"), owner Md. Didarul Alam, village Jafarnagar, union Saidpur, upazila Sitakunda. Area 140 decimals (4.24 bighas). Irrigation: Shallow tube well. Coordinates 22.63, 91.605. Soil: pH 5.3, organic matter 2.55%, CEC 20.3 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.723 (vigorous). Estimated 10-year carbon sequestration 5.2 t C/ha, diesel saved 57.6 litres.",
+        "bn": "জমির দাগ নম্বর SIT-SA-0101 (\"উপকূলের নিচু আমন জমি\"), মালিক মো. দিদারুল আলম, গ্রাম জাফরনগর, ইউনিয়ন সৈয়দপুর, উপজেলা সীতাকুণ্ড। মোট জমি ১৪০ শতক (৪.২৪ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২২.৬৩, ৯১.৬০৫। মাটি: পিএইচ ৫.৩, জৈব পদার্থ ২.৫৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২০.৩ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭৬ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.২ টন/হেক্টর, ডিজেল সাশ্রয় ৫৭.৬ লিটার।",
+        "en": "Parcel ID SIT-SA-0101 (\"The low coastal Aman field\"), owner Md. Didarul Alam, village Jafarnagar, union Saidpur, upazila Sitakunda. Area 140 decimals (4.24 bighas). Irrigation: Shallow tube well. Coordinates 22.63, 91.605. Soil: pH 5.3, organic matter 2.55%, CEC 20.3 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.76 (vigorous). Estimated 10-year carbon sequestration 5.2 t C/ha, diesel saved 57.6 litres.",
         "tags": [
           "parcel",
           "SIT-SA-0101",
@@ -8831,8 +8831,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel SIT-SA-0102 (পাহাড়ের ঢালের সবজি জমি / The hill-foot vegetable plot)",
-        "bn": "জমির দাগ নম্বর SIT-SA-0102 (\"পাহাড়ের ঢালের সবজি জমি\"), মালিক মো. দিদারুল আলম, গ্রাম জাফরনগর, ইউনিয়ন সৈয়দপুর, উপজেলা সীতাকুণ্ড। মোট জমি ১০০ শতক (৩.০৩ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৬৩, ৯১.৬২৩। মাটি: পিএইচ ৫.৩, জৈব পদার্থ ২.৮৯%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৯.৩ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৮৭২ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ৪১.২ লিটার।",
-        "en": "Parcel ID SIT-SA-0102 (\"The hill-foot vegetable plot\"), owner Md. Didarul Alam, village Jafarnagar, union Saidpur, upazila Sitakunda. Area 100 decimals (3.03 bighas). Irrigation: Pond / no irrigation. Coordinates 22.63, 91.623. Soil: pH 5.3, organic matter 2.89%, CEC 19.3 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.872 (vigorous). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 41.2 litres.",
+        "bn": "জমির দাগ নম্বর SIT-SA-0102 (\"পাহাড়ের ঢালের সবজি জমি\"), মালিক মো. দিদারুল আলম, গ্রাম জাফরনগর, ইউনিয়ন সৈয়দপুর, উপজেলা সীতাকুণ্ড। মোট জমি ১০০ শতক (৩.০৩ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৬৩, ৯১.৬২৩। মাটি: পিএইচ ৫.৩, জৈব পদার্থ ২.৮৯%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৯.৩ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৪৬ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ৪১.২ লিটার।",
+        "en": "Parcel ID SIT-SA-0102 (\"The hill-foot vegetable plot\"), owner Md. Didarul Alam, village Jafarnagar, union Saidpur, upazila Sitakunda. Area 100 decimals (3.03 bighas). Irrigation: Pond / no irrigation. Coordinates 22.63, 91.623. Soil: pH 5.3, organic matter 2.89%, CEC 19.3 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.646 (developing). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 41.2 litres.",
         "tags": [
           "parcel",
           "SIT-SA-0102",
@@ -8863,8 +8863,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel DAC-TI-0201 (পোল্ডারের ভেতরের জমি / The field inside the polder)",
-        "bn": "জমির দাগ নম্বর DAC-TI-0201 (\"পোল্ডারের ভেতরের জমি\"), মালিক প্রহ্লাদ চন্দ্র রায়, গ্রাম তিলডাঙ্গা, ইউনিয়ন তিলডাঙ্গা, উপজেলা দাকোপ। মোট জমি ১৮০ শতক (৫.৪৫ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৯, ৮৯.৪৭২৫। মাটি: পিএইচ ৫.৯, জৈব পদার্থ ৬.৭১%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ৩১.২ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭৪৩ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ১০.২ টন/হেক্টর, ডিজেল সাশ্রয় ৭৪.১ লিটার।",
-        "en": "Parcel ID DAC-TI-0201 (\"The field inside the polder\"), owner Prahlad Chandra Roy, village Tildanga, union Tildanga, upazila Dacope. Area 180 decimals (5.45 bighas). Irrigation: Pond / no irrigation. Coordinates 22.59, 89.4725. Soil: pH 5.9, organic matter 6.71%, CEC 31.2 cmol(+)/kg, texture silty clay loam. Sentinel-2 NDVI 0.743 (vigorous). Estimated 10-year carbon sequestration 10.2 t C/ha, diesel saved 74.1 litres.",
+        "bn": "জমির দাগ নম্বর DAC-TI-0201 (\"পোল্ডারের ভেতরের জমি\"), মালিক প্রহ্লাদ চন্দ্র রায়, গ্রাম তিলডাঙ্গা, ইউনিয়ন তিলডাঙ্গা, উপজেলা দাকোপ। মোট জমি ১৮০ শতক (৫.৪৫ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৯, ৮৯.৪৭২৫। মাটি: পিএইচ ৫.৯, জৈব পদার্থ ৬.৭১%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ৩১.২ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৯৭ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ১০.২ টন/হেক্টর, ডিজেল সাশ্রয় ৭৪.১ লিটার।",
+        "en": "Parcel ID DAC-TI-0201 (\"The field inside the polder\"), owner Prahlad Chandra Roy, village Tildanga, union Tildanga, upazila Dacope. Area 180 decimals (5.45 bighas). Irrigation: Pond / no irrigation. Coordinates 22.59, 89.4725. Soil: pH 5.9, organic matter 6.71%, CEC 31.2 cmol(+)/kg, texture silty clay loam. Sentinel-2 NDVI 0.697 (developing). Estimated 10-year carbon sequestration 10.2 t C/ha, diesel saved 74.1 litres.",
         "tags": [
           "parcel",
           "DAC-TI-0201",
@@ -8895,8 +8895,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel DAC-TI-0202 (খালপাড়ের জমি / The canal-side field)",
-        "bn": "জমির দাগ নম্বর DAC-TI-0202 (\"খালপাড়ের জমি\"), মালিক প্রহ্লাদ চন্দ্র রায়, গ্রাম তিলডাঙ্গা, ইউনিয়ন তিলডাঙ্গা, উপজেলা দাকোপ। মোট জমি ১২০ শতক (৩.৬৪ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৮, ৮৯.৪৬। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ৫.৪৭%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৯.৪ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৮১ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৮.২ টন/হেক্টর, ডিজেল সাশ্রয় ৪৯.৫ লিটার।",
-        "en": "Parcel ID DAC-TI-0202 (\"The canal-side field\"), owner Prahlad Chandra Roy, village Tildanga, union Tildanga, upazila Dacope. Area 120 decimals (3.64 bighas). Irrigation: Pond / no irrigation. Coordinates 22.58, 89.46. Soil: pH 5.8, organic matter 5.47%, CEC 29.4 cmol(+)/kg, texture silty clay loam. Sentinel-2 NDVI 0.81 (vigorous). Estimated 10-year carbon sequestration 8.2 t C/ha, diesel saved 49.5 litres.",
+        "bn": "জমির দাগ নম্বর DAC-TI-0202 (\"খালপাড়ের জমি\"), মালিক প্রহ্লাদ চন্দ্র রায়, গ্রাম তিলডাঙ্গা, ইউনিয়ন তিলডাঙ্গা, উপজেলা দাকোপ। মোট জমি ১২০ শতক (৩.৬৪ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৮, ৮৯.৪৬। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ৫.৪৭%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৯.৪ মিলিতুল্য/কেজি, মাটির ধরন পলি-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৯৬ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৮.২ টন/হেক্টর, ডিজেল সাশ্রয় ৪৯.৫ লিটার।",
+        "en": "Parcel ID DAC-TI-0202 (\"The canal-side field\"), owner Prahlad Chandra Roy, village Tildanga, union Tildanga, upazila Dacope. Area 120 decimals (3.64 bighas). Irrigation: Pond / no irrigation. Coordinates 22.58, 89.46. Soil: pH 5.8, organic matter 5.47%, CEC 29.4 cmol(+)/kg, texture silty clay loam. Sentinel-2 NDVI 0.696 (developing). Estimated 10-year carbon sequestration 8.2 t C/ha, diesel saved 49.5 litres.",
         "tags": [
           "parcel",
           "DAC-TI-0202",
@@ -8927,8 +8927,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel BAK-GA-0301 (জোয়ারের ধানজমি / The tidal paddy)",
-        "bn": "জমির দাগ নম্বর BAK-GA-0301 (\"জোয়ারের ধানজমি\"), মালিক আবদুল কাদের হাওলাদার, গ্রাম নীলগঞ্জ, ইউনিয়ন গারুড়িয়া, উপজেলা বাকেরগঞ্জ। মোট জমি ১৫০ শতক (৪.৫৫ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২২.৫৬৫৪, ৯০.৩৮৯৬। মাটি: পিএইচ ৫.৫, জৈব পদার্থ ৪.৮৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২২.৮ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৮৩৬ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৮.৩ টন/হেক্টর, ডিজেল সাশ্রয় ৬১.৯ লিটার।",
-        "en": "Parcel ID BAK-GA-0301 (\"The tidal paddy\"), owner Abdul Kader Howlader, village Nilganj, union Garuria, upazila Bakerganj. Area 150 decimals (4.55 bighas). Irrigation: Shallow tube well. Coordinates 22.5654, 90.3896. Soil: pH 5.5, organic matter 4.85%, CEC 22.8 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.836 (vigorous). Estimated 10-year carbon sequestration 8.3 t C/ha, diesel saved 61.9 litres.",
+        "bn": "জমির দাগ নম্বর BAK-GA-0301 (\"জোয়ারের ধানজমি\"), মালিক আবদুল কাদের হাওলাদার, গ্রাম নীলগঞ্জ, ইউনিয়ন গারুড়িয়া, উপজেলা বাকেরগঞ্জ। মোট জমি ১৫০ শতক (৪.৫৫ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২২.৫৬৫৪, ৯০.৩৮৯৬। মাটি: পিএইচ ৫.৫, জৈব পদার্থ ৪.৮৫%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২২.৮ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭৫৮ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৮.৩ টন/হেক্টর, ডিজেল সাশ্রয় ৬১.৯ লিটার।",
+        "en": "Parcel ID BAK-GA-0301 (\"The tidal paddy\"), owner Abdul Kader Howlader, village Nilganj, union Garuria, upazila Bakerganj. Area 150 decimals (4.55 bighas). Irrigation: Shallow tube well. Coordinates 22.5654, 90.3896. Soil: pH 5.5, organic matter 4.85%, CEC 22.8 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.758 (vigorous). Estimated 10-year carbon sequestration 8.3 t C/ha, diesel saved 61.9 litres.",
         "tags": [
           "parcel",
           "BAK-GA-0301",
@@ -8959,8 +8959,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel BAK-GA-0302 (খালপাড়ের জলা জমি / The canal marsh)",
-        "bn": "জমির দাগ নম্বর BAK-GA-0302 (\"খালপাড়ের জলা জমি\"), মালিক আবদুল কাদের হাওলাদার, গ্রাম নীলগঞ্জ, ইউনিয়ন গারুড়িয়া, উপজেলা বাকেরগঞ্জ। মোট জমি ৬০ শতক (১.৮২ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৬২৮৫, ৯০.৩৮০৯২। মাটি: পিএইচ ৫.৬, জৈব পদার্থ ৫.১৩%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৫ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৮০৬ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৮.৬ টন/হেক্টর, ডিজেল সাশ্রয় ২৪.৭ লিটার।",
-        "en": "Parcel ID BAK-GA-0302 (\"The canal marsh\"), owner Abdul Kader Howlader, village Nilganj, union Garuria, upazila Bakerganj. Area 60 decimals (1.82 bighas). Irrigation: Pond / no irrigation. Coordinates 22.56285, 90.38092. Soil: pH 5.6, organic matter 5.13%, CEC 23.5 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.806 (vigorous). Estimated 10-year carbon sequestration 8.6 t C/ha, diesel saved 24.7 litres.",
+        "bn": "জমির দাগ নম্বর BAK-GA-0302 (\"খালপাড়ের জলা জমি\"), মালিক আবদুল কাদের হাওলাদার, গ্রাম নীলগঞ্জ, ইউনিয়ন গারুড়িয়া, উপজেলা বাকেরগঞ্জ। মোট জমি ৬০ শতক (১.৮২ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৬২৮৫, ৯০.৩৮০৯২। মাটি: পিএইচ ৫.৬, জৈব পদার্থ ৫.১৩%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.৫ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৪ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৮.৬ টন/হেক্টর, ডিজেল সাশ্রয় ২৪.৭ লিটার।",
+        "en": "Parcel ID BAK-GA-0302 (\"The canal marsh\"), owner Abdul Kader Howlader, village Nilganj, union Garuria, upazila Bakerganj. Area 60 decimals (1.82 bighas). Irrigation: Pond / no irrigation. Coordinates 22.56285, 90.38092. Soil: pH 5.6, organic matter 5.13%, CEC 23.5 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.64 (developing). Estimated 10-year carbon sequestration 8.6 t C/ha, diesel saved 24.7 litres.",
         "tags": [
           "parcel",
           "BAK-GA-0302",
@@ -8991,8 +8991,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel BAK-GA-0303 (বাড়ির পাশের উঁচু জমি / The highland by the house)",
-        "bn": "জমির দাগ নম্বর BAK-GA-0303 (\"বাড়ির পাশের উঁচু জমি\"), মালিক আবদুল কাদের হাওলাদার, গ্রাম নীলগঞ্জ, ইউনিয়ন গারুড়িয়া, উপজেলা বাকেরগঞ্জ। মোট জমি ৪০ শতক (১.২১ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৬৭৮, ৯০.৩৮৭। মাটি: পিএইচ ৫.৫, জৈব পদার্থ ৫.১৮%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.১ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৭৫৬ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৭.৯ টন/হেক্টর, ডিজেল সাশ্রয় ১৬.৫ লিটার।",
-        "en": "Parcel ID BAK-GA-0303 (\"The highland by the house\"), owner Abdul Kader Howlader, village Nilganj, union Garuria, upazila Bakerganj. Area 40 decimals (1.21 bighas). Irrigation: Pond / no irrigation. Coordinates 22.5678, 90.387. Soil: pH 5.5, organic matter 5.18%, CEC 23.1 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.756 (vigorous). Estimated 10-year carbon sequestration 7.9 t C/ha, diesel saved 16.5 litres.",
+        "bn": "জমির দাগ নম্বর BAK-GA-0303 (\"বাড়ির পাশের উঁচু জমি\"), মালিক আবদুল কাদের হাওলাদার, গ্রাম নীলগঞ্জ, ইউনিয়ন গারুড়িয়া, উপজেলা বাকেরগঞ্জ। মোট জমি ৪০ শতক (১.২১ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২২.৫৬৭৮, ৯০.৩৮৭। মাটি: পিএইচ ৫.৫, জৈব পদার্থ ৫.১৮%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২৩.১ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৫৬ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৭.৯ টন/হেক্টর, ডিজেল সাশ্রয় ১৬.৫ লিটার।",
+        "en": "Parcel ID BAK-GA-0303 (\"The highland by the house\"), owner Abdul Kader Howlader, village Nilganj, union Garuria, upazila Bakerganj. Area 40 decimals (1.21 bighas). Irrigation: Pond / no irrigation. Coordinates 22.5678, 90.387. Soil: pH 5.5, organic matter 5.18%, CEC 23.1 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.656 (developing). Estimated 10-year carbon sequestration 7.9 t C/ha, diesel saved 16.5 litres.",
         "tags": [
           "parcel",
           "BAK-GA-0303",
@@ -9023,8 +9023,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GAN-KO-0401 (মূল জমি / The mainland field)",
-        "bn": "জমির দাগ নম্বর GAN-KO-0401 (\"মূল জমি\"), মালিক মো. মফিজুল ইসলাম, গ্রাম দক্ষিণ কোলকোন্দ, ইউনিয়ন কোলকোন্দ, উপজেলা গঙ্গাচড়া। মোট জমি ১৬০ শতক (৪.৮৫ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৫.৮৭০১, ৮৯.২০২৭১। মাটি: পিএইচ ৬, জৈব পদার্থ ২.৫৯%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২০.২ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৮০৪ (সতেজ ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.২ টন/হেক্টর, ডিজেল সাশ্রয় ৬৫.৯ লিটার।",
-        "en": "Parcel ID GAN-KO-0401 (\"The mainland field\"), owner Md. Mofizul Islam, village Dakshin Kolkonda, union Kolkanda, upazila Gangachara. Area 160 decimals (4.85 bighas). Irrigation: Shallow tube well. Coordinates 25.8701, 89.20271. Soil: pH 6, organic matter 2.59%, CEC 20.2 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.804 (vigorous). Estimated 10-year carbon sequestration 5.2 t C/ha, diesel saved 65.9 litres.",
+        "bn": "জমির দাগ নম্বর GAN-KO-0401 (\"মূল জমি\"), মালিক মো. মফিজুল ইসলাম, গ্রাম দক্ষিণ কোলকোন্দ, ইউনিয়ন কোলকোন্দ, উপজেলা গঙ্গাচড়া। মোট জমি ১৬০ শতক (৪.৮৫ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৫.৮৭০১, ৮৯.২০২৭১। মাটি: পিএইচ ৬, জৈব পদার্থ ২.৫৯%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ২০.২ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৫১৯ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.২ টন/হেক্টর, ডিজেল সাশ্রয় ৬৫.৯ লিটার।",
+        "en": "Parcel ID GAN-KO-0401 (\"The mainland field\"), owner Md. Mofizul Islam, village Dakshin Kolkonda, union Kolkanda, upazila Gangachara. Area 160 decimals (4.85 bighas). Irrigation: Shallow tube well. Coordinates 25.8701, 89.20271. Soil: pH 6, organic matter 2.59%, CEC 20.2 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.519 (developing). Estimated 10-year carbon sequestration 5.2 t C/ha, diesel saved 65.9 litres.",
         "tags": [
           "parcel",
           "GAN-KO-0401",
@@ -9055,8 +9055,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GAN-KO-0402 (তিস্তার চরের জমি / The Teesta char field)",
-        "bn": "জমির দাগ নম্বর GAN-KO-0402 (\"তিস্তার চরের জমি\"), মালিক মো. মফিজুল ইসলাম, গ্রাম চর বিনবিনা, ইউনিয়ন কোলকোন্দ, উপজেলা গঙ্গাচড়া। মোট জমি ১২০ শতক (৩.৬৪ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২৫.৮৯২৯২, ৮৯.২২৪৮২। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ২.৩২%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৯.৪ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.০৬৫ (ফাঁকা বা কাটা জমি)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৪.৯ টন/হেক্টর, ডিজেল সাশ্রয় ৪৯.৫ লিটার।",
-        "en": "Parcel ID GAN-KO-0402 (\"The Teesta char field\"), owner Md. Mofizul Islam, village Char Binbina, union Kolkanda, upazila Gangachara. Area 120 decimals (3.64 bighas). Irrigation: Pond / no irrigation. Coordinates 25.89292, 89.22482. Soil: pH 5.8, organic matter 2.32%, CEC 19.4 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.065 (bare or harvested). Estimated 10-year carbon sequestration 4.9 t C/ha, diesel saved 49.5 litres.",
+        "bn": "জমির দাগ নম্বর GAN-KO-0402 (\"তিস্তার চরের জমি\"), মালিক মো. মফিজুল ইসলাম, গ্রাম চর বিনবিনা, ইউনিয়ন কোলকোন্দ, উপজেলা গঙ্গাচড়া। মোট জমি ১২০ শতক (৩.৬৪ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২৫.৮৯২৯২, ৮৯.২২৪৮২। মাটি: পিএইচ ৫.৮, জৈব পদার্থ ২.৩২%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৯.৪ মিলিতুল্য/কেজি, মাটির ধরন এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.০৫৪ (ফাঁকা বা কাটা জমি)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৪.৯ টন/হেক্টর, ডিজেল সাশ্রয় ৪৯.৫ লিটার।",
+        "en": "Parcel ID GAN-KO-0402 (\"The Teesta char field\"), owner Md. Mofizul Islam, village Char Binbina, union Kolkanda, upazila Gangachara. Area 120 decimals (3.64 bighas). Irrigation: Pond / no irrigation. Coordinates 25.89292, 89.22482. Soil: pH 5.8, organic matter 2.32%, CEC 19.4 cmol(+)/kg, texture clay loam. Sentinel-2 NDVI 0.054 (bare or harvested). Estimated 10-year carbon sequestration 4.9 t C/ha, diesel saved 49.5 litres.",
         "tags": [
           "parcel",
           "GAN-KO-0402",
@@ -9087,8 +9087,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GOW-RU-0501 (হাওরের বোরো জমি / The haor Boro field)",
-        "bn": "জমির দাগ নম্বর GOW-RU-0501 (\"হাওরের বোরো জমি\"), মালিক রহিমা বেগম, গ্রাম কুড়িখোলা, ইউনিয়ন রুস্তমপুর, উপজেলা গোয়াইনঘাট। মোট জমি ১৪০ শতক (৪.২৪ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৫.০৯৮৩২, ৯১.৮৮৯৫৫। মাটি: পিএইচ ৫.৪, জৈব পদার্থ ২.৭৬%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৭.৫ মিলিতুল্য/কেজি, মাটির ধরন বেলে-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৯৬ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৬.১ টন/হেক্টর, ডিজেল সাশ্রয় ৫৭.৬ লিটার।",
-        "en": "Parcel ID GOW-RU-0501 (\"The haor Boro field\"), owner Rahima Begum, village Kurikhola, union Rustampur, upazila Gowainghat. Area 140 decimals (4.24 bighas). Irrigation: Shallow tube well. Coordinates 25.09832, 91.88955. Soil: pH 5.4, organic matter 2.76%, CEC 17.5 cmol(+)/kg, texture sandy clay loam. Sentinel-2 NDVI 0.696 (developing). Estimated 10-year carbon sequestration 6.1 t C/ha, diesel saved 57.6 litres.",
+        "bn": "জমির দাগ নম্বর GOW-RU-0501 (\"হাওরের বোরো জমি\"), মালিক রহিমা বেগম, গ্রাম কুড়িখোলা, ইউনিয়ন রুস্তমপুর, উপজেলা গোয়াইনঘাট। মোট জমি ১৪০ শতক (৪.২৪ বিঘা)। সেচ ব্যবস্থা: অগভীর নলকূপ। অবস্থান ২৫.০৯৮৩২, ৯১.৮৮৯৫৫। মাটি: পিএইচ ৫.৪, জৈব পদার্থ ২.৭৬%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৭.৫ মিলিতুল্য/কেজি, মাটির ধরন বেলে-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৫৭৪ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৬.১ টন/হেক্টর, ডিজেল সাশ্রয় ৫৭.৬ লিটার।",
+        "en": "Parcel ID GOW-RU-0501 (\"The haor Boro field\"), owner Rahima Begum, village Kurikhola, union Rustampur, upazila Gowainghat. Area 140 decimals (4.24 bighas). Irrigation: Shallow tube well. Coordinates 25.09832, 91.88955. Soil: pH 5.4, organic matter 2.76%, CEC 17.5 cmol(+)/kg, texture sandy clay loam. Sentinel-2 NDVI 0.574 (developing). Estimated 10-year carbon sequestration 6.1 t C/ha, diesel saved 57.6 litres.",
         "tags": [
           "parcel",
           "GOW-RU-0501",
@@ -9119,8 +9119,8 @@
         "type": "parcel",
         "cat": "parcel",
         "title": "Parcel GOW-RU-0502 (টিলার লেবুবাগান / The tila citrus garden)",
-        "bn": "জমির দাগ নম্বর GOW-RU-0502 (\"টিলার লেবুবাগান\"), মালিক রহিমা বেগম, গ্রাম কুড়িখোলা, ইউনিয়ন রুস্তমপুর, উপজেলা গোয়াইনঘাট। মোট জমি ৭০ শতক (২.১২ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২৫.১, ৯১.৮৯৭৩৩। মাটি: পিএইচ ৫.৭, জৈব পদার্থ ২.৮৪%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৮.৩ মিলিতুল্য/কেজি, মাটির ধরন বেলে-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৬৯৬ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ২৮.৮ লিটার।",
-        "en": "Parcel ID GOW-RU-0502 (\"The tila citrus garden\"), owner Rahima Begum, village Kurikhola, union Rustampur, upazila Gowainghat. Area 70 decimals (2.12 bighas). Irrigation: Pond / no irrigation. Coordinates 25.1, 91.89733. Soil: pH 5.7, organic matter 2.84%, CEC 18.3 cmol(+)/kg, texture sandy clay loam. Sentinel-2 NDVI 0.696 (developing). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 28.8 litres.",
+        "bn": "জমির দাগ নম্বর GOW-RU-0502 (\"টিলার লেবুবাগান\"), মালিক রহিমা বেগম, গ্রাম কুড়িখোলা, ইউনিয়ন রুস্তমপুর, উপজেলা গোয়াইনঘাট। মোট জমি ৭০ শতক (২.১২ বিঘা)। সেচ ব্যবস্থা: পুকুর বা সেচ নেই। অবস্থান ২৫.১, ৯১.৮৯৭৩৩। মাটি: পিএইচ ৫.৭, জৈব পদার্থ ২.৮৪%, ক্যাটায়ন বিনিময় ক্ষমতা (সিইসি) ১৮.৩ মিলিতুল্য/কেজি, মাটির ধরন বেলে-এঁটেল দোআঁশ। সেন্টিনেল-২ উপগ্রহ সূচক এনডিভিআই ০.৪৫৪ (বাড়ন্ত ফসল)। ১০ বছরে মাটিতে কার্বন সঞ্চয় প্রায় ৫.৫ টন/হেক্টর, ডিজেল সাশ্রয় ২৮.৮ লিটার।",
+        "en": "Parcel ID GOW-RU-0502 (\"The tila citrus garden\"), owner Rahima Begum, village Kurikhola, union Rustampur, upazila Gowainghat. Area 70 decimals (2.12 bighas). Irrigation: Pond / no irrigation. Coordinates 25.1, 91.89733. Soil: pH 5.7, organic matter 2.84%, CEC 18.3 cmol(+)/kg, texture sandy clay loam. Sentinel-2 NDVI 0.454 (developing). Estimated 10-year carbon sequestration 5.5 t C/ha, diesel saved 28.8 litres.",
         "tags": [
           "parcel",
           "GOW-RU-0502",
@@ -13099,22 +13099,22 @@
     ],
     "avgdl": 89.6,
     "docLengths": {
-      "chunk_1": 128,
-      "chunk_2": 132,
-      "chunk_3": 126,
+      "chunk_1": 129,
+      "chunk_2": 134,
+      "chunk_3": 125,
       "chunk_4": 127,
-      "chunk_5": 129,
-      "chunk_6": 133,
-      "chunk_7": 125,
-      "chunk_8": 139,
+      "chunk_5": 128,
+      "chunk_6": 135,
+      "chunk_7": 127,
+      "chunk_8": 137,
       "chunk_9": 138,
-      "chunk_10": 134,
-      "chunk_11": 140,
-      "chunk_12": 136,
+      "chunk_10": 133,
+      "chunk_11": 139,
+      "chunk_12": 135,
       "chunk_13": 132,
-      "chunk_14": 134,
-      "chunk_15": 134,
-      "chunk_16": 140,
+      "chunk_14": 133,
+      "chunk_15": 133,
+      "chunk_16": 139,
       "chunk_17": 143,
       "chunk_18": 134,
       "chunk_19": 126,
@@ -13313,7 +13313,7 @@
       "45": 3.3,
       "46": 3.67,
       "47": 3.47,
-      "48": 3.47,
+      "48": 3.3,
       "49": 3.47,
       "50": 1.79,
       "51": 3.67,
@@ -13328,24 +13328,24 @@
       "61": 3.47,
       "62": 4.77,
       "63": 3.92,
-      "64": 3.67,
+      "64": 3.47,
       "65": 3.3,
       "66": 4.25,
       "67": 4.25,
       "68": 3.92,
-      "69": 4.25,
+      "69": 4.77,
       "70": 3.67,
       "71": 3.92,
       "72": 4.25,
       "73": 4.77,
       "74": 3.67,
       "75": 4.25,
-      "76": 3.67,
+      "76": 3.47,
       "77": 4.25,
       "78": 4.25,
       "79": 4.77,
       "80": 3.92,
-      "81": 3.47,
+      "81": 3.67,
       "82": 3.92,
       "84": 4.25,
       "85": 3.16,
@@ -13438,7 +13438,6 @@
       "199": 3.92,
       "200": 3.92,
       "204": 4.77,
-      "206": 4.77,
       "207": 4.77,
       "208": 4.77,
       "210": 4.77,
@@ -13446,7 +13445,7 @@
       "215": 4.77,
       "216": 4.77,
       "217": 4.25,
-      "219": 4.25,
+      "219": 3.92,
       "221": 4.77,
       "222": 4.77,
       "227": 4.77,
@@ -13482,9 +13481,10 @@
       "308": 4.77,
       "309": 4.77,
       "310": 4.77,
+      "315": 4.77,
       "318": 4.77,
       "319": 4.25,
-      "325": 4.77,
+      "325": 4.25,
       "327": 4.77,
       "328": 4.77,
       "330": 4.25,
@@ -13498,6 +13498,7 @@
       "346": 4.25,
       "350": 4.25,
       "352": 4.25,
+      "353": 4.77,
       "355": 4.77,
       "358": 4.77,
       "360": 4.77,
@@ -13538,6 +13539,7 @@
       "449": 4.77,
       "450": 4.77,
       "452": 4.77,
+      "454": 4.77,
       "460": 4.77,
       "462": 4.77,
       "463": 4.77,
@@ -13554,6 +13556,7 @@
       "500": 4.77,
       "514": 4.77,
       "516": 4.77,
+      "519": 4.77,
       "521": 4.77,
       "532": 4.77,
       "537": 4.77,
@@ -13563,7 +13566,8 @@
       "566": 4.77,
       "567": 4.25,
       "569": 4.77,
-      "575": 4.77,
+      "574": 4.77,
+      "575": 4.25,
       "576": 4.25,
       "577": 4.77,
       "578": 4.77,
@@ -13571,7 +13575,8 @@
       "585": 4.77,
       "587": 4.77,
       "590": 4.77,
-      "595": 4.77,
+      "591": 4.77,
+      "595": 4.25,
       "597": 4.77,
       "600": 4.25,
       "602": 4.77,
@@ -13584,9 +13589,11 @@
       "617": 4.77,
       "623": 4.77,
       "643": 4.25,
+      "646": 4.77,
       "652": 4.77,
       "654": 4.77,
       "655": 4.77,
+      "656": 4.77,
       "664": 4.77,
       "666": 4.77,
       "667": 4.77,
@@ -13595,38 +13602,37 @@
       "677": 4.77,
       "687": 4.77,
       "692": 4.77,
-      "696": 4.25,
+      "696": 4.77,
+      "697": 4.77,
       "702": 4.77,
       "711": 4.77,
       "712": 4.77,
       "713": 4.77,
       "714": 4.77,
       "719": 4.77,
-      "723": 4.25,
+      "723": 4.77,
       "725": 4.77,
       "726": 4.77,
       "729": 4.77,
       "730": 4.25,
       "732": 4.77,
       "737": 4.77,
-      "743": 4.25,
+      "743": 4.77,
       "744": 4.77,
       "747": 4.25,
       "748": 4.77,
       "749": 4.77,
       "751": 4.77,
       "755": 4.25,
-      "756": 4.77,
-      "758": 4.77,
-      "761": 4.25,
+      "758": 4.25,
+      "761": 4.77,
       "767": 4.77,
       "769": 4.25,
       "770": 4.77,
       "777": 4.77,
       "783": 4.77,
-      "784": 4.25,
+      "784": 4.77,
       "786": 4.77,
-      "788": 4.77,
       "789": 4.77,
       "791": 4.77,
       "793": 4.77,
@@ -13634,16 +13640,13 @@
       "798": 4.77,
       "800": 4.77,
       "801": 4.77,
-      "804": 4.77,
-      "806": 4.77,
       "808": 4.77,
-      "821": 4.77,
       "823": 4.77,
       "824": 4.77,
       "828": 4.77,
       "831": 4.77,
       "834": 4.77,
-      "836": 4.25,
+      "836": 4.77,
       "837": 4.77,
       "842": 4.77,
       "846": 4.77,
@@ -13653,9 +13656,8 @@
       "864": 4.77,
       "868": 4.77,
       "870": 4.77,
-      "872": 4.25,
+      "872": 4.77,
       "874": 4.77,
-      "876": 4.77,
       "877": 4.77,
       "879": 4.77,
       "882": 4.25,
@@ -13667,7 +13669,6 @@
       "901": 4.77,
       "903": 4.77,
       "906": 4.77,
-      "907": 4.77,
       "911": 4.77,
       "913": 4.77,
       "916": 4.77,
@@ -13793,9 +13794,7 @@
       "চক": 2.15,
       "এনড": 2.2,
       "আই": 1.93,
-      "৭৮৮": 4.77,
-      "সত": 2.5,
-      "ফসল": 0.72,
+      "২১৯": 3.92,
       "১০": 1.14,
       "বছর": 1.21,
       "বন": 1.93,
@@ -13836,7 +13835,9 @@
       "loam": 2.37,
       "sentinel": 2.2,
       "ndvi": 2.2,
-      "vigorous": 2.5,
+      "bare": 4.25,
+      "or": 2.37,
+      "harvested": 4.25,
       "estimated": 2.2,
       "year": 1.21,
       "carbon": 2.15,
@@ -13855,10 +13856,14 @@
       "০০৮৬": 4.77,
       "০৩৫৪": 4.77,
       "৭২": 4.25,
-      "৮২১": 4.77,
+      "৩৫৩": 4.77,
+      "লক": 1.49,
+      "ফসল": 0.72,
       "৪০": 3.3,
       "0086": 4.77,
       "0354": 4.77,
+      "sparse": 3.92,
+      "stressed": 3.92,
       "bl": 4.77,
       "0218": 4.77,
       "balia": 4.77,
@@ -13868,10 +13873,11 @@
       "৯৯০৫": 4.77,
       "০৭৫৬": 4.77,
       "৯৫": 4.25,
-      "৭৮৪": 4.25,
+      "৫৭৫": 4.25,
       "৫৪": 3.92,
       "madhyapara": 3.67,
       "0756": 4.77,
+      "developing": 2.64,
       "jd": 4.77,
       "0093": 4.77,
       "দবপ": 4.77,
@@ -13881,11 +13887,10 @@
       "০০৬৬": 4.77,
       "১১৩৫": 4.77,
       "২২": 2.82,
-      "৬৯": 4.25,
+      "৫৯৫": 4.25,
       "৬৮": 3.92,
       "deep": 3.67,
       "0066": 4.77,
-      "developing": 3.92,
       "gdg": 3.67,
       "dp": 4.25,
       "0311": 4.77,
@@ -13897,7 +13902,7 @@
       "৪১২৫": 4.77,
       "৫০২৩": 4.77,
       "০৬": 4.77,
-      "৭৬১": 4.25,
+      "৫৯১": 4.77,
       "২৭": 3.16,
       "rahim": 3.67,
       "uddin": 3.67,
@@ -13909,9 +13914,9 @@
       "west": 4.77,
       "মপ": 4.77,
       "৪২৫": 4.77,
-      "৪৮": 3.47,
+      "৪৮": 3.3,
       "পল": 3.47,
-      "৯০৭": 4.77,
+      "৩১৫": 4.77,
       "paschimpara": 4.77,
       "silty": 3.67,
       "gg": 4.77,
@@ -13919,7 +13924,7 @@
       "gogram": 4.77,
       "৪৪৮": 4.25,
       "৪৩৫": 4.25,
-      "৮৭৬": 4.77,
+      "৩২৫": 4.25,
       "ca": 4.77,
       "0062": 4.77,
       "চর": 4.25,
@@ -13929,13 +13934,9 @@
       "৪১৪": 4.77,
       "৩৩৬৬": 4.77,
       "৯৮": 3.92,
-      "২০৬": 4.77,
       "ashariadaha": 4.77,
       "pond": 3.03,
       "no": 2.64,
-      "bare": 4.25,
-      "or": 2.57,
-      "harvested": 4.25,
       "sit": 4.25,
       "sa": 4.25,
       "0101": 4.77,
@@ -13952,7 +13953,8 @@
       "৯১": 3.47,
       "৬০৫": 4.77,
       "৫৫": 3.16,
-      "৭২৩": 4.25,
+      "৭৬": 3.47,
+      "সত": 4.25,
       "৫৭": 3.67,
       "md": 3.67,
       "didarul": 4.25,
@@ -13960,6 +13962,7 @@
       "jafarnagar": 4.25,
       "saidpur": 4.25,
       "sitakunda": 3.92,
+      "vigorous": 4.25,
       "0102": 4.77,
       "সবজ": 4.77,
       "hill": 4.77,
@@ -13971,7 +13974,7 @@
       "৬২৩": 4.77,
       "৮৯": 3.3,
       "১৯": 2.73,
-      "৮৭২": 4.25,
+      "৬৪৬": 4.77,
       "৪১": 2.92,
       "03": 4.77,
       "dac": 4.25,
@@ -13988,7 +13991,7 @@
       "৪৭২৫": 4.77,
       "৭১": 3.92,
       "৩১": 3.92,
-      "৭৪৩": 4.25,
+      "৬৯৭": 4.77,
       "৭৪": 3.67,
       "prahlad": 4.25,
       "chandra": 4.25,
@@ -14000,12 +14003,12 @@
       "canal": 4.25,
       "side": 4.77,
       "১২০": 3.92,
-      "৬৪": 3.67,
+      "৬৪": 3.47,
       "৫৮": 4.77,
       "৪৬": 3.67,
       "৪৭": 3.47,
       "২৯": 4.25,
-      "৮১": 3.47,
+      "৬৯৬": 4.77,
       "৪৯": 3.47,
       "bak": 3.92,
       "ga": 3.92,
@@ -14021,7 +14024,7 @@
       "৫৬৫৪": 4.77,
       "৩৮৯৬": 4.77,
       "৮৫": 3.16,
-      "৮৩৬": 4.25,
+      "৭৫৮": 4.25,
       "৬১": 3.47,
       "abdul": 3.92,
       "kader": 3.92,
@@ -14037,7 +14040,6 @@
       "৫৬২৮৫": 4.77,
       "৩৮০৯২": 4.77,
       "১৩": 2.57,
-      "৮০৬": 4.77,
       "0303": 4.77,
       "highland": 4.77,
       "by": 3.3,
@@ -14045,7 +14047,7 @@
       "৫৬৭৮": 4.77,
       "৩৮৭": 4.77,
       "১৮": 2.64,
-      "৭৫৬": 4.77,
+      "৬৫৬": 4.77,
       "১৬": 3.03,
       "gan": 4.25,
       "ko": 4.25,
@@ -14054,14 +14056,13 @@
       "মফ": 3.92,
       "ইসল": 4.25,
       "দক": 4.25,
-      "লক": 1.57,
       "গঙ": 3.92,
       "চড": 3.92,
       "১৬০": 3.92,
       "২৫": 2.25,
       "৮৭০১": 4.77,
       "২০২৭১": 4.77,
-      "৮০৪": 4.77,
+      "৫১৯": 4.77,
       "৬৫": 3.3,
       "mofizul": 4.25,
       "islam": 4.25,
@@ -14075,9 +14076,9 @@
       "৮৯২৯২": 4.77,
       "২২৪৮২": 4.77,
       "৩২": 3.3,
-      "০৬৫": 4.77,
+      "০৫৪": 4.77,
       "binbina": 4.77,
-      "065": 4.77,
+      "054": 4.77,
       "gow": 4.25,
       "ru": 4.25,
       "0501": 4.77,
@@ -14089,9 +14090,8 @@
       "ইনঘ": 3.92,
       "০৯৮৩২": 4.77,
       "৮৮৯৫৫": 4.77,
-      "৭৬": 3.67,
       "১৭": 3.03,
-      "৬৯৬": 4.25,
+      "৫৭৪": 4.77,
       "rahima": 4.25,
       "begum": 4.25,
       "kurikhola": 4.25,
@@ -14107,6 +14107,7 @@
       "১২": 2.57,
       "৮৯৭৩৩": 4.77,
       "৮৪": 4.25,
+      "৪৫৪": 4.77,
       "২৮": 4.25,
       "crop": 1.55,
       "guide": 3.3,
@@ -14449,7 +14450,6 @@
       "আয": 1,
       "তন": 1,
       "৩৬৫": 4.77,
-      "৫৭৫": 4.77,
       "আব": 1,
       "আউশ": 1,
       "৫৬৯": 4.77,
@@ -14497,12 +14497,12 @@
       "২৯১": 3.92,
       "৯৬৫": 4.77,
       "৭৬৯": 4.25,
-      "৫৯৫": 4.77,
       "১৮৭": 4.25,
       "২১৫": 4.77,
       "মণব": 4.77,
       "brahmanbaria": 4.77,
       "১৯২": 4.25,
+      "৭৪৩": 4.77,
       "৮৩৪": 4.77,
       "৩৬০": 4.77,
       "১১১": 4.77,
@@ -14560,6 +14560,7 @@
       "৩৪৫": 4.25,
       "dhaka": 4.77,
       "৯০১": 4.77,
+      "৭২৩": 4.77,
       "৯৮০": 4.77,
       "৯৩৬": 4.77,
       "জপ": 4.25,
@@ -14642,7 +14643,6 @@
       "৭৩৭": 4.77,
       "জয": 4.77,
       "joypurhat": 4.77,
-      "২১৯": 4.25,
       "৭৮৩": 4.77,
       "৬১৩": 4.77,
       "ছড": 4.77,
@@ -14680,8 +14680,10 @@
       "৮৭": 3.92,
       "৫৬৬": 4.77,
       "৩৫": 1.82,
+      "৮৭২": 4.77,
       "lakshmipur": 4.77,
       "৬৪৩": 4.25,
+      "৮৩৬": 4.77,
       "০১৮": 4.77,
       "৩২৮": 4.77,
       "018": 4.77,
@@ -14709,6 +14711,7 @@
       "৭৪৮": 4.77,
       "৯১৩": 4.77,
       "০৫৩": 4.77,
+      "৭৮৪": 4.77,
       "053": 4.77,
       "রপ": 3.92,
       "meherpur": 4.77,
@@ -14779,6 +14782,7 @@
       "nilphamari": 4.77,
       "৫৮৫": 4.77,
       "০৫০": 4.77,
+      "৮১": 3.67,
       "৬৬৪": 4.77,
       "050": 4.77,
       "noakhali": 4.25,
@@ -15308,6 +15312,7 @@
       "soil_wetness": 3.16,
       "merra2": 3.16,
       "rootzone": 3.16,
+      "৬৯": 4.77,
       "৭৩": 4.77,
       "৭৯": 4.77,
       "০০": 4.25,
@@ -15394,6 +15399,7 @@
       "hot": 1.89,
       "nights": 1.89,
       "best": 1.86,
+      "৭৬১": 4.77,
       "৭ট": 3.47,
       "৯ট": 3.47,
       "৩ট": 3.03,
@@ -15462,11 +15468,9 @@
       "chili_dry": 4.77,
       "groundnut": 4.77,
       "৯২৮": 4.77,
-      "৩২৫": 4.77,
       "sesame": 4.77,
       "৯৭৬": 4.77,
       "৮৫১": 4.77,
-      "৭৫৮": 4.77,
       "summer": 3.92,
       "jute": 4.77,
       "৮৮৩": 4.77,
@@ -17294,6 +17298,10 @@
           "tf": 1
         },
         {
+          "id": "chunk_8",
+          "tf": 1
+        },
+        {
           "id": "chunk_88",
           "tf": 1
         },
@@ -17676,6 +17684,10 @@
           "tf": 1
         },
         {
+          "id": "chunk_14",
+          "tf": 1
+        },
+        {
           "id": "chunk_17",
           "tf": 1
         },
@@ -17749,10 +17761,6 @@
         }
       ],
       "69": [
-        {
-          "id": "chunk_4",
-          "tf": 1
-        },
         {
           "id": "chunk_141",
           "tf": 1
@@ -17836,6 +17844,10 @@
       ],
       "76": [
         {
+          "id": "chunk_9",
+          "tf": 1
+        },
+        {
           "id": "chunk_18",
           "tf": 1
         },
@@ -17893,10 +17905,6 @@
         }
       ],
       "81": [
-        {
-          "id": "chunk_12",
-          "tf": 1
-        },
         {
           "id": "chunk_102",
           "tf": 1
@@ -18942,12 +18950,6 @@
           "tf": 1
         }
       ],
-      "206": [
-        {
-          "id": "chunk_8",
-          "tf": 1
-        }
-      ],
       "207": [
         {
           "id": "chunk_77",
@@ -18995,6 +18997,10 @@
         }
       ],
       "219": [
+        {
+          "id": "chunk_1",
+          "tf": 1
+        },
         {
           "id": "chunk_81",
           "tf": 1
@@ -19274,6 +19280,12 @@
           "tf": 1
         }
       ],
+      "315": [
+        {
+          "id": "chunk_6",
+          "tf": 1
+        }
+      ],
       "318": [
         {
           "id": "chunk_100",
@@ -19291,6 +19303,10 @@
         }
       ],
       "325": [
+        {
+          "id": "chunk_7",
+          "tf": 1
+        },
         {
           "id": "chunk_162",
           "tf": 1
@@ -19395,6 +19411,12 @@
         },
         {
           "id": "chunk_118",
+          "tf": 1
+        }
+      ],
+      "353": [
+        {
+          "id": "chunk_2",
           "tf": 1
         }
       ],
@@ -19682,6 +19704,12 @@
           "tf": 1
         }
       ],
+      "454": [
+        {
+          "id": "chunk_19",
+          "tf": 1
+        }
+      ],
       "460": [
         {
           "id": "chunk_57",
@@ -19782,6 +19810,12 @@
           "tf": 1
         }
       ],
+      "519": [
+        {
+          "id": "chunk_16",
+          "tf": 1
+        }
+      ],
       "521": [
         {
           "id": "chunk_89",
@@ -19840,7 +19874,17 @@
           "tf": 1
         }
       ],
+      "574": [
+        {
+          "id": "chunk_18",
+          "tf": 1
+        }
+      ],
       "575": [
+        {
+          "id": "chunk_3",
+          "tf": 1
+        },
         {
           "id": "chunk_56",
           "tf": 1
@@ -19892,7 +19936,17 @@
           "tf": 1
         }
       ],
+      "591": [
+        {
+          "id": "chunk_5",
+          "tf": 1
+        }
+      ],
       "595": [
+        {
+          "id": "chunk_4",
+          "tf": 1
+        },
         {
           "id": "chunk_61",
           "tf": 1
@@ -19978,6 +20032,12 @@
           "tf": 1
         }
       ],
+      "646": [
+        {
+          "id": "chunk_10",
+          "tf": 1
+        }
+      ],
       "652": [
         {
           "id": "chunk_77",
@@ -19993,6 +20053,12 @@
       "655": [
         {
           "id": "chunk_77",
+          "tf": 1
+        }
+      ],
+      "656": [
+        {
+          "id": "chunk_15",
           "tf": 1
         }
       ],
@@ -20046,11 +20112,13 @@
       ],
       "696": [
         {
-          "id": "chunk_18",
+          "id": "chunk_12",
           "tf": 1
-        },
+        }
+      ],
+      "697": [
         {
-          "id": "chunk_19",
+          "id": "chunk_11",
           "tf": 1
         }
       ],
@@ -20091,10 +20159,6 @@
         }
       ],
       "723": [
-        {
-          "id": "chunk_9",
-          "tf": 1
-        },
         {
           "id": "chunk_69",
           "tf": 1
@@ -20141,10 +20205,6 @@
         }
       ],
       "743": [
-        {
-          "id": "chunk_11",
-          "tf": 1
-        },
         {
           "id": "chunk_62",
           "tf": 1
@@ -20194,23 +20254,17 @@
           "tf": 1
         }
       ],
-      "756": [
-        {
-          "id": "chunk_15",
-          "tf": 1
-        }
-      ],
       "758": [
+        {
+          "id": "chunk_13",
+          "tf": 1
+        },
         {
           "id": "chunk_163",
           "tf": 1
         }
       ],
       "761": [
-        {
-          "id": "chunk_5",
-          "tf": 1
-        },
         {
           "id": "chunk_149",
           "tf": 1
@@ -20252,10 +20306,6 @@
       ],
       "784": [
         {
-          "id": "chunk_3",
-          "tf": 1
-        },
-        {
           "id": "chunk_91",
           "tf": 1
         }
@@ -20263,12 +20313,6 @@
       "786": [
         {
           "id": "chunk_168",
-          "tf": 1
-        }
-      ],
-      "788": [
-        {
-          "id": "chunk_1",
           "tf": 1
         }
       ],
@@ -20314,27 +20358,9 @@
           "tf": 1
         }
       ],
-      "804": [
-        {
-          "id": "chunk_16",
-          "tf": 1
-        }
-      ],
-      "806": [
-        {
-          "id": "chunk_14",
-          "tf": 1
-        }
-      ],
       "808": [
         {
           "id": "chunk_97",
-          "tf": 1
-        }
-      ],
-      "821": [
-        {
-          "id": "chunk_2",
           "tf": 1
         }
       ],
@@ -20369,10 +20395,6 @@
         }
       ],
       "836": [
-        {
-          "id": "chunk_13",
-          "tf": 1
-        },
         {
           "id": "chunk_87",
           "tf": 1
@@ -20438,10 +20460,6 @@
       ],
       "872": [
         {
-          "id": "chunk_10",
-          "tf": 1
-        },
-        {
           "id": "chunk_86",
           "tf": 1
         }
@@ -20449,12 +20467,6 @@
       "874": [
         {
           "id": "chunk_105",
-          "tf": 1
-        }
-      ],
-      "876": [
-        {
-          "id": "chunk_7",
           "tf": 1
         }
       ],
@@ -20525,12 +20537,6 @@
       "906": [
         {
           "id": "chunk_71",
-          "tf": 1
-        }
-      ],
-      "907": [
-        {
-          "id": "chunk_6",
           "tf": 1
         }
       ],
@@ -21965,7 +21971,7 @@
       "জম": [
         {
           "id": "chunk_1",
-          "tf": 4
+          "tf": 5
         },
         {
           "id": "chunk_2",
@@ -21993,7 +21999,7 @@
         },
         {
           "id": "chunk_8",
-          "tf": 5
+          "tf": 4
         },
         {
           "id": "chunk_9",
@@ -25128,409 +25134,17 @@
           "tf": 1
         }
       ],
-      "৭৮৮": [
-        {
-          "id": "chunk_1",
-          "tf": 1
-        }
-      ],
-      "সত": [
+      "২১৯": [
         {
           "id": "chunk_1",
           "tf": 1
         },
         {
-          "id": "chunk_2",
-          "tf": 1
-        },
-        {
-          "id": "chunk_3",
-          "tf": 1
-        },
-        {
-          "id": "chunk_5",
-          "tf": 1
-        },
-        {
-          "id": "chunk_6",
-          "tf": 1
-        },
-        {
-          "id": "chunk_7",
-          "tf": 1
-        },
-        {
-          "id": "chunk_9",
-          "tf": 1
-        },
-        {
-          "id": "chunk_10",
-          "tf": 1
-        },
-        {
-          "id": "chunk_11",
-          "tf": 1
-        },
-        {
-          "id": "chunk_12",
-          "tf": 1
-        },
-        {
-          "id": "chunk_13",
-          "tf": 1
-        },
-        {
-          "id": "chunk_14",
-          "tf": 1
-        },
-        {
-          "id": "chunk_15",
-          "tf": 1
-        },
-        {
-          "id": "chunk_16",
-          "tf": 1
-        }
-      ],
-      "ফসল": [
-        {
-          "id": "chunk_1",
-          "tf": 1
-        },
-        {
-          "id": "chunk_2",
-          "tf": 1
-        },
-        {
-          "id": "chunk_3",
-          "tf": 1
-        },
-        {
-          "id": "chunk_4",
-          "tf": 1
-        },
-        {
-          "id": "chunk_5",
-          "tf": 1
-        },
-        {
-          "id": "chunk_6",
-          "tf": 1
-        },
-        {
-          "id": "chunk_7",
-          "tf": 1
-        },
-        {
-          "id": "chunk_9",
-          "tf": 1
-        },
-        {
-          "id": "chunk_10",
-          "tf": 1
-        },
-        {
-          "id": "chunk_11",
-          "tf": 1
-        },
-        {
-          "id": "chunk_12",
-          "tf": 1
-        },
-        {
-          "id": "chunk_13",
-          "tf": 1
-        },
-        {
-          "id": "chunk_14",
-          "tf": 1
-        },
-        {
-          "id": "chunk_15",
-          "tf": 1
-        },
-        {
-          "id": "chunk_16",
-          "tf": 1
-        },
-        {
-          "id": "chunk_18",
-          "tf": 1
-        },
-        {
-          "id": "chunk_19",
-          "tf": 1
-        },
-        {
-          "id": "chunk_20",
-          "tf": 1
-        },
-        {
-          "id": "chunk_21",
-          "tf": 1
-        },
-        {
-          "id": "chunk_22",
-          "tf": 1
-        },
-        {
-          "id": "chunk_23",
-          "tf": 1
-        },
-        {
-          "id": "chunk_24",
-          "tf": 1
-        },
-        {
-          "id": "chunk_25",
-          "tf": 1
-        },
-        {
-          "id": "chunk_26",
-          "tf": 1
-        },
-        {
-          "id": "chunk_27",
-          "tf": 1
-        },
-        {
-          "id": "chunk_28",
-          "tf": 1
-        },
-        {
-          "id": "chunk_29",
-          "tf": 1
-        },
-        {
-          "id": "chunk_30",
-          "tf": 1
-        },
-        {
-          "id": "chunk_31",
-          "tf": 1
-        },
-        {
-          "id": "chunk_32",
-          "tf": 1
-        },
-        {
-          "id": "chunk_33",
-          "tf": 1
-        },
-        {
-          "id": "chunk_34",
-          "tf": 1
-        },
-        {
-          "id": "chunk_35",
-          "tf": 1
-        },
-        {
-          "id": "chunk_36",
-          "tf": 1
-        },
-        {
-          "id": "chunk_37",
-          "tf": 1
-        },
-        {
-          "id": "chunk_38",
-          "tf": 1
-        },
-        {
-          "id": "chunk_39",
-          "tf": 1
-        },
-        {
-          "id": "chunk_40",
-          "tf": 1
-        },
-        {
-          "id": "chunk_41",
-          "tf": 1
-        },
-        {
-          "id": "chunk_42",
-          "tf": 1
-        },
-        {
-          "id": "chunk_43",
-          "tf": 1
-        },
-        {
-          "id": "chunk_44",
-          "tf": 1
-        },
-        {
-          "id": "chunk_45",
-          "tf": 1
-        },
-        {
-          "id": "chunk_46",
-          "tf": 1
-        },
-        {
-          "id": "chunk_47",
-          "tf": 1
-        },
-        {
-          "id": "chunk_48",
-          "tf": 1
-        },
-        {
-          "id": "chunk_49",
-          "tf": 1
-        },
-        {
-          "id": "chunk_50",
-          "tf": 1
-        },
-        {
-          "id": "chunk_51",
-          "tf": 1
-        },
-        {
-          "id": "chunk_52",
-          "tf": 1
-        },
-        {
-          "id": "chunk_53",
-          "tf": 1
-        },
-        {
-          "id": "chunk_54",
-          "tf": 1
-        },
-        {
-          "id": "chunk_55",
-          "tf": 1
-        },
-        {
-          "id": "chunk_124",
-          "tf": 1
-        },
-        {
-          "id": "chunk_125",
-          "tf": 1
-        },
-        {
-          "id": "chunk_132",
-          "tf": 1
-        },
-        {
-          "id": "chunk_133",
-          "tf": 1
-        },
-        {
-          "id": "chunk_148",
-          "tf": 1
-        },
-        {
-          "id": "chunk_149",
-          "tf": 1
-        },
-        {
-          "id": "chunk_150",
-          "tf": 1
-        },
-        {
-          "id": "chunk_151",
-          "tf": 1
-        },
-        {
-          "id": "chunk_152",
-          "tf": 1
-        },
-        {
-          "id": "chunk_153",
-          "tf": 1
-        },
-        {
-          "id": "chunk_154",
-          "tf": 1
-        },
-        {
-          "id": "chunk_155",
-          "tf": 1
-        },
-        {
-          "id": "chunk_156",
-          "tf": 1
-        },
-        {
-          "id": "chunk_157",
-          "tf": 1
-        },
-        {
-          "id": "chunk_158",
-          "tf": 1
-        },
-        {
-          "id": "chunk_159",
-          "tf": 1
-        },
-        {
-          "id": "chunk_160",
-          "tf": 1
-        },
-        {
-          "id": "chunk_161",
-          "tf": 1
-        },
-        {
-          "id": "chunk_162",
-          "tf": 1
-        },
-        {
-          "id": "chunk_163",
-          "tf": 1
-        },
-        {
-          "id": "chunk_164",
-          "tf": 1
-        },
-        {
-          "id": "chunk_165",
-          "tf": 1
-        },
-        {
-          "id": "chunk_166",
-          "tf": 1
-        },
-        {
-          "id": "chunk_167",
-          "tf": 1
-        },
-        {
-          "id": "chunk_168",
-          "tf": 1
-        },
-        {
-          "id": "chunk_169",
-          "tf": 1
-        },
-        {
-          "id": "chunk_170",
+          "id": "chunk_81",
           "tf": 1
         },
         {
           "id": "chunk_171",
-          "tf": 1
-        },
-        {
-          "id": "chunk_172",
-          "tf": 1
-        },
-        {
-          "id": "chunk_173",
-          "tf": 1
-        },
-        {
-          "id": "chunk_174",
-          "tf": 2
-        },
-        {
-          "id": "chunk_175",
           "tf": 1
         }
       ],
@@ -29282,21 +28896,23 @@
           "tf": 1
         }
       ],
-      "vigorous": [
+      "bare": [
+        {
+          "id": "chunk_1",
+          "tf": 1
+        },
+        {
+          "id": "chunk_17",
+          "tf": 1
+        }
+      ],
+      "or": [
         {
           "id": "chunk_1",
           "tf": 1
         },
         {
           "id": "chunk_2",
-          "tf": 1
-        },
-        {
-          "id": "chunk_3",
-          "tf": 1
-        },
-        {
-          "id": "chunk_5",
           "tf": 1
         },
         {
@@ -29308,35 +28924,61 @@
           "tf": 1
         },
         {
-          "id": "chunk_9",
+          "id": "chunk_17",
           "tf": 1
         },
         {
-          "id": "chunk_10",
+          "id": "chunk_35",
           "tf": 1
         },
         {
-          "id": "chunk_11",
+          "id": "chunk_120",
+          "tf": 2
+        },
+        {
+          "id": "chunk_121",
           "tf": 1
         },
         {
-          "id": "chunk_12",
+          "id": "chunk_124",
+          "tf": 2
+        },
+        {
+          "id": "chunk_125",
+          "tf": 2
+        },
+        {
+          "id": "chunk_127",
           "tf": 1
         },
         {
-          "id": "chunk_13",
+          "id": "chunk_128",
+          "tf": 2
+        },
+        {
+          "id": "chunk_129",
           "tf": 1
         },
         {
-          "id": "chunk_14",
+          "id": "chunk_130",
+          "tf": 2
+        },
+        {
+          "id": "chunk_131",
+          "tf": 2
+        },
+        {
+          "id": "chunk_175",
+          "tf": 3
+        }
+      ],
+      "harvested": [
+        {
+          "id": "chunk_1",
           "tf": 1
         },
         {
-          "id": "chunk_15",
-          "tf": 1
-        },
-        {
-          "id": "chunk_16",
+          "id": "chunk_17",
           "tf": 1
         }
       ],
@@ -30596,9 +30238,509 @@
           "tf": 1
         }
       ],
-      "৮২১": [
+      "৩৫৩": [
         {
           "id": "chunk_2",
+          "tf": 1
+        }
+      ],
+      "লক": [
+        {
+          "id": "chunk_2",
+          "tf": 1
+        },
+        {
+          "id": "chunk_6",
+          "tf": 1
+        },
+        {
+          "id": "chunk_7",
+          "tf": 1
+        },
+        {
+          "id": "chunk_16",
+          "tf": 4
+        },
+        {
+          "id": "chunk_17",
+          "tf": 2
+        },
+        {
+          "id": "chunk_26",
+          "tf": 1
+        },
+        {
+          "id": "chunk_27",
+          "tf": 1
+        },
+        {
+          "id": "chunk_28",
+          "tf": 1
+        },
+        {
+          "id": "chunk_29",
+          "tf": 1
+        },
+        {
+          "id": "chunk_30",
+          "tf": 1
+        },
+        {
+          "id": "chunk_31",
+          "tf": 1
+        },
+        {
+          "id": "chunk_32",
+          "tf": 1
+        },
+        {
+          "id": "chunk_33",
+          "tf": 1
+        },
+        {
+          "id": "chunk_34",
+          "tf": 2
+        },
+        {
+          "id": "chunk_35",
+          "tf": 1
+        },
+        {
+          "id": "chunk_36",
+          "tf": 1
+        },
+        {
+          "id": "chunk_37",
+          "tf": 1
+        },
+        {
+          "id": "chunk_38",
+          "tf": 1
+        },
+        {
+          "id": "chunk_39",
+          "tf": 1
+        },
+        {
+          "id": "chunk_40",
+          "tf": 1
+        },
+        {
+          "id": "chunk_41",
+          "tf": 1
+        },
+        {
+          "id": "chunk_42",
+          "tf": 1
+        },
+        {
+          "id": "chunk_43",
+          "tf": 1
+        },
+        {
+          "id": "chunk_44",
+          "tf": 1
+        },
+        {
+          "id": "chunk_45",
+          "tf": 1
+        },
+        {
+          "id": "chunk_46",
+          "tf": 1
+        },
+        {
+          "id": "chunk_47",
+          "tf": 1
+        },
+        {
+          "id": "chunk_48",
+          "tf": 1
+        },
+        {
+          "id": "chunk_49",
+          "tf": 1
+        },
+        {
+          "id": "chunk_50",
+          "tf": 1
+        },
+        {
+          "id": "chunk_51",
+          "tf": 1
+        },
+        {
+          "id": "chunk_52",
+          "tf": 1
+        },
+        {
+          "id": "chunk_53",
+          "tf": 1
+        },
+        {
+          "id": "chunk_54",
+          "tf": 4
+        },
+        {
+          "id": "chunk_55",
+          "tf": 1
+        },
+        {
+          "id": "chunk_79",
+          "tf": 3
+        },
+        {
+          "id": "chunk_87",
+          "tf": 3
+        },
+        {
+          "id": "chunk_125",
+          "tf": 1
+        },
+        {
+          "id": "chunk_131",
+          "tf": 1
+        }
+      ],
+      "ফসল": [
+        {
+          "id": "chunk_2",
+          "tf": 1
+        },
+        {
+          "id": "chunk_3",
+          "tf": 1
+        },
+        {
+          "id": "chunk_4",
+          "tf": 1
+        },
+        {
+          "id": "chunk_5",
+          "tf": 1
+        },
+        {
+          "id": "chunk_6",
+          "tf": 1
+        },
+        {
+          "id": "chunk_7",
+          "tf": 1
+        },
+        {
+          "id": "chunk_8",
+          "tf": 1
+        },
+        {
+          "id": "chunk_9",
+          "tf": 1
+        },
+        {
+          "id": "chunk_10",
+          "tf": 1
+        },
+        {
+          "id": "chunk_11",
+          "tf": 1
+        },
+        {
+          "id": "chunk_12",
+          "tf": 1
+        },
+        {
+          "id": "chunk_13",
+          "tf": 1
+        },
+        {
+          "id": "chunk_14",
+          "tf": 1
+        },
+        {
+          "id": "chunk_15",
+          "tf": 1
+        },
+        {
+          "id": "chunk_16",
+          "tf": 1
+        },
+        {
+          "id": "chunk_18",
+          "tf": 1
+        },
+        {
+          "id": "chunk_19",
+          "tf": 1
+        },
+        {
+          "id": "chunk_20",
+          "tf": 1
+        },
+        {
+          "id": "chunk_21",
+          "tf": 1
+        },
+        {
+          "id": "chunk_22",
+          "tf": 1
+        },
+        {
+          "id": "chunk_23",
+          "tf": 1
+        },
+        {
+          "id": "chunk_24",
+          "tf": 1
+        },
+        {
+          "id": "chunk_25",
+          "tf": 1
+        },
+        {
+          "id": "chunk_26",
+          "tf": 1
+        },
+        {
+          "id": "chunk_27",
+          "tf": 1
+        },
+        {
+          "id": "chunk_28",
+          "tf": 1
+        },
+        {
+          "id": "chunk_29",
+          "tf": 1
+        },
+        {
+          "id": "chunk_30",
+          "tf": 1
+        },
+        {
+          "id": "chunk_31",
+          "tf": 1
+        },
+        {
+          "id": "chunk_32",
+          "tf": 1
+        },
+        {
+          "id": "chunk_33",
+          "tf": 1
+        },
+        {
+          "id": "chunk_34",
+          "tf": 1
+        },
+        {
+          "id": "chunk_35",
+          "tf": 1
+        },
+        {
+          "id": "chunk_36",
+          "tf": 1
+        },
+        {
+          "id": "chunk_37",
+          "tf": 1
+        },
+        {
+          "id": "chunk_38",
+          "tf": 1
+        },
+        {
+          "id": "chunk_39",
+          "tf": 1
+        },
+        {
+          "id": "chunk_40",
+          "tf": 1
+        },
+        {
+          "id": "chunk_41",
+          "tf": 1
+        },
+        {
+          "id": "chunk_42",
+          "tf": 1
+        },
+        {
+          "id": "chunk_43",
+          "tf": 1
+        },
+        {
+          "id": "chunk_44",
+          "tf": 1
+        },
+        {
+          "id": "chunk_45",
+          "tf": 1
+        },
+        {
+          "id": "chunk_46",
+          "tf": 1
+        },
+        {
+          "id": "chunk_47",
+          "tf": 1
+        },
+        {
+          "id": "chunk_48",
+          "tf": 1
+        },
+        {
+          "id": "chunk_49",
+          "tf": 1
+        },
+        {
+          "id": "chunk_50",
+          "tf": 1
+        },
+        {
+          "id": "chunk_51",
+          "tf": 1
+        },
+        {
+          "id": "chunk_52",
+          "tf": 1
+        },
+        {
+          "id": "chunk_53",
+          "tf": 1
+        },
+        {
+          "id": "chunk_54",
+          "tf": 1
+        },
+        {
+          "id": "chunk_55",
+          "tf": 1
+        },
+        {
+          "id": "chunk_124",
+          "tf": 1
+        },
+        {
+          "id": "chunk_125",
+          "tf": 1
+        },
+        {
+          "id": "chunk_132",
+          "tf": 1
+        },
+        {
+          "id": "chunk_133",
+          "tf": 1
+        },
+        {
+          "id": "chunk_148",
+          "tf": 1
+        },
+        {
+          "id": "chunk_149",
+          "tf": 1
+        },
+        {
+          "id": "chunk_150",
+          "tf": 1
+        },
+        {
+          "id": "chunk_151",
+          "tf": 1
+        },
+        {
+          "id": "chunk_152",
+          "tf": 1
+        },
+        {
+          "id": "chunk_153",
+          "tf": 1
+        },
+        {
+          "id": "chunk_154",
+          "tf": 1
+        },
+        {
+          "id": "chunk_155",
+          "tf": 1
+        },
+        {
+          "id": "chunk_156",
+          "tf": 1
+        },
+        {
+          "id": "chunk_157",
+          "tf": 1
+        },
+        {
+          "id": "chunk_158",
+          "tf": 1
+        },
+        {
+          "id": "chunk_159",
+          "tf": 1
+        },
+        {
+          "id": "chunk_160",
+          "tf": 1
+        },
+        {
+          "id": "chunk_161",
+          "tf": 1
+        },
+        {
+          "id": "chunk_162",
+          "tf": 1
+        },
+        {
+          "id": "chunk_163",
+          "tf": 1
+        },
+        {
+          "id": "chunk_164",
+          "tf": 1
+        },
+        {
+          "id": "chunk_165",
+          "tf": 1
+        },
+        {
+          "id": "chunk_166",
+          "tf": 1
+        },
+        {
+          "id": "chunk_167",
+          "tf": 1
+        },
+        {
+          "id": "chunk_168",
+          "tf": 1
+        },
+        {
+          "id": "chunk_169",
+          "tf": 1
+        },
+        {
+          "id": "chunk_170",
+          "tf": 1
+        },
+        {
+          "id": "chunk_171",
+          "tf": 1
+        },
+        {
+          "id": "chunk_172",
+          "tf": 1
+        },
+        {
+          "id": "chunk_173",
+          "tf": 1
+        },
+        {
+          "id": "chunk_174",
+          "tf": 2
+        },
+        {
+          "id": "chunk_175",
           "tf": 1
         }
       ],
@@ -30637,6 +30779,34 @@
       "0354": [
         {
           "id": "chunk_2",
+          "tf": 1
+        }
+      ],
+      "sparse": [
+        {
+          "id": "chunk_2",
+          "tf": 1
+        },
+        {
+          "id": "chunk_6",
+          "tf": 1
+        },
+        {
+          "id": "chunk_7",
+          "tf": 1
+        }
+      ],
+      "stressed": [
+        {
+          "id": "chunk_2",
+          "tf": 1
+        },
+        {
+          "id": "chunk_6",
+          "tf": 1
+        },
+        {
+          "id": "chunk_7",
           "tf": 1
         }
       ],
@@ -30734,13 +30904,13 @@
           "tf": 1
         }
       ],
-      "৭৮৪": [
+      "৫৭৫": [
         {
           "id": "chunk_3",
           "tf": 1
         },
         {
-          "id": "chunk_91",
+          "id": "chunk_56",
           "tf": 1
         }
       ],
@@ -30779,6 +30949,56 @@
       "0756": [
         {
           "id": "chunk_3",
+          "tf": 1
+        }
+      ],
+      "developing": [
+        {
+          "id": "chunk_3",
+          "tf": 1
+        },
+        {
+          "id": "chunk_4",
+          "tf": 1
+        },
+        {
+          "id": "chunk_5",
+          "tf": 1
+        },
+        {
+          "id": "chunk_8",
+          "tf": 1
+        },
+        {
+          "id": "chunk_10",
+          "tf": 1
+        },
+        {
+          "id": "chunk_11",
+          "tf": 1
+        },
+        {
+          "id": "chunk_12",
+          "tf": 1
+        },
+        {
+          "id": "chunk_14",
+          "tf": 1
+        },
+        {
+          "id": "chunk_15",
+          "tf": 1
+        },
+        {
+          "id": "chunk_16",
+          "tf": 1
+        },
+        {
+          "id": "chunk_18",
+          "tf": 1
+        },
+        {
+          "id": "chunk_19",
           "tf": 1
         }
       ],
@@ -30892,13 +31112,13 @@
           "tf": 1
         }
       ],
-      "৬৯": [
+      "৫৯৫": [
         {
           "id": "chunk_4",
           "tf": 1
         },
         {
-          "id": "chunk_141",
+          "id": "chunk_61",
           "tf": 1
         }
       ],
@@ -30937,20 +31157,6 @@
       "0066": [
         {
           "id": "chunk_4",
-          "tf": 1
-        }
-      ],
-      "developing": [
-        {
-          "id": "chunk_4",
-          "tf": 1
-        },
-        {
-          "id": "chunk_18",
-          "tf": 1
-        },
-        {
-          "id": "chunk_19",
           "tf": 1
         }
       ],
@@ -31060,13 +31266,9 @@
           "tf": 1
         }
       ],
-      "৭৬১": [
+      "৫৯১": [
         {
           "id": "chunk_5",
-          "tf": 1
-        },
-        {
-          "id": "chunk_149",
           "tf": 1
         }
       ],
@@ -31222,6 +31424,10 @@
           "tf": 1
         },
         {
+          "id": "chunk_8",
+          "tf": 1
+        },
+        {
           "id": "chunk_88",
           "tf": 1
         },
@@ -31260,7 +31466,7 @@
           "tf": 2
         }
       ],
-      "৯০৭": [
+      "৩১৫": [
         {
           "id": "chunk_6",
           "tf": 1
@@ -31328,9 +31534,13 @@
           "tf": 1
         }
       ],
-      "৮৭৬": [
+      "৩২৫": [
         {
           "id": "chunk_7",
+          "tf": 1
+        },
+        {
+          "id": "chunk_162",
           "tf": 1
         }
       ],
@@ -31401,12 +31611,6 @@
         },
         {
           "id": "chunk_146",
-          "tf": 1
-        }
-      ],
-      "২০৬": [
-        {
-          "id": "chunk_8",
           "tf": 1
         }
       ],
@@ -31497,80 +31701,6 @@
         },
         {
           "id": "chunk_175",
-          "tf": 1
-        }
-      ],
-      "bare": [
-        {
-          "id": "chunk_8",
-          "tf": 1
-        },
-        {
-          "id": "chunk_17",
-          "tf": 1
-        }
-      ],
-      "or": [
-        {
-          "id": "chunk_8",
-          "tf": 1
-        },
-        {
-          "id": "chunk_17",
-          "tf": 1
-        },
-        {
-          "id": "chunk_35",
-          "tf": 1
-        },
-        {
-          "id": "chunk_120",
-          "tf": 2
-        },
-        {
-          "id": "chunk_121",
-          "tf": 1
-        },
-        {
-          "id": "chunk_124",
-          "tf": 2
-        },
-        {
-          "id": "chunk_125",
-          "tf": 2
-        },
-        {
-          "id": "chunk_127",
-          "tf": 1
-        },
-        {
-          "id": "chunk_128",
-          "tf": 2
-        },
-        {
-          "id": "chunk_129",
-          "tf": 1
-        },
-        {
-          "id": "chunk_130",
-          "tf": 2
-        },
-        {
-          "id": "chunk_131",
-          "tf": 2
-        },
-        {
-          "id": "chunk_175",
-          "tf": 3
-        }
-      ],
-      "harvested": [
-        {
-          "id": "chunk_8",
-          "tf": 1
-        },
-        {
-          "id": "chunk_17",
           "tf": 1
         }
       ],
@@ -32378,13 +32508,35 @@
           "tf": 1
         }
       ],
-      "৭২৩": [
+      "৭৬": [
         {
           "id": "chunk_9",
           "tf": 1
         },
         {
-          "id": "chunk_69",
+          "id": "chunk_18",
+          "tf": 1
+        },
+        {
+          "id": "chunk_87",
+          "tf": 1
+        },
+        {
+          "id": "chunk_142",
+          "tf": 1
+        },
+        {
+          "id": "chunk_144",
+          "tf": 1
+        }
+      ],
+      "সত": [
+        {
+          "id": "chunk_9",
+          "tf": 1
+        },
+        {
+          "id": "chunk_13",
           "tf": 1
         }
       ],
@@ -32476,6 +32628,16 @@
         {
           "id": "chunk_142",
           "tf": 4
+        }
+      ],
+      "vigorous": [
+        {
+          "id": "chunk_9",
+          "tf": 1
+        },
+        {
+          "id": "chunk_13",
+          "tf": 1
         }
       ],
       "0102": [
@@ -32612,13 +32774,9 @@
           "tf": 1
         }
       ],
-      "৮৭২": [
+      "৬৪৬": [
         {
           "id": "chunk_10",
-          "tf": 1
-        },
-        {
-          "id": "chunk_86",
           "tf": 1
         }
       ],
@@ -32890,13 +33048,9 @@
           "tf": 1
         }
       ],
-      "৭৪৩": [
+      "৬৯৭": [
         {
           "id": "chunk_11",
-          "tf": 1
-        },
-        {
-          "id": "chunk_62",
           "tf": 1
         }
       ],
@@ -33028,6 +33182,10 @@
           "tf": 1
         },
         {
+          "id": "chunk_14",
+          "tf": 1
+        },
+        {
           "id": "chunk_17",
           "tf": 1
         },
@@ -33096,25 +33254,9 @@
           "tf": 1
         }
       ],
-      "৮১": [
+      "৬৯৬": [
         {
           "id": "chunk_12",
-          "tf": 1
-        },
-        {
-          "id": "chunk_102",
-          "tf": 1
-        },
-        {
-          "id": "chunk_116",
-          "tf": 1
-        },
-        {
-          "id": "chunk_149",
-          "tf": 1
-        },
-        {
-          "id": "chunk_173",
           "tf": 1
         }
       ],
@@ -33328,13 +33470,13 @@
           "tf": 1
         }
       ],
-      "৮৩৬": [
+      "৭৫৮": [
         {
           "id": "chunk_13",
           "tf": 1
         },
         {
-          "id": "chunk_87",
+          "id": "chunk_163",
           "tf": 1
         }
       ],
@@ -33560,12 +33702,6 @@
           "tf": 2
         }
       ],
-      "৮০৬": [
-        {
-          "id": "chunk_14",
-          "tf": 1
-        }
-      ],
       "0303": [
         {
           "id": "chunk_15",
@@ -33684,7 +33820,7 @@
           "tf": 1
         }
       ],
-      "৭৫৬": [
+      "৬৫৬": [
         {
           "id": "chunk_15",
           "tf": 1
@@ -33787,152 +33923,6 @@
         },
         {
           "id": "chunk_147",
-          "tf": 1
-        }
-      ],
-      "লক": [
-        {
-          "id": "chunk_16",
-          "tf": 4
-        },
-        {
-          "id": "chunk_17",
-          "tf": 2
-        },
-        {
-          "id": "chunk_26",
-          "tf": 1
-        },
-        {
-          "id": "chunk_27",
-          "tf": 1
-        },
-        {
-          "id": "chunk_28",
-          "tf": 1
-        },
-        {
-          "id": "chunk_29",
-          "tf": 1
-        },
-        {
-          "id": "chunk_30",
-          "tf": 1
-        },
-        {
-          "id": "chunk_31",
-          "tf": 1
-        },
-        {
-          "id": "chunk_32",
-          "tf": 1
-        },
-        {
-          "id": "chunk_33",
-          "tf": 1
-        },
-        {
-          "id": "chunk_34",
-          "tf": 2
-        },
-        {
-          "id": "chunk_35",
-          "tf": 1
-        },
-        {
-          "id": "chunk_36",
-          "tf": 1
-        },
-        {
-          "id": "chunk_37",
-          "tf": 1
-        },
-        {
-          "id": "chunk_38",
-          "tf": 1
-        },
-        {
-          "id": "chunk_39",
-          "tf": 1
-        },
-        {
-          "id": "chunk_40",
-          "tf": 1
-        },
-        {
-          "id": "chunk_41",
-          "tf": 1
-        },
-        {
-          "id": "chunk_42",
-          "tf": 1
-        },
-        {
-          "id": "chunk_43",
-          "tf": 1
-        },
-        {
-          "id": "chunk_44",
-          "tf": 1
-        },
-        {
-          "id": "chunk_45",
-          "tf": 1
-        },
-        {
-          "id": "chunk_46",
-          "tf": 1
-        },
-        {
-          "id": "chunk_47",
-          "tf": 1
-        },
-        {
-          "id": "chunk_48",
-          "tf": 1
-        },
-        {
-          "id": "chunk_49",
-          "tf": 1
-        },
-        {
-          "id": "chunk_50",
-          "tf": 1
-        },
-        {
-          "id": "chunk_51",
-          "tf": 1
-        },
-        {
-          "id": "chunk_52",
-          "tf": 1
-        },
-        {
-          "id": "chunk_53",
-          "tf": 1
-        },
-        {
-          "id": "chunk_54",
-          "tf": 4
-        },
-        {
-          "id": "chunk_55",
-          "tf": 1
-        },
-        {
-          "id": "chunk_79",
-          "tf": 3
-        },
-        {
-          "id": "chunk_87",
-          "tf": 3
-        },
-        {
-          "id": "chunk_125",
-          "tf": 1
-        },
-        {
-          "id": "chunk_131",
           "tf": 1
         }
       ],
@@ -34064,7 +34054,7 @@
           "tf": 1
         }
       ],
-      "৮০৪": [
+      "৫১৯": [
         {
           "id": "chunk_16",
           "tf": 1
@@ -34212,7 +34202,7 @@
           "tf": 1
         }
       ],
-      "০৬৫": [
+      "০৫৪": [
         {
           "id": "chunk_17",
           "tf": 1
@@ -34224,7 +34214,7 @@
           "tf": 2
         }
       ],
-      "065": [
+      "054": [
         {
           "id": "chunk_17",
           "tf": 1
@@ -34644,24 +34634,6 @@
           "tf": 1
         }
       ],
-      "৭৬": [
-        {
-          "id": "chunk_18",
-          "tf": 1
-        },
-        {
-          "id": "chunk_87",
-          "tf": 1
-        },
-        {
-          "id": "chunk_142",
-          "tf": 1
-        },
-        {
-          "id": "chunk_144",
-          "tf": 1
-        }
-      ],
       "১৭": [
         {
           "id": "chunk_18",
@@ -34696,13 +34668,9 @@
           "tf": 1
         }
       ],
-      "৬৯৬": [
+      "৫৭৪": [
         {
           "id": "chunk_18",
-          "tf": 1
-        },
-        {
-          "id": "chunk_19",
           "tf": 1
         }
       ],
@@ -34885,6 +34853,12 @@
         },
         {
           "id": "chunk_115",
+          "tf": 1
+        }
+      ],
+      "৪৫৪": [
+        {
+          "id": "chunk_19",
           "tf": 1
         }
       ],
@@ -47808,12 +47782,6 @@
           "tf": 1
         }
       ],
-      "৫৭৫": [
-        {
-          "id": "chunk_56",
-          "tf": 1
-        }
-      ],
       "আব": [
         {
           "id": "chunk_56",
@@ -49952,12 +49920,6 @@
           "tf": 1
         }
       ],
-      "৫৯৫": [
-        {
-          "id": "chunk_61",
-          "tf": 1
-        }
-      ],
       "১৮৭": [
         {
           "id": "chunk_61",
@@ -49993,6 +49955,12 @@
         },
         {
           "id": "chunk_137",
+          "tf": 1
+        }
+      ],
+      "৭৪৩": [
+        {
+          "id": "chunk_62",
           "tf": 1
         }
       ],
@@ -50505,6 +50473,12 @@
         }
       ],
       "৯০১": [
+        {
+          "id": "chunk_69",
+          "tf": 1
+        }
+      ],
+      "৭২৩": [
         {
           "id": "chunk_69",
           "tf": 1
@@ -51190,16 +51164,6 @@
           "tf": 4
         }
       ],
-      "২১৯": [
-        {
-          "id": "chunk_81",
-          "tf": 1
-        },
-        {
-          "id": "chunk_171",
-          "tf": 1
-        }
-      ],
       "৭৮৩": [
         {
           "id": "chunk_81",
@@ -51670,6 +51634,12 @@
           "tf": 3
         }
       ],
+      "৮৭২": [
+        {
+          "id": "chunk_86",
+          "tf": 1
+        }
+      ],
       "lakshmipur": [
         {
           "id": "chunk_87",
@@ -51683,6 +51653,12 @@
         },
         {
           "id": "chunk_95",
+          "tf": 1
+        }
+      ],
+      "৮৩৬": [
+        {
+          "id": "chunk_87",
           "tf": 1
         }
       ],
@@ -51923,6 +51899,12 @@
         }
       ],
       "০৫৩": [
+        {
+          "id": "chunk_91",
+          "tf": 1
+        }
+      ],
+      "৭৮৪": [
         {
           "id": "chunk_91",
           "tf": 1
@@ -52405,6 +52387,24 @@
       "০৫০": [
         {
           "id": "chunk_102",
+          "tf": 1
+        }
+      ],
+      "৮১": [
+        {
+          "id": "chunk_102",
+          "tf": 1
+        },
+        {
+          "id": "chunk_116",
+          "tf": 1
+        },
+        {
+          "id": "chunk_149",
+          "tf": 1
+        },
+        {
+          "id": "chunk_173",
           "tf": 1
         }
       ],
@@ -59558,6 +59558,12 @@
           "tf": 1
         }
       ],
+      "৬৯": [
+        {
+          "id": "chunk_141",
+          "tf": 1
+        }
+      ],
       "৭৩": [
         {
           "id": "chunk_143",
@@ -62254,6 +62260,12 @@
           "tf": 1
         }
       ],
+      "৭৬১": [
+        {
+          "id": "chunk_149",
+          "tf": 1
+        }
+      ],
       "৭ট": [
         {
           "id": "chunk_149",
@@ -63206,12 +63218,6 @@
           "tf": 1
         }
       ],
-      "৩২৫": [
-        {
-          "id": "chunk_162",
-          "tf": 1
-        }
-      ],
       "sesame": [
         {
           "id": "chunk_163",
@@ -63225,12 +63231,6 @@
         }
       ],
       "৮৫১": [
-        {
-          "id": "chunk_163",
-          "tf": 1
-        }
-      ],
-      "৭৫৮": [
         {
           "id": "chunk_163",
           "tf": 1
@@ -63927,6 +63927,6 @@
     "crops": 6,
     "supportPrograms": 13,
     "ragChunks": 175,
-    "vocabularySize": 2300
+    "vocabularySize": 2304
   }
 }

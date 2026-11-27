@@ -7,7 +7,7 @@
   "clues": "NASA POWER daily weather (station-corrected) and GWETROOT root-zone soil wetness (MERRA-2), each as the difference from that place’s own 2002–2025 normal",
   "validation": "leave one season out: each season is predicted by models that never saw it",
   "caveat": "seven places and 24 seasons: a guide to which weather matters, not a forecast of a field’s crop",
-  "built": "2026-10-30"
+  "built": "2026-11-27"
  },
  "features": [
   {

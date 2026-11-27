@@ -3,7 +3,7 @@
   "status": "REAL",
   "what": "Documented crop disasters against the app’s NASA signals at the nearest upazila (scripts/build/check_events.mjs). top-3 = the event season ranks in the top 3 of the record; above usual = it is above the median of the other seasons.",
   "data": "NASA POWER daily (station-corrected) and NASA GPM IMERG daily via POWER",
-  "generated": "2026-11-12"
+  "generated": "2026-11-27"
  },
  "results": [
   {

@@ -19,7 +19,9 @@
     2025
    ],
    "finalTo": 2025,
-   "thresholdFrom": "mean 5-day June–September rain over the reference years"
+   "thresholdFrom": "mean 5-day June–September rain over the reference years",
+   "rainSpikeFilter": true,
+   "rainSpikeConcentration": 0.7
   },
   "primary": "imerg",
   "sources": {
@@ -29,10 +31,10 @@
     "thresholdMm": 40.8,
     "trend": {
      "n": 25,
-     "perDecade": 5.9,
-     "S": 83,
-     "z": 1.919,
-     "p": 0.055,
+     "perDecade": 6.1,
+     "S": 84,
+     "z": 1.942,
+     "p": 0.0522,
      "significant": false
     }
    },
@@ -53,8 +55,8 @@
   "climateFile": "src/data/climate/climate_godagari.json",
   "lat": 24.4667,
   "lon": 88.3306,
-  "rainThrough": "2026-10-15",
-  "generated": "2026-10-28"
+  "rainThrough": "2026-11-23",
+  "generated": "2026-11-27"
  },
  "years": [
   {
@@ -269,8 +271,8 @@
   {
    "year": 2017,
    "imerg": {
-    "date": "2017-05-30",
-    "doy": 150,
+    "date": "2017-05-31",
+    "doy": 151,
     "complete": true
    },
    "power": {

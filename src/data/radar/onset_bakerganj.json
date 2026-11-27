@@ -19,7 +19,9 @@
     2025
    ],
    "finalTo": 2025,
-   "thresholdFrom": "mean 5-day June–September rain over the reference years"
+   "thresholdFrom": "mean 5-day June–September rain over the reference years",
+   "rainSpikeFilter": true,
+   "rainSpikeConcentration": 0.7
   },
   "primary": "imerg",
   "sources": {
@@ -29,10 +31,10 @@
     "thresholdMm": 70.8,
     "trend": {
      "n": 25,
-     "perDecade": -0.3,
-     "S": -5,
-     "z": -0.094,
-     "p": 0.9255,
+     "perDecade": -0.7,
+     "S": -9,
+     "z": -0.187,
+     "p": 0.8516,
      "significant": false
     }
    },
@@ -53,8 +55,8 @@
   "climateFile": "src/data/climate/climate_bakerganj.json",
   "lat": 22.55,
   "lon": 90.3333,
-  "rainThrough": "2026-10-15",
-  "generated": "2026-10-22"
+  "rainThrough": "2026-11-23",
+  "generated": "2026-11-27"
  },
  "years": [
   {
@@ -203,8 +205,8 @@
   {
    "year": 2012,
    "imerg": {
-    "date": "2012-05-28",
-    "doy": 149,
+    "date": "2012-06-19",
+    "doy": 171,
     "complete": true
    },
    "power": {
