@@ -162,3 +162,20 @@ volunteer growth are not counted.
 | Urea top-dress: heavy rain | 20 mm or more on the day and the next two, or 5 mm on the day itself | Assumption; urea on the surface before heavy rain washes off or leaches (to confirm against BARC Fertilizer Recommendation Guide 2018) |
 | Heat watch | The crop heat rules above (Boro 36 °C × 3 days at days 75–95, wheat, tomato, mung, Aus) applied to the forecast; "near" = one hot day short, or a hot day within 3 days before the window | Same sources as the crop rules |
 | Heat-watch advice | Water before the heat, irrigate late afternoon/evening, no midday spraying, tell the SAAO | General practice, not a crop-specific dose |
+
+## One hazard list per field (`src/engine/hazards.js`)
+
+The field's hazards in one list, built from the rules above and the live 16-day forecast. Most limits are borrowed,
+not new: heat from the crop's own rules (`crops.js`, first table), rain, heat-wave and cold-wave classes from BMD
+(`weatherRisk.js` `BMD`), water from the FAO-56 balance (`fieldwater.js`, readily available water `RAW`). The new
+ones are listed here.
+
+| Hazard | Rule | Basis | Reviewed by |
+| --- | --- | --- | --- |
+| Heat at flowering | The crop's own heat rule breached in the forecast → high; one day short, or hot days just before the window → medium | `crops.js` rules (first table) via `heatWatch.js` | |
+| Cold | Forecast minimum ≤ 10 °C for Boro or tomato → medium; < 8 °C → high (moderate and severe cold wave) | BMD cold-wave classes (`weatherRisk.js`) | |
+| Heavy rain / flood | A forecast day ≥ 44 mm → medium, ≥ 89 mm → high; one level higher on a haor field | BMD rainfall classes; the haor step-up is an assumption (early flash floods on haor Boro, e.g. Gowainghat, The Daily Star, 5 Apr 2017) | |
+| Water shortage | The FAO-56 balance reaches the readily available water (RAW) on a forecast day → medium; already past it → high | FAO-56 (`fieldwater.js`) | |
+| Salinity | Soil test EC 4–8 dS/m → medium (saline), ≥ 8 dS/m → high (strongly saline) | Saline soil above 4 dS/m: US Salinity Laboratory (1954), USDA Agriculture Handbook 60; 8 dS/m: "strongly saline" in the usual soil-salinity classes. Only a soil test sets it; no place default (Dacope's salinity could not be confirmed from a readable source, 27 Nov 2026) | |
+| No drying (AWD off) | A Boro field that is saline (EC ≥ 4 dS/m) or marked as in a haor keeps 2–5 cm of water all season | Assumption, from the SMART-A blueprint (IRRI caution on AWD in saline soils and deep haor basins; not yet checked against IRRI/BRRI text) | |
+| Late planting | Planted 21 days or more after the crop's usual date → medium (the hot or flood months move closer to flowering and harvest) | Assumption | |

@@ -51,11 +51,14 @@ Dates are targets. MVP freeze 10 Dec; feature freeze 18 Dec; after that only evi
 - [x] Remove the gemini-3.1-flash-tts-preview branch from `api/tts.js` and its test (it shuts down 18 Dec).
 - [x] Removed on request (27 Nov): the Field Future page and the Science page, with their components and the
       federated-learning demo. Engines they shared with working pages stay.
-- [ ] Run the ui-consistency *finding-patterns* pass over `pages/farmer`, `pages/officer`, `pages/public/Home.jsx` and
+- [x] Run the ui-consistency *finding-patterns* pass over `pages/farmer`, `pages/officer`, `pages/public/Home.jsx` and
       `components/ui.jsx`, and write the checklist it produces. Every later UI step is checked against it. Keep the
       current design system; take from the blueprint only what fits it: 48 px tap targets, tabular numerals, and
       high-contrast risk colours.
 - Check: `npm test` and `npm run build` pass; the checklist exists.
+  Done 27 Nov: reference farmer/Signals.jsx, 27 pages counted; the checklist travels with the UI tasks (ui-consistency keeps
+  measured checklists out of the repo). Its headline rules: PageHeader for titles, Card for sections, Tags on every
+  number, Note for limits, Button for actions, h2 at 20px, T()/L() for all text.
 
 ### Step 1 — One hazard list per field (28 Nov – 2 Dec)
 - [ ] `src/engine/hazards.js` (pure, tested): for one field, return the hazards above, each as

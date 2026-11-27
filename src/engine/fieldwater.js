@@ -79,13 +79,15 @@ export function faoStage(cropId, d, days) {
 
 // wx: { days: [{ d: 'YYYY-MM-DD', rain, et0, tmax, tmin }], today: index of today }
 // reset: 'YYYY-MM-DD' of the last irrigation (or "soil is wet"), if any.
-export function fieldWater({ crop, plantT, soil, area_dec, wx, today, reset = null, fieldCheck = null }) {
+// keepFlooded ({ bn, en } reason, from engine/hazards.js awdAllowed): a saline or haor Boro field is never told to let
+// the water drop; it keeps 2–5 cm standing all season, and the reason is shown first.
+export function fieldWater({ crop, plantT, soil, area_dec, wx, today, reset = null, fieldCheck = null, keepFlooded = null }) {
   const days = crop.days;
   const dToday = daysBetween(plantT, today);
   if (!wx) return null;
   if (dToday < 0) return { mode: 'before', dToday, plantT };
   if (dToday > days + 7) return { mode: 'after', dToday };
-  if (crop.id === 'boro') return awd({ crop, plantT, wx, today, dToday, reset });
+  if (crop.id === 'boro') return awd({ crop, plantT, wx, today, dToday, reset, keepFlooded });
   const lim = soilWaterLimits(soil);
   if (!lim || !FAO56[crop.id] || !ROOTS[crop.id]) return null;
   const { p } = ROOTS[crop.id];
@@ -159,10 +161,10 @@ function reasonsOf({ crop, color, now, hitIn, rainNext3, net, fieldCheck, trace 
 
 // Boro: BRRI alternate wetting and drying. Keep 2–5 cm of water for the first two weeks and around flowering; at
 // other times let the water drop to 15 cm below the soil surface (seen in a perforated field pipe), then flood again.
-function awd({ crop, plantT, wx, today, dToday, reset }) {
+function awd({ crop, plantT, wx, today, dToday, reset, keepFlooded = null }) {
   const f = FAO56.boro, days = crop.days;
   const [a, b] = f.stages.map((x) => x * days);
-  const keepWet = dToday <= 15 || (dToday >= a + b && dToday <= a + b + 25);
+  const keepWet = !!keepFlooded || dToday <= 15 || (dToday >= a + b && dToday <= a + b + 25);
   const iT = wx.days.findIndex((x) => parseISO(x.d) === today);
   const past = wx.days.slice(Math.max(0, iT - 6), iT + 1), next = wx.days.slice(iT + 1, iT + 4);
   const etc = past.reduce((s, x) => s + kcOn('boro', Math.max(0, dToday), days) * (x.et0 ?? 0), 0);
@@ -174,12 +176,14 @@ function awd({ crop, plantT, wx, today, dToday, reset }) {
   // The model cannot see the water in the field pipe, so without a logged irrigation the answer is "go and look".
   const color = keepWet ? (sinceReset != null && sinceReset < 2 ? 'GREEN' : 'YELLOW') : sinceReset == null ? 'YELLOW' : sinceReset >= daysPerFlood + 3 ? 'ORANGE' : 'GREEN';
   const reasons = [
-    keepWet
+    keepFlooded
+      ? keepFlooded
+      : keepWet
       ? { bn: 'এখন জমিতে ২–৫ সেমি পানি ধরে রাখার সময় (রোপণের পর প্রথম দুই সপ্তাহ বা ফুল আসার সময়)', en: 'Now is the time to keep 2–5 cm of water standing (first two weeks after transplanting, or flowering)' }
       : { bn: 'এখন পর্যায়ক্রমে ভেজানো ও শুকানো (AWD): পাইপে পানি মাটির ১৫ সেমি নিচে নামলে তবেই আবার সেচ দিন', en: 'Now alternate wetting and drying (AWD): irrigate again only when the water in the pipe is 15 cm below the soil surface' },
     { bn: bnDigits(`৫ সেমি পানি এই আবহাওয়ায় প্রায় ${daysPerFlood} দিন টেকে (দিনে প্রায় ${Math.round(loss)} মিমি কমে)`), en: `A 5 cm flood lasts about ${daysPerFlood} days in this weather (about ${Math.round(loss)} mm a day)` },
     { bn: bnDigits(`গত ৭ দিনে বৃষ্টি ${Math.round(rain7)} মিমি; আগামী ৩ দিনে ${Math.round(rainNext3)} মিমি পূর্বাভাস`), en: `Rain: ${Math.round(rain7)} mm in the last 7 days, ${Math.round(rainNext3)} mm forecast for the next 3` },
   ];
-  return { mode: 'awd', color, dToday, stage: faoStage('boro', dToday, days), keepWet, daysPerFlood, loss, rain7, rainNext3, reasons };
+  return { mode: 'awd', color, dToday, stage: faoStage('boro', dToday, days), keepWet, awdOff: !!keepFlooded, daysPerFlood, loss, rain7, rainNext3, reasons };
 }
 

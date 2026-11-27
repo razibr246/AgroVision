@@ -23,6 +23,7 @@ import { decide } from './engine/decision.js';
 import { recommendRotation } from './engine/rotation.js';
 import { fetchLiveWeather, cropStage } from './engine/water.js';
 import { fieldWater } from './engine/fieldwater.js';
+import { awdAllowed, fieldHazards } from './engine/hazards.js';
 import { findHotspots } from './engine/cluster.js';
 import { daysBetween, todayDhaka, bnDigits as bnDigitsOf } from './engine/dates.js';
 import { STORAGE_PREFIX } from './config/brand.js';
@@ -382,8 +383,12 @@ export function StoreProvider({ children }) {
   const live = s.live || null;
   const weather = live ?? { rain7: null, rainNext3: null, tmax: null, unavailable: true, loading: s.live === null };
   const stage = cropStage(chosen.crop, daysAfter);
-  const fw = useMemo(() => fieldWater({ crop: chosen.crop, plantT: chosen.t0, soil, area_dec: farmer.area_dec, wx: live, today, reset: s.irrigated[farmer.id] ?? null, fieldCheck: s.fieldCheck }),
-    [chosen.crop, chosen.t0, soil, farmer.area_dec, live, today, s.irrigated, farmer.id, s.fieldCheck]);
+  // A saline (soil test EC) or haor field is never told to let its Boro dry (engine/hazards.js awdAllowed).
+  const awd = useMemo(() => awdAllowed({ soil, field: activeParcel }), [soil, activeParcel]);
+  const fw = useMemo(() => fieldWater({ crop: chosen.crop, plantT: chosen.t0, soil, area_dec: farmer.area_dec, wx: live, today, reset: s.irrigated[farmer.id] ?? null, fieldCheck: s.fieldCheck, keepFlooded: awd.ok ? null : awd.reason }),
+    [chosen.crop, chosen.t0, soil, farmer.area_dec, live, today, s.irrigated, farmer.id, s.fieldCheck, awd]);
+  // One hazard list for the active field (read by the farmer home in redesign step 4).
+  const hazards = useMemo(() => fieldHazards({ crop: chosen.crop, plantT: chosen.t0, today, wx: live, fw, soil, field: activeParcel }), [chosen.crop, chosen.t0, today, live, fw, soil, activeParcel]);
   const water = fw?.reasons ? { color: fw.color, reasons: fw.reasons, fw }
     : fw?.mode === 'before' ? { color: 'GREEN', fw, reasons: [{ bn: `${chosen.crop.name.bn} ${chosen.crop.action.bn} ${bnDigitsOf(-fw.dToday)} দিন পরে; এখন সেচের প্রশ্ন নেই`, en: `${chosen.crop.action.en} the ${chosen.crop.name.en.toLowerCase()} in ${-fw.dToday} days; no watering question yet` }] }
       : fw?.mode === 'after' ? { color: 'GREEN', fw, reasons: [{ bn: 'এই ফসলের মৌসুম শেষ', en: 'This crop’s season is over' }] }
@@ -423,7 +428,7 @@ export function StoreProvider({ children }) {
   const value = useMemo(() => ({
     s, dispatch, T, L, toast, farmer, farmers, farmerOf, soil, union, unions, unionsAll, decision, decisionBase, decisionArgs, chosen, rotation, hotspots, excludeAll,
     profile, upazila, clim: fclim, tm: tms[upazila.id], officerUpazila, officerClim, upazilaFarmers,
-    today, daysAfter, demoNow: today, weather, liveWeather: !!live, stage, water,
+    today, daysAfter, demoNow: today, weather, liveWeather: !!live, stage, water, hazards,
     myAdvisories, unreadMsgs, unreadAdvisories: unreadMsgs.length, markSeen, confirmedPlan, landConfirmed,
     parcels, myParcels, activeParcel, srdiUnion, econ, shared: s.shared, refreshShared, confirmPlan, confirmedAll,
     farmerMode: s.farmerMode ?? 'advanced', isSimpleMode: s.farmerMode === 'simple', toggleFarmerMode,
@@ -431,7 +436,7 @@ export function StoreProvider({ children }) {
   }), [
     s, dispatch, T, L, toast, farmer, farmers, farmerOf, soil, union, unions, unionsAll, decision, decisionBase, decisionArgs, chosen, rotation, hotspots, excludeAll,
     profile, upazila, fclim, officerUpazila, officerClim, upazilaFarmers,
-    today, daysAfter, weather, live, stage, water,
+    today, daysAfter, weather, live, stage, water, hazards,
     myAdvisories, unreadMsgs, markSeen, confirmedPlan, landConfirmed,
     parcels, myParcels, activeParcel, srdiUnion, econ, refreshShared, confirmPlan, confirmedAll,
     toggleFarmerMode, macosPortal, toggleMacosPortal,

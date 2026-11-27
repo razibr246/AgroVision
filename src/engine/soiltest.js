@@ -16,6 +16,9 @@ export const LIMITS = {
   ph: { min: 3.5, max: 9.5, name: { bn: 'পিএইচ (pH)', en: 'pH' }, unit: '' },
   om: { min: 0, max: 15, name: { bn: 'জৈব পদার্থ', en: 'Organic matter' }, unit: '%' },
   n: { min: 0, max: 1, name: { bn: 'মোট নাইট্রোজেন', en: 'Total nitrogen' }, unit: '%' },
+  // Salinity as the report gives it, electrical conductivity in dS/m (same as mS/cm or mmho/cm). engine/hazards.js
+  // reads it against the soil-salinity classes in docs/THRESHOLDS.md; no estimate exists for it, so only a test sets it.
+  ec: { min: 0, max: 40, name: { bn: 'লবণাক্ততা (ইসি)', en: 'Salinity (EC)' }, unit: ' dS/m' },
 };
 export const RETEST_YEARS = 3; // advice: test again every 2–3 years, or after a big change in cropping
 
@@ -46,6 +49,7 @@ export function applyTest(soil, test) {
     ph_range: null, // the map's uncertainty no longer applies to a measured pH
     om_pct: test.om ?? soil.om_pct,
     n_total_pct: test.n ?? soil.n_total_pct,
+    ec_dsm: test.ec ?? soil.ec_dsm ?? null,
     tested: { date: test.date, lab: test.lab, land: test.land, estimate: { ph: soil.ph, ph_range: soil.ph_range ?? null, om_pct: soil.om_pct, n_total_pct: soil.n_total_pct } },
   };
 }

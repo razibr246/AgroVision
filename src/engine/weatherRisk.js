@@ -9,6 +9,11 @@
 //     al. 2008, Summa Phytopathologica, doi:10.1590/S0100-54052008000300002; BARI wheat blast advisory), February–March only.
 // A forecast is not a certainty; each warning says how many days ahead it falls.
 
+// The BMD classes above as numbers, shared with engine/hazards.js so the two never drift apart.
+export const BMD = { heavyRain: 44, veryHeavyRain: 89, heatMild: 36, heatModerate: 38, heatSevere: 40, coldMild: 10, coldModerate: 8, coldSevere: 6 };
+// Crops whose cold-wave warning the app gives: Boro seedbeds and tomato.
+export const COLD_CROPS = ['boro', 'tomato'];
+
 const hoursOf = (fc, date) => fc.hours.filter((h) => h.date === date);
 const humidHours = (hs, rh = 90) => hs.filter((h) => h.rh >= rh).length;
 
@@ -17,29 +22,29 @@ export function weatherWarnings(fc, { crops = new Set(), month }) {
   const out = [];
   const days = fc.days;
   // Heavy rain
-  const wet = days.filter((d) => (d.rain ?? 0) >= 44);
+  const wet = days.filter((d) => (d.rain ?? 0) >= BMD.heavyRain);
   if (wet.length) {
     const top = wet.reduce((a, d) => (d.rain > a.rain ? d : a));
-    out.push({ id: 'rain', kind: 'rain', level: top.rain >= 89 ? 'high' : 'medium', dates: wet.map((d) => d.date), value: top.rain, crop: null,
-      title: { bn: top.rain >= 89 ? 'অতি ভারী বৃষ্টির পূর্বাভাস' : 'ভারী বৃষ্টির পূর্বাভাস', en: top.rain >= 89 ? 'Very heavy rain forecast' : 'Heavy rain forecast' },
+    out.push({ id: 'rain', kind: 'rain', level: top.rain >= BMD.veryHeavyRain ? 'high' : 'medium', dates: wet.map((d) => d.date), value: top.rain, crop: null,
+      title: { bn: top.rain >= BMD.veryHeavyRain ? 'অতি ভারী বৃষ্টির পূর্বাভাস' : 'ভারী বৃষ্টির পূর্বাভাস', en: top.rain >= BMD.veryHeavyRain ? 'Very heavy rain forecast' : 'Heavy rain forecast' },
       rule: { bn: 'আবহাওয়া অধিদপ্তরের মাপে ২৪ ঘণ্টায় ৪৪–৮৮ মিমি ভারী, ৮৯ মিমি বা বেশি অতি ভারী', en: 'BMD: 44–88 mm in 24 h is heavy, 89 mm or more very heavy' },
       advice: { bn: 'ভারী বৃষ্টির পূর্বাভাস আছে। জমির নালা খুলে রাখুন, বৃষ্টির আগে ওষুধ বা ইউরিয়া ছিটাবেন না, পাকা ফসল থাকলে আগেই কেটে শুকনো জায়গায় তুলুন।', en: 'Heavy rain is forecast. Open the field drains, do not spray or top-dress before it, and cut any ripe crop and get it under cover first.' } });
   }
   // Heat
-  const hot = days.filter((d) => d.max >= 36);
+  const hot = days.filter((d) => d.max >= BMD.heatMild);
   if (hot.length) {
     const top = Math.max(...hot.map((d) => d.max));
-    out.push({ id: 'heat', kind: 'heat', level: top >= 38 ? 'high' : 'medium', dates: hot.map((d) => d.date), value: top, crop: null,
-      title: { bn: top >= 40 ? 'তীব্র তাপপ্রবাহের পূর্বাভাস' : top >= 38 ? 'মাঝারি তাপপ্রবাহের পূর্বাভাস' : 'মৃদু তাপপ্রবাহের পূর্বাভাস', en: top >= 40 ? 'Severe heatwave forecast' : top >= 38 ? 'Moderate heatwave forecast' : 'Mild heatwave forecast' },
+    out.push({ id: 'heat', kind: 'heat', level: top >= BMD.heatModerate ? 'high' : 'medium', dates: hot.map((d) => d.date), value: top, crop: null,
+      title: { bn: top >= BMD.heatSevere ? 'তীব্র তাপপ্রবাহের পূর্বাভাস' : top >= BMD.heatModerate ? 'মাঝারি তাপপ্রবাহের পূর্বাভাস' : 'মৃদু তাপপ্রবাহের পূর্বাভাস', en: top >= BMD.heatSevere ? 'Severe heatwave forecast' : top >= BMD.heatModerate ? 'Moderate heatwave forecast' : 'Mild heatwave forecast' },
       rule: { bn: 'আবহাওয়া অধিদপ্তর: ৩৬–৩৭.৯° মৃদু, ৩৮–৩৯.৯° মাঝারি, ৪০° বা বেশি তীব্র তাপপ্রবাহ', en: 'BMD: 36–37.9 °C mild, 38–39.9 °C moderate, 40 °C or more severe heatwave' },
       advice: { bn: 'তাপপ্রবাহের পূর্বাভাস আছে। সেচ সকালে বা বিকেলে দিন, ধানের জমিতে ২–৩ সেমি পানি রাখুন, দুপুরে মাঠে কাজ কম করুন।', en: 'A heatwave is forecast. Irrigate morning or evening, keep 2–3 cm of water on rice, and limit midday field work.' } });
   }
   // Cold wave: matters for Boro seedbeds and tomato
-  const cold = days.filter((d) => d.min <= 10);
-  if (cold.length && (crops.has('boro') || crops.has('tomato'))) {
+  const cold = days.filter((d) => d.min <= BMD.coldMild);
+  if (cold.length && COLD_CROPS.some((c) => crops.has(c))) {
     const low = Math.min(...cold.map((d) => d.min));
-    out.push({ id: 'cold', kind: 'cold', level: low < 8 ? 'high' : 'medium', dates: cold.map((d) => d.date), value: low, crop: crops.has('boro') ? 'boro' : 'tomato',
-      title: { bn: low < 6 ? 'তীব্র শৈত্যপ্রবাহের পূর্বাভাস' : low < 8 ? 'মাঝারি শৈত্যপ্রবাহের পূর্বাভাস' : 'মৃদু শৈত্যপ্রবাহের পূর্বাভাস', en: low < 6 ? 'Severe cold wave forecast' : low < 8 ? 'Moderate cold wave forecast' : 'Mild cold wave forecast' },
+    out.push({ id: 'cold', kind: 'cold', level: low < BMD.coldModerate ? 'high' : 'medium', dates: cold.map((d) => d.date), value: low, crop: crops.has('boro') ? 'boro' : 'tomato',
+      title: { bn: low < BMD.coldSevere ? 'তীব্র শৈত্যপ্রবাহের পূর্বাভাস' : low < BMD.coldModerate ? 'মাঝারি শৈত্যপ্রবাহের পূর্বাভাস' : 'মৃদু শৈত্যপ্রবাহের পূর্বাভাস', en: low < BMD.coldSevere ? 'Severe cold wave forecast' : low < BMD.coldModerate ? 'Moderate cold wave forecast' : 'Mild cold wave forecast' },
       rule: { bn: 'আবহাওয়া অধিদপ্তর: ৮–১০° মৃদু, ৬–৭.৯° মাঝারি, ৬°-এর নিচে তীব্র শৈত্যপ্রবাহ', en: 'BMD: 8–10 °C mild, 6–7.9 °C moderate, below 6 °C severe cold wave' },
       advice: { bn: 'শৈত্যপ্রবাহের পূর্বাভাস আছে। বোরোর বীজতলা রাতে স্বচ্ছ পলিথিনে ঢেকে দিন, সকালে খুলে দিন; বীজতলায় পানি ধরে রাখুন। টমেটোর গোড়ায় হালকা সেচ দিন।', en: 'A cold wave is forecast. Cover Boro seedbeds with clear polythene at night and open them in the morning; keep water in the seedbed. Give tomatoes a light irrigation.' } });
   }
