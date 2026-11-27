@@ -12,7 +12,7 @@ import { openCommandPalette } from '../components/CommandPalette';
 export const scrollToId = (id) => scrollToEl(document.getElementById(id), 0); // sections carry their own scroll margin for the header
 
 const SECTIONS = ['how', 'land', 'data', 'officer'];
-const GAME_PATHS = ['/games', '/saga', '/play', '/farm', '/kids', '/stories'];
+const GAME_PATHS = ['/farm', '/kids'];
 const SPY_LINE = 140; // a section counts as "current" once its top passes this far below the top of the window
 
 export default function PublicLayout() {
@@ -145,7 +145,7 @@ export default function PublicLayout() {
 
 
   const playLink = (cls, slide = false) => (
-    <NavLink to="/games" data-nav={slide ? 'games' : undefined} onClick={() => setOpen(false)}
+    <NavLink to="/farm" data-nav={slide ? 'games' : undefined} onClick={() => setOpen(false)}
       className={`${cls} ${onGames ? (slide ? '!bg-transparent !text-white !ring-transparent' : 'bg-primary-700 !text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)]') : ''}`}>
       <Swords size={16} />{T('খেলে শিখুন', 'Learn by playing')}
     </NavLink>

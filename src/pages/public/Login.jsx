@@ -74,9 +74,6 @@ export default function Login() {
                   <ChevronRight size={20} className="text-primary-600 transition group-hover:translate-x-0.5" />
                 </button>
               ))}
-              <Link to="/stories" className="flex items-center gap-2 rounded-2xl border border-dashed border-primary-300 bg-primary-50/50 p-3.5 text-[14px] font-semibold text-primary-800 hover:bg-primary-50">
-                <MapPinned size={17} />{T('সাত বিভাগের গল্প আর মিশন, আসল নাসা আবহাওয়ায়', 'The seven division stories and missions, on real NASA weather')}<ChevronRight size={15} className="ml-auto" />
-              </Link>
             </div>
           ) : (
             <div className="mt-5 space-y-2.5">

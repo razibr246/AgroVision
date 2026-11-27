@@ -100,7 +100,6 @@ export default function Home() {
               <Link to="/farmer/plan" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Sprout size={13.5} className="text-primary-600" />{T('পরিকল্পনা', 'Plan')}</Link>
               <Link to="/farmer/doctor" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><ScanLine size={13.5} className="text-primary-600" />{T('ফসলের ডাক্তার', 'Crop Doctor')}</Link>
               <Link to="/officer/radar" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><RadarIcon size={13.5} className="text-primary-600" />{T('রোপণ রাডার', 'Radar')}</Link>
-              <Link to="/games#biomechanics" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-amber-800 hover:border-amber-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Activity size={13.5} className="text-amber-600" />{T('বায়োমেকানিক্স', 'Biomechanics')}</Link>
               <Link to="/farm" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-emerald-800 hover:border-emerald-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Glasses size={13.5} className="text-emerald-600" />{T('৩ডি ও ভিআর খামার', '3D & VR Farm')}</Link>
               <Link to="/kids?section=dream3d" title={T('ছোটদের ৩ডি স্বপ্ন-গল্প, ভিআর/এআর হেডসেটেও খেলা যায়', "Children's 3D dream story, playable in a VR/AR headset too")} className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-pink-800 hover:border-pink-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Baby size={13.5} className="text-pink-600" />{T('ছোটদের ভিআর খেলা', 'Kids VR Game')}</Link>
             </div>
@@ -305,30 +304,6 @@ export default function Home() {
       <Suspense fallback={<section className="py-16 sm:py-20"><div className="page-shell min-h-[760px]" /></section>}><CountryCrops /></Suspense>
 
 
-      {/* Game teaser: learn the tools by living one season of problems. */}
-      <section className="py-8 sm:py-12">
-        <div className="page-shell">
-          <div data-reveal className="glass flat spotlight-card relative overflow-hidden rounded-[30px] p-7 sm:p-10">
-            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(237,192,103,.45),transparent_70%)]" />
-            <div className="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(67,134,58,.28),transparent_70%)]" />
-            <div className="relative grid items-center gap-8 lg:grid-cols-[1.2fr_1fr]">
-              <div>
-                <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Swords size={15} />{T('খেলে শিখুন', 'Learn by playing')}</p>
-                <h2 className="mt-4 text-[32px] font-semibold tracking-[-0.025em] sm:text-[42px]">{T(`${GAMES.play.name.bn}: এক মৌসুমের গল্প`, `${GAMES.play.name.en}: one season's story`)}</h2>
-                <p className="mt-3 max-w-xl text-[17px] leading-8 text-ink/70">{T('খরা, কুয়াশা, পোকা, দাম পড়া — রহিম ভাইয়ের মাঠে ছয় মাসে ছয়টা বিপদ। আগের অভ্যাসে চলবেন, নাকি Agros-এর হাতিয়ার দিয়ে লড়বেন? খেলতে খেলতেই শিখে যান কোন সমস্যায় কোন পাতা।', 'Drought, fog, pests, a price crash — six problems in six months on Rahim\'s field. Follow the old habit, or fight back with Agros\'s tools? Learn which page solves which problem, just by playing.')}</p>
-                <div className="mt-6 flex flex-wrap gap-3"><Link to="/farm" className="btn-gloss inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold text-white transition-transform hover:scale-105 active:scale-95"><Sprout size={18} />{T(`৩ডি খামারের খেলা — ${GAMES.farm.name.bn}`, `3D farm game — ${GAMES.farm.name.en}`)}</Link><Link to="/play" className="glass-pill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold transition-transform hover:scale-105 active:scale-95"><Swords size={18} />{L(GAMES.play.name)}</Link></div>
-              </div>
-              <div className="flex flex-wrap justify-center gap-2.5 lg:justify-end">
-                {[[CloudSun, T('খরা', 'Drought'), 'from-amber-300 to-orange-500'], [Layers, T('কুয়াশা', 'Fog'), 'from-slate-300 to-slate-500'], [ScanLine, T('পাতায় দাগ', 'Leaf spots'), 'from-violet-400 to-violet-700'], [TrendingDown, T('দাম পড়া', 'Price crash'), 'from-paddy-300 to-clay-500'], [Droplets, T('সেচ', 'Irrigation'), 'from-sky-300 to-sky-700'], [LifeBuoy, T('পোকা', 'Pests'), 'from-rose-400 to-red-600']].map(([Icon, l, g], k) => (
-                  <span key={l} className="lift glass-pill drift group inline-flex items-center gap-2 rounded-full py-2 pl-2 pr-4 text-[15px] font-semibold transition-all hover:scale-105 active:scale-95" style={{ animationDelay: `${k * -0.9}s` }}>
-                    <span className={`grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br ${g} text-white shadow-sm transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110`}><Icon size={16} /></span>{l}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <footer className="bg-primary-950 pb-16 pt-12 text-primary-100">
         <div className="page-shell grid gap-8 sm:grid-cols-[1.2fr_1fr]">
@@ -349,7 +324,6 @@ export default function Home() {
           <Link to="/officer" className="hover:text-white transition-colors duration-150"><ShieldCheck size={14} className="mr-1.5 inline text-primary-300" />{T('কর্মকর্তার পাতা', 'Officer view')}</Link>
           <Link to="/officer/radar" className="hover:text-white transition-colors duration-150"><RadarIcon size={14} className="mr-1.5 inline text-primary-300" />{T('রোপণ রাডার', 'Ropon Radar')}</Link>
           <Link to="/farm" className="hover:text-white transition-colors duration-150"><Swords size={14} className="mr-1.5 inline text-primary-300" />{T('মাঠের মানুষ ৩ডি গেম', '3D Farm Game')}</Link>
-          <Link to="/stories" className="hover:text-white transition-colors duration-150"><MapPinned size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.stories.name)}</Link>
           <Link to="/kids" className="hover:text-white transition-colors duration-150"><Sparkles size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.kids.name)}</Link>
         </div>
       </footer>

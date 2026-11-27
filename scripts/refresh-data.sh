@@ -26,7 +26,6 @@ for f in src/data/climate/climate_*.json; do
   step "power-$u" node scripts/fetch/power.mjs --upazila "$u" --lat "$lat" --lon "$lon"
 done
 step wetness   node scripts/fetch/soil-wetness.mjs
-step stories   node scripts/fetch/stories.mjs
 step land      node scripts/fetch/gibs-land.mjs
 step water     node scripts/fetch/gibs-water.mjs
 step prices    "$PY" scripts/build/build_market_prices.py

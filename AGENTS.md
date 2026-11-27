@@ -35,7 +35,8 @@ added there.
 ## Layout
 
 - `src/App.jsx`: routes, every page lazy-loaded; three groups with their own layout in `src/layouts/`: public (`/`,
-  `/stories`, games), `/farmer/*` and `/officer/*`. The app covers Bangladesh only: the neighbouring-country and
+  the two games `/farm` and `/kids`), `/farmer/*` and `/officer/*`. The game hub, `/play`, `/saga`, `/stories` and `/people` were removed on
+  request (27 Nov 2026), with the Field Future and Science pages; do not bring them back unless asked. The app covers Bangladesh only: the neighbouring-country and
   "beyond South Asia" section (`/abroad/:cc`) was removed on purpose, with its data, API, game farmers and scripts;
   do not bring it back unless asked.
 - `src/store.jsx`: one context holds the selected farmer, field, priorities, requests and officer context, and derives
@@ -127,7 +128,7 @@ added there.
   Every Leaflet map needs `<StopOnLeave />` (`map/StopOnLeave.jsx`, already inside `MapFrame`); without it, a
   zoom animation still running when the page changes throws `_leaflet_pos` / `getZoom` errors after the map is gone.
 - `src/game/`: Harvest Horizon (ফসলের দিগন্ত; comments still say মাঠের মানুষ), the 3D farm game for the seven
-  Bangladesh farmers, one per division (three.js in `game/three/`). Its simulation (`sim.js`) and story campaign (`saga.js`) are pure and
+  Bangladesh farmers, one per division (three.js in `game/three/`). Its simulation (`sim.js`) is pure and
   tested like the engine; keep rendering out of them. `three/stage.js` runs the loop through `renderer.setAnimationLoop`
   (WebXR needs it), so an exception in a frame stops the game rather than being skipped; AR/VR starts there, with rules
   in `three/xr.js` / `xrlogic.js`. People (`three/people.js`, `realPeople.js`; farmers and villagers) are built facing

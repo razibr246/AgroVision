@@ -132,11 +132,6 @@ function SelectScreen({ who, setWho, onGo, onResume }) {
         <h1 className="mt-4 text-[40px] font-semibold leading-[1.12] tracking-[-0.03em] sm:text-[56px]">{L(GAMES.farm.name)} <span className="bg-[linear-gradient(100deg,#1e5c22_0%,#3d8c34_40%,#1d717a_100%)] bg-clip-text text-transparent">3D</span></h1>
         <p className="mt-3 max-w-2xl text-[17px] leading-[1.65] text-ink/70">{T('বাংলাদেশের সাত বিভাগের বাস্তব এলাকার পোশাক, ফসল আর বিপদের অনুপ্রেরণায় তৈরি ৭টি নমুনা কৃষক-চরিত্র। একজনকে বেছে নিন, সিমুলেটেড মাঠে নামুন, আর একটি মৌসুম পার করুন।', 'Seven sample farmer characters inspired by real regions across the seven divisions of Bangladesh. Choose one, land in a simulated field, and play through a season.')}</p>
       </div>
-      <Link to="/saga" className="mt-5 flex items-center gap-3 rounded-2xl border border-paddy-300/70 bg-paddy-50 p-4 text-[15px] font-semibold text-primary-950 transition hover:-translate-y-0.5 hover:shadow-md">
-        <Sparkles size={20} className="shrink-0 text-paddy-600" />
-        <span className="min-w-0 flex-1">{T('গল্পের অভিযান খেলুন: আসল আবহাওয়ার তিন মৌসুমে জমি সামলান', 'Play the story campaign: three seasons of real weather')}</span>
-        <ArrowRight size={18} className="shrink-0" />
-      </Link>
       <div className="mt-7 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
         {/* the chosen farmer, standing on their own ground */}
         <div className="field-folk-portrait relative min-h-[500px] overflow-hidden rounded-[30px] text-white shadow-[var(--shadow-lift)] lg:sticky lg:top-24 lg:self-start lg:h-[min(680px,calc(100svh-120px))]" style={{ background: stage(R.country) }}>

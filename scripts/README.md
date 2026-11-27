@@ -40,7 +40,6 @@ The live forecast and the Sentinel-2 pictures on the Today page are fetched in t
 | `fetch:landsat` | `fetch/landsat-fields.mjs` | NASA/USGS Landsat WELD 30 m NDVI at every registered field, December–March of the 1984–86, 1988–91 and 1998–2001 epochs (NASA GIBS, no login): `src/data/land/field_landsat.json` |
 | `train:stress` | `build/train_stress_model.mjs` | Trains and tests (leave one season out) ridge, logistic and decision-tree models of Rabi greenness and stress on NASA POWER weather and soil wetness: `src/data/models/stress_model.json` |
 | `fetch:cmip6` | `fetch/cmip6.mjs` | NASA NEX-GDDP-CMIP6 change per month, 8 models, `src/data/climate/cmip6_deltas.json` |
-| `fetch:stories` | `fetch/stories.mjs` | Climate for the story upazilas, `src/data/climate/stories_climate.json` |
 | `fetch:wetness` | `fetch/soil-wetness.mjs` | NASA POWER root-zone soil wetness, `src/data/water/soil_wetness.json` |
 | `fetch:water` | `fetch/gibs-water.mjs` | GRACE and SMAP through NASA GIBS, `src/data/water/water_sat.json` |
 | `fetch:trend-fields` | `fetch/trend-fields.mjs` | GRACE, SMAP and MODIS NDVI for every pixel of South Asia, year by year, computed like the Trends map points (engine/trends.js) and drawn in its colours: `public/trends/` (pass `grace`, `smap` or `green` to build one) |

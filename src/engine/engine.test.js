@@ -219,37 +219,6 @@ test('field future: a uniform +2 °C change warms every day by 2 °C and speeds 
   assert.equal(climateChange(null, 'godagari'), null);
 });
 
-// ---- Seven Divisions missions (missions.js) ----
-import { MISSIONS, history, relYield, limeDose, isKotal, moonAge } from './missions.js';
-const storiesData = JSON.parse(readFileSync(new URL('../data/climate/stories_climate.json', import.meta.url)));
-
-test('missions: the Sohra IMERG rule finds the four big haor flash floods on their days', () => {
-  const s = MISSIONS.sylhet;
-  const day = (y) => { const f = s.hazard(storiesData, y).flood; return f && new Date(Date.UTC(2001, 0, 1) + f.i * 864e5).toISOString().slice(0, 10); };
-  assert.equal(day(2004), '2004-04-14');
-  assert.equal(day(2010), '2010-03-30');
-  assert.equal(day(2017), '2017-03-31');
-  assert.equal(day(2022), '2022-04-15');
-});
-
-test('missions: the officer’s advice beats the old habits in every division, over every year', () => {
-  for (const m of Object.values(MISSIONS)) {
-    const inp = Object.fromEntries(Object.entries(m.inputs ?? {}).map(([k, v]) => [k, v.value]));
-    const best = history(m, storiesData, m.best, inp), old = history(m, storiesData, m.start, inp);
-    assert.ok(best.avg > old.avg + 40, `${m.id}: ${best.avg} vs ${old.avg}`);
-    assert.ok(best.dangers <= old.dangers, m.id);
-  }
-});
-
-test('missions: Maas–Hoffman, lime and moon helpers', () => {
-  assert.equal(relYield('boro', 3), 100);
-  assert.equal(relYield('boro', 8), 40); // 100 − 12 × (8 − 3)
-  assert.equal(limeDose(6.0), 0);
-  assert.equal(limeDose(4.3, 35), 3);
-  assert.ok(moonAge(Date.UTC(2000, 0, 6, 18, 14)) < 0.01);
-  assert.ok(isKotal(Date.UTC(2000, 0, 8)));
-});
-
 test('Godagari and Dhamrai each run on their own real NASA POWER file, 25 seasons, backtest for both', () => {
   const read = (u) => JSON.parse(readFileSync(new URL(`../data/climate/climate_${u}.json`, import.meta.url)));
   const g = read('godagari'), d = read('dhamrai');

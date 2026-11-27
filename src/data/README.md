@@ -6,7 +6,7 @@ dates for every file: [docs/DATA_SOURCES.md](../../docs/DATA_SOURCES.md).
 
 | Folder | Files | Made by |
 | --- | --- | --- |
-| `climate/` | `climate_<upazila>.json` (NASA POWER + IMERG daily, 2000–2026), `cmip6_deltas.json` (NEX-GDDP-CMIP6), `stories_climate.json`, `station_normals.json` (BMD station normals for the temperature correction) | `npm run fetch:power`, `fetch:cmip6`, `fetch:stories`; the station normals are copied from the NOAA/WMO 1991–2020 tables |
+| `climate/` | `climate_<upazila>.json` (NASA POWER + IMERG daily, 2000–2026), `cmip6_deltas.json` (NEX-GDDP-CMIP6), `station_normals.json` (BMD station normals for the temperature correction) | `npm run fetch:power`, `fetch:cmip6`, `fetch:stories`; the station normals are copied from the NOAA/WMO 1991–2020 tables |
 | `water/` | `soil_wetness.json` (POWER GWETROOT), `water_sat.json` (GRACE, SMAP) | `npm run fetch:wetness`, `fetch:water` |
 | `land/` | `land_sat.json` (NASA MODIS NDVI and land surface temperature, MERRA-2 evaporation, monthly since 2001), `field_terrain.json` (NASA SRTM and ASTER height, hollows and slope at each registered field), `field_ndvi.json` (each field's MODIS 250 m NDVI, January–February since 2001), `field_landsat.json` (each field's Landsat WELD 30 m Rabi NDVI, 1984–2001 epochs) | `npm run fetch:land`, `fetch:terrain`, `fetch:fields-ndvi`, `fetch:landsat` |
 | `models/` | `stress_model.json` (machine-learning models of Rabi greenness and stress, with their held-out scores) | `npm run train:stress` |
@@ -19,6 +19,6 @@ dates for every file: [docs/DATA_SOURCES.md](../../docs/DATA_SOURCES.md).
 | `geo/` | boundaries, unions and villages, land use, the national crop map; `radar/` light maps for every radar upazila | `npm run data:build`, `scripts/build/build_radar_geo.py` |
 
 The `.js` files here are data modules the app imports directly: `upazilas.js` (the seven upazilas and their officers),
-`demo.js` (**sample** farmers and requests), `stories.js` and `story.js` (the division stories and the game story),
+`demo.js` (**sample** farmers and requests), `stories.js` (the seven upazilas' order and division names),
 `parcels.js` (the register, with its satellite pictures), `advice.js`, `crop_problems.js` (BARI, BRRI and
 DAE guidance), `crop_photos.js`, `crop_samples.js` (sample symptom leaves for the Crop Doctor) and `upazila_facts.js`.

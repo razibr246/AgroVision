@@ -127,15 +127,6 @@ export default function CommandPalette() {
         keywords: ['game', '3d', 'farm', 'khela', 'folk', 'play', 'harvest', 'horizon', 'maather manush'],
       },
       {
-        id: 'hub-saga',
-        category: T('অ্যাপসমূহ', 'Applications'),
-        icon: BookOpen,
-        title: T('দশ বছরের উত্তরাধিকার · ৩ডি গল্পের অভিযান', 'Ten-Year Inheritance · 3D Story Campaign'),
-        sub: T('ধামরাইয়ের আসল নাসা আবহাওয়ায় বাবার জমির তিন মৌসুম', 'Generational farm campaign through real NASA weather seasons'),
-        action: () => navigate('/saga'),
-        keywords: ['saga', 'story', 'inheritance', 'campaign', 'golpo'],
-      },
-      {
         id: 'hub-kids',
         category: T('অ্যাপসমূহ', 'Applications'),
         icon: Sparkles,
@@ -144,15 +135,6 @@ export default function CommandPalette() {
         action: () => navigate('/kids'),
         keywords: ['kids', 'dream', 'children', 'vr', 'ar', 'chotoder', 'tara', 'swapner math'],
       },
-      ...['play', 'stories', 'people'].map((k) => ({
-        id: `hub-${k}`,
-        category: T('অ্যাপসমূহ', 'Applications'),
-        icon: k === 'people' ? Users : k === 'stories' ? MapPinned : Swords,
-        title: T(`${GAMES[k].name.bn} · ${GAMES[k].kind.bn}`, `${GAMES[k].name.en} · ${GAMES[k].kind.en}`),
-        sub: T(`${GAMES[k].audience.bn} · ${GAMES[k].time.bn}`, `${GAMES[k].audience.en} · ${GAMES[k].time.en}`),
-        action: () => navigate(GAMES[k].to),
-        keywords: ['game', 'khela', 'play', k, ...GAMES[k].name.en.toLowerCase().split(/\W+/)],
-      })),
 
       // ---- Farmer Suite Quick Actions ----
       {

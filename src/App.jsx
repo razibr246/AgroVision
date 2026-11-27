@@ -15,14 +15,8 @@ const load = (f, pick) => lazy(() => f().then((m) => (pick ? { default: m[pick] 
 const FarmerLayout = load(() => import('./layouts/FarmerLayout'));
 const OfficerLayout = load(() => import('./layouts/OfficerLayout'));
 const Login = load(() => import('./pages/public/Login'));
-const Play = load(() => import('./pages/public/Play'));
-const Saga = load(() => import('./pages/public/Saga'));
 const KidsDream = load(() => import('./pages/public/KidsDream'));
-const People = load(() => import('./pages/public/People'));
 const TestKit = load(() => import('./pages/public/TestKit'));
-const Games = load(() => import('./pages/public/Games'));
-const Stories = load(() => import('./pages/public/Stories'));
-const StoryLevel = load(() => import('./pages/public/StoryLevel'));
 const FarmGame = load(() => import('./pages/public/FarmGame'));
 const FarmerDashboard = load(() => import('./pages/farmer/Dashboard'));
 const Plan = load(() => import('./pages/farmer/Plan'));
@@ -112,7 +106,7 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route element={<PublicLayout />}><Route path="/" element={<Home />} /><Route path="/play" element={page(<Play />)} /><Route path="/games" element={page(<Games />)} /><Route path="/farm" element={page(<FarmGame />)} /><Route path="/saga" element={page(<Saga />)} /><Route path="/kids" element={page(<KidsDream />)} /><Route path="/people" element={page(<People />)} /><Route path="/testkit" element={page(<TestKit />)} /><Route path="/stories" element={page(<Stories />)} /><Route path="/stories/:id" element={page(<StoryLevel />)} /></Route>
+        <Route element={<PublicLayout />}><Route path="/" element={<Home />} /><Route path="/farm" element={page(<FarmGame />)} /><Route path="/kids" element={page(<KidsDream />)} /><Route path="/testkit" element={page(<TestKit />)} /></Route>
         <Route path="/login" element={page(<Login />)} />
         <Route path="/farmer" element={page(<FarmerLayout />)}>
           <Route index element={page(<FarmerDashboard />)} />
