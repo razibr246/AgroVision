@@ -75,8 +75,8 @@ export default function Home() {
 
             {/* Expansive, readable description */}
             <p className="mt-4 max-w-[34rem] text-[18px] leading-[1.65] tracking-[-0.005em] text-ink/75 sm:text-[20px]">
-              {T(<>আপনার জমির মাটির আনুমানিক হিসাব, <span className="font-medium text-ink">২৫ বছরের নাসার আবহাওয়া</span> আর পাশের কৃষকেরা কী লাগাচ্ছেন — সব মিলিয়ে {PROJECT_NAME} বলে দেয় কোন ফসল, কবে লাগালে <span className="font-medium text-ink">লাভ বেশি, ঝুঁকি কম</span>।</>,
-                <>An estimate of your soil, <span className="font-medium text-ink">25 years of NASA weather</span> and what your neighbours are planting — {PROJECT_NAME} weighs it all and tells you which crop to sow, and when, for <span className="font-medium text-ink">more profit and less risk</span>.</>)}
+              {T(<>{PROJECT_NAME} <span className="font-medium text-ink">২৫ বছরের নাসার আবহাওয়া</span>, এলাকার মাটির হিসাব আর আশপাশের ফসলের ধরন মিলিয়ে স্পষ্ট মৌসুমি পরামর্শ দেয় — যাতে প্রতি মৌসুমে <span className="font-medium text-ink">ফলন বাড়ে, ঝুঁকি কমে</span>।</>,
+                <>{PROJECT_NAME} turns <span className="font-medium text-ink">25 years of NASA weather</span>, area soil models and nearby planting into clear seasonal advice — for <span className="font-medium text-ink">better harvests and lower risk</span>.</>)}
             </p>
 
             {/* Primary Action Buttons: Generous, spread out, nicely organized */}
