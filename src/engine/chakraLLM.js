@@ -362,8 +362,8 @@ export function queryChakraLLM(rawText = '', context = {}) {
         support: '/farmer/support',
         hazard: '/farmer/signals',
         soil_wetness: '/farmer/signals',
-        climate_change: '/science#ml',
-        carbon_methane: '/farmer/future',
+        climate_change: '/farmer/signals',
+        carbon_methane: '/farmer/today',
         crop: '/farmer/plan',
         disease: '/farmer/doctor',
         parcel: '/farmer/farm',
@@ -508,7 +508,7 @@ export function queryChakraLLM(rawText = '', context = {}) {
     // ── 5. Carbon Sequestration & Diesel Savings ──
     case 'carbon_climate': {
       tags = ['MODEL', 'RULE'];
-      nav = '/farmer/future';
+      nav = '/farmer/today';
       const env = parcel.environmental;
       const carbon10 = numStr(env.carbon10YrTHa, lang, 1);
       const dieselSaved = numStr(env.dieselSavedLiters, lang, 1);
@@ -624,7 +624,7 @@ export function queryChakraLLM(rawText = '', context = {}) {
     // ── 12. CMIP6 2040s Climate Change Projections (8 GCM Models) ──
     case 'climate_change': {
       tags = ['MODEL', 'SAT'];
-      nav = '/science#ml';
+      nav = '/farmer/signals';
       const hits = searchRAG(text, { boostType: 'climate_change', topK: 1 });
       if (hits.length) {
         reply = lang === 'bn' ? hits[0].bn : hits[0].en;

@@ -77,7 +77,7 @@ export const DECISION_INPUTS = {
   context: [
     { k: 'satellite', bn: 'জমির সেন্টিনেল-২ সবুজ রেখা, MODIS চাপের বছর, SRTM/ASTER উঁচু-নিচু', en: 'The field’s Sentinel-2 green curve, MODIS stress years, SRTM/ASTER terrain', kind: 'SAT' },
     { k: 'grace', bn: 'GRACE-এর ভূগর্ভের পানি (কয়েকশো কিমি এলাকার গড়) আর SMAP মাটির ভেজা ভাব (৯ কিমি)', en: 'GRACE groundwater (an average over hundreds of km) and SMAP soil moisture (9 km)', kind: 'SAT' },
-    { k: 'future', bn: 'CMIP6 জলবায়ু মডেলের ২০৪০-এর দশক (জমির ভবিষ্যৎ পাতায় দশ বছরের হিসাবে লাগে, এই মৌসুমের উত্তরে নয়)', en: 'CMIP6 climate models for the 2040s (used in Field Future’s ten-year runs, not in this season’s answer)', kind: 'MODEL' },
+    { k: 'future', bn: 'CMIP6 জলবায়ু মডেলের ২০৪০-এর দশক (দশ বছরের ফসলচক্রের হিসাবে লাগে, এই মৌসুমের উত্তরে নয়)', en: 'CMIP6 climate models for the 2040s (used in the ten-year rotation runs, not in this season’s answer)', kind: 'MODEL' },
   ],
 };
 

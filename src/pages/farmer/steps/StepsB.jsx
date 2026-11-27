@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { clockText } from '../../../engine/forecast';
 // Season planner steps 5–7: the recommendation, the next crop, and the price-drop (glut) check.
-import { Info, Droplet, CheckCircle2, CalendarDays, Wheat, ShieldCheck, Coins, CloudSun, MapPin, Layers, FlaskConical, Pencil, Sprout, Telescope } from 'lucide-react';
+import { Info, Droplet, CheckCircle2, CalendarDays, Wheat, ShieldCheck, Coins, CloudSun, MapPin, Layers, FlaskConical, Pencil, Sprout } from 'lucide-react';
 import { useStore } from '../../../store';
 import { StepHeader, Card, Tag, Tags, WhyButton, Note, ScoreRing, MiniBar, LABEL_STYLE, RISK_STYLE, climateTag, soilTag, climateSource, soilSource, Button, Segmented } from '../../../components/ui';
 import SupplyChart from '../../../components/charts/SupplyChart';
@@ -423,14 +423,6 @@ export function StepRotation() {
         </Card>
       )}
       <Note tone="gold" className="mt-4">{L(r.nextRabiCaution)}</Note>
-      <Card className="cv-auto surface-card lift mt-4 flex flex-col gap-3 bg-gradient-to-br from-primary-50 to-sky-50 p-4 transition-all duration-200 hover:shadow-md sm:flex-row sm:items-center">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary-700 text-white"><Telescope size={21} /></span>
-        <div className="min-w-0 flex-1">
-          <div className="text-[16px] font-bold">{T('এভাবে ১০ বছর চললে জমির কী হবে?', 'What happens to the field after ten years of this?')}</div>
-          <p className="text-[13.5px] leading-6 text-muted">{T('মাটির জৈব পদার্থ, সেচের পানি আর আয়, আজকের আর নাসার ২০৪০-এর দশকের আবহাওয়ায়; সঙ্গে আপনার জমির জন্য সেরা ফসলচক্র।', 'Soil organic matter, irrigation and income, in today’s weather and NASA’s 2040s; and the best rotation for your field.')}</p>
-        </div>
-        <Button to="/farmer/future" className="shrink-0">{T('জমির ভবিষ্যৎ দেখুন', 'See the field’s future')}</Button>
-      </Card>
     </div>
   );
 }

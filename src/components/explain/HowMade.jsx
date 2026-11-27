@@ -2,8 +2,8 @@
 // context, the rules and their review status, the assumptions, and how firm the answer is (its lead over the next
 // option, whether it survives other weights and other climates). The arithmetic is engine/explain.js.
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Calculator, Eye, Scale, ListChecks, AlertTriangle, CheckCircle2, Gauge, ArrowRight } from 'lucide-react';
+
+import { Calculator, Eye, Scale, ListChecks, AlertTriangle, CheckCircle2, Gauge } from 'lucide-react';
 import { useStore } from '../../store';
 import { Card, Tag } from '../ui';
 import { margin, weightStability, climateStability, firmness, calibrationFlags, DECISION_INPUTS } from '../../engine/explain';
@@ -77,10 +77,6 @@ export default function HowMade() {
             <li>{T('অতীতের ২৫ মৌসুম সামনের মৌসুমের মতোই হবে, এমন নয়: তাই অন্য আবহাওয়াতেও চালিয়ে দেখা।', 'The next season will not repeat the last 25: hence the runs in other weather above.')}</li>
           </ul>
         </div>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[13.5px] font-semibold">
-        <Link to="/science#coverage" className="inline-flex items-center gap-1 text-primary-800 hover:underline">{T('কোন তথ্য আছে, কোনটা নেই বা পুরোনো', 'Which data is present, missing or out of date')}<ArrowRight size={14} /></Link>
-        <Link to="/science#disagree" className="inline-flex items-center gap-1 text-primary-800 hover:underline">{T('যেখানে উৎসগুলো মেলে না', 'Where the sources disagree')}<ArrowRight size={14} /></Link>
       </div>
     </Card>
   );

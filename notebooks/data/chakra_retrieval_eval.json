@@ -1,49 +1,177 @@
 {
   "about": "Hand-written retrieval questions for the Chakra knowledge base (src/data/models/chakra_knowledge_base.json). Each question names the chunk that should answer it by a stable part of its title, since chunk ids shift when the base is rebuilt. Written as farmers and officers ask, not copied from the titles. Used by notebooks/agros_colab_training.ipynb (BM25 against embedding retrieval) and as a floor in src/engine/chakraRetrieval.test.js. Add a question it fails; do not tune the retriever to this list.",
   "questions": [
-    { "q": "টমেটো গাছের পাতায় কালচে ভেজা দাগ, কুয়াশার পর গাছ মরে যাচ্ছে", "expect": "Late blight) on Tomato" },
-    { "q": "tomato leaves have brown rings like a target on the lower leaves", "expect": "Early blight) on Tomato" },
-    { "q": "টমেটোর পাতা কুঁকড়ে ছোট হয়ে যাচ্ছে, সাদা মাছি দেখা যায়", "expect": "Leaf curl virus) on Tomato" },
-    { "q": "my tomato plant suddenly droops in the afternoon and does not recover", "expect": "Wilting) on Tomato" },
-    { "q": "টমেটোর ফলে ফুটো, ভেতরে পোকা", "expect": "Fruit borer) on Tomato" },
-    { "q": "সরিষার ডগায় ছোট সবুজ পোকা দলে দলে রস খাচ্ছে", "expect": "Aphids) on Mustard" },
-    { "q": "mustard leaves white powdery blisters underneath", "expect": "White rust) on Mustard" },
-    { "q": "সরিষা ক্ষেতে শিকড়ে একটা পরগাছা গজাচ্ছে, ফুল বেগুনি", "expect": "Broomrape" },
-    { "q": "dark spots with rings on mustard pods and leaves", "expect": "Alternaria blight) on Mustard" },
-    { "q": "শীতে বোরোর চারা হলুদ হয়ে যাচ্ছে বীজতলায়", "expect": "Cold-damaged seedlings" },
-    { "q": "boro rice leaves have diamond shaped grey spots", "expect": "Blast) on Boro rice" },
-    { "q": "বোরো ধানের গোছার গোড়ায় বাদামি পোকা, গাছ পুড়ে যাওয়ার মতো গোল হয়ে মরছে", "expect": "Brown planthopper) on Boro rice" },
-    { "q": "aman paddy panicle neck turns black and breaks", "expect": "Neck blast" },
-    { "q": "আমন ধানে সাদা শিষ, ভেতরে ফাঁকা, কাণ্ডে ছিদ্র", "expect": "Stem borer) on Transplanted Aman" },
-    { "q": "ধানের দানায় হলুদ সবুজ গুটি, লক্ষ্মীর গু", "expect": "False smut" },
-    { "q": "aman leaves drying yellow from the tip with wavy edges after storm", "expect": "Bacterial leaf blight" },
-    { "q": "দুধ অবস্থায় ধানের দানা থেকে রস চুষে নেয় দুর্গন্ধ পোকা", "expect": "Rice bug" },
-    { "q": "গমের শিষ ওপর থেকে সাদা হয়ে শুকিয়ে যাচ্ছে ফাল্গুনে", "expect": "Wheat blast" },
-    { "q": "wheat leaves orange powder like rust", "expect": "Leaf rust) on Wheat" },
-    { "q": "মসুরের গাছ ঢলে পড়ছে, গোড়া পচে কালো", "expect": "Foot and root rot" },
-    { "q": "lentil leaves get small brown spots and the field looks burnt after foggy days", "expect": "Stemphylium blight" },
-    { "q": "how do I grow mustard, when to sow and how much urea", "expect": "Crop Guide: সরিষা" },
-    { "q": "শীতের টমেটো কবে লাগাব, সার কত লাগবে", "expect": "Crop Guide: শীতকালীন টমেটো" },
-    { "q": "বোরো ধানের বীজতলা আর রোপণের সময়", "expect": "Crop Guide: বোরো ধান" },
-    { "q": "সারের সরকারি দাম কত, ইউরিয়া কেজি কত টাকা", "expect": "The government fertiliser pr" },
-    { "q": "where can I test my soil cheaply", "expect": "Soil test (SRDI)" },
-    { "q": "কৃষি বিষয়ে ফোনে পরামর্শ কোন নম্বরে পাব", "expect": "16123" },
-    { "q": "solar pump for irrigation subsidy", "expect": "Solar irrigation pumps" },
-    { "q": "রবি মৌসুমে বিনা পয়সায় বীজ ও সার কীভাবে পাব", "expect": "Rabi" },
-    { "q": "combine harvester half price for haor farmers", "expect": "Farm machinery" },
-    { "q": "সরকার বাঁধা দামে ধান কেনে কি", "expect": "Government paddy" },
-    { "q": "crop insurance if the weather ruins my harvest", "expect": "Weather-index crop insur" },
-    { "q": "১০ টাকায় ব্যাংক হিসাব খোলা যায় কি", "expect": "10-taka farmer bank account" },
-    { "q": "how wet is the root zone soil in Godagari in winter", "expect": "soil wetness (NASA POWER GWETROOT): Godagari" },
-    { "q": "দাকোপে বর্ষায় মাটি কতটা ভেজা থাকে", "expect": "GWETROOT): Dacope" },
-    { "q": "how hot will Bangladesh get in the 2040s, climate projections", "expect": "CMIP6" },
-    { "q": "does alternate wetting and drying cut methane from paddy", "expect": "Soil carbon and paddy methane" },
-    { "q": "আগামী দুই সপ্তাহে কবে সেচ দেব আর কবে ইউরিয়া ছিটাব", "expect": "Two-week watering plan" },
-    { "q": "farms sharing pest data without sharing their records", "expect": "Federated learning" },
-    { "q": "what crops grow most in Dinajpur district", "expect": "District Agriculture: দিনাজপুর" },
-    { "q": "কুড়িগ্রাম জেলার প্রধান ফসল কী", "expect": "District Agriculture: কুড়িগ্রাম" },
-    { "q": "Teesta char land field crops", "expect": "তিস্তার চরের জমি" },
-    { "q": "haor boro field flood risk in Gowainghat", "expect": "হাওরের বোরো জমি" },
-    { "q": "rats eating the wheat at night", "expect": "Rats) on Wheat" }
+    {
+      "q": "টমেটো গাছের পাতায় কালচে ভেজা দাগ, কুয়াশার পর গাছ মরে যাচ্ছে",
+      "expect": "Late blight) on Tomato"
+    },
+    {
+      "q": "tomato leaves have brown rings like a target on the lower leaves",
+      "expect": "Early blight) on Tomato"
+    },
+    {
+      "q": "টমেটোর পাতা কুঁকড়ে ছোট হয়ে যাচ্ছে, সাদা মাছি দেখা যায়",
+      "expect": "Leaf curl virus) on Tomato"
+    },
+    {
+      "q": "my tomato plant suddenly droops in the afternoon and does not recover",
+      "expect": "Wilting) on Tomato"
+    },
+    {
+      "q": "টমেটোর ফলে ফুটো, ভেতরে পোকা",
+      "expect": "Fruit borer) on Tomato"
+    },
+    {
+      "q": "সরিষার ডগায় ছোট সবুজ পোকা দলে দলে রস খাচ্ছে",
+      "expect": "Aphids) on Mustard"
+    },
+    {
+      "q": "mustard leaves white powdery blisters underneath",
+      "expect": "White rust) on Mustard"
+    },
+    {
+      "q": "সরিষা ক্ষেতে শিকড়ে একটা পরগাছা গজাচ্ছে, ফুল বেগুনি",
+      "expect": "Broomrape"
+    },
+    {
+      "q": "dark spots with rings on mustard pods and leaves",
+      "expect": "Alternaria blight) on Mustard"
+    },
+    {
+      "q": "শীতে বোরোর চারা হলুদ হয়ে যাচ্ছে বীজতলায়",
+      "expect": "Cold-damaged seedlings"
+    },
+    {
+      "q": "boro rice leaves have diamond shaped grey spots",
+      "expect": "Blast) on Boro rice"
+    },
+    {
+      "q": "বোরো ধানের গোছার গোড়ায় বাদামি পোকা, গাছ পুড়ে যাওয়ার মতো গোল হয়ে মরছে",
+      "expect": "Brown planthopper) on Boro rice"
+    },
+    {
+      "q": "aman paddy panicle neck turns black and breaks",
+      "expect": "Neck blast"
+    },
+    {
+      "q": "আমন ধানে সাদা শিষ, ভেতরে ফাঁকা, কাণ্ডে ছিদ্র",
+      "expect": "Stem borer) on Transplanted Aman"
+    },
+    {
+      "q": "ধানের দানায় হলুদ সবুজ গুটি, লক্ষ্মীর গু",
+      "expect": "False smut"
+    },
+    {
+      "q": "aman leaves drying yellow from the tip with wavy edges after storm",
+      "expect": "Bacterial leaf blight"
+    },
+    {
+      "q": "দুধ অবস্থায় ধানের দানা থেকে রস চুষে নেয় দুর্গন্ধ পোকা",
+      "expect": "Rice bug"
+    },
+    {
+      "q": "গমের শিষ ওপর থেকে সাদা হয়ে শুকিয়ে যাচ্ছে ফাল্গুনে",
+      "expect": "Wheat blast"
+    },
+    {
+      "q": "wheat leaves orange powder like rust",
+      "expect": "Leaf rust) on Wheat"
+    },
+    {
+      "q": "মসুরের গাছ ঢলে পড়ছে, গোড়া পচে কালো",
+      "expect": "Foot and root rot"
+    },
+    {
+      "q": "lentil leaves get small brown spots and the field looks burnt after foggy days",
+      "expect": "Stemphylium blight"
+    },
+    {
+      "q": "how do I grow mustard, when to sow and how much urea",
+      "expect": "Crop Guide: সরিষা"
+    },
+    {
+      "q": "শীতের টমেটো কবে লাগাব, সার কত লাগবে",
+      "expect": "Crop Guide: শীতকালীন টমেটো"
+    },
+    {
+      "q": "বোরো ধানের বীজতলা আর রোপণের সময়",
+      "expect": "Crop Guide: বোরো ধান"
+    },
+    {
+      "q": "সারের সরকারি দাম কত, ইউরিয়া কেজি কত টাকা",
+      "expect": "The government fertiliser pr"
+    },
+    {
+      "q": "where can I test my soil cheaply",
+      "expect": "Soil test (SRDI)"
+    },
+    {
+      "q": "কৃষি বিষয়ে ফোনে পরামর্শ কোন নম্বরে পাব",
+      "expect": "16123"
+    },
+    {
+      "q": "solar pump for irrigation subsidy",
+      "expect": "Solar irrigation pumps"
+    },
+    {
+      "q": "রবি মৌসুমে বিনা পয়সায় বীজ ও সার কীভাবে পাব",
+      "expect": "Rabi"
+    },
+    {
+      "q": "combine harvester half price for haor farmers",
+      "expect": "Farm machinery"
+    },
+    {
+      "q": "সরকার বাঁধা দামে ধান কেনে কি",
+      "expect": "Government paddy"
+    },
+    {
+      "q": "crop insurance if the weather ruins my harvest",
+      "expect": "Weather-index crop insur"
+    },
+    {
+      "q": "১০ টাকায় ব্যাংক হিসাব খোলা যায় কি",
+      "expect": "10-taka farmer bank account"
+    },
+    {
+      "q": "how wet is the root zone soil in Godagari in winter",
+      "expect": "soil wetness (NASA POWER GWETROOT): Godagari"
+    },
+    {
+      "q": "দাকোপে বর্ষায় মাটি কতটা ভেজা থাকে",
+      "expect": "GWETROOT): Dacope"
+    },
+    {
+      "q": "how hot will Bangladesh get in the 2040s, climate projections",
+      "expect": "CMIP6"
+    },
+    {
+      "q": "does alternate wetting and drying cut methane from paddy",
+      "expect": "Soil carbon and paddy methane"
+    },
+    {
+      "q": "আগামী দুই সপ্তাহে কবে সেচ দেব আর কবে ইউরিয়া ছিটাব",
+      "expect": "Two-week watering plan"
+    },
+    {
+      "q": "what crops grow most in Dinajpur district",
+      "expect": "District Agriculture: দিনাজপুর"
+    },
+    {
+      "q": "কুড়িগ্রাম জেলার প্রধান ফসল কী",
+      "expect": "District Agriculture: কুড়িগ্রাম"
+    },
+    {
+      "q": "Teesta char land field crops",
+      "expect": "তিস্তার চরের জমি"
+    },
+    {
+      "q": "haor boro field flood risk in Gowainghat",
+      "expect": "হাওরের বোরো জমি"
+    },
+    {
+      "q": "rats eating the wheat at night",
+      "expect": "Rats) on Wheat"
+    }
   ]
 }

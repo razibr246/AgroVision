@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PageOutlet, ScrollProgress, useScrollOnNavigate } from '../components/Motion';
 import { ScrollNavigator } from '../components/SectionNav';
-import { Bell, Compass, ChevronDown, ChevronLeft, ChevronRight, Home, ScanLine, Sprout, Droplets, LifeBuoy, HandCoins, Wheat, Telescope, MapPinned, Ellipsis, X, Mic, UserRound, LogOut, MessageSquareText, Satellite, Search } from 'lucide-react';
+import { Bell, Compass, ChevronDown, ChevronLeft, ChevronRight, Home, ScanLine, Sprout, Droplets, LifeBuoy, HandCoins, Wheat, MapPinned, Ellipsis, X, Mic, UserRound, LogOut, MessageSquareText, Satellite, Search } from 'lucide-react';
 import BrandMark from '../components/brand/BrandMark';
 import { LangToggle, PlaceholderBanner, ResetDemo, BackButton, SkipToMain } from '../components/chrome';
 import MessagePopup from '../components/MessagePopup';
@@ -33,7 +33,6 @@ export function useFarmerNav() {
     { to: '/farmer', end: true, icon: Home, label: T('হোম', 'Home') },
     { to: '/farmer/farm', icon: MapPinned, label: T('আমার জমি', 'My field') },
     { to: '/farmer/plan', icon: Sprout, label: T('মৌসুমের পরিকল্পনা', 'Season plan'), mid: T('পরিকল্পনা', 'Season plan'), short: T('পরিকল্পনা', 'Plan') },
-    { to: '/farmer/future', icon: Telescope, label: T('জমির ভবিষ্যৎ', 'Field future'), short: T('ভবিষ্যৎ', 'Future') },
     { to: '/farmer/today', icon: Droplets, label: T('আজকের কাজ', 'Today'), short: T('আজ', 'Today') },
     { to: '/farmer/voice', icon: Mic, label: T('কথা বলে জানুন', 'Ask by voice'), short: T('ভয়েস', 'Voice') },
     { to: '/farmer/sms', icon: MessageSquareText, label: T('এসএমএসে', 'By SMS'), short: T('এসএমএস', 'SMS') },

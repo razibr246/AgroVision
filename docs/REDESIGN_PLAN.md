@@ -47,8 +47,10 @@ Don't take:
 Dates are targets. MVP freeze 10 Dec; feature freeze 18 Dec; after that only evidence, fixes and rehearsal.
 
 ### Step 0 — Ground work (27–28 Nov)
-- [ ] Commit the current work in small commits.
-- [ ] Remove the gemini-3.1-flash-tts-preview branch from `api/tts.js` and its test (it shuts down 18 Dec).
+- [x] Commit the current work in small commits.
+- [x] Remove the gemini-3.1-flash-tts-preview branch from `api/tts.js` and its test (it shuts down 18 Dec).
+- [x] Removed on request (27 Nov): the Field Future page and the Science page, with their components and the
+      federated-learning demo. Engines they shared with working pages stay.
 - [ ] Run the ui-consistency *finding-patterns* pass over `pages/farmer`, `pages/officer`, `pages/public/Home.jsx` and
       `components/ui.jsx`, and write the checklist it produces. Every later UI step is checked against it. Keep the
       current design system; take from the blueprint only what fits it: 48 px tap targets, tabular numerals, and

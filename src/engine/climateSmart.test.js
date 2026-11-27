@@ -1,9 +1,8 @@
-// Climate-smart additions: the 14-day irrigation planner, the heat watch and the federated outbreak model.
+// Climate-smart additions: the 14-day irrigation planner, and the heat watch.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { planIrrigation, topdressDays, COST } from './irrigationPlan.js';
 import { heatWatch } from './heatWatch.js';
-import { compareFederated, maskUpdates, makeFarms, federate } from './federated.js';
 import { RABI_CROPS } from './crops.js';
 
 const days = (n, f) => Array.from({ length: n }, (_, i) => ({ d: `2026-12-${String(i + 1).padStart(2, '0')}`, ...f(i) }));
@@ -76,26 +75,4 @@ test('heat watch levels: near, clear, later, past', () => {
   assert.ok(later.rules[0].opensIn > 0);
   const may = Array.from({ length: 16 }, (_, i) => ({ d: `2027-05-${String(i + 10).padStart(2, '0')}`, tmax: 40 }));
   assert.equal(heatWatch({ crop: RABI_CROPS.boro, plantT: boroPlant, forecast: may, today: Date.parse('2027-05-09T00:00:00Z') }).level, 'past');
-});
-
-test('secure aggregation: masked updates hide each farm but keep the sum', () => {
-  const u = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
-  const m = maskUpdates(u, 5);
-  const sum = (vs) => vs.reduce((a, v) => a.map((x, i) => x + v[i]));
-  sum(m).forEach((v, i) => assert.ok(Math.abs(v - sum(u)[i]) < 1e-9));
-  assert.ok(Math.abs(m[0][0] - u[0][0]) > 1); // the office cannot read farm 1's update
-});
-
-test('federated model beats each farm alone and is deterministic', () => {
-  const a = compareFederated(), b = compareFederated();
-  assert.deepEqual(a.mean, b.mean);
-  assert.ok(a.mean.federated > a.mean.local);
-  assert.ok(a.mean.federated >= a.mean.central - 0.03);
-  assert.ok(a.mean.dp > 0.6);
-});
-
-test('secure and plain FedAvg reach the same model', () => {
-  const farms = makeFarms({ farms: 4 });
-  const s = federate(farms, { rounds: 5, secure: true }), p = federate(farms, { rounds: 5, secure: false });
-  s.w.forEach((v, i) => assert.ok(Math.abs(v - p.w[i]) < 1e-6));
 });

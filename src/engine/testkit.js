@@ -4,7 +4,7 @@
 export const TASKS = [
   { k: 'field', bn: 'জমি বাছুন', en: 'Choose the field', path: '/farmer/plan' },
   { k: 'prio', bn: 'কী চান বলুন', en: 'Say what matters', path: '/farmer/plan' },
-  { k: 'compare', bn: 'ফসলচক্র মিলিয়ে দেখুন', en: 'Compare the rotations', path: '/farmer/future' },
+  { k: 'compare', bn: 'ফসলচক্র মিলিয়ে দেখুন', en: 'Compare the rotations', path: '/farmer/plan' },
   { k: 'officer', bn: 'কর্মকর্তাকে পাঠান', en: 'Send it to the officer', path: '/farmer/help' },
 ];
 export const QUESTIONS = [

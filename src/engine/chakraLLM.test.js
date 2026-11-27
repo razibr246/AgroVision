@@ -163,7 +163,7 @@ test('queryChakraLLM provides NASA CMIP6 2040s climate change projections', () =
   assert.ok(r.reply.includes('সিএমআইপি৬'));
   assert.ok(r.reply.includes('১.৪°C'));
   assert.ok(r.tags.includes('MODEL'));
-  assert.equal(r.nav, '/science#ml');
+  assert.equal(r.nav, '/farmer/signals');
 });
 
 test('queryChakraLLM provides NASA 25-year SPI drought & extreme rainfall hazards', () => {

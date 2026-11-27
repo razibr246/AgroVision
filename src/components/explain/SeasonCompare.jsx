@@ -1,8 +1,8 @@
 // The crop grown now, the recommendation and at least two alternatives, side by side on the same measures and the
 // same seasons (2013–2025, this field, these prices), each with why it ranks where it does. Crops the farmer left out
 // are named under the table, with a way back to change that.
-import { Link } from 'react-router-dom';
-import { Columns3, Ban, ArrowRight } from 'lucide-react';
+
+import { Columns3, Ban } from 'lucide-react';
 import { useStore } from '../../store';
 import { Card, ScoreRing, RISK_STYLE, Tags } from '../ui';
 import { seasonColumns, margin, calibrationFlags } from '../../engine/explain';
@@ -87,11 +87,6 @@ export default function SeasonCompare() {
         <p className="mt-3 flex flex-wrap items-center gap-1.5 text-[13px] text-muted"><Ban size={14} className="text-red-700" />{T('আপনি বাদ দিয়েছেন:', 'Left out by you:')} <b className="text-ink/80">{out.map((id) => cropName(id, lang)).join(', ')}</b>
           <button type="button" onClick={() => dispatch({ type: 'set', patch: { step: 3 } })} className="font-semibold text-primary-800 underline-offset-2 hover:underline">{T('বদলান', 'Change')}</button></p>
       )}
-      <Link to="/farmer/future" onClick={() => setTimeout(() => document.getElementById('ff-strategies')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 900)}
-        className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-primary-50 px-4 py-3 text-[14.5px] font-semibold text-primary-900 ring-1 ring-primary-200 hover:bg-primary-100">
-        <span>{T('এটা শুধু এই মৌসুম। দশ বছরের ফসলচক্র পাশাপাশি দেখুন: এখনকার চাষ, সেরা আর পরের বিকল্প, কেন আর কী ঝুঁকি', 'This is one season only. See ten-year rotations side by side: as now, the best and the next alternative, why and with what risks')}</span>
-        <ArrowRight size={17} className="shrink-0" />
-      </Link>
       <p className="mt-2 text-[12.5px] text-muted">{T('গাঢ় সবুজ: সেই সারিতে সবচেয়ে ভালো। অন্য চাওয়া বাছলে বা ফসল বাদ দিলে (ধাপ ৪) ক্রম সঙ্গে সঙ্গে বদলায়।', 'Bold green: the best in that row. Picking other priorities or leaving crops out (step 4) re-orders this at once.')}</p>
     </Card>
   );

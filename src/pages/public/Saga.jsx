@@ -3,8 +3,8 @@
 // Bangla), the father's notebook, family and village choices that move four meters, and a season played in the 3D
 // field with that year's real Dhamrai heat and storms, or run quickly from the choices made. Then 2045.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, CloudLightning, Coins, Droplets, Gamepad2, Heart, Layers, Mic, MicOff, RotateCcw, Sun, Sprout, Telescope, Thermometer, Users, FastForward, CloudRain } from 'lucide-react';
+
+import { ArrowRight, BookOpen, CloudLightning, Coins, Droplets, Gamepad2, Heart, Layers, Mic, MicOff, RotateCcw, Sprout, Telescope, Thermometer, Users, FastForward, CloudRain } from 'lucide-react';
 import Photo from '../../components/Photo';
 import { Tags } from '../../components/ui';
 import { LangToggle } from '../../components/chrome.jsx';
@@ -305,7 +305,6 @@ function Ending({ st, voice, onReplay }) {
           </div>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <button type="button" onClick={onReplay} className="btn-gloss inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold"><RotateCcw size={17} />{T('অন্য পথে আবার খেলুন', 'Play again another way')}</button>
-            <Link to="/farmer/future" className="glass-pill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold"><Sun size={17} />{T('আসল জমির ১০ বছর দেখুন', 'See a real field’s ten years')}</Link>
           </div>
         </div>
       )}

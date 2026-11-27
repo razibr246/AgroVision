@@ -8,7 +8,7 @@ import { FARMER_TOUR, FARMER_CHAPTERS } from './farmer_tour.js';
 
 const files = (dir) => readdirSync(dir).flatMap((f) => { const p = join(dir, f); return statSync(p).isDirectory() ? files(p) : p.endsWith('.jsx') ? [p] : []; });
 const code = files(new URL('..', import.meta.url).pathname).map((p) => readFileSync(p, 'utf8')).join('\n');
-const PAGES = ['/farmer', '/farmer/farm', '/farmer/plan', '/farmer/future', '/farmer/today', '/farmer/voice', '/farmer/sms', '/farmer/doctor', '/farmer/help', '/farmer/harvest', '/farmer/profile'];
+const PAGES = ['/farmer', '/farmer/farm', '/farmer/plan', '/farmer/today', '/farmer/voice', '/farmer/sms', '/farmer/doctor', '/farmer/help', '/farmer/harvest', '/farmer/profile'];
 
 test('every farmer tour step is complete and bilingual', () => {
   const keys = FARMER_CHAPTERS.map((c) => c.key);

@@ -239,7 +239,7 @@ export function whatNext({ water, plan, unc, trade, signals }) {
   const [habit, best] = trade ?? [];
   if (habit && best && habit.id !== best.id) {
     const saved = habit.water.now - best.water.now, soil = best.soil.now - habit.soil.now;
-    steps.push({ id: 'years', when: both('Next years', 'সামনের বছরগুলোয়'), tone: 0, tags: ['MODEL'], to: '/farmer/future',
+    steps.push({ id: 'years', when: both('Next years', 'সামনের বছরগুলোয়'), tone: 0, tags: ['MODEL'], to: '/farmer/plan',
       text: both(`Move towards the best rotation: ${soil >= 0 ? `${sgn(soil, r1)}% more soil carbon in ten years` : `${sgn(soil, r1)}% soil carbon`}${saved > 0 ? ` and ${r0(saved)} mm less irrigation a year` : ''}.`,
         `সেরা ফসলচক্রের দিকে যান: দশ বছরে মাটির জৈব কার্বন ${sgn(soil, r1)}%${saved > 0 ? `, আর বছরে ${r0(saved)} মিমি কম সেচ` : ''}।`),
       why: null });

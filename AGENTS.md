@@ -47,7 +47,7 @@ added there.
 - Auth0 is optional and UI-only: `src/auth/AuthProvider.jsx` enables it only when `VITE_AUTH0_DOMAIN` and
   `VITE_AUTH0_CLIENT_ID` are set; otherwise `useAuth()` is a demo no-op and `/login` still offers sample accounts.
   No API route verifies an Auth0 token yet, so it does not authorise the shared boards.
-- `src/engine/`: pure functions, no React. `soilfuture.js` is Field Future: `fieldContext` → `fieldFuture` runs every
+- `src/engine/`: pure functions, no React. `soilfuture.js` (the Field Future page itself was removed; Signals, the plan and Chakra still use it): `fieldContext` → `fieldFuture` runs every
   feasible rotation for ten years (ICBM soil carbon, FAO-56 water, NRCS soil health), `rank()` re-weights by the
   farmer's priorities, `climateLedger` does IPCC paddy methane, `modelTest` the 40-future ensemble.
 - `src/data/`: grouped by kind (`climate/`, `water/`, `land/`, `soil/`, `radar/`, `fields/`, `market/`, `region/`,
@@ -60,7 +60,7 @@ added there.
   `photos/`, `lib/`; index in `scripts/README.md`. Do not hand-edit generated data: change the script and re-run it.
   Moving a script changes its depth, so check its `ROOT` path and relative imports. The crop-stress model is generated
   too: `npm run train:stress` (`scripts/build/train_stress_model.mjs`) writes `src/data/models/stress_model.json`,
-  which `src/engine/stressModel.js` reads for `/science#ml`. Its skill is reported per place, as measured.
+  which `src/engine/stressModel.js` reads (no page shows it since the Science page was removed). Its skill is reported per place, as measured.
 - `api/`: Vercel functions. `plans` and `messages` are demo boards: hosted/production builds return 503 for
   them (`api/runtime.js`) until real server-side auth exists; do not remove that guard without it. `vite.config.js`
   serves in-memory copies in dev only.
@@ -104,10 +104,9 @@ added there.
 - The two-week field plan on Today (`components/fields/ClimateSmartPlan.jsx`) reads the 16-day Open-Meteo forecast:
   `engine/irrigationPlan.js` picks watering days by stochastic dynamic programming on the FAO-56 balance
   (`fieldWater().horizon`) and checks rain before a urea top-dress; `engine/heatWatch.js` lays the crop heat rules over
-  the forecast. `engine/federated.js` (FedAvg, secure aggregation, DP) runs on generated DEMO farms on `/science#federated`;
-  never present it as trained on real pest records. Their weights and assumptions are in `docs/THRESHOLDS.md`; tests in
+  the forecast. Their weights and assumptions are in `docs/THRESHOLDS.md`; tests in
   `src/engine/climateSmart.test.js`.
-- Harvest records (`/science#harvest`): FAOSTAT national yields per crop (`npm run data:harvest`), each year judged good
+- Harvest records (no page of their own; used by the Chakra agent and the crop doctor): FAOSTAT national yields per crop (`npm run data:harvest`), each year judged good
   or bad against the crop's own trend, and six models scored leaving one year out (`npm run train:harvest`). Show the
   scores as measured (they are modest: national yields swing on more than weather); `engine/harvestRecords.js` `harvestBrief`
   feeds the Chakra knowledge base and the crop doctor's prompt. `src/data/harvest/harvest_dataset.csv` is SYNTHETIC
@@ -150,7 +149,7 @@ added there.
 - Real vs sample is a product rule: climate, rain, radar, soil, prices and yields are real; farmers, requests and the
   register's owners are sample. Every number carries a `<Tags list={[...]} />` label saying what produced it (`SAT`,
   `STATION`, `MODEL`, `RECORD`, `RULE`, `AI`, `DEMO`); NASA POWER weather and SoilGrids soil are `MODEL` (real data,
-  not field measurements). Keep them truthful; the dataset register behind `/science#coverage` is
+  not field measurements). Keep them truthful; the dataset register is
   `src/engine/provenance.js`.
 - Never invent evidence. `docs/USER_TESTING.md` (filled from the `/testkit` export) and `docs/REVIEW_LOG.md` record
   only real sessions and real reviewers; claims in `docs/SUBMISSION.md` and `docs/EVIDENCE.md` must trace to a file

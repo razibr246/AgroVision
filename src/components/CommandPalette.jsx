@@ -5,7 +5,6 @@ import {
   Sprout,
   ShieldCheck,
   Gamepad2,
-  Telescope,
   ScanLine,
   Droplets,
   MapPinned,
@@ -22,7 +21,6 @@ import {
   X,
   ArrowRight,
   Sparkles,
-  Layers,
   BookOpen,
   Building2,
   Command,
@@ -155,15 +153,6 @@ export default function CommandPalette() {
         action: () => navigate(GAMES[k].to),
         keywords: ['game', 'khela', 'play', k, ...GAMES[k].name.en.toLowerCase().split(/\W+/)],
       })),
-      {
-        id: 'hub-science',
-        category: T('অ্যাপসমূহ', 'Applications'),
-        icon: Layers,
-        title: T('বিজ্ঞান, তথ্যসূত্র ও এআই মডেল', 'Science & Data Provenance'),
-        sub: T('নাসা পাওয়ার, সয়েলগ্রিডস ২.০, বিএমডি স্টেশন ও এসআরডিআই ল্যাব', 'NASA POWER, SoilGrids 2.0, BMD normals, and SRDI lab data'),
-        action: () => navigate('/science'),
-        keywords: ['science', 'data', 'nasa', 'soilgrids', 'bmd', 'srdi', 'model'],
-      },
 
       // ---- Farmer Suite Quick Actions ----
       {
@@ -183,15 +172,6 @@ export default function CommandPalette() {
         sub: T('এফএও-৫৬ পানি ও আইসিবিএম মাটির কার্বন মডেলিং', 'FAO-56 water balance and ICBM soil carbon optimizer'),
         action: () => navigate('/farmer/plan'),
         keywords: ['plan', 'rotation', 'crop', 'fasal', 'soil', 'carbon'],
-      },
-      {
-        id: 'farmer-future',
-        category: T('কৃষক সেবা', 'Farmer Tools'),
-        icon: Telescope,
-        title: T('জমির ভবিষ্যৎ', 'Field Future Projections'),
-        sub: T('৪০টি জলবায়ু ভবিষ্যৎ ও মাটির স্বাস্থ্য পূর্বাভাস', '40-scenario climate ensemble and 10-year soil health forecast'),
-        action: () => navigate('/farmer/future'),
-        keywords: ['future', 'climate', 'ensemble', 'carbon', 'health'],
       },
       {
         id: 'farmer-today',

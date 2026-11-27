@@ -21,7 +21,6 @@ const ClimateShift = lazy(() => import('../../components/charts/ClimateShift'));
 // The whole-country section carries 250 KB of district data; it loads on its own, after the top of the page.
 const CountryCrops = lazy(() => import('../../components/charts/CountryCrops'));
 // The ten-year rotation teaser runs the Field Future engine; it loads on its own too.
-const RotationTeaser = lazy(() => import('../../components/charts/RotationTeaser'));
 const ImpactReach = lazy(() => import('../../components/charts/ImpactReach'));
 const NasaEyes = lazy(() => import('../../components/NasaEyes'));
 const RopanRadarPulse = lazy(() => import('../../components/home/RopanRadarPulse'));
@@ -100,9 +99,7 @@ export default function Home() {
               <Link to="/farmer" state={{ chakra: true }} title={T('চক্র এজেন্ট: কৃষকের পাতায় খুলবে', 'Chakra Agent: opens on the farmer page')} className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><ChakraLogo size={15} />{T('চক্র এজেন্ট', 'Chakra Agent')}</Link>
               <Link to="/farmer/plan" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Sprout size={13.5} className="text-primary-600" />{T('পরিকল্পনা', 'Plan')}</Link>
               <Link to="/farmer/doctor" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><ScanLine size={13.5} className="text-primary-600" />{T('ফসলের ডাক্তার', 'Crop Doctor')}</Link>
-              <Link to="/farmer/future" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Layers size={13.5} className="text-primary-600" />{T('জমির ভবিষ্যৎ', 'Field Future')}</Link>
               <Link to="/officer/radar" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-primary-800 hover:border-primary-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><RadarIcon size={13.5} className="text-primary-600" />{T('রোপণ রাডার', 'Radar')}</Link>
-              <Link to="/science" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-sky-800 hover:border-sky-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Satellite size={13.5} className="text-sky-600" />{T('বিজ্ঞান ও ভূ-রসায়ন', 'Science & Geochem')}</Link>
               <Link to="/games#biomechanics" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-amber-800 hover:border-amber-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Activity size={13.5} className="text-amber-600" />{T('বায়োমেকানিক্স', 'Biomechanics')}</Link>
               <Link to="/farm" className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-emerald-800 hover:border-emerald-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Glasses size={13.5} className="text-emerald-600" />{T('৩ডি ও ভিআর খামার', '3D & VR Farm')}</Link>
               <Link to="/kids?section=dream3d" title={T('ছোটদের ৩ডি স্বপ্ন-গল্প, ভিআর/এআর হেডসেটেও খেলা যায়', "Children's 3D dream story, playable in a VR/AR headset too")} className="glass-pill rounded-full px-3.5 py-1.5 text-ink hover:text-pink-800 hover:border-pink-300 hover:shadow-xs transition-all flex items-center gap-1.5 active:scale-95"><Baby size={13.5} className="text-pink-600" />{T('ছোটদের ভিআর খেলা', 'Kids VR Game')}</Link>
@@ -233,7 +230,6 @@ export default function Home() {
         </div>
       </section>
 
-      <LazyMount height={640}><Suspense fallback={<section className="py-14"><div className="page-shell min-h-[600px]" /></section>}><RotationTeaser /></Suspense></LazyMount>
 
       {/* Climate risk: the drought/flood split photo beside 25 seasons of NASA data for Godagari or Dhamrai. */}
       <div id="climate-shift" className="scroll-mt-20"><LazyMount height={720}><Suspense fallback={<div className="min-h-[680px]" />}><ClimateShift /></Suspense></LazyMount></div>
@@ -246,7 +242,6 @@ export default function Home() {
             <Satellite size={30} className="text-paddy-300" />
             <h2 className="mt-4 text-[32px] font-bold sm:text-[40px]">{T('যে তথ্য দিয়ে হিসাব হয়', 'The data behind every answer')}</h2>
             <p className="mt-3 text-[16.5px] leading-8 text-white/80">{T('প্রতিটি ফলাফলের পাশে লেখা থাকে সেটা আসল তথ্য, নিয়মে হিসাব, AI, না নমুনা। উপগ্রহ আপনার জমির মাটি মাপে না — এলাকার মাপ এলাকার মাপ হিসেবেই দেখাই।', 'Every result is marked as real data, rule-based, AI or demo. Satellites do not measure your own plot’s soil, so area-level numbers are shown as exactly that.')}</p>
-            <Link to="/science" className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-[15px] font-semibold text-white ring-1 ring-white/25 hover:bg-white/25">{T('সহজ ভাষায় বিজ্ঞান: শব্দকোষ, মাপ, অনিশ্চয়তা', 'The science, plainly: glossary, scales, uncertainty')} →</Link>
           </div>
           <div data-reveal style={{ '--d': '120ms' }} className="space-y-5">
           <div className="overflow-x-auto rounded-2xl border border-white/15 bg-white/[.07] shadow-[inset_0_1px_0_rgba(255,255,255,.18)] backdrop-blur-md">
@@ -350,11 +345,9 @@ export default function Home() {
         <div className="page-shell mt-8 flex flex-wrap gap-x-6 gap-y-2.5 text-[14px]">
           <Link to="/farmer" className="hover:text-white transition-colors duration-150"><Droplets size={14} className="mr-1.5 inline text-primary-300" />{T('কৃষকের পাতা', 'Farmer view')}</Link>
           <Link to="/farmer/doctor" className="hover:text-white transition-colors duration-150"><ScanLine size={14} className="mr-1.5 inline text-primary-300" />{T('ফসলের ডাক্তার', 'Crop Doctor')}</Link>
-          <Link to="/farmer/future" className="hover:text-white transition-colors duration-150"><Sprout size={14} className="mr-1.5 inline text-primary-300" />{T('জমির ভবিষ্যৎ', 'Field Future')}</Link>
           <Link to="/farmer/harvest" className="hover:text-white transition-colors duration-150"><Wheat size={14} className="mr-1.5 inline text-primary-300" />{T('ফসল তোলার হিসাব', 'Harvest timing')}</Link>
           <Link to="/officer" className="hover:text-white transition-colors duration-150"><ShieldCheck size={14} className="mr-1.5 inline text-primary-300" />{T('কর্মকর্তার পাতা', 'Officer view')}</Link>
           <Link to="/officer/radar" className="hover:text-white transition-colors duration-150"><RadarIcon size={14} className="mr-1.5 inline text-primary-300" />{T('রোপণ রাডার', 'Ropon Radar')}</Link>
-          <Link to="/science" className="hover:text-white transition-colors duration-150"><Satellite size={14} className="mr-1.5 inline text-primary-300" />{T('বিজ্ঞান ও ভূ-রসায়ন', 'Science & Geochem')}</Link>
           <Link to="/farm" className="hover:text-white transition-colors duration-150"><Swords size={14} className="mr-1.5 inline text-primary-300" />{T('মাঠের মানুষ ৩ডি গেম', '3D Farm Game')}</Link>
           <Link to="/stories" className="hover:text-white transition-colors duration-150"><MapPinned size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.stories.name)}</Link>
           <Link to="/kids" className="hover:text-white transition-colors duration-150"><Sparkles size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.kids.name)}</Link>
@@ -395,7 +388,7 @@ function AtAGlance() {
           <div className="glass flat rounded-[24px] p-6">
             <p className="flex items-center gap-2 text-[15px] font-semibold"><Satellite size={18} className="text-sky-700" />{T('যে নাসার তথ্য পড়া হয়', 'The NASA data it reads')}</p>
             <div className="mt-3 flex flex-wrap gap-2">{nasa.map((n) => <a key={n} href="#data" onClick={(e) => { e.preventDefault(); document.getElementById('data')?.scrollIntoView({ behavior: 'smooth' }); }} className="rounded-full bg-sky-50 px-3 py-1.5 text-[13.5px] font-semibold text-sky-800 ring-1 ring-sky-200 transition hover:bg-sky-100">{n}</a>)}</div>
-            <p className="mt-3 text-[13.5px] leading-6 text-muted">{T('সঙ্গে সেন্টিনেল-১ ও ২, SoilGrids, আবহাওয়া অধিদপ্তর, বিবিএস আর FAOSTAT।', 'Plus Sentinel-1 and 2, SoilGrids, the Bangladesh Meteorological Department, BBS and FAOSTAT.')} <Link to="/science#coverage" className="font-semibold text-primary-700 underline-offset-4 hover:underline">{T('পুরো তালিকা', 'Full register')} →</Link></p>
+            <p className="mt-3 text-[13.5px] leading-6 text-muted">{T('সঙ্গে সেন্টিনেল-১ ও ২, SoilGrids, আবহাওয়া অধিদপ্তর, বিবিএস আর FAOSTAT।', 'Plus Sentinel-1 and 2, SoilGrids, the Bangladesh Meteorological Department, BBS and FAOSTAT.')}</p>
           </div>
           <div className="glass flat rounded-[24px] p-6">
             <p className="flex items-center gap-2 text-[15px] font-semibold"><ShieldCheck size={18} className="text-primary-700" />{T('প্রতিটি সংখ্যার পাশে তার উৎস', 'Every number says where it came from')}</p>

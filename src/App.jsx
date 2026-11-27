@@ -20,7 +20,6 @@ const Saga = load(() => import('./pages/public/Saga'));
 const KidsDream = load(() => import('./pages/public/KidsDream'));
 const People = load(() => import('./pages/public/People'));
 const TestKit = load(() => import('./pages/public/TestKit'));
-const Science = load(() => import('./pages/public/Science'));
 const Games = load(() => import('./pages/public/Games'));
 const Stories = load(() => import('./pages/public/Stories'));
 const StoryLevel = load(() => import('./pages/public/StoryLevel'));
@@ -33,7 +32,6 @@ const Help = load(() => import('./pages/farmer/Help'));
 const Support = load(() => import('./pages/farmer/Support'));
 const Profile = load(() => import('./pages/farmer/Profile'));
 const Harvest = load(() => import('./pages/farmer/Harvest'));
-const FieldFuture = load(() => import('./pages/farmer/FieldFuture'));
 const Signals = load(() => import('./pages/farmer/Signals'));
 const MyFarm = load(() => import('./pages/farmer/MyFarm'));
 const FarmerVoice = load(() => import('./pages/farmer/Voice'));
@@ -114,7 +112,7 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route element={<PublicLayout />}><Route path="/" element={<Home />} /><Route path="/play" element={page(<Play />)} /><Route path="/games" element={page(<Games />)} /><Route path="/farm" element={page(<FarmGame />)} /><Route path="/saga" element={page(<Saga />)} /><Route path="/kids" element={page(<KidsDream />)} /><Route path="/people" element={page(<People />)} /><Route path="/testkit" element={page(<TestKit />)} /><Route path="/science" element={page(<Science />)} /><Route path="/stories" element={page(<Stories />)} /><Route path="/stories/:id" element={page(<StoryLevel />)} /></Route>
+        <Route element={<PublicLayout />}><Route path="/" element={<Home />} /><Route path="/play" element={page(<Play />)} /><Route path="/games" element={page(<Games />)} /><Route path="/farm" element={page(<FarmGame />)} /><Route path="/saga" element={page(<Saga />)} /><Route path="/kids" element={page(<KidsDream />)} /><Route path="/people" element={page(<People />)} /><Route path="/testkit" element={page(<TestKit />)} /><Route path="/stories" element={page(<Stories />)} /><Route path="/stories/:id" element={page(<StoryLevel />)} /></Route>
         <Route path="/login" element={page(<Login />)} />
         <Route path="/farmer" element={page(<FarmerLayout />)}>
           <Route index element={page(<FarmerDashboard />)} />
@@ -125,7 +123,7 @@ export default function App() {
           <Route path="support" element={page(<Support />)} />
           <Route path="profile" element={page(<Profile />)} />
           <Route path="harvest" element={page(<Harvest />)} />
-          <Route path="future" element={page(<FieldFuture />)} />
+          <Route path="future" element={<Navigate to="/farmer" replace />} />
           <Route path="signals" element={page(<Signals />)} />
           <Route path="farm" element={page(<MyFarm />)} />
           <Route path="voice" element={page(<FarmerVoice />)} />

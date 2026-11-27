@@ -82,9 +82,9 @@ test('speaks Bangla in the designed Bangladeshi voice, English through generateC
   });
 });
 
-test('wraps legacy PCM TTS output using the returned sample rate', async () => {
+test('wraps PCM TTS output using the returned sample rate', async () => {
   const pcm = Buffer.from([5, 6, 7, 8]);
-  await withEnv({ GEMINI_API_KEY: 'test-key', GEMINI_TTS_MODEL: 'gemini-3.1-flash-tts-preview' }, async () => {
+  await withEnv({ GEMINI_API_KEY: 'test-key', GEMINI_TTS_MODEL: 'gemini-3.8-flash-tts' }, async () => {
     let requestBody;
     globalThis.fetch = async (_url, options) => {
       requestBody = JSON.parse(options.body);
@@ -96,8 +96,7 @@ test('wraps legacy PCM TTS output using the returned sample rate', async () => {
     };
     const res = response();
     await handler({ method: 'POST', body: { text: 'Good morning', lang: 'en' } }, res);
-    assert.match(requestBody.contents[0].parts[0].text, /British English.*Good morning/);
-    assert.equal(requestBody.contents[0].parts[0].speech_metadata, undefined);
+    assert.equal(requestBody.contents[0].parts[0].text, 'Good morning');
     const audio = Buffer.from(res.body.audio, 'base64');
     assert.equal(audio.toString('ascii', 0, 4), 'RIFF');
     assert.equal(audio.readUInt32LE(24), 16000);

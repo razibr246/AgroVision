@@ -32,7 +32,7 @@ export default function Signals() {
   const lang = s.lang;
   const n = (v, dp = 0) => (v == null ? '–' : num(v, lang, { dp }));
 
-  // Field Future's ten-year runs for this field (the same call as /farmer/future).
+  // Field Future's ten-year runs for this field.
   const ctx = useMemo(() => fieldContext({ clim, change: climateChange(deltas, upazila.id, 'ssp245'), soil, plot: farmer, amanT: rotation.amanMeasured ? rotation.amanT : null, econ }),
     [clim, upazila.id, soil, farmer, rotation.amanMeasured, rotation.amanT, econ]);
   const ff = useMemo(() => fieldFuture({ ctx, lastCrop: farmer.last_crop, plan: { rabi: chosen.crop.id, k1: rotation.best?.crop.id ?? 'fallow' }, priorities: s.priorities, exclude: excludeAll }),
@@ -224,7 +224,6 @@ function Compare({ rows, ctx, n }) {
           );
         })}
       </div>
-      <p className="mt-3 text-[13px] text-muted">{T('পুরো দশ বছরের হিসাব, কারণ, প্রমাণ আর ঝুঁকি দেখুন ', 'For the full ten-year runs, with why, evidence and risks, see ')}<Link to="/farmer/future" className="font-semibold text-primary-700 hover:underline">{T('জমির ভবিষ্যৎ', 'Field future')}</Link>.</p>
     </Card>
   );
 }

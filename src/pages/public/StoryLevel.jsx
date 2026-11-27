@@ -134,7 +134,7 @@ function LiveLevel({ lv }) {
   const go = (to) => { dispatch({ type: 'chooseFarmer', id: lv.live }); navigate(to); };
   const tools = [
     ['/farmer', T('খামারের হোম', 'Farm home')], ['/farmer/plan', T('মৌসুমের পরিকল্পনা (নাসার ২৫ বছর)', 'Season plan (25 years of NASA weather)')],
-    ['/farmer/today', T('আজকের সেচ', 'Irrigation today')], ['/farmer/future', T('জমির ভবিষ্যৎ: ২০৪০-এর দশক', 'Field future: the 2040s')], ['/farmer/doctor', T('ফসলের ডাক্তার', 'Crop doctor')],
+    ['/farmer/today', T('আজকের সেচ', 'Irrigation today')], ['/farmer/doctor', T('ফসলের ডাক্তার', 'Crop doctor')],
   ];
   return (
     <section className="mt-6 rounded-[24px] bg-primary-950 p-5 text-white sm:p-6">

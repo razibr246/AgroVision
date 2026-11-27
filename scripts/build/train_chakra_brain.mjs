@@ -514,7 +514,7 @@ for (const [crop, h] of Object.entries(harvestModel.crops)) {
   );
 }
 
-// Chunks: the two-week field plan and the federated outbreak demo (what they do, so the agent can explain them).
+// Chunk: the two-week field plan (what it does, so the agent can explain it).
 addChunk(
   'two_week_plan',
   'Two-week watering plan, heat watch and urea day',
@@ -522,14 +522,6 @@ addChunk(
   `"The next two weeks" on the Today page: from the 16-day forecast and the field's soil water, it picks the day and millimetres to irrigate (dynamic programming, counting rain arriving as forecast, half or none). It warns ahead when the crop's heat limit falls in the forecast at the sensitive stage (e.g. Boro: 3 days at ${BORO_HEAT} °C or more during flowering). For a urea top-dress it picks a day with no heavy rain (${HEAVY_TOPDRESS_MM} mm+) that day or the next two. It is redone every day.`,
   ['irrigation', 'plan', 'forecast', 'heat', 'urea', 'topdress', 'সেচ', 'গরম', 'ইউরিয়া', 'পূর্বাভাস'],
   { page: '/farmer/today' }
-);
-addChunk(
-  'federated',
-  'Federated learning for pest-outbreak warnings (demo)',
-  'বিজ্ঞান পাতায় দেখানো হয়েছে কীভাবে খামারগুলো নিজের রেকর্ড না দিয়েই একসঙ্গে পোকার আক্রমণের মডেল শিখতে পারে (FedAvg, সুরক্ষিত যোগফল, ডিফারেনশিয়াল প্রাইভেসি)। খামার আর মৌসুমগুলো বানানো নমুনা; কোনো আসল খামারের পোকার রেকর্ড এই অ্যাপে নেই।',
-  'The Science page shows how farms could learn a shared pest-outbreak model without handing over their records (FedAvg, secure aggregation, differential privacy). The farms and seasons are generated sample data; no real farm pest records are in this app.',
-  ['federated', 'privacy', 'pest', 'outbreak', 'demo', 'পোকা', 'গোপনীয়তা'],
-  { page: '/science#federated', demo: true }
 );
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Droplets, ScanLine, Sprout, Wheat, TrendingDown, LifeBuoy, MapPinned, CheckCircle2, MessageSquareText, ChevronRight, Telescope } from 'lucide-react';
+import { Droplets, ScanLine, Sprout, Wheat, TrendingDown, LifeBuoy, MapPinned, CheckCircle2, MessageSquareText, ChevronRight } from 'lucide-react';
 import { useStore, demo } from '../../store';
 import { Button, StatCard, Card, Note, Tags, LABEL_STYLE, RISK_STYLE, WATER_STYLE, ScoreRing, climateTag, CountUp } from '../../components/ui';
 import Photo from '../../components/Photo';
@@ -137,15 +137,6 @@ export default function Dashboard() {
         <StatCard icon={Wheat} tone="amber" label={T('ফসল তোলা', 'Harvest')} value={daysTo > 0 ? <><CountUp value={daysTo} /> {T('দিন বাকি', 'days left')}</> : T('এখন চলছে', 'under way')} note={fmtRange(chosen.hw.start, chosen.hw.end, lang)} to="/farmer/harvest" />
         <StatCard icon={LifeBuoy} tone="violet" label={T('সাহায্য', 'Help')} value={T(`${num(openReqs, 'bn')}টি অপেক্ষায়`, `${openReqs} waiting`)} note={unreadAdvisories ? T(`${num(unreadAdvisories, 'bn')}টি নতুন বার্তা`, `${unreadAdvisories} new message${unreadAdvisories > 1 ? 's' : ''}`) : T('নতুন বার্তা নেই', 'No new messages')} to="/farmer/help" />
       </div>
-
-      <Link to="/farmer/future" data-tour="dash-future" className="lift group flex items-center gap-4 overflow-hidden rounded-[22px] bg-gradient-to-r from-primary-950 via-primary-900 to-sky-900 p-5 text-white shadow-[var(--shadow-lift)] ring-1 ring-white/15 transition-all duration-300 hover:shadow-2xl">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/15 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Telescope size={24} /></span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[17px] font-bold tracking-tight">{T('জমির ভবিষ্যৎ: ১০ বছরের ফসলচক্র', 'Field future: ten years of rotation')}</span>
-          <span className="block text-[13.5px] leading-6 text-white/80">{T('কোন ফসলচক্রে আপনার মাটি ভালো থাকে, পানি বাঁচে, আয় বাড়ে, আজ আর নাসার ২০৪০-এর দশকের আবহাওয়ায়', 'Which rotation keeps your soil good, saves water and pays, today and in NASA’s 2040s')}</span>
-        </span>
-        <ChevronRight size={20} className="shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
-      </Link>
 
       <div className="grid gap-6 lg:grid-cols-[1.25fr_.75fr]">
         <Card className="p-5 sm:p-6" data-tour="dash-week">

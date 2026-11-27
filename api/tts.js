@@ -199,7 +199,7 @@ async function synthesize({ key, signal, model, voice, designed, transcript, sty
         generation_config: { speech_config: [{ voice }] },
       }
     : {
-        contents: [{ role: 'user', parts: [model === 'gemini-3.1-flash-tts-preview' ? { text: `${style}: ${transcript}` } : { text: transcript, ...(style ? { speech_metadata: { style } } : {}) }] }],
+        contents: [{ role: 'user', parts: [{ text: transcript, ...(style ? { speech_metadata: { style } } : {}) }] }],
         generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { voice } } },
       };
   const r = await fetch(designed ? INTERACTIONS_API : `${API}/${model}:generateContent`, {
