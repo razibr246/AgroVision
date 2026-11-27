@@ -11,10 +11,9 @@ import { useStore } from './store';
 // Every page except Home loads on first visit, so the landing page does not download the whole app. The service
 // worker caches each route's assets when that route is first opened instead of downloading every page up front.
 const load = (f, pick) => lazy(() => f().then((m) => (pick ? { default: m[pick] } : m)));
-// the farmer, officer and neighbouring-country shells too: the landing page needs none of them (or their charts)
+// the farmer and officer shells too: the landing page needs none of them (or their charts)
 const FarmerLayout = load(() => import('./layouts/FarmerLayout'));
 const OfficerLayout = load(() => import('./layouts/OfficerLayout'));
-const AbroadLayout = load(() => import('./layouts/AbroadLayout'));
 const Login = load(() => import('./pages/public/Login'));
 const Play = load(() => import('./pages/public/Play'));
 const Saga = load(() => import('./pages/public/Saga'));
@@ -53,21 +52,6 @@ const Alerts = load(() => import('./pages/officer/Alerts'));
 const Planting = load(() => import('./pages/officer/Planting'));
 const Upazila = load(() => import('./pages/officer/UpazilaSupply'), 'Upazila');
 const Supply = load(() => import('./pages/officer/UpazilaSupply'), 'Supply');
-const AbHome = load(() => import('./pages/abroad/farmer'), 'Home');
-const AbField = load(() => import('./pages/abroad/farmer'), 'Field');
-const AbPlan = load(() => import('./pages/abroad/farmer'), 'Plan');
-const AbRisks = load(() => import('./pages/abroad/farmer'), 'Risks');
-const AbFuture = load(() => import('./pages/abroad/farmer'), 'Future');
-const AbHelp = load(() => import('./pages/abroad/farmer'), 'Help');
-const AbToday = load(() => import('./pages/abroad/farmer'), 'Today');
-const AbSupport = load(() => import('./pages/abroad/farmer'), 'Support');
-const AbOverview = load(() => import('./pages/abroad/officer'), 'Overview');
-const AbAlerts = load(() => import('./pages/abroad/officer'), 'Alerts');
-const AbRequests = load(() => import('./pages/abroad/officer'), 'Requests');
-const AbFarmer = load(() => import('./pages/abroad/officer'), 'FarmerView');
-const AbCountry = load(() => import('./pages/abroad/officer'), 'Country');
-const AbAreaMap = load(() => import('./pages/abroad/officer'), 'AreaMap');
-const AbPlanting = load(() => import('./pages/abroad/officer'), 'Planting');
 
 // A quiet placeholder while a page's code arrives (usually a fraction of a second).
 function PageLoading() {
@@ -162,23 +146,6 @@ export default function App() {
           <Route path="calls" element={page(<CallNotes />)} />
           <Route path="radar" element={page(<Radar />)} />
           <Route path="radar-original" element={page(<RadarOriginal />)} />
-        </Route>
-        <Route path="/abroad/:cc" element={page(<AbroadLayout />)}>
-          <Route index element={page(<AbHome />)} />
-          <Route path="field" element={page(<AbField />)} />
-          <Route path="plan" element={page(<AbPlan />)} />
-          <Route path="risks" element={page(<AbRisks />)} />
-          <Route path="future" element={page(<AbFuture />)} />
-          <Route path="help" element={page(<AbHelp />)} />
-          <Route path="today" element={page(<AbToday />)} />
-          <Route path="support" element={page(<AbSupport />)} />
-          <Route path="officer" element={page(<AbOverview />)} />
-          <Route path="officer/alerts" element={page(<AbAlerts />)} />
-          <Route path="officer/requests" element={page(<AbRequests />)} />
-          <Route path="officer/farmer" element={page(<AbFarmer />)} />
-          <Route path="officer/country" element={page(<AbCountry />)} />
-          <Route path="officer/map" element={page(<AbAreaMap />)} />
-          <Route path="officer/planting" element={page(<AbPlanting />)} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,6 +1,6 @@
 // Which language each sentence of a reply is in, so a mixed reply is spoken with the right voice for each part: a
 // Bangla sentence by the Bangladeshi voice, an English one by the British voice. Pure; used by src/voice/speech.js.
-// A Bangla sentence that only carries an English name ("AgroVision", "Landsat") stays Bangla.
+// A Bangla sentence that only carries an English name ("Agros", "Landsat") stays Bangla.
 
 const BN = /[\u0980-\u09E5\u09F0-\u09FF]/g; // Bangla letters and signs, not its digits
 const LATIN_WORD = /[A-Za-z]{2,}/g;

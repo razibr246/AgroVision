@@ -1,68 +1,33 @@
-// The agriculture office of মাঠের মানুষ: the upazila agriculture office in Bangladesh, and the office a farmer goes to
-// in each other place (a block office in Punjab, a township office in Myanmar, a USDA service centre in Nevada ...).
+// The agriculture office of মাঠের মানুষ: the upazila agriculture office.
 // Every one of the farmers can walk in and talk to the officer, who looks at the farm as it is now and helps:
 //  - advice on what is going wrong right now (pests, thirst, dead plants, tired soil, the same crop again, weather);
-//  - the real government programmes for that country, from the app's own checked list (src/data/support/), each
+//  - the real government programmes of Bangladesh, from the app's own checked list (src/data/support/), each
 //    with where to go and its source — never a promise, because a committee or a bank decides;
 //  - a few things the office does in the game: a free soil test, a farmer field school, and once a season, when
 //    money is short, an incentive seed kit (a game version of programmes like Bangladesh's input incentive).
 // Pure: no three.js and no React. The page shows it, sim.js opens it, layout.js places the building.
 import { BD_SUPPORT } from '../data/support/bd_support.js';
-import { ABROAD_SUPPORT } from '../data/support/abroad_support.js';
 
 const q = (bn, en) => ({ bn, en });
 
-// The office of each country, the board over its door in the local script, and the officer on duty (a sample person).
+// The office, the board over its door, and the officer on duty (a sample person).
 export const OFFICES = {
   bangladesh: {
     name: q('উপজেলা কৃষি অফিস', 'Upazila Agriculture Office'), sign: { t: 'উপজেলা কৃষি অফিস', sub: 'Upazila Agriculture Office' },
     officer: { name: q('উপসহকারী কৃষি কর্মকর্তা নাসরিন আক্তার', 'Sub-Assistant Agriculture Officer Nasrin Akter'), female: true },
   },
-  india: {
-    name: q('ব্লক কৃষি অফিস', 'Block Agriculture Office'), sign: { t: 'ਬਲਾਕ ਖੇਤੀਬਾੜੀ ਦਫ਼ਤਰ', sub: 'Block Agriculture Office' },
-    officer: { name: q('কৃষি উন্নয়ন কর্মকর্তা গুরপ্রীত কৌর', 'Agriculture Development Officer Gurpreet Kaur'), female: true },
-  },
-  pakistan: {
-    name: q('কৃষি সম্প্রসারণ অফিস', 'Agriculture Extension Office'), sign: { t: 'زرعی توسیع دفتر', sub: 'Agriculture Extension Office' }, rtl: true,
-    officer: { name: q('কৃষি কর্মকর্তা আসিফ মেমন', 'Agriculture Officer Asif Memon'), female: false },
-  },
-  nepal: {
-    name: q('কৃষি জ্ঞান কেন্দ্র', 'Agriculture Knowledge Centre'), sign: { t: 'कृषि ज्ञान केन्द्र', sub: 'Agriculture Knowledge Centre' },
-    officer: { name: q('কৃষি প্রযুক্তিবিদ সুনীতা চৌধুরী', 'Agriculture Technician Sunita Chaudhary'), female: true },
-  },
-  bhutan: {
-    name: q('গেওগ কৃষি সম্প্রসারণ অফিস', 'Gewog Agriculture Extension Office'), sign: { t: 'Gewog Agriculture Extension Office', sub: 'RNR Extension' },
-    officer: { name: q('সম্প্রসারণ কর্মকর্তা দর্জি ওয়াংদি', 'Extension Officer Dorji Wangdi'), female: false },
-  },
-  myanmar: {
-    name: q('টাউনশিপ কৃষি অফিস', 'Township Agriculture Office'), sign: { t: 'မြို့နယ်စိုက်ပျိုးရေးဦးစီးဌာန', sub: 'Township Department of Agriculture' },
-    officer: { name: q('কৃষি কর্মকর্তা দাও খিন মার', 'Agriculture Officer Daw Khin Mar'), female: true },
-  },
-  usa: {
-    name: q('USDA সার্ভিস সেন্টার', 'USDA Service Center'), sign: { t: 'USDA Service Center', sub: 'Farm Service Agency · NRCS' },
-    officer: { name: q('কাউন্টি অফিসার মার্ক জেনসেন', 'County officer Mark Jensen'), female: false },
-  },
-  brazil: {
-    name: q('গ্রামীণ কৃষি সহায়তা অফিস (EMPAER)', 'Rural extension office (EMPAER)'), sign: { t: 'EMPAER · Assistência Técnica Rural', sub: 'Rural extension' },
-    officer: { name: q('কৃষিবিদ আনা পাওলা সিলভা', 'Agronomist Ana Paula Silva'), female: true },
-  },
-  spain: {
-    name: q('আঞ্চলিক কৃষি অফিস (OCA)', 'District agriculture office (OCA)'), sign: { t: 'Oficina Comarcal Agraria', sub: 'Junta de Andalucía' },
-    officer: { name: q('প্রযুক্তিবিদ হাভিয়ের মোরেনো', 'Technician Javier Moreno'), female: false },
-  },
 };
 export const officeOf = (country) => OFFICES[country] ?? OFFICES.bangladesh;
 
-// The officer's own look (a sample person): neat, in the clothes of the office in that place.
+// The officer's own look (a sample person): neat, in the clothes of the office.
 export function officerLook(country) {
   const o = officeOf(country), f = o.officer.female;
-  const skin = { bangladesh: '#b98260', india: '#c08a66', pakistan: '#b07a55', nepal: '#c69872', bhutan: '#d1a27c', myanmar: '#c29068', usa: '#e2b48f', brazil: '#b98260', spain: '#d8a982' }[country] ?? '#b98260';
-  if (country === 'bangladesh' && f) return { skin, hair: '#15100c', build: 0.94, female: true, head: 'hijab', headA: '#2e6b5a', headB: '#d9c48a', top: 'kameez', topA: '#e8eef0', topB: '#2e6b5a', lower: 'shalwar', lowA: '#2e6b5a', lowB: '#2e6b5a', feet: 'sandal', feetA: '#3a2a1e' };
-  if (f) return { skin, hair: '#1a1411', build: 0.94, female: true, head: country === 'india' ? 'orhni' : 'short', headA: '#3b6ea5', headB: '#e2b84a', top: country === 'india' ? 'kameez' : 'shirt', topA: '#eef2f6', topB: '#3b6ea5', lower: country === 'india' ? 'shalwar' : 'cargo', lowA: '#2f3f55', lowB: '#2f3f55', feet: 'shoe', feetA: '#2a2420' };
+  const skin = '#b98260';
+  if (f) return { skin, hair: '#15100c', build: 0.94, female: true, head: 'hijab', headA: '#2e6b5a', headB: '#d9c48a', top: 'kameez', topA: '#e8eef0', topB: '#2e6b5a', lower: 'shalwar', lowA: '#2e6b5a', lowB: '#2e6b5a', feet: 'sandal', feetA: '#3a2a1e' };
   return { skin, hair: '#1a1411', build: 1, head: 'short', top: 'shirt', topA: '#e9eef3', topB: '#9db4cc', lower: 'cargo', lowA: '#3a4352', lowB: '#2e3542', feet: 'shoe', feetA: '#2a2420' };
 }
 
-const programmes = (country) => (country === 'bangladesh' ? BD_SUPPORT : ABROAD_SUPPORT[country]?.list ?? []).filter((p) => p.status !== 'announced');
+const programmes = () => BD_SUPPORT.filter((p) => p.status !== 'announced');
 // the kinds of programme that help with each kind of trouble
 const KIND_FOR = { pests: ['advice', 'input'], dry: ['irrigation', 'advice'], dead: ['insurance', 'cash'], soil: ['soil', 'input'], repeat: ['advice', 'soil'], money: ['cash', 'input', 'credit'], storm: ['insurance', 'cash'], heat: ['advice', 'irrigation'], register: ['register'] };
 

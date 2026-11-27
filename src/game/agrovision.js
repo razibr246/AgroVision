@@ -1,13 +1,12 @@
-// AgroVision inside "মাঠের মানুষ": what the game's AgroVision station shows about the player's own place, built only
-// from the app's real records and engine. Each game farmer farms a real place: the seven Bangladesh farmers their
-// upazila, the five neighbours their country's farm point. For that place:
+// Agros inside "মাঠের মানুষ": what the game's Agros station shows about the player's own place, built only
+// from the app's real records and engine. Each game farmer farms a real place, their upazila. For that place:
 //   from space   MODIS NDVI (the green cycle, when fields lie bare, Rabi seasons of vegetation stress), MODIS ground
 //                heat, MERRA-2 evapotranspiration, SMAP root-zone soil moisture against its usual, GRACE / GRACE-FO
 //                stored water and its trend, GPM IMERG rain (the monsoon's start, or the year's rain), cold and heat
-//                from BMD station normals or NASA POWER, and how the satellite records compare with the ground.
-//   what if      a temperature and rain change for the sliders, in the shape Field Future and the abroad engine take.
+//                from BMD station normals, and how the satellite records compare with the ground.
+//   what if      a temperature and rain change for the sliders, in the shape Field Future takes.
 //   the season   how the player's own rotation went: crops kept turning or repeated, legumes, bare soil in the storm.
-// The rotation strategies themselves come from engine/soilfuture.js (Bangladesh) and engine/rotationAbroad.js.
+// The rotation strategies themselves come from engine/soilfuture.js.
 // Pure (no React, no drawing), so Node tests can run it. [REAL data in, RULE logic]
 import { landSummary } from '../engine/landsat.js';
 import { graceRecord, smapNow, smapVsPower } from '../engine/soilwater.js';
@@ -34,21 +33,18 @@ const mean = (v) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : null);
 const join = (...parts) => q(parts.map((p) => (typeof p === 'string' ? p : p.bn)).join(''), parts.map((p) => (typeof p === 'string' ? p : p.en)).join(''));
 
 // ── where each game farmer farms ──
-// The Bangladesh farmers are the app's sample farms, one per upazila (src/data/demo.js); the neighbours farm the
-// country's farm point in src/data/abroad/<country>.json.
+// The game farmers are the app's sample farms, one per upazila (src/data/demo.js).
 export const UPAZILA_OF = { razib: 'dhamrai', rahimu: 'godagari', didarul: 'sitakunda', prahlad: 'dacope', kader: 'bakerganj', mofizul: 'gangachara', rahima: 'gowainghat' };
 // ...and their own sample farm there (demo.js farmers): its union's soil, its irrigation and last season's Rabi crop
 export const FARM_OF = { razib: 'RAZIB', rahimu: 'RAHIM', didarul: 'DIDARUL', prahlad: 'PRAHLAD', kader: 'KADER', mofizul: 'MOFIZUL', rahima: 'RAHIMA' };
 export function placeOf(R, id) {
-  if (UPAZILA_OF[id]) return { kind: 'bd', id: UPAZILA_OF[id], name: R.place };
-  return { kind: 'abroad', id: R.country, name: R.place };
+  return { kind: 'bd', id: UPAZILA_OF[id], name: R.place };
 }
 
 // ── from space: one card per question the challenge asks of the data ──
-// normals: for a neighbour, its farm point's monthly NASA POWER normals ({ m, tmax, tmin, rain, rainImerg, et0 }).
 // Each card: { id, sat, title, value, detail, term, tag, bars?, hi? } with bilingual text; bars are twelve monthly
 // values (January first) and hi the months to highlight.
-export function spaceFacts(place, normals = null) {
+export function spaceFacts(place) {
   const id = place.id, cards = [];
   const land = landSummary(id);
   if (land) {
@@ -84,39 +80,10 @@ export function spaceFacts(place, normals = null) {
       detail: q('যে মাসে বেশি উড়ে যায়, সে মাসে সেচের ফসলের খরচও বেশি।', 'The months that lose the most are the months an irrigated crop costs most.'),
       term: q('বাষ্পীভবন-প্রস্বেদন (ET): মাটি থেকে বাষ্প আর পাতা থেকে প্রস্বেদন মিলিয়ে যত পানি বাতাসে যায়। বৃষ্টি বিয়োগ ET = জমির পানির হিসাব।', 'Evapotranspiration (ET): the water that leaves as vapour from the soil and through the leaves together. Rain minus ET is the field’s water balance.'),
     });
-  } else if (normals?.length === 12) {
-    const ndviCycle = [0.18, 0.20, 0.28, 0.42, 0.58, 0.65, 0.62, 0.52, 0.38, 0.26, 0.20, 0.18];
-    const lean = [11, 12, 1, 2];
-    cards.push({
-      id: 'bare', sat: 'MODIS NDVI', tag: 'REAL', bars: ndviCycle, hi: lean,
-      title: q('জমি কখন খালি থাকে', 'When the fields lie bare'),
-      value: join(q('সবচেয়ে কম সবুজ: ', 'Least green: '), months(lean), q(` (NDVI প্রায় ${num(0.18, 'bn', { dp: 2 })})`, ` (NDVI about ${num(0.18, 'en', { dp: 2 })})`)),
-      detail: q('শীত ও শুষ্ক মৌসুমে জমি ফসলহীন বা সুপ্ত থাকে: খরা ও ধূলিঝড় এড়াতে আবরণ ফসল প্রয়োজন।', 'In cold and dry winter months the ground lies dormant or bare: cover crops protect topsoil.'),
-      term: q('NDVI: উপগ্রহ চিত্র থেকে উদ্ভিদের ঘনত্ব পরিমাপ (০ খালি মাটি, ০.৮ ঘন ফসল)।', 'NDVI: vegetation index from satellite spectral reflectance.'),
-    });
-    const hotMonths = normals.map((x, i) => [x.tmax, i + 1]).sort((a, b) => b[0] - a[0]).slice(0, 2).map(([, m]) => m).sort((a, b) => a - b);
-    const maxT = Math.max(...normals.map((x) => x.tmax));
-    cards.push({
-      id: 'heat', sat: 'MODIS LST / ERA5', tag: 'REAL', bars: normals.map((x) => x.tmax), hi: hotMonths,
-      title: q('মাটির ওপরের গরম', 'Heat at the ground'),
-      value: join(q('গ্রীষ্মের উষ্ণতম তাপমাত্রা: ', 'Peak summer temperature: '), n(maxT, 1), q(' °সে', ' °C')),
-      detail: join(q('সবচেয়ে গরম মাস: ', 'Hottest months: '), months(hotMonths), q('। তীব্র গরমে সেচ ও বাষ্পীভবন দ্রুত বাড়ে।', '. High heat accelerates evapotranspiration.')),
-      term: q('ভূপৃষ্ঠের তাপমাত্রা (LST): মাটি ও পাতার নিজস্ব তাপমাত্রা।', 'Land surface temperature: radiant heat emitted by soil and vegetation.'),
-    });
-    const evapYear = Math.round(normals.reduce((a, x) => a + (x.et0 ?? 0), 0));
-    const evapCycle = normals.map((x) => x.et0);
-    const hiEvap = evapCycle.map((v, i) => [v, i + 1]).sort((a, b) => b[0] - a[0]).slice(0, 3).map(([, m]) => m).sort((a, b) => a - b);
-    cards.push({
-      id: 'et', sat: 'MERRA-2', tag: 'REAL', bars: evapCycle, hi: hiEvap,
-      title: q('মাটি আর গাছ থেকে কত পানি উড়ে যায়', 'How much water the land breathes out'),
-      value: q(`বছরে প্রায় ${num(evapYear, 'bn')} মিমি`, `About ${num(evapYear, 'en')} mm a year`),
-      detail: q('শুষ্ক আবহাওয়ায় সেচের পানির চাহিদা অনেক বেড়ে যায়।', 'High evaporative demand increases irrigation requirements.'),
-      term: q('বাষ্পীভবন-প্রস্বেদন (ET): মাটি ও ফসলের সমন্বিত পানির ক্ষয়।', 'Evapotranspiration: sum of soil evaporation and plant transpiration.'),
-    });
   }
   const sm = smapNow(WATER, id);
   if (sm) {
-    const check = place.kind === 'bd' ? smapVsPower(WATER, WET, id) : null;
+    const check = smapVsPower(WATER, WET, id);
     const [y, m] = sm.month.split('-').map(Number);
     cards.push({
       id: 'soil', sat: 'SMAP', tag: 'REAL',
@@ -126,14 +93,6 @@ export function spaceFacts(place, normals = null) {
         ? q(`যাচাই: নাসা POWER-এর আলাদা মডেলের সঙ্গে ${num(check.n, 'bn')} মাসে মিল r = ${num(check.r, 'bn', { dp: 2 })}।`, `Check: against NASA POWER’s separate model over ${check.n} months, r = ${check.r.toFixed(2)}.`)
         : q(`একই মাসের আগের ${num(sm.n, 'bn')} বছরের সঙ্গে তুলনা।`, `Compared with the same month in ${sm.n} earlier years.`),
       term: q('মাটির আর্দ্রতার অসঙ্গতি (anomaly): আজকের ভেজা ভাব ওই মাসের স্বাভাবিকের চেয়ে কত বেশি বা কম। কম মানে সেচ বা খরা-সহনশীল ফসলের কথা ভাবার সময়।', 'Soil moisture anomaly: how much wetter or drier the soil is than that month usually is. Below the usual is the time to think of irrigation or a drought-tolerant crop.'),
-    });
-  } else if (normals?.length === 12) {
-    cards.push({
-      id: 'soil', sat: 'SMAP', tag: 'REAL',
-      title: q('শিকড়ের কাছে মাটির পানি', 'Water in the root zone'),
-      value: q('শিকড় অঞ্চলের আর্দ্রতা: ০.১২ m³/m³ · শুষ্ক অববাহিকা', 'Root-zone moisture: 0.12 m³/m³ · arid basin'),
-      detail: q('গ্রীষ্মে মাটির পানি অত্যন্ত কমে যায়, সঠিক সেচ ব্যবস্থাপনা প্রয়োজন।', 'Soil moisture drops sharply in summer, requiring precision water conservation.'),
-      term: q('মাটির আর্দ্রতার অসঙ্গতি (SMAP): মাটির ৫ সেমি পর্যন্ত আর্দ্রতা পরিমাপ।', 'Soil moisture anomaly (SMAP): microwave measurement of topsoil water content.'),
     });
   }
   const gr = graceRecord(WATER, id);
@@ -146,16 +105,8 @@ export function spaceFacts(place, normals = null) {
       detail: gr.change != null ? q(`২০০৩–০৭ থেকে ২০১৬-এর পরে: ${signed(gr.change).bn} সেমি।${gr.trend.perDecade < 0 ? ' পানি কমছে: কম পানির ফসলচক্র এখানে বেশি জরুরি।' : ''}`, `2003–07 to after 2016: ${signed(gr.change).en} cm.${gr.trend.perDecade < 0 ? ' The water is falling: a thriftier rotation matters more here.' : ''}`) : q('', ''),
       term: q('GRACE: দুটি উপগ্রহ একে অপরের দূরত্ব মেপে পৃথিবীর টান বোঝে; পানি বাড়লে টান বাড়ে। এতে নদী, মাটি আর মাটির নিচের সব পানি মিলিয়ে বিশাল এলাকার হিসাব আসে, এক জমির নয়। প্রবণতার নিশ্চয়তা Mann-Kendall পরীক্ষায়।', 'GRACE: two satellites measure the distance between them to feel Earth’s pull; more water pulls harder. It sums the rivers, soil and groundwater of a wide area, not one field. The trend’s confidence is a Mann-Kendall test.'),
     });
-  } else if (normals?.length === 12) {
-    cards.push({
-      id: 'grace', sat: 'GRACE / GRACE-FO', tag: 'REAL',
-      title: q('মাটির নিচে জমা পানি', 'Water stored under the land'),
-      value: q('প্রতি দশকে −২.৪ সেমি পানি (প্রায় নিশ্চিত)', '−2.4 cm of water a decade (almost certain)'),
-      detail: q('ভূগর্ভস্থ পানির স্তর আশঙ্কাজনকভাবে নামছে: টেকসই ফসলচক্র অপরিহার্য।', 'Aquifer levels are steadily declining: water-saving crop rotation is critical.'),
-      term: q('GRACE: জোড়া উপগ্রহের মহাকর্ষীয় পরিমাপের মাধ্যমে ভূগর্ভস্থ পানির সঞ্চয় ও ঘাটতি ট্র্যাকিং।', 'GRACE: twin satellites tracking changes in total terrestrial water storage via gravitational anomalies.'),
-    });
   }
-  // rain: the monsoon's start each year from GPM IMERG (Bangladesh), or the year's rain in two NASA records (abroad)
+  // rain: the monsoon's start each year from GPM IMERG
   const on = ONSET[id];
   if (on) {
     const days = on.years.map((r) => r.imerg).filter((x) => x?.complete).map((x) => x.doy);
@@ -169,25 +120,15 @@ export function spaceFacts(place, normals = null) {
       detail: q(`${num(sorted.length, 'bn')} বছরে আগে-পরে ${num(Math.round((sorted[Math.floor(sorted.length * 0.9)] - sorted[Math.floor(sorted.length * 0.1)]) / 7), 'bn')} সপ্তাহ পর্যন্ত সরে যায়: আউশ আর আমন বোনার দিন এর ওপর।`, `It shifts by up to ${Math.round((sorted[Math.floor(sorted.length * 0.9)] - sorted[Math.floor(sorted.length * 0.1)]) / 7)} weeks over ${sorted.length} years: Aus and Aman sowing depend on it.`),
       term: q('GPM IMERG: অনেকগুলো উপগ্রহের রাডার আর মাইক্রোওয়েভ মিলিয়ে প্রতি আধা ঘণ্টায় ১০ কিমি ঘরে বৃষ্টির হিসাব। বর্ষা শুরু = টানা ভেজা দিন, তার পরে বড় শুকনো ফাঁক নেই।', 'GPM IMERG: rain every half hour on a 10 km grid, from many satellites’ radar and microwave sensors together. Monsoon onset = a run of wet days with no long dry gap after it.'),
     });
-  } else if (normals?.length === 12) {
-    const imerg = normals.reduce((a, x) => a + (x.rainImerg ?? 0), 0), power = normals.reduce((a, x) => a + (x.rain ?? 0), 0);
-    const wet = normals.map((x) => [x.rainImerg ?? x.rain, x.m]).sort((a, b) => b[0] - a[0]).slice(0, 3).map(([, m]) => m).sort((a, b) => a - b);
-    cards.push({
-      id: 'rain', sat: 'GPM IMERG', tag: 'REAL', bars: normals.map((x) => x.rainImerg ?? x.rain), hi: wet,
-      title: q('বছরের বৃষ্টি', 'The year’s rain'),
-      value: q(`বছরে প্রায় ${num(Math.round(imerg), 'bn')} মিমি; সবচেয়ে বেশি ${months(wet).bn}`, `About ${num(Math.round(imerg), 'en')} mm a year; most in ${months(wet).en}`),
-      detail: q(`ইউরোপের ERA5 আবহাওয়া-মডেল বলে ${num(Math.round(power), 'bn')} মিমি: দুটি রেকর্ডে ${num(Math.abs(Math.round((imerg / power - 1) * 100)), 'bn')}% তফাত।`, `Europe’s ERA5 weather reanalysis says ${num(Math.round(power), 'en')} mm: the two records differ by ${Math.abs(Math.round((imerg / power - 1) * 100))}%.`),
-      term: q('GPM IMERG: অনেকগুলো উপগ্রহের রাডার আর মাইক্রোওয়েভ মিলিয়ে বৃষ্টির হিসাব; ERA5 একটি আবহাওয়া-মডেল, মাপা তথ্যের সঙ্গে মেলানো। দুটোর তফাতই অনিশ্চয়তার মাপ।', 'GPM IMERG: rain from many satellites’ radar and microwave sensors; ERA5 is a weather model fitted to observations. The gap between them is a measure of the uncertainty.'),
-    });
   }
-  // cold and heat for the crops: BMD's own station normals in Bangladesh (ground truth), NASA POWER abroad
-  const st = place.kind === 'bd' ? STATIONS.stations[id] : null;
-  const tmin = st ? st.tmin : normals?.map((x) => x.tmin), tmax = st ? st.tmax : normals?.map((x) => x.tmax);
+  // cold and heat for the crops: BMD's own station normals (ground truth)
+  const st = STATIONS.stations[id] ?? null;
+  const tmin = st?.tmin, tmax = st?.tmax;
   if (tmin?.length === 12) {
     const cold = tmin.indexOf(Math.min(...tmin)) + 1, coldT = Math.min(...tmin), hot = tmax.indexOf(Math.max(...tmax)) + 1, hotT = Math.max(...tmax);
     const frost = coldT <= 3 ? 'likely' : coldT <= 8 ? 'rare' : 'none';
     cards.push({
-      id: 'frost', sat: st ? 'BMD' : 'ERA5', tag: 'REAL',
+      id: 'frost', sat: 'BMD', tag: 'REAL',
       title: q('তুষারপাত আর তাপের চাপ', 'Frost and heat stress'),
       value: q(`সবচেয়ে ঠান্ডা ${MONTHS_BN[cold - 1]}: রাতে গড়ে ${num(coldT, 'bn', { dp: 1 })} °সে · সবচেয়ে গরম ${MONTHS_BN[hot - 1]}: দিনে ${num(hotT, 'bn', { dp: 1 })} °সে`, `Coldest ${MONTHS_EN[cold - 1]}: nights average ${coldT.toFixed(1)} °C · hottest ${MONTHS_EN[hot - 1]}: days ${hotT.toFixed(1)} °C`),
       detail: {
@@ -222,50 +163,6 @@ export function sliderChange(dT, rainPct) {
 // more). Game strengths, not physics: a 3 °C warmer season makes the heatwave 60% stronger.
 export const sliderMods = (dT, rainPct) => ({ heat: 1 + dT * 0.2, dry: Math.max(0.6, 1 - rainPct / 100) });
 
-// ── a brief for each neighbour's rotation option (engine/rotationAbroad.js), as briefs.js gives Bangladesh ──
-const LEGUMES = ['chickpea', 'lentil', 'mungbean', 'pea', 'pigeonpea', 'groundnut', 'gram', 'soybean', 'blackgram'];
-// fut: judge by the 2040s (or what-if) numbers, as the cards do when that weather is chosen. prices: the country's
-// row of abroad_prices.json, to say where a price is old.
-export function abroadBrief(o, habit, cropName, fut = false, prices = null) {
-  const why = [], evidence = [], benefits = [], gaps = [], risks = [];
-  const soil = (x) => (fut ? x.dSocFut ?? x.dSoc : x.dSoc), d = soil(o) - soil(habit);
-  const water = (x) => (fut ? x.waterFut ?? x.waterMm : x.waterMm);
-  const dW = water(o) != null && water(habit) != null ? water(habit) - water(o) : null; // mm a year saved (+) or used (−)
-  const dG = o.gross != null && habit.gross != null ? o.gross - habit.gross : null, cur = prices?.symbol ?? '';
-  const money = (v) => q(`${cur}${num(Math.round(Math.abs(v)), 'bn')}`, `${cur}${num(Math.round(Math.abs(v)), 'en')}`);
-  const legume = o.crops.filter((k) => LEGUMES.includes(k));
-  const names = (ks) => q(ks.map((k) => cropName(k).bn).join(', '), ks.map((k) => cropName(k).en).join(', '));
-  if (o.habit) why.push(q('এখন এই খামারে যা চাষ হয়, তুলনার ভিত্তি।', 'What this farm grows now, the baseline to compare against.'));
-  else {
-    if (d > 0.5) why.push(q(`দশ বছরে মাটির জৈব কার্বন এখনকার চাষের চেয়ে ${num(d, 'bn', { dp: 1 })}% বেশি থাকে।`, `Over ten years the soil keeps ${d.toFixed(1)}% more organic carbon than farming as now.`));
-    if (o.residue === 'retain') why.push(q('খড় পোড়ানো বা তুলে নেওয়ার বদলে জমিতে মেশানো হয়।', 'The straw is worked back in instead of burnt or removed.'));
-    if (legume.length) why.push(join(q('ডাল জাতীয় ফসল (', 'A legume ('), names(legume), q(') বাতাসের নাইট্রোজেন মাটিতে ধরে।', ') fixes nitrogen from the air into the soil.')));
-    if (o.families > habit.families) why.push(q('বেশি রকমের ফসল: রোগ-পোকার চক্র ভাঙে।', 'More kinds of crop: it breaks pest and disease cycles.'));
-    if (dW > 20) why.push(q(`বছরে প্রায় ${num(Math.round(dW), 'bn')} মিমি কম সেচ (হেক্টরে ${num(Math.round(dW * 10), 'bn')} ঘনমিটার)।`, `About ${Math.round(dW)} mm less irrigation a year (${Math.round(dW * 10)} m³ a hectare).`));
-  }
-  evidence.push(q('মাটির কার্বন: ICBM মডেল, শুরু ISRIC SoilGrids-এর মাটি থেকে; ফলন FAOSTAT।', 'Soil carbon: the ICBM model, starting from ISRIC SoilGrids soil; yields from FAOSTAT.'));
-  evidence.push(q('২০৪০-এর দশক: নাসা NEX-GDDP-CMIP6 আটটি মডেলের গড় পরিবর্তন, খামারের ERA5 আবহাওয়ায়।', 'The 2040s: NASA NEX-GDDP-CMIP6, the median change of eight models, on the farm’s ERA5 weather.'));
-  if (o.ch4 > 0) evidence.push(q('ধানের মিথেন: IPCC ২০১৯-এর পদ্ধতি।', 'Paddy methane: the IPCC 2019 method.'));
-  if (o.waterMm != null) evidence.push(q(`সেচ: FAO-56 পদ্ধতি, খামারের ERA5 বাষ্পীভবন আর নাসা GPM IMERG বৃষ্টিতে, বছরে প্রায় ${num(Math.round(water(o)), 'bn')} মিমি।`, `Irrigation: the FAO-56 method on the farm’s ERA5 evaporation and NASA GPM IMERG rain, about ${Math.round(water(o))} mm a year.`));
-  if (o.gross != null) evidence.push(q(`ফসলের দাম: FAOSTAT-এর কৃষকের দাম × FAOSTAT ফলন, হেক্টরে বছরে প্রায় ${money(o.gross).bn}।`, `Harvest value: FAOSTAT farm-gate prices × FAOSTAT yields, about ${money(o.gross).en} a hectare a year.`));
-  if (o.nFix > 0) benefits.push(q(`হেক্টরে বছরে প্রায় ${num(Math.round(o.nFix), 'bn')} কেজি নাইট্রোজেন বিনা খরচে।`, `About ${Math.round(o.nFix)} kg of nitrogen a hectare a year for free.`));
-  if (d > 0.5) benefits.push(q('মাটি ধীরে ধীরে উর্বর আর পানি ধরে রাখতে পারে।', 'The soil slowly grows richer and holds more water.'));
-  if (o.net < habit.net) benefits.push(q('গ্রিনহাউস গ্যাস কম।', 'Fewer greenhouse gases.'));
-  if (o.habit) benefits.push(q('চেনা ফসল, চেনা বাজার।', 'Familiar crops and markets.'));
-  if (!o.habit && dW > 20) benefits.push(q(`পানি: বছরে প্রায় ${num(Math.round(dW), 'bn')} মিমি কম সেচ, পাম্পের খরচ আর মাটির নিচের পানি বাঁচে।`, `Water: about ${Math.round(dW)} mm less irrigation a year, saving pumping and groundwater.`));
-  if (!o.habit && dG > 0) benefits.push(q(`ফসলের দাম: হেক্টরে বছরে প্রায় ${money(dG).bn} বেশি।`, `Harvest value: about ${money(dG).en} more a hectare a year.`));
-  gaps.push(q('উৎপাদন খরচ (বীজ, সার, সেচ, মজুরি) এই দেশের জন্য জানা নেই: দেখানো আয় ফসলের মোট দাম, লাভ নয়।', 'Production costs (seed, fertiliser, water, labour) are not known for this country: the income shown is the harvest’s gross value, not profit.'));
-  const old = prices ? o.crops.filter((k) => prices.crops[k]?.indexFactor != null) : [];
-  if (old.length) gaps.push(join(q('পুরোনো দাম: ', 'Old prices: '), q(old.map((k) => `${cropName(k).bn} (${num(prices.crops[k].lastYear, 'bn')})`).join(', '), old.map((k) => `${cropName(k).en} (${prices.crops[k].lastYear})`).join(', ')), q(' — শেষ জানা দাম FAOSTAT-এর দাম-সূচকে আজকের দামে আনা।', ' — the last reported price brought to today with FAOSTAT’s price index.')));
-  if (o.unpriced?.length) gaps.push(join(q('দাম জানা নেই: ', 'No price known: '), names(o.unpriced), q('; আয়ে শূন্য ধরা।', '; counted as zero income.')));
-  gaps.push(q('ফলন দেশের গড়, এই খামারের নয়; সেচের হিসাবে চুইয়ে যাওয়া পানি ধরা হয়নি।', 'Yields are national averages, not this farm’s; the irrigation leaves out water lost to seepage.'));
-  if (!o.habit && dW < -20) risks.push(q(`এখনকার চাষের চেয়ে বছরে প্রায় ${num(Math.round(-dW), 'bn')} মিমি বেশি সেচ লাগে।`, `About ${Math.round(-dW)} mm more irrigation a year than farming as now.`));
-  if (!o.habit && dG < 0) risks.push(q(`ফসলের দাম হেক্টরে বছরে প্রায় ${money(dG).bn} কম।`, `About ${money(dG).en} less harvest value a hectare a year.`));
-  if (!o.habit) risks.push(q('নতুন ফসলের বাজার, বীজ আর যন্ত্র স্থানীয় কৃষি অফিসের সঙ্গে মিলিয়ে নিন।', 'Check the market, seed and machines for a new crop with the local agriculture office.'));
-  risks.push(q('এটা মডেলের হিসাব, পূর্বাভাস নয়; অভিজ্ঞ কৃষক আর কৃষি কর্মকর্তার সঙ্গে কথা বলুন।', 'These are model estimates, not forecasts; talk to experienced farmers and an agriculture officer.'));
-  return { why, evidence, benefits, gaps, risks };
-}
-
 // ── the season the player farmed ──
 // What the game's own rotation taught: crops kept turning on a plot or the same one again, legumes harvested, bare
 // plots that lost topsoil in the storm, and how rich the soil ended (plot fertility 0–0.6, legumes raise it).
@@ -290,7 +187,7 @@ export function nextTry(report, R) {
   if (report.repeats > 0 || report.rotated === 0) out.push({ id: 'rotate', title: q('প্রতিটি জমিতে ফসল বদলান', 'Change the crop on every plot'), why: q(`এবার ${num(report.repeats, 'bn')} বার একই ফসল আবার বুনেছেন; ফসল বদলালে পোকা আগে আসে না।`, `You sowed the same crop again ${report.repeats} times; rotating keeps the pests from striking first.`) });
   if (!report.legumes && legume) out.push({ id: 'legume', title: q(`${legume.bn} বুনে মাটি উর্বর করুন`, `Grow ${legume.en} to feed the soil`), why: q('ডালের শিকড় বাতাসের নাইট্রোজেন ধরে; পরের ফসল তাড়াতাড়ি বাড়ে।', 'A pulse’s roots fix nitrogen from the air; the next crop grows faster.') });
   if (report.eroded > 0) out.push({ id: 'cover', title: q('ঝড়ের আগে খালি জমি ঢাকুন', 'Cover bare plots before the storm'), why: q(`ঝড়ে ${num(report.eroded, 'bn')}টি খালি জমির মাটি ধুয়ে গেছে।`, `The storm washed the soil off ${report.eroded} bare plots.`) });
-  if (report.lost > 1 || report.hurt) out.push({ id: 'warn', title: q('সতর্কতা এলেই আগে ব্যবস্থা নিন', 'Act as soon as the warning comes'), why: q(`এবার ${num(report.lost, 'bn')}টি গাছ হারিয়েছেন; AgroVision-এর সতর্কতা আর উপগ্রহ দৃশ্য আগেই বিপদ দেখায়।`, `You lost ${report.lost} plants; AgroVision’s warnings and the satellite view show the danger early.`) });
+  if (report.lost > 1 || report.hurt) out.push({ id: 'warn', title: q('সতর্কতা এলেই আগে ব্যবস্থা নিন', 'Act as soon as the warning comes'), why: q(`এবার ${num(report.lost, 'bn')}টি গাছ হারিয়েছেন; Agros-এর সতর্কতা আর উপগ্রহ দৃশ্য আগেই বিপদ দেখায়।`, `You lost ${report.lost} plants; Agros’s warnings and the satellite view show the danger early.`) });
   out.splice(2);
   out.push({ id: 'heat', title: q('২ °সে গরম মৌসুমে খেলুন', 'Play a season 2 °C hotter'), why: q('নাসার মডেল যে গরম দশকের কথা বলে, সেই আবহাওয়ায় একই কৌশল টেকে কি?', 'Does the same strategy hold in the warmer decade NASA’s models describe?'), whatIf: { dT: 2, rain: -10 } });
   return out;

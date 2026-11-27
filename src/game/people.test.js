@@ -9,9 +9,9 @@ import { buildFarmer, animate, mat } from './three/people.js';
 import { attachReal } from './three/realPeople.js';
 import { STYLE } from './proportions.js';
 
-test('every one of the twelve farmers has a complete, respectful look definition', () => {
+test('every one of the farmers has a complete, respectful look definition', () => {
   const ids = Object.keys(REGIONS);
-  assert.ok(ids.length >= 12, 'at least 12 farmers: Bangladesh, South Asia and beyond');
+  assert.ok(ids.length >= 7, 'at least 7 farmers, one per division of Bangladesh');
   for (const id of ids) {
     const f = REGIONS[id].farmer;
     assert.ok(f.name || f.bn, `farmer ${id} has a name`);
@@ -100,7 +100,7 @@ test('reduced motion disables idle head looking while preserving normal gaze dri
   assert.ok(typeof activeGaze.x === 'number' && typeof activeGaze.y === 'number');
 });
 
-test('all fifteen sample farmer characters have MakeHuman 3D rigged models in manifest', () => {
+test('all sample farmer characters have MakeHuman 3D rigged models in manifest', () => {
   const manifestPath = new URL('../../public/models/folk/manifest.json', import.meta.url);
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
   assert.ok(Array.isArray(manifest.people));
@@ -143,7 +143,7 @@ test('procedural mouth structure has anatomical cavity, lip vermilion, and inter
   }
 });
 
-test('continuous nose geometry connects nasion to tip without seams or box gaps across all 15 characters (F03)', () => {
+test('continuous nose geometry connects nasion to tip without seams or box gaps across all characters (F03)', () => {
   for (const id of FARMER_IDS) {
     const farmer = buildFarmer(REGIONS[id].farmer.look);
     const head = farmer.cranial;
@@ -232,7 +232,7 @@ test('nose geometry has outward face normals, unit vertex normals, and FrontSide
   );
 });
 
-test('curved eyebrows conform flush to forehead curvature across all 12 characters (F04)', () => {
+test('curved eyebrows conform flush to forehead curvature across all characters (F04)', () => {
   const farmer = buildFarmer(REGIONS.razib.farmer.look);
   assert.equal(farmer.brows.length, 2, 'character must have two eyebrow pivots');
 
@@ -322,7 +322,7 @@ test('skinned MakeHuman characters recess dental meshes and enable depth offset 
 });
 
 test('dynamic lower garment stride deformation expands skirtGroup depth and splay during stride and squats (F06)', () => {
-  for (const id of ['rahimu', 'didarul', 'kader', 'rahima', 'rampyari', 'kinley', 'kyawwin']) {
+  for (const id of ['rahimu', 'didarul', 'kader', 'rahima', 'mofizul']) {
     const look = REGIONS[id].farmer.look;
     const p = buildFarmer(look);
     assert.ok(p.skirtGroup, `${id} must have skirtGroup`);
@@ -349,7 +349,7 @@ test('dynamic lower garment stride deformation expands skirtGroup depth and spla
 });
 
 test('lower garment base cylinders have relaxed radii preventing knee puncture (F06)', () => {
-  // Test relaxed lower garment cylinder radii for kira, longyi, lungi, dhoti, ghagra, sari
+  // Test relaxed lower garment cylinder radii for lungi, dhoti and sari
   const checkCyl = (id, expectedMinBottomRadius) => {
     const p = buildFarmer(REGIONS[id].farmer.look);
     let cyl = null;
@@ -359,17 +359,14 @@ test('lower garment base cylinders have relaxed radii preventing knee puncture (
     assert.ok(cyl, `${id} lower garment cylinder exists`);
     assert.ok(cyl.geometry.parameters.radiusBottom >= expectedMinBottomRadius, `${id} cylinder bottom radius >= ${expectedMinBottomRadius}`);
   };
-  checkCyl('kinley', 0.260); // kira: 0.265
-  checkCyl('kyawwin', 0.250); // longyi: 0.255
   checkCyl('rahimu', 0.250); // lungi: 0.255
   checkCyl('prahlad', 0.255); // dhoti: 0.260
-  checkCyl('rampyari', 0.315); // ghagra: 0.320
   checkCyl('rahima', 0.280); // sari: 0.285
 });
 
 test('suppress hidden leg vertices (knee sphere and shin lathe) under full skirts (F07)', () => {
-  // Full skirt characters: rahima, rampyari, kinley, kyawwin
-  for (const id of ['rahima', 'rampyari', 'kinley', 'kyawwin']) {
+  // Full skirt characters: rahima (sari)
+  for (const id of ['rahima']) {
     const p = buildFarmer(REGIONS[id].farmer.look);
     for (const leg of p.legs) {
       // Thigh mesh must be suppressed
@@ -391,7 +388,7 @@ test('suppress hidden leg vertices (knee sphere and shin lathe) under full skirt
   }
 
   // Non-full skirt characters must retain knee spheres and shin limbs
-  for (const id of ['razib', 'rahimu', 'harjinder', 'ghulam', 'ellen']) {
+  for (const id of ['razib', 'rahimu', 'didarul', 'kader']) {
     const p = buildFarmer(REGIONS[id].farmer.look);
     for (const leg of p.legs) {
       const kneeMeshes = leg.knee.children.filter((c) => c.isMesh);
@@ -402,7 +399,7 @@ test('suppress hidden leg vertices (knee sphere and shin lathe) under full skirt
 });
 
 test('kurta and kameez hem alignment, reparenting to skirtGroup, and GLB scale/polygonOffset (F08)', () => {
-  for (const id of ['harjinder', 'ghulam', 'didarul', 'kader']) {
+  for (const id of ['didarul', 'kader']) {
     const p = buildFarmer(REGIONS[id].farmer.look);
     let kurtaHem = null;
     p.skirtGroup.traverse((c) => {
@@ -432,40 +429,6 @@ test('shoulder deltoid ball-and-socket joint re-parented to shoulder group at or
 });
 
 test('headwear geometry & hair dimensions strictly prevent hair/scalp penetration (F10)', () => {
-  // 1. Kyaw Win (Gaung Baung): dome radius 0.130m strictly exceeds hair radius 0.118m
-  const kyaw = buildFarmer(REGIONS.kyawwin.farmer.look);
-  let gaungDome = null;
-  kyaw.cranial.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'SphereGeometry' && c.geometry.parameters.radius >= 0.125) gaungDome = c;
-  });
-  assert.ok(gaungDome, 'gaung baung dome exists with radius >= 0.125m');
-  assert.ok(gaungDome.geometry.parameters.radius * gaungDome.scale.x >= 0.130, 'gaung baung lateral width >= 0.130m');
-
-  // 2. Ghulam (Sindhi Topi): disc at y = 0.142m and arched cutout over forehead (+Z axis)
-  const ghulam = buildFarmer(REGIONS.ghulam.farmer.look);
-  let topiDisc = null, topiCyl = null;
-  ghulam.cranial.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'CylinderGeometry') {
-      if (c.position.y > 0.138) topiDisc = c;
-      if (c.geometry.parameters.thetaLength < Math.PI * 2) topiCyl = c;
-    }
-  });
-  assert.ok(topiDisc, 'sindhi topi top disc sits at y >= 0.140m');
-  assert.ok(topiCyl, 'sindhi topi cylinder exists');
-  assert.ok(topiCyl.geometry.parameters.thetaStart >= Math.PI * 0.65, 'sindhi cutout starts at theta >= 0.65*PI over forehead');
-
-  // 3. Harjinder (Dastar): wrap inner radius >= 0.104m
-  const harjinder = buildFarmer(REGIONS.harjinder.farmer.look);
-  let wrapFound = false;
-  harjinder.cranial.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'TorusGeometry') {
-      const p = c.geometry.parameters;
-      const innerR = (p.radius - p.tube) * c.scale.x;
-      if (innerR >= 0.104) wrapFound = true;
-    }
-  });
-  assert.ok(wrapFound, 'dastar wrap inner radius >= 0.104m');
-
   // 4. Tupi (Didarul & Kader): cylindrical headband at y = 0.086m and dome theta = 0.36*PI
   for (const id of ['didarul', 'kader']) {
     const p = buildFarmer(REGIONS[id].farmer.look);
@@ -485,20 +448,6 @@ test('headwear geometry & hair dimensions strictly prevent hair/scalp penetratio
     if (c.isMesh && c.geometry.type === 'TorusGeometry' && c.geometry.parameters.radius >= 0.120) gamchaTorus = c;
   });
   assert.ok(gamchaTorus, 'gamcha torus has major radius >= 0.120m');
-
-  // 6. Rampyari (Orhni) & Aanchal: bun at z = -0.09m, enclosed in veil
-  const rampyari = buildFarmer(REGIONS.rampyari.farmer.look);
-  let bun = null, veil = null;
-  rampyari.cranial.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'SphereGeometry') {
-      if (c.position.z < -0.05 && c.geometry.parameters.radius < 0.07) bun = c;
-      if (c.geometry.parameters.radius >= 0.14) veil = c;
-    }
-  });
-  assert.ok(bun && veil, 'rampyari bun and veil exist');
-  const bunRearZ = bun.position.z - bun.geometry.parameters.radius * bun.scale.z;
-  const veilRearZ = veil.position.z - veil.geometry.parameters.radius * veil.scale.z;
-  assert.ok(veilRearZ < bunRearZ, `veil rear (${veilRearZ}m) strictly encloses bun (${bunRearZ}m)`);
 });
 
 test('multi-part garment hierarchical consolidation eliminates joint seams (F11)', () => {
@@ -515,16 +464,6 @@ test('multi-part garment hierarchical consolidation eliminates joint seams (F11)
   assert.ok(capeInHead, 'hijab cape lathe must be child of cranial/head');
   assert.ok(torusInHead, 'face torus must be forward-projected (z > 0.06m) in cranial/head');
   assert.ok(trimInHead, 'cape hem trim torus must be child of cranial/head');
-
-  // 2. Rampyari (Orhni): torso back drape overlaps veil in vertical space
-  const rampyari = buildFarmer(REGIONS.rampyari.farmer.look);
-  let torsoDrape = null;
-  rampyari.torso.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'BoxGeometry' && c.position.z < 0) torsoDrape = c;
-  });
-  assert.ok(torsoDrape, 'torso back drape box exists');
-  const drapeTopY = torsoDrape.position.y + torsoDrape.geometry.parameters.height / 2;
-  assert.ok(drapeTopY >= 0.68, `torso drape top (${drapeTopY}m) must reach y >= 0.68m to overlap veil`);
 });
 
 test('torso respiration offsets >= 9mm and polygonOffset depth bias (F12)', () => {
@@ -535,7 +474,7 @@ test('torso respiration offsets >= 9mm and polygonOffset depth bias (F12)', () =
   assert.equal(testM.polygonOffsetUnits, -2, 'mat() sets polygonOffsetUnits');
 
   // Test overlay clearance and polygonOffset on torso overlays
-  for (const id of ['harjinder', 'ghulam', 'kinley', 'prahlad', 'didarul']) {
+  for (const id of ['prahlad', 'didarul']) {
     const p = buildFarmer(REGIONS[id].farmer.look);
     let overlayWithOffset = 0;
     p.torso.traverse((c) => {
@@ -547,7 +486,7 @@ test('torso respiration offsets >= 9mm and polygonOffset depth bias (F12)', () =
   }
 });
 
-test('knee joint sphere radius sizing matches or exceeds connecting limbs across all 15 characters (F13)', () => {
+test('knee joint sphere radius sizing matches or exceeds connecting limbs across all characters (F13)', () => {
   for (const id of FARMER_IDS) {
     const p = buildFarmer(REGIONS[id].farmer.look);
     const look = REGIONS[id].farmer.look;
@@ -584,7 +523,7 @@ test('knee joint sphere radius sizing matches or exceeds connecting limbs across
   }
 });
 
-test('compound pelvic bridge alignment and bilateral hip caps across all 15 characters (F14)', () => {
+test('compound pelvic bridge alignment and bilateral hip caps across all characters (F14)', () => {
   for (const id of FARMER_IDS) {
     const p = buildFarmer(REGIONS[id].farmer.look);
     const look = REGIONS[id].farmer.look;
@@ -629,7 +568,7 @@ test('compound pelvic bridge alignment and bilateral hip caps across all 15 char
   }
 });
 
-test('cervical-cranial rotation blending distributes pitch and yaw across neck and head joints across all 15 characters (F15)', () => {
+test('cervical-cranial rotation blending distributes pitch and yaw across neck and head joints across all characters (F15)', () => {
   for (const id of FARMER_IDS) {
     const p = buildFarmer(REGIONS[id].farmer.look);
     assert.ok(p.neck, `${id} neck group exists`);
@@ -657,7 +596,7 @@ test('cervical-cranial rotation blending distributes pitch and yaw across neck a
   }
 });
 
-test('farm action rigging & articulation tuning across all 15 characters (F16)', () => {
+test('farm action rigging & articulation tuning across all characters (F16)', () => {
   for (const id of FARMER_IDS) {
     const p = buildFarmer(REGIONS[id].farmer.look);
 

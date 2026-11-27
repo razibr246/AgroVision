@@ -12,7 +12,7 @@ This is an honest snapshot of the controls in this repository. It is not a penet
 
 ## Persistent user data is disabled in production
 
-The farmer and officer accounts in this prototype are selectable sample accounts, not authenticated identities. For that reason, `/api/messages`, `/api/plans` and `/api/abroad` return 503 in hosted Vercel deployments and production builds even if Upstash Redis is configured. This prevents an accidentally configured public database from exposing or accepting unverified messages, plans or advice. The local Vite stand-ins remain in-memory and are for development only.
+The farmer and officer accounts in this prototype are selectable sample accounts, not authenticated identities. For that reason, `/api/messages` and `/api/plans` return 503 in hosted Vercel deployments and production builds even if Upstash Redis is configured. This prevents an accidentally configured public database from exposing or accepting unverified messages, plans or advice. The local Vite stand-ins remain in-memory and are for development only.
 
 Do not remove this production guard until the app has real sign-in, server-side session verification, role and resource authorization (including per-farmer message reads and officer scope), audit logging, and tests for cross-account access. The current UI's Chakra Agent permissions are client-side product rules and do not replace server authorization.
 

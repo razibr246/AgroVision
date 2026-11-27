@@ -9,8 +9,8 @@ const TOPS = new Set(['blouse', 'choli', 'eingyi', 'fotua', 'kameez', 'kurta', '
 const LOWERS = new Set(['cargo', 'dhoti', 'ghagra', 'kira', 'longyi', 'lungi', 'pyjama', 'sari', 'shalwar']);
 const FEET = new Set(['jutti', 'sandal', 'shoe', 'sneaker']);
 
-test('all twelve game farmers have complete, renderable regional looks', () => {
-  assert.ok(FARMER_IDS.length >= 12);
+test('all seven game farmers have complete, renderable regional looks', () => {
+  assert.equal(FARMER_IDS.length, 7);
   for (const id of FARMER_IDS) {
     const farmer = REGIONS[id]?.farmer;
     assert.ok(farmer, `${id} has farmer data`);

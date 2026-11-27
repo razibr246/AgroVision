@@ -1,0 +1,31 @@
+id,crop,season,region,temp_c,rain7_mm,humidity_pct,soil_moisture_pct,growth_stage,crop_condition,disease_status,harvest_quality,yield_t_ha,status,source
+H001,Rice (Aman),Rainy,Rangpur,31,145,88,78,Flowering,Healthy,None,Excellent,5.2,SYNTHETIC,starter brief
+H002,Rice (Aman),Rainy,Sylhet,29,220,92,90,Grain filling,Flood stress,None,Poor,3.1,SYNTHETIC,starter brief
+H003,Rice (Aman),Rainy,Dinajpur,30,90,80,65,Tillering,Disease onset,Early blast,Fair,4.0,SYNTHETIC,starter brief
+H004,Rice (Aman),Rainy,Rajshahi,28,130,86,75,Booting,Diseased,Moderate blast,Fair,3.6,SYNTHETIC,starter brief
+H005,Rice (Aman),Rainy,Barisal,32,260,95,95,Tillering,Severe disease,Bacterial leaf blight,Poor,2.4,SYNTHETIC,starter brief
+H006,Rice (Boro),Winter,Bogura,24,18,55,45,Grain filling,Healthy,None,Excellent,6.1,SYNTHETIC,starter brief
+H007,Rice (Boro),Winter,Rangpur,20,5,48,30,Vegetative,Water stress,Drought risk,Fair,4.1,SYNTHETIC,starter brief
+H008,Rice,Summer,Rajshahi,37,12,42,25,Flowering,Heat stress,None,Poor,3.4,SYNTHETIC,starter brief
+H009,Rice,Rainy,Mymensingh,30,175,90,88,Pre-harvest,Diseased,Sheath blight,Fair,3.7,SYNTHETIC,starter brief
+H010,Maize,Summer,Dinajpur,34,30,60,40,Grain filling,Healthy,None,Excellent,8.2,SYNTHETIC,starter brief
+H011,Maize,Rainy,Rangpur,31,180,90,80,Vegetative,Disease onset,Fall armyworm,Fair,6.5,SYNTHETIC,starter brief
+H012,Maize,Summer,Rajshahi,39,8,35,20,Flowering,Drought stress,None,Poor,5.1,SYNTHETIC,starter brief
+H013,Maize,Rainy,Sylhet,29,240,94,92,Pre-harvest,Flood damage,None,Poor,5.4,SYNTHETIC,starter brief
+H014,Wheat,Winter,Dinajpur,22,12,50,40,Maturity,Healthy,None,Excellent,3.6,SYNTHETIC,starter brief
+H015,Wheat,Winter,Rajshahi,26,25,65,52,Grain filling,Diseased,Stripe rust,Fair,2.7,SYNTHETIC,starter brief
+H016,Wheat,Summer,Bogura,33,3,38,18,Flowering,Heat stress,None,Poor,1.9,SYNTHETIC,starter brief
+H017,Potato,Winter,Munshiganj,19,8,62,55,Pre-harvest,Healthy,None,Excellent,22.0,SYNTHETIC,starter brief
+H018,Potato,Rainy,Sylhet,27,160,91,85,Tuber bulking,Severe disease,Late blight,Poor,12.0,SYNTHETIC,starter brief
+H019,Potato,Winter,Bogura,21,35,70,65,Vegetative,Disease onset,Bacterial wilt,Fair,17.0,SYNTHETIC,starter brief
+H020,Tomato,Winter,Jessore,23,15,58,48,Fruiting,Healthy,None,Excellent,32.0,SYNTHETIC,starter brief
+H021,Tomato,Rainy,Sylhet,28,190,93,88,Fruiting,Diseased,Late blight,Fair,19.0,SYNTHETIC,starter brief
+H022,Tomato,Summer,Rajshahi,36,5,43,25,Flowering,Heat stress,None,Poor,16.0,SYNTHETIC,starter brief
+H023,Tomato,Rainy,Mymensingh,30,110,86,78,Vegetative,Severe disease,Bacterial wilt,Poor,12.0,SYNTHETIC,starter brief
+H024,Jute,Rainy,Faridpur,30,150,88,82,Maturity,Healthy,None,Good,2.8,SYNTHETIC,starter brief
+H025,Jute,Rainy,Barisal,32,220,94,90,Vegetative,Waterlogging,Root rot risk,Fair,2.0,SYNTHETIC,starter brief
+H026,Lentil,Winter,Rajshahi,21,10,52,35,Flowering,Healthy,None,Excellent,1.5,SYNTHETIC,starter brief
+H027,Lentil,Winter,Dinajpur,25,22,60,48,Pod filling,Disease onset,Rust,Good,1.2,SYNTHETIC,starter brief
+H028,Chili,Summer,Bogura,35,18,65,38,Fruiting,Diseased,Anthracnose,Fair,8.5,SYNTHETIC,starter brief
+H029,Eggplant,Rainy,Mymensingh,29,140,89,84,Fruiting,Severe disease,Bacterial wilt,Poor,18.0,SYNTHETIC,starter brief
+H030,Mustard,Winter,Rangpur,20,8,50,32,Maturity,Healthy,None,Excellent,1.8,SYNTHETIC,starter brief

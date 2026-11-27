@@ -12,7 +12,6 @@
 //   - BARI/BRRI/DAE Integrated Pest Management (IPM) & non-chemical cultural control
 //   - DAM 15-year seasonal price indices, harvest glut warnings & cold storage advice
 //   - Bangladesh government support programs (subsidies, free inputs, 10-taka bank accounts)
-//   - 8 International agricultural regions (India, Pakistan, Nepal, Bhutan, Myanmar, USA, Brazil, Spain)
 //   - Complete validation compliance against src/engine/replyCheck.js
 
 import knowledgeBase from '../data/models/chakra_knowledge_base.json' with { type: 'json' };
@@ -50,17 +49,6 @@ const FERTILISER_EN = {
   'গোবর/কম্পোষ্ট': 'Cow dung / compost',
   'গোবর/কম্পোস্ট': 'Cow dung / compost',
   'চুন': 'Agricultural lime',
-};
-
-const COUNTRY_NAMES = {
-  india: { bn: 'ভারত', en: 'India' },
-  pakistan: { bn: 'পাকিস্তান', en: 'Pakistan' },
-  nepal: { bn: 'নেপাল', en: 'Nepal' },
-  bhutan: { bn: 'ভুটান', en: 'Bhutan' },
-  myanmar: { bn: 'মিয়ানমার', en: 'Myanmar' },
-  usa: { bn: 'যুক্তরাষ্ট্র', en: 'United States' },
-  brazil: { bn: 'ব্রাজিল', en: 'Brazil' },
-  spain: { bn: 'স্পেন', en: 'Spain' },
 };
 
 const UPAZILA_NAMES = {
@@ -263,11 +251,6 @@ export function detectIntent(text = '') {
       regex: /হাটের দর|বাজার দর|হিমাগার|দাম কমবে|দাম পড়ার ঝুঁকি|গ্লুট|দাম কেমন|মণ কত|market price|harvest price|glut risk|cold storage/i,
     },
     {
-      intent: 'abroad_field',
-      weight: 1.65,
-      regex: /পাঞ্জাব|ভারত|লুধিয়ানা|সংগ্রুর|সিন্ধ|পাকিস্তান|লারকানা|নেপাল|তেরাই|ঝাপা|ভুটান|পুনাখা|মায়ানমার|মিয়ানমার|হিনথাদা|ইরাবতী|যুক্তরাষ্ট্র|আমেরিকা|আইওয়া|ক্যালিফোর্নিয়া|ব্রাজিল|মাতো গ্রসো|সোরিসো|স্পেন|আন্দালুসিয়া|জায়েন|punjab|india|ludhiana|sangrur|pakistan|sindh|larkana|nepal|terai|jhapa|bhutan|punakha|myanmar|hinthada|ayeyarwady|iowa|usa|america|united states|california|brazil|mato grosso|sorriso|spain|andalusia|jaen/i,
-    },
-    {
       intent: 'officer_area',
       weight: 1.1,
       regex: /উপজেলা কৃষি অফিসার|উপসহকারী|এসএএও|ইউএও|ইউনিয়ন র‍্যাংকিং|হটস্পট|আমার এলাকায়|আক্রান্ত জমি|officer|saao|uao|hotspot|union ranking/i,
@@ -329,25 +312,6 @@ export function resolveCrop(query = '', context = {}) {
   return context.chosen?.crop?.id ?? context.farmer?.last_crop ?? 'boro';
 }
 
-// Resolve abroad country
-export function resolveAbroadCountry(query = '', context = {}) {
-  const q = normalizeQuery(query);
-  const countries = [
-    { id: 'india', names: ['ভারত', 'পাঞ্জাব', 'লুধিয়ানা', 'সংগ্রুর', 'india', 'punjab', 'ludhiana', 'sangrur'] },
-    { id: 'pakistan', names: ['পাকিস্তান', 'সিন্ধ', 'লারকানা', 'pakistan', 'sindh', 'larkana'] },
-    { id: 'nepal', names: ['নেপাল', 'তেরাই', 'ঝাপা', 'nepal', 'terai', 'jhapa'] },
-    { id: 'bhutan', names: ['ভুটান', 'পুনাখা', 'bhutan', 'punakha'] },
-    { id: 'myanmar', names: ['মিয়ানমার', 'মায়ানমার', 'হিনথাদা', 'ইরাবতী', 'myanmar', 'ayeyarwady', 'hinthada'] },
-    { id: 'usa', names: ['যুক্তরাষ্ট্র', 'আমেরিকা', 'আইওয়া', 'ক্যালিফোর্নিয়া', 'usa', 'united states', 'america', 'iowa', 'california'] },
-    { id: 'brazil', names: ['ব্রাজিল', 'মাতো গ্রসো', 'সোরিসো', 'brazil', 'mato grosso', 'sorriso'] },
-    { id: 'spain', names: ['স্পেন', 'আন্দালুসিয়া', 'জায়েন', 'spain', 'andalusia', 'jaen'] },
-  ];
-  for (const cc of countries) {
-    if (cc.names.some((n) => q.includes(n))) return cc.id;
-  }
-  return context.place?.country ?? 'india';
-}
-
 // Extract requested area multiplier (e.g. "৫ বিঘা", "5 bigha", "100 শতক", "50 decimal")
 export function extractAreaMultiplier(query = '', parcel) {
   const bnToEn = (str) => str.replace(/[০-৯]/g, (d) => BN_DIGITS.indexOf(d));
@@ -398,7 +362,6 @@ export function queryChakraLLM(rawText = '', context = {}) {
         support: '/farmer/support',
         hazard: '/farmer/signals',
         soil_wetness: '/farmer/signals',
-        abroad: topHit.metadata?.country ? `/abroad/${topHit.metadata.country}` : '/abroad/india',
         climate_change: '/science#ml',
         carbon_methane: '/farmer/future',
         crop: '/farmer/plan',
@@ -625,37 +588,6 @@ export function queryChakraLLM(rawText = '', context = {}) {
         reply = `সরকারি কৃষি সহায়তার মধ্যে অন্যতম হলো "${progName}"। সুবিধা: ${progBenefit}। সহায়তা পেতে আপনার কৃষি কার্ড নিয়ে ইউনিয়ন উপসহকারী কৃষি কর্মকর্তার (SAAO) সাথে যোগাযোগ করুন।`;
       } else {
         reply = `Key agricultural support includes "${progName}". Benefits: ${progBenefit}. Contact your union SAAO with your farmer input card to apply.`;
-      }
-      break;
-    }
-
-    // ── 9. Abroad Study Regions ──
-    case 'abroad_field': {
-      tags = ['RECORD', 'SAT'];
-      const cc = resolveAbroadCountry(text, context);
-      const abroad = knowledgeBase.abroad?.[cc];
-      nav = `/abroad/${cc}`;
-
-      if (abroad) {
-        const tmaxStr = numStr(abroad.recentWeather?.tmax, lang, 1);
-        const rainStr = numStr(abroad.recentWeather?.rainMm, lang, 0);
-        const fires = numStr(abroad.activeFires7Days, lang, 0);
-        const satStatus = abroad.satellite?.status === 'healthy'
-          ? (lang === 'bn' ? 'সতেজ ও সবুজ' : 'healthy green canopy')
-          : (lang === 'bn' ? 'স্বাভাবিক/শুকনো' : 'moderate vegetation');
-
-        const countryLabel = COUNTRY_NAMES[cc]?.[lang] || cc.toUpperCase();
-        if (lang === 'bn') {
-          reply = `${countryLabel} অঞ্চলের গবেষণা প্লটের তথ্য: সর্বোচ্চ তাপমাত্রা প্রায় ${tmaxStr}°C, সাম্প্রতিক মাসিক বৃষ্টিপাত ${rainStr} মিমি। সেন্টিনেল উপগ্রহ এনডিভিআই সূচক অনুযায়ী ফসলের অবস্থা ${satStatus}। নাসার এফআইআরএমএস (FIRMS) উপগ্রহে বিগত ৭ দিনে ${fires}টি সক্রিয় আগুনের সংকেত ধরা পড়েছে।`;
-        } else {
-          reply = `Study region data for ${countryLabel}: Max temperature is approx. ${tmaxStr} °C with recent monthly rainfall of ${rainStr} mm. Copernicus Sentinel-2 vegetation condition is ${satStatus}. NASA FIRMS satellite detected ${fires} active thermal fire alerts in the past 7 days.`;
-        }
-      } else {
-        if (lang === 'bn') {
-          reply = `আন্তর্জাতিক মডেল ডাটাবেসে এই দেশের জলবায়ু ও উপগ্রহ তথ্য সংরক্ষিত রয়েছে। বিস্তারিত দেখতে বিদেশের ড্যাশবোর্ডে প্রবেশ করুন।`;
-        } else {
-          reply = `International benchmark data is available for this region. Explore the abroad dashboard for detailed Sentinel and ERA5 series.`;
-        }
       }
       break;
     }

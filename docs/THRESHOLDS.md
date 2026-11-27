@@ -150,3 +150,15 @@ it exists, 120 days to harvest). A day between a harvest and the next sowing cou
 when the rotation keeps its straw. The strip under each strategy shows the twelve months from November and the bare
 days a year (averaged over a two-year cycle). It assumes the crops go in on those dates; seedbeds, weeds and
 volunteer growth are not counted.
+
+## Two-week field plan (Today page, `src/engine/irrigationPlan.js`, `src/engine/heatWatch.js`)
+
+| Value | Setting | Source / status |
+|---|---|---|
+| Forecast length | 16 days from Open-Meteo (its maximum); the plan uses 14 | Open-Meteo API limit |
+| Rain-outcome weights (as forecast / half / none) | days 1–3: 0.60 / 0.25 / 0.15; days 4–7: 0.40 / 0.30 / 0.30; days 8+: 0.25 / 0.35 / 0.40 | Assumption: forecast rain skill falls with lead time; to be fitted to Open-Meteo hindcasts at BMD stations |
+| Cost of one irrigation (pump hire, labour) | 8 mm-equivalent | Assumption |
+| Cost of 1 mm the crop goes short ((1 − Ks)·Kc·ET₀) | 15 × the cost of 1 mm pumped | Assumption from FAO-33 (Ky ≈ 1): wheat ≈ 3.5 t/ha over ≈ 300 mm seasonal ET ≈ 12 kg/ha per mm ≈ Tk 450/ha, against ≈ Tk 30/ha to pump 1 mm from a shallow tube well |
+| Urea top-dress: heavy rain | 20 mm or more on the day and the next two, or 5 mm on the day itself | Assumption; urea on the surface before heavy rain washes off or leaches (to confirm against BARC Fertilizer Recommendation Guide 2018) |
+| Heat watch | The crop heat rules above (Boro 36 °C × 3 days at days 75–95, wheat, tomato, mung, Aus) applied to the forecast; "near" = one hot day short, or a hot day within 3 days before the window | Same sources as the crop rules |
+| Heat-watch advice | Water before the heat, irrigate late afternoon/evening, no midday spraying, tell the SAAO | General practice, not a crop-specific dose |

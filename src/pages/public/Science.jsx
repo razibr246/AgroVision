@@ -27,6 +27,8 @@ import ScienceMissionHUD from '../../components/science/ScienceMissionHUD';
 import OrbitConstellation from '../../components/science/OrbitConstellation';
 import SpectralSignatureLab from '../../components/science/SpectralSignatureLab';
 import MultiScaleGridVisualizer from '../../components/science/MultiScaleGridVisualizer';
+import FederatedOutbreak from '../../components/science/FederatedOutbreak';
+import HarvestRecords from '../../components/science/HarvestRecords';
 import { SectionNav } from '../../components/SectionNav';
 
 const t = (bn, en) => ({ bn, en });
@@ -90,6 +92,8 @@ export default function Science() {
     { id: 'disagree', label: T('অমিল ও যাচাই', 'Disagreements') },
     { id: 'methods', label: T('পদ্ধতি', 'Methods') },
     { id: 'ml', label: T('মডেল (ML)', 'Stress ML') },
+    { id: 'harvest', label: T('ফলনের বছর', 'Harvests') },
+    { id: 'federated', label: T('ফেডারেটেড শেখা', 'Federated') },
     { id: 'geochemistry', label: T('মৃত্তিকা রসায়ন', 'Soil Carbon') },
     { id: 'rules', label: T('নিয়ম ও সীমা', 'Rules') },
   ];
@@ -258,7 +262,7 @@ export default function Science() {
 
       <section id="trends" className="mt-12 scroll-mt-28">
         <h2 className="flex items-center gap-2 text-[24px] font-bold"><Satellite size={20} className="text-primary-700" />{T('বছরের পর বছর: মানচিত্রে দীর্ঘ ধারা', 'Year after year: long-term trends on a map')}</h2>
-        <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T('সাত উপজেলা আর প্রতিবেশী পাঁচ দেশের খামারে মাটির নিচের পানি, রবির সবুজ আর মাটির ভেজা ভাব কীভাবে বদলেছে। চালু করে বছরগুলো চলতে দেখুন।', 'How water underground, Rabi greenness and soil water have changed at the seven upazilas and the five neighbouring farms. Press play and watch the years go by.')}</p>
+        <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">{T('সাত উপজেলায় মাটির নিচের পানি, রবির সবুজ আর মাটির ভেজা ভাব কীভাবে বদলেছে। চালু করে বছরগুলো চলতে দেখুন।', 'How water underground, Rabi greenness and soil water have changed at the seven upazilas. Press play and watch the years go by.')}</p>
         <div className="mt-4 rounded-[22px] border border-border bg-white p-4"><TrendMap /></div>
       </section>
 
@@ -283,6 +287,8 @@ export default function Science() {
       <MethodsCompare />
 
       <MachineLearning />
+      <HarvestRecords />
+      <FederatedOutbreak />
 
       <SoilGeochemistryExplorer />
 

@@ -1,6 +1,5 @@
-// Drawn characters for the named farmers (Bangladesh's seven division farmers and the five neighbouring countries'),
-// in place of a first-letter tile. Plain SVG, so they are sharp at every size and cost no download. Each is built from
-// a few parts (face, hair, headwear, beard, clothing) chosen to fit the person's story; a farmer without a character
+// Drawn characters for the named farmers (Bangladesh's seven division farmers), in place of a first-letter tile.
+// Plain SVG, so they are sharp at every size and cost no download. Each is built from a few parts (face, hair, headwear, beard, clothing) chosen to fit the person's story; a farmer without a character
 // gets `fallback` (the old letter tile). The eyes blink now and then, unless the reader asks for less motion.
 
 const SKIN = { a: '#c68a5e', b: '#a8704a', c: '#8d5b3c', d: '#d8a47a', e: '#b77b52' };
@@ -12,11 +11,6 @@ const CAST = {
   KADER: { skin: SKIN.e, hair: '#e7e3dc', beard: '#efebe4', hat: 'topi', shirt: '#dfe7ee', bg: '#dcebd3' },
   MOFIZUL: { skin: SKIN.a, hair: '#211a16', mous: '#211a16', scarf: 'muffler', scarfColor: '#5b6fa8', shirt: '#7b5a3c', bg: '#e1edd8' },
   RAHIMA: { skin: SKIN.d, hat: 'hijab', hatColor: '#6d4aa8', shirt: '#6d4aa8', female: true, bg: '#ece3f6' },
-  HARJINDER: { skin: SKIN.e, beard: '#1d1714', hat: 'turban', hatColor: '#e08a1e', shirt: '#f2f2ee', bg: '#fbeee2' },
-  GHULAMNABI: { skin: SKIN.b, hair: '#2a2420', beard: '#3a322c', hat: 'sindhi', hatColor: '#b8262f', shirt: '#eef0f2', bg: '#e3f3ea' },
-  RAMPYARI: { skin: SKIN.a, hair: '#1d1714', hat: 'scarf', hatColor: '#c8203c', shirt: '#e8b33a', female: true, bg: '#fbe6e9' },
-  KINLEY: { skin: SKIN.d, hair: '#1d1714', hair2: 'bob', shirt: '#b5432e', kira: true, female: true, bg: '#fcf1dc' },
-  KYAWWIN: { skin: SKIN.a, hair: '#1d1714', hat: 'gaungbaung', hatColor: '#e7a3b6', shirt: '#f4f1ea', bg: '#f8f0d8' },
 };
 export const hasAvatar = (id) => !!CAST[id];
 

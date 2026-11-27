@@ -72,25 +72,6 @@ test('an answer that fails twice is repaired, and a proposal pointing nowhere is
   assert.deepEqual(res.body.proposals, []);
 }));
 
-test('foreign Chakra uses country-only instructions, no web search, and navigation proposals only', () => withGemini([
-  { reply: 'The available sample field and soil records are ready to review.', proposals: [
-    { action: 'navigate', text: '', target: '/abroad/spain/future' },
-    { action: 'report_problem', text: 'Send this', target: '' },
-    { action: 'navigate', text: '', target: '/abroad/brazil/future' },
-  ] },
-], async (sent) => {
-  const res = response();
-  await handler({ method: 'POST', headers: {}, body: { role: 'farmer', lang: 'en', message: 'What does the field record show?', data: { place_context: { kind: 'abroad', country: 'spain', field: { area: 2 }, soil: { source: 'ISRIC SoilGrids model estimate' } } } } }, res);
-  assert.equal(res.statusCode, 200);
-  assert.equal(sent.length, 1);
-  const request = sent[0];
-  assert.match(request.systemInstruction.parts[0].text, /Never apply Bangladesh/);
-  assert.doesNotMatch(request.systemInstruction.parts[0].text, /DAE|Bangladeshi/i);
-  assert.doesNotMatch(JSON.stringify(request.tools || []), /googleSearch/);
-  assert.deepEqual(res.body.proposals.map((p) => p.target), ['/abroad/spain/future']);
-  assert.ok(res.body.check.problems.some((p) => p.id === 'P2_ABROAD_ACTION'));
-}));
-
 test('a slow Gemini gets Meta alongside: the first good answer wins, and a failed one hands over at once', async () => {
   const { firstGood } = await import('./agent.js');
   const wait = (ms, v) => new Promise((r) => setTimeout(() => r(v), ms));

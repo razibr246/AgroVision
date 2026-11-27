@@ -90,9 +90,9 @@ const CRITERIA = [
     titleEn: 'Farmer-Friendly Multichannel Delivery & Officer Triage',
     nasaDemandBn: 'জটিল মহাকাশ বিজ্ঞানকে কৃষকের বোধগম্য ও ব্যবহারযোগ্য সিদ্ধান্তে রূপান্তর করা।',
     nasaDemandEn: 'Translate satellite data into practical, farmer-friendly insights.',
-    solutionBn: 'গ্রামীণ বাংলায় প্রাকৃতিক ভয়েস সহকারী (Google Gemini/Web Audio), বাটন ফোনের জন্য এসএমএস মোড, ইউনিয়ন কর্মকর্তার অডিট ট্রেইল এবং পাঁচ প্রতিবেশী দেশ, যুক্তরাষ্ট্র, ব্রাজিল ও স্পেনে সম্প্রসারণ।',
-    solutionEn: 'Rural Bangla speech synthesis (built-in TTS API), button phone SMS mode, SAAO officer hash-chained audit triage, and expansion to five neighbours, the USA, Brazil and Spain.',
-    codeRef: 'src/voice/brain.js · src/engine/chakra.js · src/engine/abroad.js',
+    solutionBn: 'গ্রামীণ বাংলায় প্রাকৃতিক ভয়েস সহকারী (Google Gemini/Web Audio), বাটন ফোনের জন্য এসএমএস মোড এবং ইউনিয়ন কর্মকর্তার অডিট ট্রেইল।',
+    solutionEn: 'Rural Bangla speech synthesis (built-in TTS API), button phone SMS mode, and SAAO officer hash-chained audit triage.',
+    codeRef: 'src/voice/brain.js · src/engine/chakra.js',
     verification: {
       bn: 'নিয়মভিত্তিক উত্তর অফলাইনে চলে; কণ্ঠস্বর ও এআই-এর জন্য নেটওয়ার্ক দরকার',
       en: 'Rule answers work offline; voice and AI need the network',
@@ -126,8 +126,8 @@ export default function ChallengeDossier() {
 
       <p className="mt-2 max-w-3xl text-[15px] leading-7 text-ink/75">
         {T(
-          'নাসার অফিসিয়াল চ্যালেঞ্জ বিবরণীর প্রতিটি বাক্যের সঙ্গে এগ্রোভিশনের সরাসরি কোড, টেস্ট ও ডেটাসেট ম্যাপিং:',
-          'Direct line-by-line verification of the official NASA Space Apps 2026 challenge brief against AgroVision’s mathematical engines, test suites, and data models:'
+          'নাসার অফিসিয়াল চ্যালেঞ্জ বিবরণীর প্রতিটি বাক্যের সঙ্গে এগ্রোসের সরাসরি কোড, টেস্ট ও ডেটাসেট ম্যাপিং:',
+          'Direct line-by-line verification of the official NASA Space Apps 2026 challenge brief against Agros’s mathematical engines, test suites, and data models:'
         )}
       </p>
 
@@ -158,7 +158,7 @@ export default function ChallengeDossier() {
 
             <div className="mt-3.5 pl-11">
               <p className="text-[14px] leading-6 text-ink/90">
-                <b>{T('এগ্রোভিশন বাস্তবায়ন:', 'AgroVision Implementation:')}</b>{' '}
+                <b>{T('এগ্রোস বাস্তবায়ন:', 'Agros Implementation:')}</b>{' '}
                 {T(crit.solutionBn, crit.solutionEn)}
               </p>
               <div className="mt-2.5 flex items-center gap-2 text-[12.5px] font-mono text-muted">

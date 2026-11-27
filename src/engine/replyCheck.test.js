@@ -93,20 +93,6 @@ test('P1: proposals pointing nowhere are dropped, good ones kept', () => {
   assert.equal(r.ok, true); // dropping is the fix; no retry needed
 });
 
-test('foreign context grounds numbers and allows navigation only inside the same country portal', () => {
-  const data = { place_context: { kind: 'abroad', country: 'spain', field: { area: 12 }, climate: { recent: { rain30: 23 } } } };
-  const r = checkReply({ data, role: 'farmer', reply: 'The field covers 12 hectares and had 23 mm of rain in the last 30 days.', proposals: [
-    { action: 'navigate', target: '/abroad/spain/future', text: '' },
-    { action: 'navigate', target: '/abroad/brazil/future', text: '' },
-    { action: 'reply_farmer', target: 'R1', text: 'Approved' },
-  ] });
-  assert.equal(r.proposals.length, 1);
-  assert.equal(r.proposals[0].target, '/abroad/spain/future');
-  assert.ok(r.problems.some((p) => p.id === 'P1_BAD_TARGET'));
-  assert.ok(r.problems.some((p) => p.id === 'P2_ABROAD_ACTION'));
-  assert.equal(checkReply({ data, reply: 'The field covers 19 hectares.' }).problems[0].id, 'G1_UNGROUNDED_NUMBER');
-});
-
 test('R4: thin evidence caps the confidence and says why', () => {
   assert.equal(checkReply({ data: snap({ live: false }), reply: 'ঠিক আছে।' }).ceiling, 0.7);
   const r = checkReply({ data: snap({ climate: 'PLACEHOLDER', sample: true }), reply: 'ঠিক আছে।' });
@@ -134,7 +120,7 @@ test('R7: the answer must be in the app\'s language, with no whole sentences of 
   assert.equal(wrongLanguage('Your tomato harvest runs from 4 February to 17 March.', 'en'), false);
   assert.equal(wrongLanguage('Your field in দেওপাড়া needs no water today, rain is coming tomorrow.', 'en'), false); // one place name is fine
   assert.equal(wrongLanguage('Ask your SAAO (উপসহকারী কৃষি কর্মকর্তা) before you spray.', 'en'), true); // a Bangla gloss is mixing
-  assert.equal(wrongLanguage('ফোনে AgroVision খোলো, আর Landsat দেখো।', 'bn'), false); // English names in Bangla are fine
+  assert.equal(wrongLanguage('ফোনে Agros খোলো, আর Landsat দেখো।', 'bn'), false); // English names in Bangla are fine
   assert.equal(wrongLanguage('Your harvest is in February, so plan the drying space.', 'bn'), true);
   assert.equal(wrongLanguage('ঠিক আছে', 'en'), false); // too short to judge
   const c = checkReply({ reply: 'আপনার টমেটো তোলার সময় ৪ ফেব্রুয়ারি থেকে ১৭ মার্চ।', lang: 'en', message: '৪ ১৭' });

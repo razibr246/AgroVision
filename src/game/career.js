@@ -21,7 +21,7 @@ export const RANKS = [
 // one piece of equipment for each rank above the first, as the sim's perks
 export const UNLOCKS = [
   { rank: 1, perk: 'pond', title: q('পুকুর থেকে বড় বালতি', 'A bigger can from the pond'), what: q('বালতিতে ২ বার বেশি পানি', '2 more waterings per can') },
-  { rank: 2, perk: 'warn', title: q('AgroVision-এর SMS সতর্কতা', 'AgroVision SMS alerts'), what: q('ঝড়ের সতর্কতা ১০ সেকেন্ড আগে', 'Storm warning 10 seconds earlier') },
+  { rank: 2, perk: 'warn', title: q('Agros-এর SMS সতর্কতা', 'Agros SMS alerts'), what: q('ঝড়ের সতর্কতা ১০ সেকেন্ড আগে', 'Storm warning 10 seconds earlier') },
   { rank: 3, perk: 'drip', title: q('ড্রিপ সেচের পাইপ', 'Drip irrigation lines'), what: q('জমি ৩০% ধীরে শুকায়', 'Plots dry 30% slower') },
   { rank: 4, perk: 'neem', title: q('নিমের নির্যাস', 'Neem extract'), what: q('পোকা ধীরে ছড়ায়', 'Pests spread more slowly') },
 ];
@@ -36,12 +36,11 @@ export const ACHIEVEMENTS = [
   { id: 'legume', icon: '🫘', title: q('ডালের বন্ধু', 'Friend of pulses'), what: q('এক মৌসুমে ২টি ডাল ফসল তুলুন', 'Harvest 2 legumes in a season'), test: (r) => r.report.legumes >= 2 },
   { id: 'soil', icon: '🪱', title: q('মাটি গড়লেন', 'Soil builder'), what: q('৬টি জমি উর্বর করুন', 'Enrich 6 plots'), test: (r) => r.report.enriched >= 6 },
   { id: 'covered', icon: '🌧️', title: q('ঝড়েও মাটি অটুট', 'Soil kept through the storm'), what: q('ঝড়ে কোনো খালি জমির মাটি না হারিয়ে মৌসুম জিতুন', 'Win without bare soil washing away in the storm'), test: (r) => r.report.eroded === 0 },
-  { id: 'data', icon: '🛰️', title: q('উপগ্রহ পড়তে জানেন', 'Reads the satellites'), what: q('উপগ্রহ দৃশ্য, পানির চাপ স্তর আর AgroVision সবই ব্যবহার করুন', 'Use the satellite view, the water-stress layer and AgroVision'), test: (r) => (r.count.satViews ?? 0) >= 1 && (r.count.waterLayer ?? 0) >= 1 && (r.count.advised ?? 0) >= 2 },
+  { id: 'data', icon: '🛰️', title: q('উপগ্রহ পড়তে জানেন', 'Reads the satellites'), what: q('উপগ্রহ দৃশ্য, পানির চাপ স্তর আর Agros সবই ব্যবহার করুন', 'Use the satellite view, the water-stress layer and Agros'), test: (r) => (r.count.satViews ?? 0) >= 1 && (r.count.waterLayer ?? 0) >= 1 && (r.count.advised ?? 0) >= 2 },
   { id: 'harvest', icon: '🧺', title: q('বড় ফসল', 'A big harvest'), what: q('এক মৌসুমে ২,০০০ বিক্রি করুন', 'Sell 2,000 in one season'), test: (r) => (r.count.earned ?? 0) >= 2000 },
   { id: 'heat', icon: '🔥', title: q('গরম দশকের প্রস্তুতি', 'Ready for a hotter decade'), what: q('২ °সে গরম "যদি" মৌসুম জিতুন', 'Win a what-if season 2 °C hotter'), test: (r) => (r.whatIf?.dT ?? 0) >= 2 },
   { id: 'three', icon: '🧭', title: q('তিন মাঠের অভিজ্ঞতা', 'Three fields'), what: q('৩ জন আলাদা কৃষকের মৌসুম জিতুন', 'Win with 3 different farmers'), test: (r, c) => Object.keys(c.wins).length >= 3 },
   { id: 'bangladesh', icon: '🇧🇩', title: q('সাত বিভাগ', 'All seven divisions'), what: q('বাংলাদেশের ৭ জন কৃষকেরই মৌসুম জিতুন', 'Win with all 7 Bangladesh farmers'), test: (r, c) => BD.every((id) => c.wins[id]) },
-  { id: 'world', icon: '🌏', title: q('ছয় দেশের মাঠ', 'Fields in six countries'), what: q('ছয় দেশেই একটি করে মৌসুম জিতুন', 'Win a season in each of the six countries'), test: (r, c) => Object.keys(c.countries).length >= 6 },
 ];
 
 // What a won season is worth, part by part, so the end screen can say why.

@@ -1,18 +1,13 @@
 // "The weather is not what it used to be": four crop-relevant measures from 25 seasons, the first 12 against the last
-// 13, each with all 25 seasons drawn so the swings show. Bangladesh (Godagari or Dhamrai) reads NASA POWER; the five
-// neighbouring countries read ERA5 at their sample farm (POWER's rain record breaks at those cells; see
-// scripts/build/build_neighbours.py). The words are written from the numbers, so they always say what the data says.
+// 13, each with all 25 seasons drawn so the swings show, from NASA POWER for Bangladesh's seven upazilas. The words are
+// written from the numbers, so they always say what the data says.
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import { useStore, climates, tms, loadClimate } from '../../store';
 import { Tags } from '../ui';
 import ClimateScene from './ClimateScene';
 import { TM_METRICS, THEN, NOW } from '../../engine/climate';
-import { ABROAD, ABROAD_ORDER } from '../../data/abroad';
 
-// A neighbouring country's data file loads only when its chip is chosen.
-const ABROAD_FILES = import.meta.glob('../../data/abroad/*.json', { import: 'default' });
 import { num } from '../../engine/dates';
 
 const ORDER = ['coldNights', 'lateHeat', 'hotMarApr', 'rabiRain'];
@@ -68,29 +63,6 @@ export default function ClimateShift() {
 function ClimateShiftView() {
   const { s, T, L } = useStore();
   const lang = s.lang;
-  const [country, setCountry] = useState('bangladesh');
-  const [abroad, setAbroad] = useState({});
-  useEffect(() => {
-    if (country === 'bangladesh' || abroad[country]) return;
-    ABROAD_FILES[`../../data/abroad/${country}.json`]?.().then((d) => setAbroad((p) => ({ ...p, [country]: d })));
-  }, [country, abroad]);
-  const ab = country !== 'bangladesh' ? ABROAD[country] : null;
-  const abData = ab ? abroad[country] : null;
-  const chips = (
-    <div className="hide-scrollbar -mx-1 mt-4 flex gap-1.5 overflow-x-auto px-1 pb-1" role="tablist" aria-label={T('দেশ', 'Country')}>
-      {['bangladesh', ...ABROAD_ORDER].map((id) => {
-        const on = country === id;
-        const label = id === 'bangladesh' ? { flag: '🇧🇩', name: T('বাংলাদেশ', 'Bangladesh') } : { flag: ABROAD[id].flag, name: L(ABROAD[id].name) };
-        return (
-          <button key={id} type="button" role="tab" aria-selected={on} onClick={() => setCountry(id)}
-            className={`inline-flex h-10 shrink-0 touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-[14px] font-semibold transition-all duration-300 active:scale-[.97] ${on ? 'bg-ink text-white shadow-[0_6px_16px_-8px_rgba(13,38,20,.6)]' : 'bg-white/70 text-ink ring-1 ring-black/[.06] hover:bg-white'}`}>
-            <span aria-hidden="true">{label.flag}</span>{label.name}
-          </button>
-        );
-      })}
-    </div>
-  );
-  if (ab) return <AbroadShift c={ab} data={abData} chips={chips} />;
   const tm = bdAverage();
   const real = BD.every((id) => climates[id]?.prov.status === 'REAL');
   const dir = (k) => { const m = tm[k]; const rel = Math.abs(m.change) / Math.max(m.then, 1); return rel < 0.05 ? 0 : Math.sign(m.change); };
@@ -111,7 +83,6 @@ function ClimateShiftView() {
         </figure>
         <div data-reveal style={{ '--d': '120ms' }}>
           <h2 className="text-[32px] font-bold sm:text-[40px]">{T('আবহাওয়া আর আগের মতো নেই', 'The weather is not what it used to be')}</h2>
-          {chips}
           <p className="caption-in mt-3 text-[16px] leading-8 text-muted">{lead}</p>
 
           <dl key="rows-bd" className="glass flat mt-6 divide-y divide-black/[.06] rounded-[22px] px-5">
@@ -150,69 +121,3 @@ function ClimateShiftView() {
   );
 }
 
-// One neighbouring country: the same four measures at its sample farm, from ERA5.
-function AbroadShift({ c, data, chips }) {
-  const { s, T, L } = useStore();
-  const lang = s.lang;
-  const tm = data?.points.farm.shift;
-  const f = c.farmer;
-  const dir = (k) => { const m = tm[k]; if (m.then == null || m.now == null) return 0; const rel = Math.abs(m.change) / Math.max(m.then, 1); return rel < 0.05 || Math.max(m.then, m.now) < 1 ? 0 : Math.sign(m.change); };
-  const said = tm && ORDER.map((k) => {
-    const d = dir(k), w = SHORT[k];
-    return d === 0 ? T(`${w.bn} প্রায় একই আছে`, `${w.en} are about the same`) : T(`${w.bn} ${d > 0 ? 'বেড়েছে' : 'কমেছে'}`, `${w.en} have ${d > 0 ? 'risen' : 'fallen'}`);
-  });
-  const rain = tm ? tm.rabiRain.series.filter((x) => NOW.includes(x.season) && x.value !== null).map((x) => x.value) : [];
-  return (
-    <section className="py-16 sm:py-20">
-      <div className="page-shell grid items-start gap-10 lg:grid-cols-[1fr_1.15fr] [&>*]:min-w-0">
-        <figure data-reveal className="overflow-hidden rounded-[22px] shadow-[var(--shadow-card)] lg:sticky lg:top-24">
-          <ClimateScene country={c.id} />
-        </figure>
-        <div>
-          <h2 className="text-[32px] font-bold sm:text-[40px]">{T('আবহাওয়া আর আগের মতো নেই', 'The weather is not what it used to be')}</h2>
-          {chips}
-          {!tm ? <div className="mt-6 h-72 animate-pulse rounded-[22px] bg-white/60" aria-busy="true" /> : (
-            <>
-              <p key={c.id} className="caption-in mt-3 text-[16px] leading-8 text-muted">{T(
-                `${c.name.bn}ের ${f.place.bn.split(',').slice(-2).join(',').trim()} এলাকায়, ২৫ বছরের দৈনিক তথ্যে আগের ১২ মৌসুমের (২০০১–২০১২) তুলনায় পরের ১৩ মৌসুমে (২০১৩–২০২৫): ${said.join(', ')}। শীতের মৌসুমের বৃষ্টি বছরে বছরে ${num(Math.min(...rain), 'bn')} থেকে ${num(Math.max(...rain), 'bn')} মিলিমিটার পর্যন্ত ওঠানামা করছে।`,
-                `Around ${f.place.en.split(',').slice(-2).join(',').trim()}, ${c.name.en}, in 25 years of daily data, the last 13 seasons (2013–2025) against the first 12 (2001–2012): ${said.join(', ')}. Winter-season rain swings from ${Math.round(Math.min(...rain))} to ${Math.round(Math.max(...rain))} mm from one year to the next.`)}</p>
-              <dl key={`rows-${c.id}`} className="glass flat mt-6 divide-y divide-black/[.06] rounded-[22px] px-5">
-                {ORDER.map((k) => {
-                  const m = tm[k], meta = TM_METRICS[k], d = dir(k);
-                  const dp = Math.max(m.then ?? 0, m.now ?? 0) < 20 ? 1 : 0;
-                  const Arrow = d > 0 ? ArrowUpRight : d < 0 ? ArrowDownRight : Minus;
-                  return (
-                    <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 py-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-                      <div className="min-w-0">
-                        <dt className="text-[15px] font-semibold text-ink">{L(meta)}</dt>
-                        <p className="mt-0.5 text-[12.5px] leading-5 text-muted">{L(meta.detail)}{T('।', '.')}</p>
-                      </div>
-                      <div className="hidden sm:block"><Spark m={{ ...m, then: m.then ?? 0, now: m.now ?? 0 }} k={k} /></div>
-                      <dd className="text-right">
-                        <div className="font-display whitespace-nowrap text-[19px] font-bold tabular">
-                          <span className="text-muted">{num(m.then, lang, { dp })}</span>
-                          <span className="mx-1.5 text-[14px] font-normal text-muted">→</span>
-                          {num(m.now, lang, { dp })} <span className="text-[13px] font-normal text-muted">{L(meta.unit)}</span>
-                        </div>
-                        <span className={`mt-0.5 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[12px] font-semibold ${d === 0 ? 'bg-black/[.05] text-muted' : 'bg-primary-50 text-primary-800'}`}>
-                          <Arrow size={13} />{d === 0 ? T('প্রায় একই', 'about the same') : `${m.change > 0 ? '+' : '−'}${num(Math.abs(m.change), lang, { dp })} ${L(meta.unit)}`}
-                        </span>
-                      </dd>
-                    </div>
-                  );
-                })}
-              </dl>
-              <p className="mt-3 flex flex-wrap items-center gap-2 text-[12.5px] leading-6 text-muted">
-                {T(`উৎস: ERA5 দৈনিক তথ্য (ECMWF), ${c.farmer.village.bn}-এর নমুনা খামার, ২০০১–২০২৫ মৌসুম। এখানে নাসা পাওয়ারের বৃষ্টির রেকর্ড ভাঙা, তাই ERA5 — “জমির ভবিষ্যৎ” পাতায় তিন উৎসের যাচাই দেখুন।`, `Source: ERA5 daily data (ECMWF) at the ${c.farmer.village.en} sample farm, seasons 2001–2025. NASA POWER’s rain record breaks at this cell, hence ERA5 — see the three-source check on the Field future page.`)}
-                <Tags list={['MODEL']} />
-              </p>
-              <Link to={`/abroad/${c.id}`} className="lift mt-4 inline-flex h-11 touch-manipulation items-center gap-2 rounded-full px-5 text-[14.5px] font-semibold text-white" style={{ background: c.tone }}>
-                {T(`${c.farmer.name.bn}-এর খামার দেখুন`, `Open ${c.farmer.name.en}’s farm`)} →
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}

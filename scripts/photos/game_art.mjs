@@ -2,7 +2,6 @@
 // (gemini-3-pro-image) from the prompts below, so anyone can see exactly what was asked for. AI illustrations, not
 // photographs: the cards label them "AI image".
 //   tara-dream    the children's dream game (/kids): the child, Tara the satellite and the two futures of the farm
-//   meet-farmers  the farmers' gallery (/people): farmers and their children on stage, each with the weather they fear
 // Writes src/assets/images/<name>-{900,1600,2400}.webp (cwebp). Needs GEMINI_API_KEY in .env.local.
 //   node scripts/photos/game_art.mjs [name ...]
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -29,15 +28,6 @@ Composition: 16:9, the girl and Tara in the upper-left third moving toward the r
 
 No text, no letters, no logos, no watermark.`,
 
-  'meet-farmers': `A wide cinematic key-art render for a 3D game's character gallery, stylized 3D with natural, realistic adult and child proportions (not chibi, not big-headed), warm and dignified.
-
-Setting: a dark theatre stage with a gentle arc of round wooden plinths, each lit by its own soft warm spotlight. On each plinth an adult farmer stands beside their own child (about 7 to 10 years old), both in the everyday farm clothes of their home, holding a real farm tool or crop. Left to right: a Bangladeshi farmer in a checked lungi with a red-and-white gamcha over his shoulder, holding a sickle, with his son; a Bangladeshi woman farmer in a green cotton sari holding a basket of rice, with her daughter; a Sikh farmer from Punjab in a saffron turban holding a sheaf of wheat, with his daughter; a farmer from Sindh in a white shalwar kameez and an Ajrak shawl holding a hoe, with his son; a Nepali woman farmer in a patterned shawl carrying a woven doko basket, with her daughter; a Bhutanese woman in a woven kira with a bundle of red rice, with her son; an older Myanmar farmer in a longyi and a bamboo hat, with his grandson; an American woman farmer in a denim shirt and work cap, with her daughter; a Brazilian farmer in a wide straw hat holding soybean plants, with his daughter; a Spanish woman farmer holding an olive branch, with her daughter.
-
-Above each pair floats a small glowing holographic weather symbol for the danger that farmer fears most: a cyclone swirl, rising flood waves, a blazing heat sun, falling hail, a dust storm, a thunderstorm. Behind the stage, a large softly lit globe shows South Asia, the Americas and Europe.
-
-Composition: 16:9, eye level, the arc of ten pairs spans the whole frame, the middle pairs slightly nearer and larger, faces readable with hopeful, proud smiles. Lighting: warm spotlights from above, cool blue rim light, a little haze in the beams. Rich earthy palette of greens, saffron, indigo and warm wood.
-
-No text, no letters, no logos, no watermark.`,
 };
 
 async function generate(name) {

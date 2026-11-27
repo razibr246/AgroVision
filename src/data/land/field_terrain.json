@@ -7,7 +7,7 @@
    "https://lpdaac.usgs.gov/products/srtmgl1v003/",
    "https://lpdaac.usgs.gov/products/astgtmv003/"
   ],
-  "retrieved": "2026-10-29",
+  "retrieved": "2026-11-25",
   "method": "each point is the mean of the two models; elev = centre and 4 points 30 m round it; relief = elev − mean of 8 points 500 m round it; slope = tilt of a least-squares plane through all 25 points out to 500 m; spread = mean disagreement of the two models",
   "caveat": "both models see the surface (crop, tree and roof tops) with metres of error, shown per field as spread: coarse classes for local review, not a survey"
  },

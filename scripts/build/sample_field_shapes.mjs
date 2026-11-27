@@ -1,4 +1,4 @@
-// Sample field outlines for the demo farmers' fields (src/data/fields/parcels.json) and the abroad sample fields. The
+// Sample field outlines for the demo farmers' fields (src/data/fields/parcels.json). The
 // farmers are sample people, so their fields have no surveyed boundary; for the demo each one is drawn as the edge of
 // a real field seen in the sharpest satellite photo (Esri World Imagery) near its pin, found by src/engine/fielddetect.js.
 // The app labels these "sample boundary (demo)": a real field's edge on the ground, not that farmer's measured land.
@@ -7,7 +7,7 @@
 // bonus when it holds the pin and a cost for distance. scripts/build/sample_field_seeds.json can fix a seed by hand
 // ({ "<id>": [metres east, metres north] }) where the automatic choice picks a bad patch.
 //   node scripts/build/sample_field_shapes.mjs [--debug <dir>] [--cache <dir>] [--only <id,id>]
-import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import jpeg from 'jpeg-js';
@@ -99,9 +99,7 @@ function debugPicture(file, { img }, res, pinPx) {
 }
 
 const registry = JSON.parse(readFileSync(join(ROOT, 'src/data/fields/parcels.json'), 'utf8')).parcels;
-const abroad = readdirSync(join(ROOT, 'src/data/abroad')).filter((f) => f.endsWith('.json'))
-  .map((f) => JSON.parse(readFileSync(join(ROOT, 'src/data/abroad', f), 'utf8')).field).filter(Boolean);
-const fields = [...registry, ...abroad].filter((p) => !ONLY || ONLY.includes(p.id));
+const fields = registry.filter((p) => !ONLY || ONLY.includes(p.id));
 
 const out = {};
 for (const p of fields) {

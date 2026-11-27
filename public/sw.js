@@ -1,4 +1,4 @@
-// AgroVision offline support: after the first visit the app opens without internet.
+// Agros offline support: after the first visit the app opens without internet.
 // - The page itself: network first (so updates arrive), the saved copy when offline.
 // - Built files in assets/ (their names change with every build): saved on first use, then served from the cache.
 // Live data (weather, NASA, map tiles) is not cached here; the app already falls back to saved data for those.

@@ -27,7 +27,6 @@ const NasaEyes = lazy(() => import('../../components/NasaEyes'));
 const RopanRadarPulse = lazy(() => import('../../components/home/RopanRadarPulse'));
 const VoiceAskDemo = lazy(() => import('../../components/home/VoiceAskDemo'));
 import { LazyMount } from '../../components/SectionNav';
-import NeighbourPhotos from '../../components/NeighbourPhotos';
 import { useStore } from '../../store';
 import { num, fmtDate, fmtBangla, banglaDate, daysBetween, bnDigits } from '../../engine/dates';
 import { THEN, NOW } from '../../engine/climate';
@@ -36,7 +35,6 @@ import { GAMES } from '../../data/games';
 import ChakraLogo from '../../components/chakra/ChakraLogo';
 import { DATASETS } from '../../engine/provenance';
 import census from '../../data/region/census.json';
-import { ABROAD_ORDER } from '../../data/abroad';
 import { SYMPTOMS, UNIONS } from '../../data/demo';
 
 export default function Home() {
@@ -264,7 +262,6 @@ export default function Home() {
                   [T('নাসা Earthdata · NEX-GDDP-CMIP6', 'NASA Earthdata · NEX-GDDP-CMIP6'), T('প্রায় ২৫ কিলোমিটার', 'about 25 km'), T('৮টি জলবায়ু মডেলে ২০৪০-এর দশক: ১০ বছরের ফসলচক্র আর ৪০টি ভবিষ্যতের পরীক্ষা', 'The 2040s in 8 climate models: ten-year rotations and the 40-future test')],
                   [T('নাসা Earthdata · SMAP, GRACE', 'NASA Earthdata · SMAP, GRACE'), T('৯ কিমি · প্রায় ৩০০ কিমি', '9 km · about 300 km'), T('এই মাসে মাটির পানি; ২০০২ থেকে মাটির নিচের পানির ভান্ডার', 'Soil water this month; the water stored underground since 2002')],
                   [T('নাসা Worldview · GIBS (HLS)', 'NASA Worldview · GIBS (HLS)'), T('৩০ মিটার', '30 m'), T('মানচিত্রে মৌসুমভর জমির উপগ্রহ ছবি; SMAP, GRACE আর SEDAC-এর স্তরও এখান থেকে পড়া', 'Satellite photos of the fields through the season; SMAP, GRACE and SEDAC layers are read from here too')],
-                  [T('নাসা FIRMS', 'NASA FIRMS'), T('৩৭৫ মিটার', '375 m'), T('খড়-নাড়া পোড়ানো আর আগুন, প্রতিবেশী দেশের পাতায়', 'Straw burning and fires, on the neighbouring-country pages')],
                   [T('নাসা SEDAC', 'NASA SEDAC'), T('প্রায় ১ কিলোমিটার', 'about 1 km'), T('উপজেলার জনঘনত্ব, ১০ মিটারের নিচের নিচু জমি, ফসলি জমির ভাগ (ওপরে)', 'Each upazila’s population density, low land below 10 m, cropland share (above)')],
                   [T('নাসার ছবির ভান্ডার', 'NASA Images'), '—', T('মহাকাশ থেকে ব-দ্বীপ, সুন্দরবন আর রূপগঞ্জ (ওপরে)', 'The delta, the Sundarbans and Rupganj from space (above)')],
                   [T('কোপার্নিকাস সেন্টিনেল-১ ও ২', 'Copernicus Sentinel-1 and 2'), T('১০ মিটার', '10 m'), T('আমন রোপণের তারিখ (রাডার); প্রতিটি জমির সবুজ, আর্দ্রতা আর আসল ফসলচক্র', 'Aman transplanting dates (radar); each field’s green cover, moisture and actual rotation')],
@@ -312,7 +309,6 @@ export default function Home() {
       <LazyMount id="impact" height={760}><Suspense fallback={<section className="py-16"><div className="page-shell min-h-[700px]" /></section>}><ImpactReach /></Suspense></LazyMount>
       <Suspense fallback={<section className="py-16 sm:py-20"><div className="page-shell min-h-[760px]" /></section>}><CountryCrops /></Suspense>
 
-      <NeighbourPhotos />
 
       {/* Game teaser: learn the tools by living one season of problems. */}
       <section className="py-8 sm:py-12">
@@ -324,7 +320,7 @@ export default function Home() {
               <div>
                 <p className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13.5px] font-semibold text-primary-800"><Swords size={15} />{T('খেলে শিখুন', 'Learn by playing')}</p>
                 <h2 className="mt-4 text-[32px] font-semibold tracking-[-0.025em] sm:text-[42px]">{T(`${GAMES.play.name.bn}: এক মৌসুমের গল্প`, `${GAMES.play.name.en}: one season's story`)}</h2>
-                <p className="mt-3 max-w-xl text-[17px] leading-8 text-ink/70">{T('খরা, কুয়াশা, পোকা, দাম পড়া — রহিম ভাইয়ের মাঠে ছয় মাসে ছয়টা বিপদ। আগের অভ্যাসে চলবেন, নাকি AgroVision-এর হাতিয়ার দিয়ে লড়বেন? খেলতে খেলতেই শিখে যান কোন সমস্যায় কোন পাতা।', 'Drought, fog, pests, a price crash — six problems in six months on Rahim\'s field. Follow the old habit, or fight back with AgroVision\'s tools? Learn which page solves which problem, just by playing.')}</p>
+                <p className="mt-3 max-w-xl text-[17px] leading-8 text-ink/70">{T('খরা, কুয়াশা, পোকা, দাম পড়া — রহিম ভাইয়ের মাঠে ছয় মাসে ছয়টা বিপদ। আগের অভ্যাসে চলবেন, নাকি Agros-এর হাতিয়ার দিয়ে লড়বেন? খেলতে খেলতেই শিখে যান কোন সমস্যায় কোন পাতা।', 'Drought, fog, pests, a price crash — six problems in six months on Rahim\'s field. Follow the old habit, or fight back with Agros\'s tools? Learn which page solves which problem, just by playing.')}</p>
                 <div className="mt-6 flex flex-wrap gap-3"><Link to="/farm" className="btn-gloss inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold text-white transition-transform hover:scale-105 active:scale-95"><Sprout size={18} />{T(`৩ডি খামারের খেলা — ${GAMES.farm.name.bn}`, `3D farm game — ${GAMES.farm.name.en}`)}</Link><Link to="/play" className="glass-pill inline-flex items-center gap-2 rounded-full px-6 py-3 text-[16px] font-semibold transition-transform hover:scale-105 active:scale-95"><Swords size={18} />{L(GAMES.play.name)}</Link></div>
               </div>
               <div className="flex flex-wrap justify-center gap-2.5 lg:justify-end">
@@ -362,7 +358,6 @@ export default function Home() {
           <Link to="/farm" className="hover:text-white transition-colors duration-150"><Swords size={14} className="mr-1.5 inline text-primary-300" />{T('মাঠের মানুষ ৩ডি গেম', '3D Farm Game')}</Link>
           <Link to="/stories" className="hover:text-white transition-colors duration-150"><MapPinned size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.stories.name)}</Link>
           <Link to="/kids" className="hover:text-white transition-colors duration-150"><Sparkles size={14} className="mr-1.5 inline text-primary-300" />{L(GAMES.kids.name)}</Link>
-          <Link to="/abroad/india" className="hover:text-white transition-colors duration-150"><CloudSun size={14} className="mr-1.5 inline text-primary-300" />{T(`আরও ${num(ABROAD_ORDER.length, 'bn')} দেশের মাঠ`, `Fields in ${ABROAD_ORDER.length} more countries`)}</Link>
         </div>
       </footer>
     </>
@@ -375,10 +370,10 @@ function AtAGlance() {
   const { T, L } = useStore();
   const cards = [
     [CloudSun, 'from-amber-100 to-amber-50 text-amber-700', T('সমস্যা', 'The problem'), T('কৃষক রবির ফসল আর লাগানোর দিন বাছেন অভ্যাসে, কিন্তু আবহাওয়া আর আগের মতো নেই: ২৫ বছরের নাসার তথ্যে শীত, গরম আর বৃষ্টি তিনটিই সরে গেছে। একটি ভুল বাছাইয়ে পুরো মৌসুম নষ্ট হয়।', 'Farmers pick the Rabi crop and its sowing day by habit, but the weather has moved: in 25 years of NASA data the cold, the heat and the rain have all shifted. One wrong choice costs a whole season.')],
-    [Sprout, 'from-primary-100 to-primary-50 text-primary-700', T('আমাদের উত্তর', 'What AgroVision does'), T('একটি জমির জন্য পাঁচটি রবি ফসল, প্রতিটি তিন তারিখে, ২৫ মৌসুমের নাসার আবহাওয়ায় চালিয়ে দেখে; সঙ্গে মাটি, সেচ, দাম আর কৃষকের চাওয়া। তারপর বলে: একই ফসল, সময় বদল, না অন্য ফসল, আর কেন। পরের দশ বছরের ফসলচক্রও হিসাব করে।', 'For one field it replays five Rabi crops at three sowing dates through 25 seasons of NASA weather, adds the soil, water, prices and the farmer’s priorities, and says keep, change the date or shift, with the reason. Then it works out the next ten years of rotation.')],
-    [ShieldCheck, 'from-sky-100 to-sky-50 text-sky-700', T('কারা ব্যবহার করেন', 'Who it is for'), T(`কৃষক (বাংলা বা ইংরেজিতে, কথা বলে, বা বাটন ফোনে এসএমএসে) আর উপজেলা কৃষি অফিসার, যিনি তাঁদের প্রশ্নের উত্তর দেন। একই হাতিয়ার আরও ${num(ABROAD_ORDER.length, 'bn')}টি দেশের মাঠের জন্য, তাদের নিজের ফসল আর সমস্যায়।`, `Farmers (in English or Bangla, by voice, or by SMS on a basic phone) and the upazila agriculture officer who answers them. The same tools cover fields in ${ABROAD_ORDER.length} more countries, with their own crops and problems.`)],
+    [Sprout, 'from-primary-100 to-primary-50 text-primary-700', T('আমাদের উত্তর', 'What Agros does'), T('একটি জমির জন্য পাঁচটি রবি ফসল, প্রতিটি তিন তারিখে, ২৫ মৌসুমের নাসার আবহাওয়ায় চালিয়ে দেখে; সঙ্গে মাটি, সেচ, দাম আর কৃষকের চাওয়া। তারপর বলে: একই ফসল, সময় বদল, না অন্য ফসল, আর কেন। পরের দশ বছরের ফসলচক্রও হিসাব করে।', 'For one field it replays five Rabi crops at three sowing dates through 25 seasons of NASA weather, adds the soil, water, prices and the farmer’s priorities, and says keep, change the date or shift, with the reason. Then it works out the next ten years of rotation.')],
+    [ShieldCheck, 'from-sky-100 to-sky-50 text-sky-700', T('কারা ব্যবহার করেন', 'Who it is for'), T(`কৃষক (বাংলা বা ইংরেজিতে, কথা বলে, বা বাটন ফোনে এসএমএসে) আর উপজেলা কৃষি অফিসার, যিনি তাঁদের প্রশ্নের উত্তর দেন।`, `Farmers (in English or Bangla, by voice, or by SMS on a basic phone) and the upazila agriculture officer who answers them.`)],
   ];
-  const nasa = ['POWER', 'GPM IMERG', 'MODIS', 'SMAP', 'GRACE', 'NEX-GDDP-CMIP6', 'SRTM', 'SEDAC', 'HLS · GIBS', 'FIRMS'];
+  const nasa = ['POWER', 'GPM IMERG', 'MODIS', 'SMAP', 'GRACE', 'NEX-GDDP-CMIP6', 'SRTM', 'SEDAC', 'HLS · GIBS'];
   return (
     <section id="glance" className="scroll-mt-20 py-16 sm:py-20">
       <div className="page-shell">
@@ -519,22 +514,14 @@ const SLIDES = [
   { name: 'stonyRiver', screen: true, bn: 'পাথুরে নদী আর সবুজ পাহাড়, সিলেট', en: 'A stony river under green hills, Sylhet', from: 'scale(1.05) translate3d(1%, .5%, 0)', to: 'scale(1.01) translate3d(-1%, 0, 0)' },
   { name: 'hillClouds', screen: true, bn: 'মেঘের ওপরে পাহাড়ি ঘর, পার্বত্য চট্টগ্রাম', en: 'A hill cottage above the clouds, Chittagong Hill Tracts', from: 'scale(1.05) translate3d(-1%, -.5%, 0)', to: 'scale(1.02) translate3d(1%, .5%, 0)' },
   { name: 'hillWaterfall', screen: true, bn: 'পাহাড়ি বনে পাথুরে ঝরনা', en: 'A rocky waterfall in the hill forest', from: 'scale(1.01) translate3d(0, 0, 0)', to: 'scale(1.05) translate3d(-1%, -1%, 0)' },
-  // The neighbours who share the same rivers, monsoon and mountains: a landscape from each (their farms are on the
-  // country cards further down). Bhutan's river and Nepal's sunset peak sit between the lakes, so no two look alike.
-  { name: 'viewBhutan', screen: true, bn: 'পুনাখা জং, দুই নদীর মিলনে, ভুটান', en: 'Punakha Dzong where two rivers meet, Bhutan', from: 'scale(1.02) translate3d(1%, 0, 0)', to: 'scale(1.05) translate3d(-1.5%, -.5%, 0)' },
-  { name: 'viewPakistan', screen: true, bn: 'সাইফুল মুলুক হ্রদ, কাগান উপত্যকা, পাকিস্তান', en: 'Lake Saiful Muluk, Kaghan valley, Pakistan', from: 'scale(1.05) translate3d(-1%, -.5%, 0)', to: 'scale(1.02) translate3d(1%, .5%, 0)' },
-  { name: 'viewNepal', screen: true, bn: 'সূর্যাস্তে আমা দাবলাম, হিমালয়, নেপাল', en: 'Ama Dablam at sunset, Himalaya, Nepal', from: 'scale(1.01) translate3d(0, .5%, 0)', to: 'scale(1.05) translate3d(0, -1%, 0)' },
-  { name: 'viewIndia', screen: true, bn: 'মেঘে ঢাকা পাহাড়ে চা-বাগান, ভারত', en: 'Tea gardens on misty hills, India', from: 'scale(1.05) translate3d(1%, 0, 0)', to: 'scale(1.01) translate3d(-1%, .5%, 0)' },
-  { name: 'viewAfghanistan', screen: true, bn: 'বান্দ-ই-আমির হ্রদ, বামিয়ান, আফগানিস্তান', en: 'The Band-e-Amir lakes, Bamyan, Afghanistan', from: 'scale(1.02) translate3d(0, 0, 0)', to: 'scale(1.05) translate3d(-1.5%, -1%, 0)' },
   // From above: the plots, then the whole patchwork as the satellite sees it.
   { name: 'landParcels', bn: 'আকাশ থেকে আপনার জমি', en: 'Your plots from above', from: 'scale(1.02) translate3d(1.5%, 0, 0)', to: 'scale(1.07) translate3d(-1.5%, -1%, 0)' },
   { name: 'satellite', bn: 'উপগ্রহের চোখে মাঠ', en: 'The fields from orbit', from: 'scale(1.02) rotate(-.6deg)', to: 'scale(1.06) rotate(.6deg) translate3d(-1%, -1%, 0)' },
 ];
-// The photos fall into four chapters; the pill shows which one is on and how far through it the slideshow is.
+// The photos fall into three chapters; the pill shows which one is on and how far through it the slideshow is.
 const CHAPTERS = [
   { from: 'bullockCart', bn: 'আমাদের মাঠ', en: 'Our fields' },
   { from: 'teestaBarrage', bn: 'বাংলাদেশের নানা প্রান্ত', en: 'Across Bangladesh' },
-  { from: 'viewBhutan', bn: 'প্রতিবেশী দেশ', en: 'The neighbours' },
   { from: 'landParcels', bn: 'আকাশ থেকে', en: 'From above' },
 ].map((c, k, all) => {
   const start = SLIDES.findIndex((sl) => sl.name === c.from);

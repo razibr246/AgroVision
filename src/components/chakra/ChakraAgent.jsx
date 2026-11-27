@@ -14,7 +14,6 @@ import { PROBLEM_PATH } from '../../engine/path';
 import { cropName } from '../../engine/crops';
 import { fmtDate } from '../../engine/dates';
 import ChakraLogo from './ChakraLogo';
-import AbroadChakraAgent from './AbroadChakraAgent';
 import { MacTrafficLights, MinimizedWindowPill, publishChakraDockState } from '../MacOSPortalChrome';
 import './chakra.css';
 
@@ -681,8 +680,5 @@ function BangladeshChakraAgent({ role }) {
 }
 
 export default function ChakraAgent(props) {
-  if (props.abroad) {
-    return <AbroadChakraAgent role={props.role} context={props.abroad} />;
-  }
   return <BangladeshChakraAgent role={props.role} />;
 }

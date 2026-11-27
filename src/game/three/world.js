@@ -175,24 +175,6 @@ function scenery(kind, group) {
       grove(Math.cos(a) * r, Math.sin(a) * r, 4 + rnd() * 3.8, ['#49725f', '#5a8370', '#6b9281'][k % 3]);
     }
   }
-  // Nevada's Great Basin: Diamond Valley lies between two bare ranges (the Sulphur Spring Range to the west, the
-  // Diamond Mountains to the east), grey-blue with distance, with sagebrush flats in between.
-  if (kind === 'basin') {
-    ridge(30, 120, 175, Math.PI * 0.62, Math.PI * 1.38, 22, 46, '#8b8a8e');
-    ridge(30, 120, 175, -Math.PI * 0.38, Math.PI * 0.38, 26, 58, '#7f8496', true);
-    for (let k = 0; k < 70; k++) { const a = rnd() * Math.PI * 2, r = 78 + rnd() * 55; blob(group, 1.2 + rnd() * 1.4, ['#8c9a7a', '#9aa684', '#7f8c70'][k % 3], [Math.cos(a) * r, 0.8, Math.sin(a) * r], [1.2, 0.55, 1.2], 1).castShadow = false; }
-  }
-  if (kind === 'kirthar') { ridge(32, 120, 180, Math.PI * 0.75, Math.PI * 1.25, 20, 48, '#9a7a56'); for (let k = 0; k < 55; k++) { const a = rnd() * Math.PI * 2, r = 80 + rnd() * 60; blob(group, 2.2 + rnd() * 2.2, '#7d8a4a', [Math.cos(a) * r, 2, Math.sin(a) * r], [1.3, 0.5, 1.2], 0).castShadow = false; } }
-  if (kind === 'churia') { ridge(38, 110, 160, -Math.PI * 0.95, -Math.PI * 0.05, 22, 50, '#3f6a3a'); ridge(25, 160, 220, -Math.PI * 0.9, -Math.PI * 0.1, 45, 78, '#5b7a76'); }
-  if (kind === 'himalaya') {
-    ridge(40, 75, 120, -Math.PI, Math.PI, 28, 56, '#355f40');
-    ridge(28, 150, 220, -Math.PI * 0.85, -Math.PI * 0.15, 75, 135, '#6a7f8e', true);
-    // Punakha Dzong where the rivers meet, down the valley to the south-west
-    const d = new THREE.Group(); d.position.set(-62, 0, 72); d.scale.setScalar(2.6); group.add(d);
-    box(d, 14, 5, 7, '#f2ede2', [0, 2.5, 0]); box(d, 14.4, 1, 7.4, '#8a2a20', [0, 5.3, 0]); box(d, 5, 4, 5, '#f2ede2', [1, 7.5, 0]); box(d, 5.4, 0.8, 5.4, '#8a2a20', [1, 9.7, 0]);
-    cone(d, 4, 1.6, '#d4a73a', [1, 10.9, 0], [0, Math.PI / 4, 0], 4); cone(d, 10, 1.4, '#7d838a', [-3, 6.4, 0], [0, Math.PI / 4, 0], 4);
-  }
-
   if (kind === 'dhaka') {
     for (let k = 0; k < 85; k++) {
       const a = rnd() * Math.PI * 2, r = 85 + rnd() * 60;
@@ -226,17 +208,6 @@ function scenery(kind, group) {
   if (kind === 'meghalaya') {
     ridge(38, 110, 160, -Math.PI * 0.95, -Math.PI * 0.05, 34, 68, '#3a6a4a'); ridge(26, 160, 220, -Math.PI * 0.9, -Math.PI * 0.1, 68, 102, '#6a8a96');
     box(group, 4, 40, 1, '#e8f4f8', [-30, 18, -128], [0.15, 0, 0]).castShadow = false; // a waterfall down the hills
-  }
-  if (kind === 'bagan') {
-    // brick temples and white stupas across the plain, as at Bagan
-    for (let k = 0; k < 34; k++) {
-      const a = rnd() * Math.PI * 2, r = 75 + rnd() * 85, s = 1 + rnd() * 2.2, x = Math.cos(a) * r, z = Math.sin(a) * r, white = rnd() < 0.25;
-      const t = new THREE.Group(); t.position.set(x, 0, z); t.scale.setScalar(s); group.add(t);
-      const col = white ? '#f2ede2' : '#a8593a';
-      box(t, 6, 3, 6, col, [0, 1.5, 0]); box(t, 4.4, 1.6, 4.4, col, [0, 3.8, 0]); box(t, 3, 1.2, 3, col, [0, 5.2, 0]);
-      cone(t, 1.4, 4, white ? '#e2b84a' : col, [0, 7.8, 0], [0, 0, 0], 8);
-    }
-    ridge(22, 170, 230, -Math.PI * 0.4, Math.PI * 0.4, 16, 28, '#8a8a7a');
   }
 }
 

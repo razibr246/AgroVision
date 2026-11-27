@@ -1709,7 +1709,7 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
 .hint-in { animation: hint-in .38s var(--ease-spring) both; }
 @keyframes hint-in { from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.95); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
 
-/* Alert cards (AgroVision alerts) — slide in from right */
+/* Alert cards (Agros alerts) — slide in from right */
 .alert-in { animation: alert-in .44s var(--ease-spring) both; }
 @keyframes alert-in { from { opacity: 0; transform: translateX(18px) scale(.96); } to { opacity: 1; transform: none; } }
 
@@ -2735,9 +2735,7 @@ li:nth-child(3n) .fa-eyes, button:nth-child(3n) .fa-eyes { animation-delay: 3.1s
 /* Lift floating Toast & Tour prompt above the floating macOS Dock so nothing overlaps */
 @media (min-width: 768px) {
   :root[data-macos-dock="officer"] .fs-toast,
-  :root[data-macos-dock="abroad"] .fs-toast,
-  :root[data-macos-dock="officer"] .tour-mode-picker,
-  :root[data-macos-dock="abroad"] .tour-mode-picker {
+  :root[data-macos-dock="officer"] .tour-mode-picker {
     bottom: 5.75rem;
   }
 }
@@ -3086,7 +3084,7 @@ body.is-scrolling .public-atmosphere * {
   .voice-ask-aura, .voice-mic::before, .ropan-ring, .ropan-origin-halo { animation: none; }
 }
 
-/* AgroVision cursor and scroll accents: native input and scroll behavior stay intact. */
+/* Agros cursor and scroll accents: native input and scroll behavior stay intact. */
 body {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2v18l5-4.8 3.5 7 3.2-1.6-3.4-7.1H20L4 2Z' fill='%23245a28' stroke='%23edc067' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
 }

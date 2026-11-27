@@ -1,11 +1,11 @@
-// The AgroVision station inside "মাঠের মানুষ": the village kiosk (and the phone button) open the same decision-support
+// The Agros station inside "মাঠের মানুষ": the village kiosk (and the phone button) open the same decision-support
 // tool the app gives a farmer, for the player's own real place. Four tabs:
 //   Today       the weather and prices of the season being played (the kiosk as it was)
 //   From space  that place in NASA records: bare months, ground heat, evapotranspiration, soil moisture, stored water,
 //               the monsoon's start or the year's rain, frost and heat, and satellites against the ground (game/agrovision.js)
-//   Rotations   at least three rotation strategies, farming as now among them, from Field Future (Bangladesh,
-//               engine/soilfuture.js) or the neighbours' engine (engine/rotationAbroad.js), ranked by the priorities and
-//               limits the player sets, each with why, evidence, benefits, gaps and what to check locally
+//   Rotations   at least three rotation strategies, farming as now among them, from Field Future
+//               (engine/soilfuture.js), ranked by the priorities and limits the player sets, each with why, evidence,
+//               benefits, gaps and what to check locally
 //   What if     temperature and rain sliders that re-run the rotations, and can replay the season under that weather
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Satellite, Sprout, SlidersHorizontal, Smartphone, Lightbulb, FileSearch, ThumbsUp, HelpCircle, ShieldAlert, Users, Play, Loader2, Layers, Database, Sparkles, Scale, Droplets, Thermometer, Wind } from 'lucide-react';
@@ -14,13 +14,11 @@ import { num, MONTHS_BN, MONTHS_EN } from '../../engine/dates';
 import { fieldContext, fieldFuture, climateChange, cropOf, RABI_OPTS, K1_OPTS, WATER_M3_PER_MM_BIGHA, ureaSavedKgPerBigha } from '../../engine/soilfuture';
 import { strategyBrief } from '../../engine/briefs';
 import { srdiUnionOf } from '../../engine/soil';
-import { abroadRotations, cropAbroad } from '../../engine/rotationAbroad';
 import { unionsOf } from '../../data/demo';
 import priceSeasons from '../../data/market/price_seasons.json';
 import cropEconomics from '../../data/market/crop_economics.json';
-import { placeOf, spaceFacts, sliderChange, sliderMods, abroadBrief, FARM_OF } from '../../game/agrovision';
+import { placeOf, spaceFacts, sliderChange, sliderMods, FARM_OF } from '../../game/agrovision';
 
-const ABROAD = import.meta.glob('../../data/abroad/*.json', { import: 'default' });
 const median = (a) => { const v = [...a].sort((x, y) => x - y); return v[v.length >> 1]; };
 const PARTS = [
   { k: 'why', icon: Lightbulb, bn: 'কেন এই পথ', en: 'Why this one' },
@@ -82,7 +80,6 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
   // a Bangladesh farmer's own sample farm: its union's soil, its irrigation and what it grew last Rabi
   const farm = useMemo(() => demo.farmers.find((f) => f.id === FARM_OF[g.id]) ?? null, [g.id]);
   const [tab, setTab] = useState('today');
-  const [abroad, setAbroad] = useState(null); // the neighbour's farm point and its soil and yields
   const [clim, setClim] = useState(null);
   const [deltas, setDeltas] = useState(null);
   const [prios, setPrios] = useState([]);
@@ -94,32 +91,19 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
   const [pick, setPick] = useState(null);
   useEffect(() => {
     let current = true;
-    setAbroad(null); setClim(null); setDeltas(null); setPick(null);
+    setClim(null); setDeltas(null); setPick(null);
     import('../../data/climate/cmip6_deltas.json').then((m) => { if (current) setDeltas(m.default); }).catch(() => { if (current) setDeltas(false); });
-    if (place.kind === 'bd') {
-      loadClimate(place.id).then((c) => { if (current) setClim(c); }).catch(() => { if (current) setClim(false); });
-    } else {
-      const loadPlace = ABROAD[`../../data/abroad/${place.id}.json`];
-      if (!loadPlace) setAbroad(false);
-      else Promise.all([loadPlace(), import('../../data/soil/abroad_soil_yields.json'), import('../../data/market/abroad_prices.json')])
-        .then(([d, sy, pr]) => {
-          if (!current) return;
-          const soil = sy.default.countries[place.id], prices = pr.default.countries[place.id];
-          if (!d.points?.farm?.normals || !soil || !prices) throw new Error(`incomplete AgroVision records for ${place.id}`);
-          setAbroad({ normals: d.points.farm.normals, ...soil, prices });
-        })
-        .catch(() => { if (current) setAbroad(false); });
-    }
+    loadClimate(place.id).then((c) => { if (current) setClim(c); }).catch(() => { if (current) setClim(false); });
     return () => { current = false; };
   }, [place]);
-  const cards = useMemo(() => (place.kind === 'bd' || abroad ? spaceFacts(place, abroad?.normals) : null), [place, abroad]);
+  const cards = useMemo(() => spaceFacts(place), [place]);
   const what = useDeferredValue({ prios, exclude, irr, habit, dT, rain });
   const slider = sliderChange(what.dT, what.rain);
 
   // Bangladesh: Field Future on the upazila's NASA POWER days and the farm's own union soil (the upazila's middle
   // union if that union has no soil reading), from what the farmer says they grow now
   const bd = useMemo(() => {
-    if (place.kind !== 'bd' || !clim || !deltas) return null;
+    if (!clim || !deltas) return null;
     let mid = farm && soilData.unions[farm.union]?.soc_g_kg != null ? { u: { id: farm.union }, soil: soilData.unions[farm.union] } : null;
     if (!mid) {
       const us = unionsOf(place.id).map((u) => ({ u, soil: soilData.unions[u.id] })).filter((x) => x.soil?.soc_g_kg != null);
@@ -132,15 +116,8 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
     const others = ff.top.filter((e) => e !== ff.best && e !== ff.habit).slice(0, 2);
     return { ff, list: [{ id: 'habit', kind: 'habit', e: ff.habit }, { id: 'best', kind: 'best', e: ff.best }, ...others.map((e, i) => ({ id: `alt${i}`, kind: 'best', e }))] };
   }, [place, farm, clim, deltas, what.prios, what.exclude, what.irr, what.habit, what.dT, what.rain]); // eslint-disable-line react-hooks/exhaustive-deps
-  // the neighbours: soil carbon, nitrogen and greenhouse gases over ten years, today and under the change
-  const ab = useMemo(() => {
-    if (place.kind !== 'abroad' || !abroad || !deltas) return null;
-    const change = slider ?? climateChange(deltas, `abroad_${place.id}`, 'ssp245');
-    return abroadRotations({ country: place.id, soil: abroad.soil, yields: abroad.yields, normals: abroad.normals, change, prices: abroad.prices });
-  }, [place, abroad, deltas, what.dT, what.rain]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rotName = (rot) => rot.cycle.map((y) => [y.rabi, y.k1, 'aman'].filter((id) => id && id !== 'fallow').map((id) => L(cropOf(id).name)).join(' → ')).join(T(' | পরের বছর ', ' | next year ')) + (rot.residue === 'retain' ? T(' · খড় জমিতে', ' · straw kept') : '');
-  const abName = (o) => o.cycle.map((y) => y.map((k) => L(cropAbroad(k).name)).join(' → ')).join(T(' | পরের বছর ', ' | next year ')) + (o.residue === 'retain' ? T(' · খড় জমিতে', ' · straw kept') : '');
   const sumOf = (e) => (world === 'fut' && e.sFut ? e.sFut : e.sNow);
   const futLabel = slider ? T('আপনার "যদি এমন হয়"', 'Your what-if') : T('২০৪০-এর দশক (নাসা CMIP6)', 'The 2040s (NASA CMIP6)');
   const TABS = [
@@ -166,7 +143,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
       {tab === 'space' && (<>
         <p className="font-display text-[20px] font-semibold">{T(`${L(R.place)}: উপগ্রহ যা দেখে`, `${L(R.place)}: what the satellites see`)}</p>
         <p className="mt-1 text-[13.5px] text-white/65">{T('আপনার জায়গার আসল নাসা রেকর্ড, ২০০১ থেকে। কৃষকেরা নমুনা মানুষ, জায়গা আর তথ্য সত্যি।', 'Your place’s real NASA records since 2001. The farmers are sample people; the place and the data are real.')}</p>
-        {place.kind === 'abroad' && abroad === false ? loadError : !cards ? loading : <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {!cards ? loading : <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {cards.map((c) => (
             <Box key={c.id}>
               <div className="flex items-start justify-between gap-2">
@@ -184,10 +161,8 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
 
       {tab === 'rot' && (<>
         <p className="font-display text-[20px] font-semibold">{T('কোন ফসলচক্র এই জমির জন্য', 'Which rotation suits this land')}</p>
-        <p className="mt-1 text-[13.5px] text-white/65">{place.kind === 'bd'
-          ? T('দশ বছর ধরে প্রতিটি ফসলচক্র চালানো: মাটির কার্বন, সেচের পানি, আয়, আবহাওয়ার ঝুঁকি আর রোগ-পোকা, এখনকার চাষের পাশে।', 'Every rotation run for ten years: soil carbon, irrigation water, income, weather risk and pests, beside farming as now.')
-          : T('দশ বছর ধরে প্রতিটি ফসলচক্র: মাটির জৈব কার্বন, ডালের নাইট্রোজেন, সেচের পানি আর ফসলের দাম, এখন আর ২০৪০-এর দশকে।', 'Every rotation over ten years: soil organic carbon, legume nitrogen, irrigation water and harvest value, now and in the 2040s.')}</p>
-        {place.kind === 'bd' && (<>
+        <p className="mt-1 text-[13.5px] text-white/65">{T('দশ বছর ধরে প্রতিটি ফসলচক্র চালানো: মাটির কার্বন, সেচের পানি, আয়, আবহাওয়ার ঝুঁকি আর রোগ-পোকা, এখনকার চাষের পাশে।', 'Every rotation run for ten years: soil carbon, irrigation water, income, weather risk and pests, beside farming as now.')}</p>
+        {(<>
           <p className="mt-3 text-[12.5px] font-bold uppercase tracking-wide text-white/55">{T('আপনার কাছে যা জরুরি', 'What matters to you')}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">{PRIOS.map(([k, bn, en]) => <Chip key={k} on={prios.includes(k)} onClick={() => setPrios((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]))}>{T(bn, en)}</Chip>)}</div>
           <p className="mt-3 text-[12.5px] font-bold uppercase tracking-wide text-white/55">{T('রবিতে এখন যা করেন (তুলনার ভিত্তি)', 'What you grow in Rabi now (the baseline)')}</p>
@@ -198,7 +173,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
           <div className="mt-1.5 flex flex-wrap gap-1.5">{[...RABI_OPTS, ...K1_OPTS].filter((k) => k !== 'fallow' && k !== 'boro').map((k) => <Chip key={k} on={exclude.includes(k)} onClick={() => setExclude((x) => (x.includes(k) ? x.filter((y) => y !== k) : [...x, k]))}>{L(cropOf(k).name)}</Chip>)}</div>
         </>)}
         <div className="mt-3 flex flex-wrap gap-1.5"><Chip on={world === 'now'} onClick={() => setWorld('now')}>{T('আজকের আবহাওয়া (২০১৩–২০২৫)', 'Today’s weather (2013–2025)')}</Chip><Chip on={world === 'fut'} onClick={() => setWorld('fut')}>{futLabel}</Chip></div>
-        {place.kind === 'bd' && (clim === false || deltas === false ? loadError : !bd ? loading : (() => {
+        {(clim === false || deltas === false ? loadError : !bd ? loading : (() => {
           const at = bd.list.find((c) => c.id === pick) ?? bd.list[1], base = bd.list[0];
           const b = strategyBrief({ s: sumOf(at.e), b: sumOf(base.e), rot: at.e.rot, kind: at.kind, world });
           return (<>
@@ -233,31 +208,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
             <Brief b={b} />
           </>);
         })())}
-        {place.kind === 'abroad' && (abroad === false || deltas === false ? loadError : !ab ? loading : (() => {
-          const habitO = ab.options.find((o) => o.habit), at = ab.options[pick ?? 1] ?? ab.options[1];
-          return (<>
-            <div className="mt-3 grid gap-2">
-              {ab.options.map((o, i) => {
-                const d = world === 'fut' && o.dSocFut != null ? o.dSocFut : o.dSoc;
-                return (
-                  <button key={i} type="button" onClick={() => setPick(i)} aria-pressed={o === at} className={`rounded-2xl p-3 text-left ring-1 transition ${o === at ? 'bg-emerald-400/15 ring-emerald-300' : 'bg-white/[.07] ring-white/10 hover:bg-white/[.1]'}`}>
-                    <p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-white/60">{o.habit ? T('এখন যেমন চাষ হয়', 'Farming as now') : T(`পথ ${num(i, 'bn')}`, `Option ${i}`)}<Tag k="RULE" /></p>
-                    <p className="mt-1 text-[15px] font-semibold">{abName(o)}</p>
-                    <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[12.5px] text-white/75 sm:grid-cols-3">
-                      <span>{T(`মাটির কার্বন ১০ বছরে: ${d >= 0 ? '+' : '−'}${num(Math.abs(d), 'bn', { dp: 1 })}%`, `Soil carbon in 10 yrs: ${d >= 0 ? '+' : '−'}${Math.abs(d).toFixed(1)}%`)}</span>
-                      <span>{T(`নাইট্রোজেন: ${num(Math.round(o.nFix), 'bn')} কেজি/হেক্টর/বছর`, `Nitrogen: ${Math.round(o.nFix)} kg/ha/yr`)}</span>
-                      <span>{T(`ফসলের গোত্র: ${num(o.families, 'bn')}`, `Crop families: ${o.families}`)}</span>
-                      {o.waterMm != null && (() => { const w = world === 'fut' && o.waterFut != null ? o.waterFut : o.waterMm; return <span>{T(`সেচ: বছরে ${num(Math.round(w), 'bn')} মিমি`, `Irrigation: ${num(Math.round(w), 'en')} mm/yr`)}</span>; })()}
-                      {o.gross != null && <span>{T(`ফসলের দাম: হেক্টরে ${abroad.prices.symbol}${num(Math.round(o.gross), 'bn')}/বছর`, `Harvest value: ${abroad.prices.symbol}${num(Math.round(o.gross), 'en')}/ha/yr`)}</span>}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            <Brief b={abroadBrief(at, habitO, (k) => cropAbroad(k).name, world === 'fut', abroad.prices)} />
-          </>);
-        })())}
-        <p className="mt-3 flex items-start gap-2 rounded-2xl bg-amber-400/10 p-3 text-[13.5px] leading-6 text-amber-100"><Users size={16} className="mt-1 shrink-0" />{T('AgroVision পথ দেখায়, সিদ্ধান্ত আপনার। নতুন ফসল বোনার আগে উপজেলা কৃষি কর্মকর্তা আর অভিজ্ঞ কৃষকের সঙ্গে মিলিয়ে নিন।', 'AgroVision shows the options; the decision is yours. Check with your agriculture officer and experienced farmers before sowing a new crop.')}</p>
+        <p className="mt-3 flex items-start gap-2 rounded-2xl bg-amber-400/10 p-3 text-[13.5px] leading-6 text-amber-100"><Users size={16} className="mt-1 shrink-0" />{T('Agros পথ দেখায়, সিদ্ধান্ত আপনার। নতুন ফসল বোনার আগে উপজেলা কৃষি কর্মকর্তা আর অভিজ্ঞ কৃষকের সঙ্গে মিলিয়ে নিন।', 'Agros shows the options; the decision is yours. Check with your agriculture officer and experienced farmers before sowing a new crop.')}</p>
       </>)}
 
       {tab === 'what' && (<>
@@ -270,19 +221,16 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
           <input type="range" min="-40" max="40" step="10" value={rain} onChange={(e) => setRain(+e.target.value)} className="mt-1 w-full accent-emerald-400" />
         </label>
         {deltas && (() => {
-          const cc = climateChange(deltas, place.kind === 'bd' ? place.id : `abroad_${place.id}`, 'ssp245');
+          const cc = climateChange(deltas, place.id, 'ssp245');
           return cc && <Box className="mt-3 text-[13.5px] leading-6 text-white/80">{T(`নাসা NEX-GDDP-CMIP6 (${num(cc.n, 'bn')}টি মডেল, মাঝারি নির্গমন): ২০৪০-এর দশকে এখানে তাপমাত্রা +${num(cc.dT.med, 'bn', { dp: 1 })} °সে (${num(cc.dT.min, 'bn', { dp: 1 })} থেকে ${num(cc.dT.max, 'bn', { dp: 1 })}), বৃষ্টি ${num(Math.round(cc.rainPct.med), 'bn')}% (${num(Math.round(cc.rainPct.min), 'bn')} থেকে ${num(Math.round(cc.rainPct.max), 'bn')})। মডেলগুলোর এই অমিলই অনিশ্চয়তা।`, `NASA NEX-GDDP-CMIP6 (${cc.n} models, middle emissions): in the 2040s here +${cc.dT.med.toFixed(1)} °C (${cc.dT.min.toFixed(1)} to ${cc.dT.max.toFixed(1)}), rain ${Math.round(cc.rainPct.med)}% (${Math.round(cc.rainPct.min)} to ${Math.round(cc.rainPct.max)}). The models’ disagreement is the uncertainty.`)} <Tag k="REAL" /></Box>;
         })()}
         {deltas === false && loadError}
         {(dT || rain) ? (<>
           <Box className="mt-3 text-[13.5px] leading-6">
-            {place.kind === 'bd' ? (!bd ? loading : (() => {
+            {!bd ? loading : (() => {
               const h = bd.ff.habit.sFut, b = bd.ff.best.sFut;
               return h && b && T(`এই আবহাওয়ায় এখনকার চাষ: সেচ বিঘায় ${num(Math.round(h.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার, খারাপ মৌসুম ${num(Math.round(h.risk * 100), 'bn')}%। সবচেয়ে ভালো পথ (${rotName(bd.ff.best.rot)}): সেচ ${num(Math.round(b.waterMm * WATER_M3_PER_MM_BIGHA), 'bn')} ঘনমিটার, খারাপ মৌসুম ${num(Math.round(b.risk * 100), 'bn')}%।`, `In this weather, farming as now: ${num(Math.round(h.waterMm * WATER_M3_PER_MM_BIGHA), 'en')} m³ of irrigation a bigha, ${Math.round(h.risk * 100)}% bad seasons. The best option (${rotName(bd.ff.best.rot)}): ${num(Math.round(b.waterMm * WATER_M3_PER_MM_BIGHA), 'en')} m³, ${Math.round(b.risk * 100)}% bad seasons.`);
-            })()) : (!ab ? loading : (() => {
-              const h = ab.options.find((o) => o.habit), best = ab.options.reduce((a, o) => ((o.dSocFut ?? o.dSoc) > (a.dSocFut ?? a.dSoc) ? o : a), ab.options[0]);
-              return T(`এই আবহাওয়ায় এখনকার চাষ: সেচ বছরে ${num(Math.round(h.waterFut ?? h.waterMm), 'bn')} মিমি, দশ বছরে মাটির কার্বন ${num(h.dSocFut, 'bn', { dp: 1 })}%। মাটির জন্য সবচেয়ে ভালো পথ (${abName(best)}): সেচ ${num(Math.round(best.waterFut ?? best.waterMm), 'bn')} মিমি, কার্বন ${num(best.dSocFut, 'bn', { dp: 1 })}%।`, `In this weather, farming as now: ${num(Math.round(h.waterFut ?? h.waterMm), 'en')} mm of irrigation a year, soil carbon ${h.dSocFut.toFixed(1)}% over ten years. Best for the soil (${abName(best)}): ${num(Math.round(best.waterFut ?? best.waterMm), 'en')} mm, carbon ${best.dSocFut.toFixed(1)}%.`);
-            })())}
+            })()}
             <span className="ml-1"><Tag k="RULE" /></span>
           </Box>
           <button type="button" onClick={() => { setWorld('fut'); setTab('rot'); }} className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2.5 font-semibold ring-1 ring-white/15"><Sprout size={16} />{T('সব ফসলচক্র এই আবহাওয়ায় দেখুন', 'See every rotation in this weather')}</button>
@@ -355,7 +303,7 @@ export default function FieldStation({ g, hud, R, children, onWhatIf }) {
         {/* Human-in-the-loop Reminder */}
         <p className="mt-3 flex items-start gap-2 rounded-2xl bg-emerald-400/10 p-3 text-[13.5px] leading-6 text-emerald-100 ring-1 ring-emerald-300/20">
           <Users size={16} className="mt-1 shrink-0 text-emerald-300" />
-          {T('সিদ্ধান্ত কৃষকের: এই টুল মহাকাশ তথ্য ও বিজ্ঞানের মাধ্যমে সম্ভাব্য পথ দেখায়, কিন্তু কৃষকের বাস্তব অভিজ্ঞতা এবং উপজেলা কৃষি কর্মকর্তার মাঠ পর্যায়ের পরামর্শের বিকল্প নয়।', 'Farmer in Control: AgroVision synthesises NASA space data to illuminate possibilities, but never replaces the farmer’s hands-on experience or extension officer’s ground wisdom.')}
+          {T('সিদ্ধান্ত কৃষকের: এই টুল মহাকাশ তথ্য ও বিজ্ঞানের মাধ্যমে সম্ভাব্য পথ দেখায়, কিন্তু কৃষকের বাস্তব অভিজ্ঞতা এবং উপজেলা কৃষি কর্মকর্তার মাঠ পর্যায়ের পরামর্শের বিকল্প নয়।', 'Farmer in Control: Agros synthesises NASA space data to illuminate possibilities, but never replaces the farmer’s hands-on experience or extension officer’s ground wisdom.')}
         </p>
       </>)}
     </div>

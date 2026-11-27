@@ -16,7 +16,7 @@ import usePageMeta from '../../components/usePageMeta';
 import { GAMES, SECTIONS, START_HERE } from '../../data/games';
 
 const ICON = { farm: Gamepad2, kids: Sparkles, people: Users, saga: BookOpen, stories: MapPinned, play: Swords };
-const PHOTO = { farm: 'farmGame', kids: 'taraDream', people: 'meetFarmers', saga: 'dhamraiBridge', stories: 'sevenFields', play: 'seasonShowdown' };
+const PHOTO = { farm: 'farmGame', kids: 'taraDream', people: 'riceHarvest', saga: 'dhamraiBridge', stories: 'sevenFields', play: 'seasonShowdown' };
 
 function Chips({ g }) {
   const { L } = useStore();
@@ -121,7 +121,7 @@ export default function Games() {
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full bg-paddy-300 px-3 py-1 text-[13px] font-bold text-primary-950"><Gamepad2 size={15} />{L(farm.kind)} · {L(farm.time)}</p>
             <h3 className="font-display mt-3 text-[30px] font-bold leading-tight sm:text-[40px]">{T(`${farm.name.bn}: সিদ্ধান্ত নিন, ফল দেখুন`, `${farm.name.en}: make the call, live with the season`)}</h3>
-            <p className="mt-2 max-w-2xl text-[15px] leading-7 text-white/80">{T('বাংলাদেশ, প্রতিবেশী পাঁচ দেশ, যুক্তরাষ্ট্র, ব্রাজিল আর স্পেনের ১৫ জন কৃষকের একজন হয়ে বীজ কিনুন, জমি লাগান, পানি ও পোকা সামলান, সতর্কতা পেলে ফসল বাঁচান। শেষে আপনার ফসলচক্র আর শেখা বিষয়গুলোর হিসাব পাবেন।', 'Be one of 15 farmers from Bangladesh, five neighbouring countries, the USA, Brazil and Spain. Buy seed, plant, manage water and pests, and protect the crop when warnings arrive. Finish with a rotation summary and a review of what you learned.')}</p>
+            <p className="mt-2 max-w-2xl text-[15px] leading-7 text-white/80">{T('বাংলাদেশের সাত বিভাগের ৭ জন কৃষকের একজন হয়ে বীজ কিনুন, জমি লাগান, পানি ও পোকা সামলান, সতর্কতা পেলে ফসল বাঁচান। শেষে আপনার ফসলচক্র আর শেখা বিষয়গুলোর হিসাব পাবেন।', 'Be one of 7 farmers from the seven divisions of Bangladesh. Buy seed, plant, manage water and pests, and protect the crop when warnings arrive. Finish with a rotation summary and a review of what you learned.')}</p>
             <ul className="mt-4 grid gap-2 text-[13.5px] text-white/85 sm:grid-cols-2">
               {[[Droplets, T('পানি ভাগ করে ব্যবহার', 'Use limited water well')], [Bug, T('পোকা দেখে ব্যবস্থা', 'Respond to pest reports')], [CloudLightning, T('ঝড়ে নিরাপদ আশ্রয়', 'Reach shelter before storms')], [Coins, T('ফসল তুলে বাজারে বিক্রি', 'Harvest and sell at market')]].map(([Icon, text]) => <li key={text} className="flex items-center gap-2"><Icon size={16} className="shrink-0 text-paddy-300" />{text}</li>)}
             </ul>
@@ -132,7 +132,7 @@ export default function Games() {
       </section>
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <Card id="kids" n={0} text={T('আজ রাতে কৃষক পরিবার আবহাওয়া নিয়ে চিন্তায়। ঘুমিয়ে পড়লেই নাসার ছোট্ট উপগ্রহ তারা তোমাকে নিয়ে আকাশে ওড়ে: বৃষ্টির মেঘ ধরো, খালি মাটিতে সবুজ কম্বল দাও, অসুস্থ গাছ খুঁজে বের করো, তাপপ্রবাহে মাঠ ঠান্ডা করো আর ঠিক মাপে পানি দাও। তারপর দুটো দরজা খুলে দেখো, আগাম খবর না পেলে আর পেলে খামারের ভবিষ্যৎ কেমন হয়। ঘুম ভাঙলে হাসিমুখের সকাল।', 'Tonight a farm family is worried about the weather. Fall asleep, and Tara, a little NASA satellite, takes you flying: catch rain clouds, tuck a green blanket over bare soil, find the sick plants, cool a heatwave and pour just enough water. Then open two doors and see the farm’s future without an early warning, and with one. Wake up to a happy morning.')} />
-        <Card id="people" n={1} text={T('নয় দেশের পনেরো জন কৃষক, পাশে নিজের সন্তান, মঞ্চের আলোয়: বাংলাদেশ থেকে ভুটান, পাঞ্জাব থেকে ব্রাজিল। প্রত্যেকের নিজের পোশাক, নিজের ফসল, আর যে ঝড়, বন্যা বা তাপপ্রবাহকে তিনি সবচেয়ে ভয় পান। একজনকে বেছে নিয়ে তাঁর মৌসুমে নামুন, বা তাঁর সন্তানের স্বপ্নে।', 'Fifteen farmers from nine countries stand beside their children under the stage lights, from Bangladesh to Bhutan and Punjab to Brazil. Each in their own clothes, with their own crop and the storm, flood or heatwave they fear most. Pick one and step into their season, or into their child’s dream.')} />
+        <Card id="people" n={1} text={T('সাত বিভাগের সাতজন কৃষক, পাশে নিজের সন্তান, মঞ্চের আলোয়: ঢাকা থেকে সিলেট, রাজশাহী থেকে বরিশাল। প্রত্যেকের নিজের পোশাক, নিজের ফসল, আর যে ঝড়, বন্যা বা তাপপ্রবাহকে তিনি সবচেয়ে ভয় পান। একজনকে বেছে নিয়ে তাঁর মৌসুমে নামুন, বা তাঁর সন্তানের স্বপ্নে।', 'Seven farmers from the seven divisions stand beside their children under the stage lights, from Dhaka to Sylhet and Rajshahi to Barishal. Each in their own clothes, with their own crop and the storm, flood or heatwave they fear most. Pick one and step into their season, or into their child’s dream.')} />
       </div>
 
       {/* Part 2: stories and challenges */}
@@ -148,7 +148,7 @@ export default function Games() {
         </div>
       </Link>
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <Card id="play" n={0} text={T('এক রবি মৌসুমের ছয়টি সত্যিকারের বিপদ। প্রতিবার বেছে নিন — আগের অভ্যাস, নাকি AgroVision-এর ঠিক হাতিয়ার। প্রথমবার এলে এখান থেকেই শুরু করুন।', 'Six real problems across one Rabi season. Each time choose — the old habit, or the right AgroVision tool. If you are new, start here.')} />
+        <Card id="play" n={0} text={T('এক রবি মৌসুমের ছয়টি সত্যিকারের বিপদ। প্রতিবার বেছে নিন — আগের অভ্যাস, নাকি Agros-এর ঠিক হাতিয়ার। প্রথমবার এলে এখান থেকেই শুরু করুন।', 'Six real problems across one Rabi season. Each time choose — the old habit, or the right Agros tool. If you are new, start here.')} />
         <Card id="stories" n={1} text={T('সিলেটের পাহাড়ি ঢল, খুলনার লবণ, বরিশালের জোয়ার, রংপুরের কুয়াশা-ব্লাইট, চট্টগ্রামের মেঘভাঙা বৃষ্টি। আপনার সিদ্ধান্ত চলে সেই এলাকার একটি আসল পুরোনো বছরে।', 'Sylhet’s flash floods, Khulna’s salt, Barishal’s tides, Rangpur’s fog and blight, Chattogram’s cloudbursts. Your choices are played through a real past year of that place.')} />
       </div>
 

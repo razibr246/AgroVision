@@ -1,5 +1,5 @@
 /**
- * AgroVision Kids – Learn, Play & Grow (তারার স্বপ্ন-খামার / Tara's Dream Farm)
+ * Agros Kids – Learn, Play & Grow (তারার স্বপ্ন-খামার / Tara's Dream Farm)
  * Pure Gamification, Progression, Mini-Game & Science Simulation Engine
  *
  * Zero React or DOM dependencies. Safe for Node.js tests (`node --test`) and browsers.

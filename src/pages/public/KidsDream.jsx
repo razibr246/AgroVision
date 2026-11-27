@@ -302,7 +302,7 @@ function Dream({ id, onExit }) {
 
     ctx.fillStyle = '#059669';
     ctx.font = '600 28px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif';
-    ctx.fillText(lang === 'bn' ? 'AgroVision · তারা আর স্বপ্নের মাঠ' : 'AgroVision · Tara and the Dream Fields', 800, 175);
+    ctx.fillText(lang === 'bn' ? 'Agros · তারা আর স্বপ্নের মাঠ' : 'Agros · Tara and the Dream Fields', 800, 175);
 
     // Certificate Title
     ctx.fillStyle = '#78350f';
@@ -400,7 +400,7 @@ function Dream({ id, onExit }) {
     const certId = `NASA-FS360-${Date.now().toString(36).toUpperCase()}`;
     ctx.fillStyle = '#94a3b8';
     ctx.font = '16px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif';
-    ctx.fillText(lang === 'bn' ? `সনদ আইডি: ${certId} · AgroVision` : `Certificate ID: ${certId} · AgroVision`, 800, 1030);
+    ctx.fillText(lang === 'bn' ? `সনদ আইডি: ${certId} · Agros` : `Certificate ID: ${certId} · Agros`, 800, 1030);
 
     c.toBlob((blob) => {
       if (!blob) return;
@@ -616,7 +616,7 @@ function Dream({ id, onExit }) {
             <ul className="mt-2.5 flex flex-wrap justify-center gap-2">
               {badgesFor(stars).map((b) => <li key={b} className="flex items-center gap-1 rounded-full bg-gradient-to-r from-yellow-100 to-amber-100 px-4 py-2 text-[14.5px] font-bold text-yellow-900 shadow-sm ring-1 ring-yellow-400">🏅 {L(BADGES[b])}</li>)}
             </ul>
-            <p className="mt-4 rounded-2xl bg-primary-50 p-3.5 text-[14.5px] leading-7 text-primary-900 shadow-sm ring-1 ring-primary-200/50">{T('বাবা-মা বা বড়দের সঙ্গে এগ্রোভিশন খুলে দেখো: তোমাদের মাঠের জন্য নাসার উপগ্রহ কী বলছে। আর কৃষি কর্মকর্তার সঙ্গে কথা বলতে বলো।', 'Open AgroVision with your parents or grown-ups: see what NASA’s satellites say about your field. And ask them to talk to the agriculture officer.')}</p>
+            <p className="mt-4 rounded-2xl bg-primary-50 p-3.5 text-[14.5px] leading-7 text-primary-900 shadow-sm ring-1 ring-primary-200/50">{T('বাবা-মা বা বড়দের সঙ্গে এগ্রোস খুলে দেখো: তোমাদের মাঠের জন্য নাসার উপগ্রহ কী বলছে। আর কৃষি কর্মকর্তার সঙ্গে কথা বলতে বলো।', 'Open Agros with your parents or grown-ups: see what NASA’s satellites say about your field. And ask them to talk to the agriculture officer.')}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Link to="/farmer" className="rounded-full bg-primary-700 px-5 py-3 text-[16px] font-bold text-white shadow-md hover:bg-primary-800">{T('বড়দের অ্যাপ খোলো', 'Open the grown-ups’ app')}</Link>
               <button type="button" onClick={() => { setDone(false); setK(0); setN(0); setPhase('lines'); setStars({}); }} className="flex items-center gap-1.5 rounded-full bg-white px-5 py-3 text-[16px] font-bold shadow-sm ring-1 ring-border hover:bg-slate-50"><RotateCcw size={17} />{T('আবার স্বপ্ন দেখো', 'Dream again')}</button>

@@ -53,11 +53,12 @@ export const DEMO_SCENARIOS = {
 };
 
 // Live weather at the field from Open-Meteo (non-NASA): daily rain, temperature and FAO-56 Penman–Monteith ET₀ for the
-// last 92 days (the most it gives) and the next 7, for the field water balance (fieldwater.js). Null on any failure.
+// last 92 days (the most it gives) and the next 16 (also the most), for the field water balance (fieldwater.js), the
+// irrigation planner (irrigationPlan.js) and the heat watch (heatWatch.js). Null on any failure.
 export const PAST_DAYS = 92;
 export async function fetchLiveWeather(lat, lon) {
   try {
-    const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum,et0_fao_evapotranspiration,temperature_2m_max,temperature_2m_min&past_days=${PAST_DAYS}&forecast_days=8&timezone=Asia%2FDhaka`;
+    const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum,et0_fao_evapotranspiration,temperature_2m_max,temperature_2m_min&past_days=${PAST_DAYS}&forecast_days=16&timezone=Asia%2FDhaka`;
     const ctl = new AbortController();
     const to = setTimeout(() => ctl.abort(), 8000);
     const r = await fetch(u, { signal: ctl.signal });

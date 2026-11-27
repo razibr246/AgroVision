@@ -20,8 +20,6 @@ import sevenFields2400 from './seven-fields-2400.webp';
 import sevenFields3200 from './seven-fields-3200.webp';
 import taraDream900 from './tara-dream-900.webp';
 import taraDream1600 from './tara-dream-1600.webp';
-import meetFarmers900 from './meet-farmers-900.webp';
-import meetFarmers1600 from './meet-farmers-1600.webp';
 import farmGame1600 from './farm-game-3d-1600.webp';
 import farmGame900 from './farm-game-3d-900.webp';
 import farmGame2400 from './farm-game-3d-2400.webp';
@@ -102,50 +100,6 @@ import stonyRiver3200 from './stony-river-3200.webp';
 
 const W = 1672, H = 941;
 
-// The neighbouring countries: Wikimedia Commons photos (author and licence in `credit`), resized from originals of
-// 4,300–5,200 px.
-import abroadIndia900 from './abroad/india-900.webp';
-import abroadIndia1600 from './abroad/india-1600.webp';
-import abroadIndia2400 from './abroad/india-2400.webp';
-import abroadIndia3200 from './abroad/india-3200.webp';
-import abroadPakistan900 from './abroad/pakistan-900.webp';
-import abroadPakistan1600 from './abroad/pakistan-1600.webp';
-import abroadPakistan2400 from './abroad/pakistan-2400.webp';
-import abroadPakistan3200 from './abroad/pakistan-3200.webp';
-import abroadNepal900 from './abroad/nepal-900.webp';
-import abroadNepal1600 from './abroad/nepal-1600.webp';
-import abroadNepal2400 from './abroad/nepal-2400.webp';
-import abroadNepal3200 from './abroad/nepal-3200.webp';
-import abroadBhutan900 from './abroad/bhutan-900.webp';
-import abroadBhutan1600 from './abroad/bhutan-1600.webp';
-import abroadBhutan2400 from './abroad/bhutan-2400.webp';
-import abroadBhutan3200 from './abroad/bhutan-3200.webp';
-import abroadAfghanistan900 from './abroad/afghanistan-900.webp';
-import abroadAfghanistan1600 from './abroad/afghanistan-1600.webp';
-import abroadAfghanistan2400 from './abroad/afghanistan-2400.webp';
-import abroadAfghanistan3200 from './abroad/afghanistan-3200.webp';
-// Landscapes of the neighbouring countries for the hero slideshow, supplied for the project (no outside credit).
-import viewIndia900 from './abroad/india-view-900.webp';
-import viewIndia1600 from './abroad/india-view-1600.webp';
-import viewIndia2400 from './abroad/india-view-2400.webp';
-import viewIndia3200 from './abroad/india-view-3200.webp';
-import viewPakistan900 from './abroad/pakistan-view-900.webp';
-import viewPakistan1600 from './abroad/pakistan-view-1600.webp';
-import viewPakistan2400 from './abroad/pakistan-view-2400.webp';
-import viewPakistan3200 from './abroad/pakistan-view-3200.webp';
-import viewNepal900 from './abroad/nepal-view-900.webp';
-import viewNepal1600 from './abroad/nepal-view-1600.webp';
-import viewNepal2400 from './abroad/nepal-view-2400.webp';
-import viewNepal3200 from './abroad/nepal-view-3200.webp';
-import viewBhutan900 from './abroad/bhutan-view-900.webp';
-import viewBhutan1600 from './abroad/bhutan-view-1600.webp';
-import viewBhutan2400 from './abroad/bhutan-view-2400.webp';
-import viewBhutan3200 from './abroad/bhutan-view-3200.webp';
-import viewAfghanistan900 from './abroad/afghanistan-view-900.webp';
-import viewAfghanistan1600 from './abroad/afghanistan-view-1600.webp';
-import viewAfghanistan2400 from './abroad/afghanistan-view-2400.webp';
-import viewAfghanistan3200 from './abroad/afghanistan-view-3200.webp';
-
 export const IMAGES = {
   villageSky: {
     src: villageSky1600, srcSet: import.meta.env.MODE === 'single' ? `${villageSky900} 900w, ${villageSky1600} 1600w` : `${villageSky900} 900w, ${villageSky1600} 1600w, ${villageSky2400} 2400w, ${villageSky3200} 3200w`, width: 3200, height: 2400, focus: '62% 58%',
@@ -202,12 +156,7 @@ export const IMAGES = {
   taraDream: {
     src: taraDream1600, srcSet: `${taraDream900} 900w, ${taraDream1600} 1600w`, width: 1672, height: 941, focus: '45% 45%',
     alt: { bn: 'স্বপ্নে লাল ফ্রক পরা হাসিখুশি এক বাংলাদেশি মেয়ে হাসিমুখের ছোট্ট উপগ্রহ তারার হাত ধরে ভোরের আকাশে উড়ছে; নিচে সবুজ ধানখেত, নদী, টিনের ঘর, আর শুকনো জমিতে পড়া বৃষ্টির ফোঁটা', en: 'In a dream, a laughing Bangladeshi girl in a red frock flies through the dawn sky holding hands with Tara, a small smiling satellite; below are green paddy fields, a river, tin-roofed homes, and raindrops falling on a dry field' },
-    credit: { artist: 'AI image (ChatGPT)', license: 'made for AgroVision', ai: true },
-  },
-  meetFarmers: {
-    src: meetFarmers1600, srcSet: `${meetFarmers900} 900w, ${meetFarmers1600} 1600w`, width: 1672, height: 941, focus: '50% 40%',
-    alt: { bn: 'গোধূলির আলোয় খেতের ধারে বাংলাদেশ, ভারত, পাকিস্তান, নেপাল, ভুটান আর মিয়ানমারের কৃষক পরিবার, নিজেদের পোশাকে, হাতে কাস্তে, কোদাল, ধানের আঁটি আর ঝুড়ি, পাশে তাঁদের সন্তান', en: 'At golden hour, farming families from Bangladesh, India, Pakistan, Nepal, Bhutan and Myanmar stand at the edge of a field in their own clothes, holding a sickle, a hoe, sheaves and a basket, with their children beside them' },
-    credit: { artist: 'AI image (ChatGPT)', license: 'made for AgroVision', ai: true },
+    credit: { artist: 'AI image (ChatGPT)', license: 'made for Agros', ai: true },
   },
   // Season Showdown's card: a real farmer in his mustard field on a winter (Rabi) morning (scripts/photos/game_cards.py).
   seasonShowdown: {
@@ -260,50 +209,5 @@ export const IMAGES = {
   droughtFlood: {
     src: droughtFlood1600, srcSet: import.meta.env.MODE === 'single' ? `${droughtFlood900} 900w, ${droughtFlood1600} 1600w` : `${droughtFlood900} 900w, ${droughtFlood1600} 1600w, ${droughtFlood2400} 2400w, ${droughtFlood3200} 3200w`, width: W, height: 940, focus: '50% 60%',
     alt: { bn: 'একই মাঠের একপাশে খরায় ফাটা মাটি, অন্যপাশে বৃষ্টিতে ডুবে যাওয়া ফসল', en: 'One field split between cracked, drought-hit soil and flooded crops under rain' },
-  },
-  abroadIndia: {
-    src: abroadIndia1600, srcSet: import.meta.env.MODE === 'single' ? `${abroadIndia900} 900w, ${abroadIndia1600} 1600w` : `${abroadIndia900} 900w, ${abroadIndia1600} 1600w, ${abroadIndia2400} 2400w, ${abroadIndia3200} 3200w`, width: 3200, height: 2133, focus: '50% 45%',
-    alt: { bn: 'পাঞ্জাবের সবুজ গমের খেত, ভারত', en: 'Green wheat in Punjab, India' },
-    credit: { artist: "Jagseer S Sidhu", license: 'CC BY-SA 4.0', page: 'https://commons.wikimedia.org/wiki/File:Green_Wheat_Fields_in_Punjab.jpg' },
-  },
-  abroadPakistan: {
-    src: abroadPakistan1600, srcSet: import.meta.env.MODE === 'single' ? `${abroadPakistan900} 900w, ${abroadPakistan1600} 1600w` : `${abroadPakistan900} 900w, ${abroadPakistan1600} 1600w, ${abroadPakistan2400} 2400w, ${abroadPakistan3200} 3200w`, width: 3200, height: 2133, focus: '55% 40%',
-    alt: { bn: 'ধান কেটে আঁটি বাঁধছেন কৃষকেরা, পাকিস্তান', en: 'Farmers bundling the cut rice, Pakistan' },
-    credit: { artist: "Tariq hameed sulemani", license: 'CC BY-SA 4.0', page: 'https://commons.wikimedia.org/wiki/File:Rice_crop_in_pakistan.jpg' },
-  },
-  abroadNepal: {
-    src: abroadNepal1600, srcSet: import.meta.env.MODE === 'single' ? `${abroadNepal900} 900w, ${abroadNepal1600} 1600w` : `${abroadNepal900} 900w, ${abroadNepal1600} 1600w, ${abroadNepal2400} 2400w, ${abroadNepal3200} 3200w`, width: 3200, height: 2125, focus: '50% 55%',
-    alt: { bn: 'পাহাড়ের গায়ে ধাপে ধাপে ধানক্ষেত, ঘান্দ্রুক, নেপাল', en: 'Rice terraces on the hillside, Ghandruk, Nepal' },
-    credit: { artist: "Manuel Velazquez", license: 'CC BY 3.0', page: 'https://commons.wikimedia.org/wiki/File:BANCALES_EN_GHANDRUK_-_panoramio.jpg' },
-  },
-  abroadBhutan: {
-    src: abroadBhutan1600, srcSet: import.meta.env.MODE === 'single' ? `${abroadBhutan900} 900w, ${abroadBhutan1600} 1600w` : `${abroadBhutan900} 900w, ${abroadBhutan1600} 1600w, ${abroadBhutan2400} 2400w, ${abroadBhutan3200} 3200w`, width: 3200, height: 2133, focus: '50% 55%',
-    alt: { bn: 'পারো উপত্যকার ধানক্ষেত, ভুটান', en: 'Rice fields of the Paro valley, Bhutan' },
-    credit: { artist: "Bernard Gagnon", license: 'CC BY-SA 4.0', page: 'https://commons.wikimedia.org/wiki/File:Rice_fields_in_Paro,_Bhutan.jpg' },
-  },
-  abroadAfghanistan: {
-    src: abroadAfghanistan1600, srcSet: import.meta.env.MODE === 'single' ? `${abroadAfghanistan900} 900w, ${abroadAfghanistan1600} 1600w` : `${abroadAfghanistan900} 900w, ${abroadAfghanistan1600} 1600w, ${abroadAfghanistan2400} 2400w, ${abroadAfghanistan3200} 3200w`, width: 3200, height: 2400, focus: '50% 88%',
-    alt: { bn: 'বামিয়ানের পাহাড়ের নিচে গমের খেত, আফগানিস্তান', en: 'Wheat below the cliffs of Bamyan, Afghanistan' },
-    credit: { artist: "Monikajoannah", license: 'CC BY-SA 4.0', page: 'https://commons.wikimedia.org/wiki/File:Bamyan_field.jpg' },
-  },
-  viewIndia: {
-    src: viewIndia1600, srcSet: import.meta.env.MODE === 'single' ? `${viewIndia900} 900w, ${viewIndia1600} 1600w` : `${viewIndia900} 900w, ${viewIndia1600} 1600w, ${viewIndia2400} 2400w, ${viewIndia3200} 3200w`, width: 3200, height: 1794, focus: '60% 55%',
-    alt: { bn: 'মেঘে ঢাকা পাহাড়ের গায়ে চা-বাগান, ভারত', en: 'Tea gardens on misty hills, India' },
-  },
-  viewPakistan: {
-    src: viewPakistan1600, srcSet: import.meta.env.MODE === 'single' ? `${viewPakistan900} 900w, ${viewPakistan1600} 1600w` : `${viewPakistan900} 900w, ${viewPakistan1600} 1600w, ${viewPakistan2400} 2400w, ${viewPakistan3200} 3200w`, width: 3200, height: 1921, focus: '58% 62%',
-    alt: { bn: 'সাইফুল মুলুক হ্রদ, কাগান উপত্যকা, পাকিস্তান', en: 'Lake Saiful Muluk, Kaghan valley, Pakistan' },
-  },
-  viewNepal: {
-    src: viewNepal1600, srcSet: import.meta.env.MODE === 'single' ? `${viewNepal900} 900w, ${viewNepal1600} 1600w` : `${viewNepal900} 900w, ${viewNepal1600} 1600w, ${viewNepal2400} 2400w, ${viewNepal3200} 3200w`, width: 3200, height: 2182, focus: '48% 38%',
-    alt: { bn: 'সূর্যাস্তে আমা দাবলাম, খুম্বু হিমালয়, নেপাল', en: 'Ama Dablam at sunset, Khumbu Himalaya, Nepal' },
-  },
-  viewBhutan: {
-    src: viewBhutan1600, srcSet: import.meta.env.MODE === 'single' ? `${viewBhutan900} 900w, ${viewBhutan1600} 1600w` : `${viewBhutan900} 900w, ${viewBhutan1600} 1600w, ${viewBhutan2400} 2400w, ${viewBhutan3200} 3200w`, width: 3200, height: 1732, focus: '66% 42%',
-    alt: { bn: 'পুনাখা জং, পো ছু আর মো ছু নদীর মিলনে, ভুটান', en: 'Punakha Dzong where the Pho Chhu meets the Mo Chhu, Bhutan' },
-  },
-  viewAfghanistan: {
-    src: viewAfghanistan1600, srcSet: import.meta.env.MODE === 'single' ? `${viewAfghanistan900} 900w, ${viewAfghanistan1600} 1600w` : `${viewAfghanistan900} 900w, ${viewAfghanistan1600} 1600w, ${viewAfghanistan2400} 2400w, ${viewAfghanistan3200} 3200w`, width: 3200, height: 2394, focus: '58% 45%',
-    alt: { bn: 'বান্দ-ই-আমির হ্রদ, বামিয়ান, আফগানিস্তান', en: 'The Band-e-Amir lakes, Bamyan, Afghanistan' },
   },
 };

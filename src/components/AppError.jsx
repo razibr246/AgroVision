@@ -17,7 +17,7 @@ function activeLang() {
 export default class AppError extends Component {
   constructor(p) { super(p); this.state = { failed: false }; }
   static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch(err) { console.error('AgroVision stopped:', err); } // eslint-disable-line no-console
+  componentDidCatch(err) { console.error('Agros stopped:', err); } // eslint-disable-line no-console
   render() {
     if (!this.state.failed) return this.props.children;
     const bn = activeLang() === 'bn';

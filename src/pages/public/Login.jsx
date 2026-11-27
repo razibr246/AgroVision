@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, Building2, ShieldCheck, UserRound, Info, MapPinned, Globe2 } from 'lucide-react';
+import { ChevronRight, Building2, ShieldCheck, UserRound, Info, MapPinned } from 'lucide-react';
 import BrandMark from '../../components/brand/BrandMark';
 import Photo from '../../components/Photo';
 import { Segmented } from '../../components/ui';
@@ -13,7 +13,6 @@ import { PROJECT_NAME } from '../../config/brand';
 import registry from '../../data/fields/parcels.json';
 import { LEVELS } from '../../data/stories';
 import { bnDigits } from '../../engine/dates';
-import { ABROAD, ABROAD_ORDER, WORLD, areaIn } from '../../data/abroad';
 import FarmerAvatar from '../../components/brand/FarmerAvatar';
 import Auth0LoginCard from '../../components/auth/Auth0LoginCard';
 
@@ -78,7 +77,6 @@ export default function Login() {
               <Link to="/stories" className="flex items-center gap-2 rounded-2xl border border-dashed border-primary-300 bg-primary-50/50 p-3.5 text-[14px] font-semibold text-primary-800 hover:bg-primary-50">
                 <MapPinned size={17} />{T('সাত বিভাগের গল্প আর মিশন, আসল নাসা আবহাওয়ায়', 'The seven division stories and missions, on real NASA weather')}<ChevronRight size={15} className="ml-auto" />
               </Link>
-              <Neighbours role="farmer" />
             </div>
           ) : (
             <div className="mt-5 space-y-2.5">
@@ -93,75 +91,12 @@ export default function Login() {
                   <ChevronRight size={20} />
                 </button>
               ))}
-              <Neighbours role="officer" />
             </div>
           )}
           <div className="mt-6 flex gap-2 rounded-xl bg-white p-3.5 text-[13.5px] leading-6 text-muted ring-1 ring-border"><Info size={17} className="mt-0.5 shrink-0" />{T('উপজেলা কৃষি অফিসারদের নাম আসল, কিন্তু কৃষকের জমি, অনুরোধ আর সব সংখ্যা নমুনা তথ্য — কোনো অফিসের আসল কাজের হিসাব নয়। আসল ব্যবহারে মোবাইল নম্বর দিয়ে নিবন্ধন হবে — সেটা পরের ধাপের কাজ।', 'The upazila agriculture officers’ names are real, but the farmers’ fields, the requests and every number are sample data, not any office’s real work. A real launch would register people by mobile number; that comes later.')}</div>
         </div>
       </div>
     </main>
-  );
-}
-
-// The neighbouring countries, like the Bangladesh pairs: in each country one sample farmer and the local agriculture
-// officer for that farmer's area, side by side; either half opens that person's app.
-function Neighbours({ role }) {
-  const { T, L } = useStore();
-  return (
-    <div className="pt-4">
-      <div className="mb-2.5 flex items-center gap-2 px-1">
-        <Globe2 size={17} className="text-primary-700" />
-        <h2 className="text-[15px] font-bold">{T('প্রতিবেশী দেশ', 'Neighbouring countries')}</h2>
-        <span className="h-px flex-1 bg-border" />
-        <span className="text-[12px] font-semibold text-muted">{T('প্রতি দেশে একজন কৃষক, একজন কৃষি কর্মকর্তা', 'One farmer and one officer per country')}</span>
-      </div>
-      {[ABROAD_ORDER.filter((id) => !WORLD.has(id)), ABROAD_ORDER.filter((id) => WORLD.has(id))].map((group, gi) => group.length > 0 && (
-      <div key={gi}>
-      {gi === 1 && (
-        <div className="mb-2.5 mt-6 flex items-center gap-2 px-1">
-          <Globe2 size={17} className="text-primary-700" />
-          <h2 className="text-[15px] font-bold">{T('বিশ্বের অন্য মাঠ', 'Farms beyond South Asia')}</h2>
-          <span className="h-px flex-1 bg-border" />
-          <span className="text-[12px] font-semibold text-muted">{T('একই নাসা তথ্য, অন্য মহাদেশ', 'The same NASA data, other continents')}</span>
-        </div>
-      )}
-      <div className="space-y-2.5">
-        {group.map((id) => {
-          const c = ABROAD[id];
-          const f = c.farmer;
-          const farmer = (
-            <Link key="f" to={`/abroad/${id}`} className={`group flex min-w-0 items-center gap-3 p-3.5 text-left transition hover:bg-primary-50 ${role === 'farmer' ? '' : 'opacity-90'}`}>
-              <FarmerAvatar id={f.id} size={44} flag={c.flag} className="transition-transform duration-300 group-hover:scale-[1.06]" fallback={<span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-[22px]" style={{ background: c.soft }} aria-hidden="true">{c.flag}</span>} />
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wide text-muted"><UserRound size={12} />{T('কৃষক', 'Farmer')}</span>
-                <span className="block truncate text-[15.5px] font-bold leading-tight">{L(f.name)}</span>
-                <span className="line-clamp-2 block text-[12.5px] font-semibold leading-[18px] text-primary-800">{T(`${f.village.bn}, ${f.place.bn.split(',').slice(-2).join(',').trim()}`, `${f.village.en}, ${f.place.en.split(',').slice(-2).join(',').trim()}`)}</span>
-                <span className="line-clamp-2 block text-[12.5px] leading-[18px] text-muted">{T(`${bnDigits((Math.round(areaIn(c, f.farmDec) * 10) / 10).toString())} ${c.unit.bn} · ${f.now.bn}`, `${Math.round(areaIn(c, f.farmDec) * 10) / 10} ${c.unit.en}${areaIn(c, f.farmDec) === 1 ? '' : 's'} · ${f.now.en}`)}</span>
-              </span>
-              <ChevronRight size={18} className="shrink-0 text-primary-600 transition group-hover:translate-x-0.5" />
-            </Link>
-          );
-          const officer = (
-            <Link key="o" to={`/abroad/${id}/officer`} className="group flex min-w-0 items-center gap-3 p-3.5 text-left text-white transition hover:brightness-110" style={{ background: `linear-gradient(135deg, ${c.tone}, #0d2614 150%)` }}>
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/15"><Building2 size={20} /></span>
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wide text-white/70"><ShieldCheck size={12} />{T('কৃষি কর্মকর্তা', 'Agriculture officer')}</span>
-                <span className="block text-[15px] font-bold leading-tight">{L(c.local.role)}</span>
-                <span className="block truncate text-[12.5px] leading-5 text-white/75">{L(c.local.area)} · {L(c.name)}</span>
-              </span>
-              <ChevronRight size={18} className="shrink-0" />
-            </Link>
-          );
-          return (
-            <div key={id} className="grid overflow-hidden rounded-2xl border border-border bg-white sm:grid-cols-2">
-              {role === 'farmer' ? [farmer, officer] : [officer, farmer]}
-            </div>
-          );
-        })}
-      </div>
-      </div>
-      ))}
-    </div>
   );
 }
 
@@ -173,7 +108,7 @@ const POEM = {
   bn: { lines: ['আবার আসিব ফিরে ধানসিড়িটির তীরে — এই বাংলায়', 'হয়তো মানুষ নয় — হয়তো বা শঙ্খচিল শালিখের বেশে;', 'হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে', 'কুয়াশার বুকে ভেসে একদিন আসিব এ কাঁঠাল-ছায়ায়;'],
     by: '— জীবনানন্দ দাশ, “আবার আসিব ফিরে”, রূপসী বাংলা' },
   en: { lines: ['I will come back to the Dhansiri’s banks — to this Bengal,', 'perhaps not as a man — perhaps as a kite or a myna;', 'perhaps as a crow at dawn, to this land of Kartik’s new rice,', 'drifting on the mist one day into this jackfruit shade;'],
-    by: '— Jibanananda Das, “Abar Ashibo Phire”, Ruposhi Bangla (translation: AgroVision)' },
+    by: '— Jibanananda Das, “Abar Ashibo Phire”, Ruposhi Bangla (translation: Agros)' },
 };
 function Poem() {
   const { s } = useStore();

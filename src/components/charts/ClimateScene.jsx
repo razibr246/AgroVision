@@ -1,12 +1,10 @@
 // The picture beside "The weather is not what it used to be": drought on one side, flood on the other, in the
-// chosen country's own landscape, as an original animated illustration: a rain curtain and ripples over the flooded
-// half, a pulsing sun and heat shimmer over the cracked half, storm clouds drifting, birds crossing, the crop swaying.
-// Each country has its own ground (paddy and palms in Bangladesh, wheat on the Punjab plain, terraces under the
-// Himalaya, an olive grove in Spain ...) and the same two weathers, blended softly across the middle. Changing country wipes the new scene in over the old one; the pointer
+// Bangladesh's paddy and palms, as an original animated illustration: a rain curtain and ripples over the flooded
+// half, a pulsing sun and heat shimmer over the cracked half, storm clouds drifting, birds crossing, the crop swaying,
+// the two weathers blended softly across the middle. The pointer
 // moves the layers a little (parallax). It is decoration: the numbers beside it come from the data, not from this.
 // Everything holds still under "reduced motion".
 import { useEffect, useRef, useState } from 'react';
-import { ABROAD } from '../../data/abroad';
 import { useStore } from '../../store';
 import { hash } from '../../engine/motion';
 
@@ -168,29 +166,14 @@ function Landmark({ kind, x }) {
   const g = (children) => <g transform={`translate(${x} ${HZ + 2})`}>{children}</g>;
   switch (kind) {
     case 'palm': return g(<><path d="M0 0Q6 -30 2 -62" stroke="#6b4a2c" strokeWidth="4" fill="none" /><g stroke="#3f7a3c" strokeWidth="3" fill="none" strokeLinecap="round"><path d="M2 -62q-20 -8 -32 4M2 -62q-10 -16 -26 -14M2 -62q10 -16 26 -12M2 -62q20 -6 32 6M2 -62q0 -14 4 -22" /></g><g transform="translate(60 0) scale(.8)"><path d="M0 0Q-5 -26 0 -54" stroke="#6b4a2c" strokeWidth="4" fill="none" /><g stroke="#3f7a3c" strokeWidth="3" fill="none" strokeLinecap="round"><path d="M0 -54q-18 -6 -28 6M0 -54q-8 -14 -24 -12M0 -54q8 -14 24 -10M0 -54q18 -4 28 8" /></g></g></>);
-    case 'tubewell': return g(<><rect x="-16" y="-24" width="32" height="24" fill="#d8d2c4" stroke="#8d8676" /><path d="M-18 -24L0 -38L18 -24Z" fill="#b85c38" /><path d="M16 -8h16q8 0 8 8" stroke="#6f7a82" strokeWidth="4" fill="none" /><path d="M40 0q6 6 12 14" stroke="#9fd0ee" strokeWidth="2.4" fill="none" strokeLinecap="round" style={{ animation: 'cs-pulse 1.2s linear infinite' }} /></>);
-    case 'mud': return g(<><rect x="-22" y="-22" width="44" height="22" fill="#c9a77a" stroke="#8d6f47" /><rect x="-26" y="-27" width="52" height="6" fill="#a98a5e" /><rect x="-5" y="-14" width="10" height="14" fill="#6e5334" /><path d="M40 0h26v-14h-26Z" fill="#b99468" stroke="#8d6f47" /></>);
-    case 'dzong': return g(<><path d="M-60 0L-48 -50H48L60 0Z" fill="#f3eee2" stroke="#b9ae92" /><rect x="-48" y="-62" width="96" height="14" fill="#a83a2a" /><path d="M-18 -62L0 -84L18 -62Z" fill="#d6a53a" /><rect x="-10" y="-30" width="20" height="30" fill="#7a4a2a" /><g fill="#7a4a2a">{[-36, -22, 22, 36].map((wx) => <rect key={wx} x={wx - 3} y="-40" width="6" height="9" />)}</g></>);
-    case 'pagoda': return g(<><path d="M-26 0Q-22 -20 -10 -34Q-4 -44 0 -78Q4 -44 10 -34Q22 -20 26 0Z" fill="#e8b93e" stroke="#a97d1c" /><path d="M-18 -20h36M-12 -32h24M-6 -46h12" stroke="#a97d1c" strokeWidth="1.4" /><circle cx="0" cy="-82" r="2.6" fill="#fff3c0" /><g transform="translate(64 0) scale(.7)"><path d="M0 0Q-5 -26 0 -54" stroke="#6b4a2c" strokeWidth="4" fill="none" /><g stroke="#3f7a3c" strokeWidth="3" fill="none" strokeLinecap="round"><path d="M0 -54q-18 -6 -28 6M0 -54q-8 -14 -24 -12M0 -54q8 -14 24 -10M0 -54q18 -4 28 8" /></g></g></>);
-    case 'silo': return g(<><rect x="-34" y="-30" width="48" height="30" fill="#a83a2a" stroke="#6f241a" /><path d="M-38 -30L-26 -46H6L18 -30Z" fill="#8a2c20" /><path d="M-20 0v-14h20v14M-20 -14L0 0M0 -14L-20 0" stroke="#f3e6d0" fill="none" /><rect x="22" y="-52" width="16" height="52" fill="#c8ccd0" stroke="#8d949a" /><path d="M22 -52Q30 -64 38 -52Z" fill="#9aa2a8" /></>);
-    case 'tree': return g(<><path d="M0 0v-20" stroke="#6a5237" strokeWidth="4" /><ellipse cx="0" cy="-30" rx="20" ry="14" fill="#5d7f3a" /><ellipse cx="-6" cy="-34" rx="9" ry="6" fill="#fff" opacity=".14" /><g transform="translate(70 0) scale(.7)"><path d="M0 0v-20" stroke="#6a5237" strokeWidth="4" /><ellipse cx="0" cy="-30" rx="20" ry="14" fill="#6d8f42" /></g></>);
-    case 'village': return g(<><path d="M-56 0V-18H-30V0M-30 0V-26H-6V0M-6 0V-16H22V0M22 0V-22H44V0" fill="#f6f1e6" stroke="#cfc6b0" /><rect x="-30" y="-44" width="14" height="22" fill="#f6f1e6" stroke="#cfc6b0" /><path d="M-31 -44L-23 -54L-15 -44Z" fill="#b5532f" /><g fill="#b5532f">{[-52, -2, 26].map((rx) => <path key={rx} d={`M${rx} -16h14l-3 -5h-8Z`} />)}</g></>);
     default: return null;
   }
 }
 
-// ---------- the countries ----------
+// ---------- the scene ----------
 
 const COUNTRY = {
   bangladesh: { sky: ['#cfe6ec', '#f8e6bc'], far: '#a9c08e', near: '#86a86a', dryG: ['#c9a46a', '#946f42'], wetG: '#6e98a4', dry: '#b99a4c', green: '#4c9a38', crop: 'paddy', hills: 'flat', mark: 'palm', markX: 560, treeline: true },
-  india: { sky: ['#cfe1ea', '#f7e4bd'], far: '#b9bfa0', near: '#9aa87c', dryG: ['#c9a86c', '#9b7a45'], wetG: '#6b8fa3', dry: '#b69a52', green: '#5f9a3e', crop: 'wheat', hills: 'flat', mark: 'tubewell', markX: 580, tree: true },
-  pakistan: { sky: ['#e5dcc2', '#f4e0b8'], far: '#cdb98e', near: '#b8a070', dryG: ['#d3b47a', '#a98954'], wetG: '#7a99a0', dry: '#b79b58', green: '#6c9a45', crop: 'wheat', hills: 'rolling', mark: 'mud', markX: 590, tree: true },
-  nepal: { sky: ['#bcd6ea', '#eaf0ee'], far: '#9fb4c8', near: '#6f8f66', dryG: ['#bfa270', '#8d7648'], wetG: '#6f98ab', dry: '#b09a55', green: '#4f9a3e', crop: 'paddy', hills: 'terraces', mark: 'village', markX: 560, snow: true },
-  bhutan: { sky: ['#b9d4e4', '#e8f0ea'], far: '#8fa8bd', near: '#4f7a52', dryG: ['#a89268', '#7e6a44'], wetG: '#6a95a6', dry: '#a89a58', green: '#3f8a45', crop: 'paddy', hills: 'jagged', mark: 'dzong', markX: 560, snow: true },
-  myanmar: { sky: ['#cfe3e2', '#f6e8c4'], far: '#a9bd9a', near: '#7ea06e', dryG: ['#c4a56e', '#957544'], wetG: '#6f9a92', dry: '#b89a50', green: '#4f9a3a', crop: 'paddy', hills: 'rolling', mark: 'pagoda', markX: 570 },
-  usa: { sky: ['#a9cfee', '#f2ead0'], far: '#b9c4a8', near: '#98aa78', dryG: ['#c8a868', '#957742'], wetG: '#6f93a8', dry: '#b8a050', green: '#4f963a', crop: 'corn', hills: 'flat', mark: 'silo', markX: 560 },
-  brazil: { sky: ['#a8d4ee', '#f4ecd2'], far: '#8fae8a', near: '#6f9a62', dryG: ['#bf7a4a', '#8f4f2a'], wetG: '#8aa09a', dry: '#b0903f', green: '#4a9a36', crop: 'soy', hills: 'rolling', mark: 'tree', markX: 570 },
-  spain: { sky: ['#b8d8ee', '#f6ecd0'], far: '#b8b08a', near: '#97a070', dryG: ['#cfae76', '#a07f48'], wetG: '#7a9ca6', dry: '#a99f62', green: '#6f9a4a', crop: 'olive', hills: 'rolling', mark: 'village', markX: 570 },
 };
 
 const HILLS = {
@@ -234,7 +217,6 @@ function SceneArt({ id }) {
         {c.mark !== 'tree' && c.tree && <Landmark kind="tree" x={120} />}
         <Landmark kind={c.mark} x={c.markX} />
         {c.mark === 'tree' && <Landmark kind="palm" x={120} />}
-        {id === 'bhutan' && [100, 150, 210].map((px, i) => <path key={px} d={`M${px} 250l-9 -4l7 -9l-8 -3l8 -12l-7 -3l8 -16l8 16l-7 3l8 12l-8 3l7 9Z`} fill="#2f5d3a" opacity={0.9 - i * 0.1} />)}
       </g>
       <g mask={`url(#dry${uid})`}>
         <path d={`M0 ${HZ}H${W}V${H}H0Z`} fill={`url(#dg${uid})`} />
@@ -263,10 +245,10 @@ function SceneArt({ id }) {
 
 // ---------- the figure ----------
 
-let lastCountry = null; // the country shown before this mount, so the wipe plays across the Bangladesh/abroad swap
+let lastCountry = null; // the scene shown before this mount, so a change wipes the new one in
 
 export default function ClimateScene({ country = 'bangladesh', className = 'aspect-[16/9]' }) {
-  const { T, L } = useStore();
+  const { T } = useStore();
   const [prev, setPrev] = useState(() => (lastCountry && lastCountry !== country ? lastCountry : null));
   const [shown, setShown] = useState(country);
   const box = useRef(null);
@@ -287,7 +269,7 @@ export default function ClimateScene({ country = 'bangladesh', className = 'aspe
   };
   const onLeave = () => { box.current?.style.setProperty('--px', '0'); box.current?.style.setProperty('--py', '0'); };
   const layer = (id) => <SceneArt id={COUNTRY[id] ? id : 'bangladesh'} />;
-  const meta = shown === 'bangladesh' ? { flag: '🇧🇩', name: T('বাংলাদেশ', 'Bangladesh') } : { flag: ABROAD[shown]?.flag, name: ABROAD[shown] ? L(ABROAD[shown].name) : '' };
+  const meta = { flag: '🇧🇩', name: T('বাংলাদেশ', 'Bangladesh') };
   return (
     <div ref={box} onPointerMove={onMove} onPointerLeave={onLeave} className={`cs-root relative w-full overflow-hidden bg-primary-100/70 ${className}`}>
       <style>{CSS}</style>

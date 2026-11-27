@@ -44,7 +44,7 @@ export default function BadgeGallery({ profile }) {
     ctx.font = 'bold 34px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(
-      s.lang === 'bn' ? 'AgroVision শিশু বিভাগ — তারা আর স্বপ্নের মাঠ' : 'AgroVision Kids — Tara and the Dream Fields',
+      s.lang === 'bn' ? 'Agros শিশু বিভাগ — তারা আর স্বপ্নের মাঠ' : 'Agros Kids — Tara and the Dream Fields',
       w / 2,
       118
     );
@@ -100,7 +100,7 @@ export default function BadgeGallery({ profile }) {
     ctx.font = 'bold 20px "Inter Variable", "Kohinoor Bangla", "Noto Sans Bengali Variable", system-ui, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(
-      s.lang === 'bn' ? '🛰️ তারা উপগ্রহ ও AgroVision' : '🛰️ Tara Satellite & AgroVision',
+      s.lang === 'bn' ? '🛰️ তারা উপগ্রহ ও Agros' : '🛰️ Tara Satellite & Agros',
       96,
       h - 88
     );
@@ -187,7 +187,7 @@ export default function BadgeGallery({ profile }) {
       <div className="rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-base font-extrabold text-slate-900">
-            {T('তোমার প্রিন্টযোগ্য সনদপত্র', 'Your Printable AgroVision Certificate')}
+            {T('তোমার প্রিন্টযোগ্য সনদপত্র', 'Your Printable Agros Certificate')}
           </h3>
           <button
             type="button"

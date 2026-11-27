@@ -1,4 +1,4 @@
-// Interactive AgroVision Decision Sandbox (Home Page).
+// Interactive Agros Decision Sandbox (Home Page).
 // Lets farmers, officers, and NASA Space Apps judges interactively test how
 // NASA POWER climate, soil physics, and farmer priorities dynamically drive crop rotation decisions in 0ms.
 import { useState, useMemo } from 'react';

@@ -22,14 +22,6 @@ const SETS = {
   tidal: { crop: 'paddy', trees: ['palm', 'palm', 'dome', 'palm'], water: '#7fa6b4', marks: ['boat'] },
   char: { crop: 'maize', trees: ['dome', 'bamboo'], sand: '#e2d3a6', water: '#9cb8c0' }, // the Teesta's sandbank
   haor: { crop: 'paddy', trees: ['dome', 'bamboo', 'dome'], water: '#7aa8bf', far: 'hills', farColor: '#5c7f96' }, // Meghalaya hills
-  punjab: { crop: 'wheat', trees: ['tall', 'tall', 'dome', 'tall'], marks: ['hay'] },
-  sindh: { crop: 'wheat', trees: ['palm', 'palm', 'dome'], far: 'mountains', farColor: '#9a7a5a' }, // the Kirthar range
-  terai: { crop: 'mustard', trees: ['dome', 'dome', 'bamboo', 'dome'], far: 'hills', farColor: '#4f7a46' }, // the Churia hills
-  punakha: { crop: 'paddy', trees: ['pine', 'pine', 'dome', 'pine'], far: 'snow', farColor: '#6f7f8f', marks: ['dzong'] },
-  nevada: { crop: 'low', trees: ['tall', 'tall', 'dome'], far: 'mountains', farColor: '#8b8a8e', marks: ['hay'] }, // Diamond Valley: alfalfa pivots between bare ranges
-  cerrado: { crop: 'maize', trees: ['tall', 'dome', 'tall', 'dome'], far: 'basin', farColor: '#89906b' }, // Sorriso: broad Cerrado fields and grain silos
-  andalucia: { crop: 'low', trees: ['tall', 'dome', 'tall', 'dome'], far: 'basin', farColor: '#b4a17d' }, // Martos: olive groves in Jaén
-  dryzone: { crop: 'low', trees: ['palm', 'palm', 'palm'], marks: ['pagoda'] }, // Nyaung-U: Bagan's brick pagodas, toddy palms
 };
 
 const mix = (a, b, t) => `#${new THREE.Color(a).lerp(new THREE.Color(b), t).getHexString()}`;
@@ -114,7 +106,7 @@ export function createBackdrop(scene) {
       } else if (kind === 'pine') {
         const tr = new THREE.Mesh(trunkG, trunkM); tr.scale.set(0.9, 1.2, 0.9); t.add(tr);
         for (let c = 0; c < 5; c++) { const cn = new THREE.Mesh(keep(new THREE.ConeGeometry(1.05 - c * 0.19, 1.3, 14)), c % 2 ? leafM2 : leafDark); cn.position.y = 1.4 + c * 0.62; t.add(cn); }
-      } else if (kind === 'tall') { // poplar and eucalyptus along Punjab's field edges
+      } else if (kind === 'tall') { // tall poplar and eucalyptus along field edges
         const tree = buildTree(x > 0 ? 'eucalyptus' : 'poplar', { seed: x * 13 + z }); tree.scale.setScalar(x > 0 ? 0.55 : 0.85); t.add(tree);
       } else if (kind === 'golpata') { // nipa palm fronds rising straight from the mud of the Sundarbans' edge
         // nipa fronds: long pinnate leaves rising straight from the mud and arching out (palm.js)

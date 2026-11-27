@@ -97,7 +97,7 @@ test('the season comparison puts the current crop beside the advice and at least
   if (d.options.some((o) => o.crop.id === args.plot.last_crop)) assert.equal(cols[0].role, 'now');
   const txt = compareText({ cols, lang: 'bn', field: 'রহিমের জমি', firm: 'close' });
   assert.match(txt, /রহিমের জমি/);
-  assert.ok(!/[0-9]/.test(txt.replace(/AgroVision/, '')), 'Bangla digits only');
+  assert.ok(!/[0-9]/.test(txt.replace(/Agros/, '')), 'Bangla digits only');
   assert.equal(txt.split('\n').length, cols.length + 2);
 });
 

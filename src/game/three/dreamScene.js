@@ -26,7 +26,7 @@ const sphere = (r, c, o) => new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), 
 export function bodyFor(id, region) {
   const look = region?.farmer?.look ?? {};
   const age = region?.farmer?.age ?? 40;
-  const isFemale = ['rahima', 'rampyari', 'kinley', 'ellen', 'lucia'].includes(id);
+  const isFemale = ['rahima'].includes(id);
   const model = isFemale ? 'Casual3_Female' : id === 'razib' ? 'Casual2_Male' : age >= 55 ? 'OldClassy_Male' : 'Worker_Male';
   return { id, look, age, model, colors: { Skin: look.skin, Shirt: look.topA, Vest: look.topB ?? look.topA, Detail: look.topB, Pants: look.lowA, Hair: look.hair, Hat: look.headA ?? look.hair, Belt: '#3a2a1e' } };
 }
@@ -546,13 +546,6 @@ export function createDreamScene(host, { onTap = () => {} } = {}) {
         gb.position.set(0, 0.09, 0);
         gb.rotation.x = Math.PI / 2;
         headBone.add(gb);
-      }
-
-      if (spec.id === 'harjinder' && handBoneR) {
-        const kara = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.008, 6, 14), mat(0xcccccc, { metalness: 0.85, roughness: 0.2 }));
-        kara.position.set(0, 0.02, 0);
-        kara.rotation.x = Math.PI / 2;
-        handBoneR.add(kara);
       }
     }
     const mixer = new THREE.AnimationMixer(root);

@@ -30,7 +30,6 @@ upazila agriculture officer sees the same numbers and answers their requests.
 | SRTM and ASTER GDEM | Terrain per field | Standing water, erosion, their disagreement | SAT |
 | SEDAC (GPW, LECZ, croplands) | GIBS → `src/data/region/sedac.json` | Each upazila's density, low land, cropland | RECORD |
 | GRACE/GRACE-FO, SMAP L4, monthly MODIS NDVI/LST, Landsat WELD | **Decoded from colour-mapped GIBS image tiles** (`scripts/fetch/gibs-water.mjs`, `gibs-land.mjs`) → `src/data/water/water_sat.json`, `src/data/land/land_sat.json` | Context beside the numbers | SAT, approximate |
-| FIRMS | Only on the neighbouring-country pages | Straw burning and fires | SAT |
 
 The GIBS-decoded values are approximate: GRACE's colour scale saturates in most years, so its trend direction is
 more reliable than its size. Reading the gridded products from Earthdata instead is on the plan.
@@ -85,8 +84,7 @@ so requests and replies stay in the visitor's own browser.
 
 ## 7. Where things are
 
-- Farmer pages `/farmer/*`, officer pages `/officer/*`, neighbouring and other countries `/abroad/:cc/*`
-  (India, Pakistan, Nepal, Bhutan, Myanmar; the USA, Brazil and Spain), science `/science`, games `/games`.
+- Farmer pages `/farmer/*`, officer pages `/officer/*`, science `/science`, games `/games`.
 - Engines `src/engine/`, data `src/data/` (see `src/data/README.md`), data scripts `scripts/` (see
   `scripts/README.md`), serverless functions `api/`.
 - The dataset register behind every provenance label: `src/engine/provenance.js`.

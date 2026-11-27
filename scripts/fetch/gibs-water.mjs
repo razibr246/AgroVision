@@ -13,7 +13,7 @@
 // own GIBS colour map (classes of 0.25 cm and 0.01 m³/m³ or finer), and the 3×3 pixels around each point are
 // combined by their median. Docs: https://nasa-gibs.github.io/gibs-api-docs/
 import { writeFile } from 'node:fs/promises';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { UPAZILAS } from '../../src/data/upazilas.js';
@@ -32,11 +32,6 @@ const WIDTH = Math.round((BBOX.e - BBOX.w) / RES), HEIGHT = Math.round((BBOX.n -
 
 const points = {};
 for (const id of ['godagari', 'dhamrai', 'sitakunda', 'dacope', 'bakerganj', 'gangachara', 'gowainghat']) points[id] = UPAZILAS[id].center;
-// Every neighbouring-country and world farm built by build_neighbours.py (src/data/abroad/<country>.json).
-for (const c of readdirSync(path.join(ROOT, 'src', 'data', 'abroad')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).sort()) {
-  const f = JSON.parse(readFileSync(path.join(ROOT, 'src', 'data', 'abroad', `${c}.json`))).points.farm;
-  points[c] = [f.lat, f.lon];
-}
 let prior = null;
 try { prior = JSON.parse(readFileSync(EXISTING, 'utf8')); } catch { /* first generation has no prior file */ }
 const priorRetrieved = prior?.provenance?.retrieved?.slice(0, 10);
@@ -69,7 +64,7 @@ async function image(layer, date, box = BBOX, width = WIDTH, height = HEIGHT) {
   }
   return null;
 }
-// Points outside the South Asia image (the farms beyond South Asia) get their own 3×3-pixel image at the same 0.05°.
+// A point outside the main image would get its own 3×3-pixel image at the same 0.05°.
 const inMain = ([lat, lon]) => lat > BBOX.s + RES && lat < BBOX.n - RES && lon > BBOX.w + RES && lon < BBOX.e - RES;
 const boxAround = ([lat, lon]) => ({ s: lat - 1.5 * RES, n: lat + 1.5 * RES, w: lon - 1.5 * RES, e: lon + 1.5 * RES });
 function sample(img, map, [lat, lon], box = BBOX) {

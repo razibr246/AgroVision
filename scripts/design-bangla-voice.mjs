@@ -27,7 +27,7 @@ const response = await fetch('https://generativelanguage.googleapis.com/v1beta/v
     voice: {
       model: 'gemini-3.8-flash-tts',
       type: 'prompted',
-      display_name: 'AgroVision Bangladesh Female Bangla',
+      display_name: 'Agros Bangladesh Female Bangla',
       gender: 'female',
       language_code: 'bn-BD',
       region_code: 'BD',

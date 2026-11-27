@@ -3,7 +3,7 @@
 // their own view but still casting its shadow, simple hands on the controllers holding the can, the sickle or the
 // sprayer while working. Walking in the room moves the farmer; the left stick walks (head- or hand-relative), the
 // right stick snap- or smooth-turns and, pushed forward, throws a teleport arc that lands only on walkable ground.
-// Point at a plot, a station or a neighbour and pull the trigger to act there. The shop, the AgroVision kiosk, the
+// Point at a plot, a station or a neighbour and pull the trigger to act there. The shop, the Agros kiosk, the
 // mission questions, the agriculture office, the Chakra helper, the menu and the season's report are panels in the
 // world (xrui.js, laid out by ../xrlogic.js, worded by ../xrpanels.js), so nothing ever ends the session; a look at
 // the left wrist shows money, time, water, seed and the mission. A third-person "god view" is one menu tap away.
@@ -32,7 +32,7 @@ const ACT_WORD = {
   spray: ['বালাই দমন', 'Treat pests'], clear: ['মরা গাছ সরান', 'Clear dead plants'], plant: ['বুনুন', 'Sow'], harvest: ['তুলুন', 'Harvest'],
   water: ['পানি দিন', 'Water'], wet: ['মাটি ভেজা', 'Soil is wet'], nowater: ['আগে পানি আনুন', 'Fetch water first'], noseed: ['বীজ নেই: দোকানে যান', 'No seed: go to the shop'],
 };
-const STATION_WORD = { shed: ['দোকান খুলুন', 'Open the shop'], water: ['পাম্পে পানি ভরুন', 'Fill the can'], market: ['ফসল বিক্রি', 'Sell the harvest'], kiosk: ['AgroVision খুলুন', 'Open AgroVision'], office: ['কৃষি অফিসে যান', 'Visit the office'] };
+const STATION_WORD = { shed: ['দোকান খুলুন', 'Open the shop'], water: ['পাম্পে পানি ভরুন', 'Fill the can'], market: ['ফসল বিক্রি', 'Sell the harvest'], kiosk: ['Agros খুলুন', 'Open Agros'], office: ['কৃষি অফিসে যান', 'Visit the office'] };
 const BUZZ = { water: [0.25, 90], pump: [0.35, 160], plant: [0.3, 70], harvest: [0.7, 140], spray: [0.25, 220], coin: [0.5, 60], ripe: [0.2, 40], sparkle: [0.3, 50] };
 
 export function createXR(ctx) {

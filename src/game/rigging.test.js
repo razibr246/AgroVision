@@ -2,7 +2,7 @@
  * Automated Headless 3D Rigging Regression Test Suite (F19, F20)
  * Verifies joint hierarchy, anatomical range-of-motion bounds, knee/hip ball-and-socket continuity,
  * skirt containment, cervical-cranial look-at IK conservation, and action envelope smoothness
- * across all 15 authentic regional farmer characters in AgroVision ("ফসলের দিগন্ত").
+ * across all 7 regional farmer characters in Agros ("ফসলের দিগন্ত").
  */
 
 import test from 'node:test';
@@ -63,11 +63,11 @@ function isSkirted(look) {
 }
 
 // ============================================================================
-// 1. JOINT TREE & SEGMENT INVARIANCE ACROSS ALL 15 CHARACTERS
+// 1. JOINT TREE & SEGMENT INVARIANCE ACROSS ALL 7 CHARACTERS
 // ============================================================================
 
-test('F19: All 15 regional characters instantiate valid complete joint hierarchies', () => {
-  assert.equal(FARMER_IDS.length, 15, 'must evaluate exactly 15 authentic regional characters');
+test('F19: All 7 regional characters instantiate valid complete joint hierarchies', () => {
+  assert.equal(FARMER_IDS.length, 7, 'must evaluate exactly 7 regional characters');
   for (const id of FARMER_IDS) {
     const p = getFarmer(id);
     assert.ok(p.root && p.body && p.hips && p.torso && p.neck && p.head && p.cranial, `${id} complete central axis`);
@@ -78,7 +78,7 @@ test('F19: All 15 regional characters instantiate valid complete joint hierarchi
   }
 });
 
-test('F19: Bilateral arm and leg segment lengths maintain strict anatomical invariance across all 15 characters', () => {
+test('F19: Bilateral arm and leg segment lengths maintain strict anatomical invariance across all 7 characters', () => {
   for (const id of FARMER_IDS) {
     const p = getFarmer(id);
     // Arms: shoulder -> elbow (0.28m), elbow -> hand (0.27m)
@@ -149,7 +149,7 @@ test('F19: Joint transforms evaluate to finite real numbers across all locomotio
   }
 });
 
-test('F19: Knee joints enforce strictly positive flexion without forward hyperextension across all 15 characters', () => {
+test('F19: Knee joints enforce strictly positive flexion without forward hyperextension across all 7 characters', () => {
   for (const id of FARMER_IDS) {
     const p = getFarmer(id);
     // Across running stride cycle
@@ -172,7 +172,7 @@ test('F19: Knee joints enforce strictly positive flexion without forward hyperex
   }
 });
 
-test('F19: Elbow joints enforce posterior flexion without anterior hyperextension across all 15 characters', () => {
+test('F19: Elbow joints enforce posterior flexion without anterior hyperextension across all 7 characters', () => {
   for (const id of FARMER_IDS) {
     const p = getFarmer(id);
     // Across athletic arm swings
@@ -190,7 +190,7 @@ test('F19: Elbow joints enforce posterior flexion without anterior hyperextensio
   }
 });
 
-test('F19: Cervical and cranial joint rotations stay within physiological bounds across all 15 characters', () => {
+test('F19: Cervical and cranial joint rotations stay within physiological bounds across all 7 characters', () => {
   for (const id of FARMER_IDS) {
     const p = getFarmer(id);
     // Extreme look target
@@ -202,7 +202,7 @@ test('F19: Cervical and cranial joint rotations stay within physiological bounds
   }
 });
 
-test('F19: Shoulder and hip joint abduction angles stay within anatomical limits across all 15 characters', () => {
+test('F19: Shoulder and hip joint abduction angles stay within anatomical limits across all 7 characters', () => {
   for (const id of FARMER_IDS) {
     const p = getFarmer(id);
     animate(p, { t: 0, speed: 0 }, 1 / 60); // idle stance splay
@@ -281,7 +281,7 @@ test('F19: Knee joint sphere radius matches or exceeds connecting thigh/shin lat
 });
 
 test('F19: Full-skirted characters suppress knee spheres, shin lathes, and thigh meshes to prevent cloth puncture (F07)', () => {
-  const fullSkirtIds = ['rahima', 'rampyari', 'kinley', 'kyawwin'];
+  const fullSkirtIds = ['rahima'];
   for (const id of fullSkirtIds) {
     const p = getFarmer(id);
     for (let i = 0; i < 2; i++) {
@@ -299,7 +299,7 @@ test('F19: Full-skirted characters suppress knee spheres, shin lathes, and thigh
   }
 });
 
-test('F19: Compound pelvic bridge upper sphere sits directly on hip rotation axis across all 15 characters (F14)', () => {
+test('F19: Compound pelvic bridge upper sphere sits directly on hip rotation axis across all 7 characters (F14)', () => {
   const pUpper = new THREE.Vector3(), pHips = new THREE.Vector3();
   for (const id of FARMER_IDS) {
     const p = getFarmer(id);
@@ -342,7 +342,7 @@ test('F19: Bilateral hip caps are concentric with thigh rotation origins across 
 // ============================================================================
 
 test('F19: Skirt group dynamically expands depth and splay during sprint strides across all lower garments (F06)', () => {
-  const skirtedIds = ['rahimu', 'didarul', 'prahlad', 'kader', 'mofizul', 'rahima', 'rampyari', 'kinley', 'kyawwin'];
+  const skirtedIds = ['rahimu', 'didarul', 'prahlad', 'kader', 'mofizul', 'rahima'];
   for (const id of skirtedIds) {
     const p = getFarmer(id);
     assert.ok(p.skirtGroup, `${id} skirtGroup exists`);
@@ -360,7 +360,7 @@ test('F19: Skirt group dynamically expands depth and splay during sprint strides
 });
 
 test('F19: Skirt group dynamically expands and pitches forward during deep squats without knee punch-through (F06)', () => {
-  const skirtedIds = ['rahimu', 'didarul', 'kader', 'rahima', 'rampyari', 'kinley', 'kyawwin'];
+  const skirtedIds = ['rahimu', 'didarul', 'kader', 'rahima', 'mofizul'];
   for (const id of skirtedIds) {
     const p = getFarmer(id);
     animate(p, { t: 0, speed: 0 }, 1 / 60);
@@ -374,11 +374,8 @@ test('F19: Skirt group dynamically expands and pitches forward during deep squat
 
 test('F19: Lower garment base cylinder radii exceed minimum clearance thresholds preventing knee puncture (F06)', () => {
   const expectedRadii = {
-    kinley: 0.260,
-    kyawwin: 0.250,
     rahimu: 0.250,
     prahlad: 0.255,
-    rampyari: 0.315,
     rahima: 0.280,
   };
   for (const [id, minR] of Object.entries(expectedRadii)) {
@@ -393,7 +390,7 @@ test('F19: Lower garment base cylinder radii exceed minimum clearance thresholds
 });
 
 test('F19: Kurta and kameez hem cylinders are parented to skirtGroup and maintain clearance > 0.29m (F08)', () => {
-  for (const id of ['harjinder', 'ghulam', 'didarul', 'kader']) {
+  for (const id of ['didarul', 'kader']) {
     const p = getFarmer(id);
     let kurtaHem = null;
     p.skirtGroup.traverse((c) => {
@@ -582,9 +579,9 @@ test('F19: Action envelope angular velocities stay smooth and bounded across all
 // 8. MULTI-CHARACTER CONCURRENT LIFECYCLE & DISPOSAL (F20)
 // ============================================================================
 
-test('F20: Concurrent multi-character lifecycle: all 15 characters animate and dispose without errors or leaks', () => {
+test('F20: Concurrent multi-character lifecycle: all 7 characters animate and dispose without errors or leaks', () => {
   const farmers = FARMER_IDS.map((id) => getFarmer(id));
-  assert.equal(farmers.length, 15, '15 characters in memory');
+  assert.equal(farmers.length, 7, '7 characters in memory');
 
   // Step 30 frames concurrently
   for (let frame = 0; frame < 30; frame++) {

@@ -17,7 +17,6 @@
 //   R4_CONFIDENCE_CEILING not a problem with the answer: the evidence itself is sample, saved or missing, so the
 //                         answer's confidence is capped and the reason is shown
 
-import { ABROAD_ORDER } from '../data/abroad.js';
 
 export const RAIN_OFFSET_MM = 5; // the same 5 mm the field water card uses for "rain may make up the shortfall"
 export const MAX_ATTEMPTS = 2; // first answer plus one retry, as in the original validator loop
@@ -98,7 +97,7 @@ const problem = (id, level, bn, en) => ({ id, level, bn, en });
 // → { ok, problems, proposals (bad targets removed), ceiling, limits }
 // R7: the answer must be in the language the person's app is set to. Counted in words (a Bangla word has a Bangla
 // letter, an English word a Latin one), so an English answer may carry a Bangla name and a Bangla one an English name
-// ("AgroVision", "Landsat"), but not whole sentences of the other language.
+// ("Agros", "Landsat"), but not whole sentences of the other language.
 export function replyLanguage(text) {
   const words = String(text ?? '').split(/\s+/);
   const bn = words.filter((w) => /[\u0980-\u09E5\u09F0-\u09FF]/.test(w)).length;
@@ -145,14 +144,9 @@ export function checkReply({ reply = '', proposals = [], data = {}, role = 'farm
   // P1: what each proposal points at must exist. Bad ones are dropped here, before the app's policy sees them.
   const ids = idsIn(data);
   const kept = [];
-  const abroad = data.place_context?.kind === 'abroad' && ABROAD_ORDER.includes(data.place_context.country);
   for (const p of proposals) {
     const t = String(p?.target ?? '');
-    if (abroad && p?.action !== 'navigate') {
-      problems.push(problem('P2_ABROAD_ACTION', 'note', 'বিদেশি এজেন্ট কোনো কাজ পাঠাতে বা বদলাতে পারবে না; শুধু পাতা খোলার প্রস্তাব রাখা হয়েছে', 'Foreign agent actions cannot send or change records; only navigation proposals are allowed'));
-      continue;
-    }
-    const route = abroad ? new RegExp(`^/abroad/${data.place_context.country}(/[a-z0-9-]+)*(#[a-z0-9-]+)?$`) : new RegExp(`^/${role}(/[a-z0-9-]+)*(#[a-z0-9-]+)?$`);
+    const route = new RegExp(`^/${role}(/[a-z0-9-]+)*(#[a-z0-9-]+)?$`);
     const bad = p?.action === 'navigate' ? !route.test(t)
       : p?.action === 'follow_up' || p?.action === 'reply_farmer' || p?.action === 'area_advice' ? !ids.has(t) : false;
     if (bad) problems.push(problem('P1_BAD_TARGET', 'note', `"${t || '—'}" খুঁজে পাওয়া যায়নি, প্রস্তাবটি বাদ দেওয়া হলো`, `"${t || '—'}" was not found; the proposal was dropped`));

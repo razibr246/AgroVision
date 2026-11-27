@@ -1,6 +1,6 @@
 /**
  * Pure bilingual curriculum, worlds, missions, badges, pests, and science lab datasets
- * for AgroVision Kids ("তারার স্বপ্ন-খামার" / Tara's Dream Farm).
+ * for Agros Kids ("তারার স্বপ্ন-খামার" / Tara's Dream Farm).
  *
  * Pure ES module — zero React, DOM, or browser API imports so Node tests run directly.
  */
@@ -174,8 +174,8 @@ export const KIDS_WORLDS = [
           en: 'Tara noticed Bangladesh farmers plan around 3 cropping seasons—right crop, right season!',
         },
         taraTip: {
-          bn: 'AgroVision একই জমিতে ধানের পর ডাল বা সরিষা ঘুরিয়ে-ফিরিয়ে চাষ (Crop Rotation) শেখায়।',
-          en: 'AgroVision teaches Crop Rotation: planting wheat, mustard or lentils after rice keeps fields healthy!',
+          bn: 'Agros একই জমিতে ধানের পর ডাল বা সরিষা ঘুরিয়ে-ফিরিয়ে চাষ (Crop Rotation) শেখায়।',
+          en: 'Agros teaches Crop Rotation: planting wheat, mustard or lentils after rice keeps fields healthy!',
         },
         rounds: [
           {
@@ -225,8 +225,8 @@ export const KIDS_WORLDS = [
               { id: 'none', label: { bn: 'কোনোই পরিবর্তন হয় না', en: 'Nothing changes at all' }, icon: '😐', isCorrect: false },
             ],
             hint: {
-              bn: 'এটাই "AgroVision" — ফসল বদলালে পোকার চক্র ভেঙে যায় এবং মাটির জীবনীশক্তি বাড়ে!',
-              en: 'That is literally AgroVision! Rotating crops breaks pest cycles and rebuilds soil carbon.',
+              bn: 'এটাই "Agros" — ফসল বদলালে পোকার চক্র ভেঙে যায় এবং মাটির জীবনীশক্তি বাড়ে!',
+              en: 'That is literally Agros! Rotating crops breaks pest cycles and rebuilds soil carbon.',
             },
           },
         ],
@@ -263,7 +263,7 @@ export const KIDS_WORLDS = [
         miniGameId: 'science',
         title: { bn: 'আকাশের চোখ: নাসা ও উপগ্রহ', en: 'Eyes in Space: NASA Satellites' },
         story: {
-          bn: 'তারা ভাবত উপগ্রহ বুঝি শুধু মহাকাশের ছবি তোলে! কিন্তু AgroVision দেখাল—উপগ্রহ প্রতিদিন ক্ষেতের পানির ঘাটতি ও পাতার রঙ মাপে!',
+          bn: 'তারা ভাবত উপগ্রহ বুঝি শুধু মহাকাশের ছবি তোলে! কিন্তু Agros দেখাল—উপগ্রহ প্রতিদিন ক্ষেতের পানির ঘাটতি ও পাতার রঙ মাপে!',
           en: 'Tara learned satellites do not just look at stars—NASA satellites check crop water and leaf color every week!',
         },
         taraTip: {
@@ -309,8 +309,8 @@ export const KIDS_WORLDS = [
             id: 'm4_r3',
             type: 'choice',
             prompt: {
-              bn: 'AgroVision অ্যাপে উপগ্রহ আর আবহাওয়া স্টেশনের তথ্য একসাথে থাকলে কৃষকের কী লাভ হয়?',
-              en: 'How does combining satellite maps + weather alerts inside AgroVision help farmers?',
+              bn: 'Agros অ্যাপে উপগ্রহ আর আবহাওয়া স্টেশনের তথ্য একসাথে থাকলে কৃষকের কী লাভ হয়?',
+              en: 'How does combining satellite maps + weather alerts inside Agros help farmers?',
             },
             choices: [
               { id: 'save', label: { bn: 'পানি, সার ও ফসল নষ্ট হওয়া থেকে বাঁচে', en: 'Saves water, fertilizer & protects harvests' }, icon: '🛡️', isCorrect: true },
@@ -397,7 +397,7 @@ export const KIDS_WORLDS = [
         miniGameId: 'pipeline',
         title: { bn: 'বৃষ্টির সতর্কতা ও ফসল রক্ষা', en: 'Weather Radar & Harvest Rescue' },
         story: {
-          bn: 'কাল দুপুর থেকে ভারী বর্ষণ (৪৫ মিমি) দেখাচ্ছে AgroVision আবহাওয়া! আজই ইউরিয়া সার দিলে কী হবে?',
+          bn: 'কাল দুপুর থেকে ভারী বর্ষণ (৪৫ মিমি) দেখাচ্ছে Agros আবহাওয়া! আজই ইউরিয়া সার দিলে কী হবে?',
           en: 'Tomorrow’s forecast shows 45 mm heavy rain! What happens if we spread urea fertilizer today?',
         },
         taraTip: {
@@ -871,7 +871,7 @@ export const KIDS_BADGES = {
     color: 'yellow',
     title: { bn: 'সেরা কৃষিবিজ্ঞানী', en: 'Super Agronomist' },
     name: { bn: 'সেরা কৃষিবিজ্ঞানী', en: 'Super Agronomist' },
-    desc: { bn: 'চারটি বিশ্বই জয় করে খামারের চ্যাম্পিয়ন হয়েছ!', en: 'Conquered all 4 AgroVision Kids worlds!' },
+    desc: { bn: 'চারটি বিশ্বই জয় করে খামারের চ্যাম্পিয়ন হয়েছ!', en: 'Conquered all 4 Agros Kids worlds!' },
     criteria: { bn: 'সব ১২টি মিশন সম্পন্ন করো', en: 'Complete all 12 missions across Worlds 1–4' },
     category: 'master',
   },
@@ -1378,7 +1378,7 @@ export const KIDS_SCIENCE_MODULES = {
     cubesat: {
       parts: [
         { id: 'solar_panels', icon: '☀️', massKg: 1.2, powerW: +18, name: { bn: 'সোলার প্যানেল উইং', en: 'Solar Panel Wings' }, role: { bn: 'সূর্য থেকে বিদ্যুৎ তৈরি করে', en: 'Generates electricity from sunlight' } },
-        { id: 'radio_dish', icon: '📡', massKg: 0.9, powerW: -4, name: { bn: 'ডাউনলিংক রেডিও', en: 'Downlink Antenna' }, role: { bn: 'পৃথিবীর AgroVision সার্ভারে তথ্য পাঠায়', en: 'Beams maps down to AgroVision farmers' } },
+        { id: 'radio_dish', icon: '📡', massKg: 0.9, powerW: -4, name: { bn: 'ডাউনলিংক রেডিও', en: 'Downlink Antenna' }, role: { bn: 'পৃথিবীর Agros সার্ভারে তথ্য পাঠায়', en: 'Beams maps down to Agros farmers' } },
         { id: 'nir_cam', icon: '📷', massKg: 1.4, powerW: -6, name: { bn: 'NIR/NDVI ক্যামেরা', en: 'Optical + NIR Camera' }, role: { bn: 'সবুজ পাতার NDVI স্বাস্থ্য মাপে', en: 'Captures NDVI leaf health from orbit' } },
         { id: 'rain_radar', icon: '🌧️', massKg: 1.6, powerW: -7, name: { bn: 'বৃষ্টি রাডার (GPM)', en: 'Precipitation Radar' }, role: { bn: 'মেঘ ও ঘূর্ণিঝড়ের বৃষ্টি মাপে', en: 'Measures monsoon rainfall intensity' } },
         { id: 'soil_sensor', icon: '🏜️', massKg: 1.5, powerW: -5, name: { bn: 'L-ব্যান্ড মাটি সেন্সর (SMAP)', en: 'L-Band Soil Moisture Sensor' }, role: { bn: 'মাটির ভেতরের ভিজা ভাব মাপে', en: 'Senses topsoil moisture for drought alerts' } },

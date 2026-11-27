@@ -1,4 +1,4 @@
-# AgroVision
+# Agros
 
 [![NASA Space Apps 2026](https://img.shields.io/badge/NASA%20Space%20Apps-2026-0B3D91?style=flat-square&logo=nasa&logoColor=white)](https://www.spaceappschallenge.org/)
 [![Tests](https://img.shields.io/badge/npm%20test-1007%20passing-15803d?style=flat-square&logo=node.js&logoColor=white)](#verification)
@@ -18,14 +18,14 @@ Challenge: **Field Shift: Adapting Farms with NASA Data** · Team: **BRM AstraX*
 | 📝 **Submission kit** (project description, challenge mapping) | [docs/SUBMISSION.md](docs/SUBMISSION.md) |
 | 🔁 **Data register in the app** | [`/science#coverage`](https://agrovision.vercel.app/#/science#coverage) |
 
-[![The AgroVision home page: "The right crop. At the right time."](docs/screenshots/home.jpg)](https://agrovision.vercel.app/#/)
+[![The Agros home page: "The right crop. At the right time."](docs/screenshots/home.jpg)](https://agrovision.vercel.app/#/)
 
 ---
 
 ## Contents
 
 1. [The problem](#the-problem)
-2. [What AgroVision does](#what-agrovision-360-does)
+2. [What Agros does](#what-agros-does)
 3. [A look inside](#a-look-inside)
 4. [A five-minute tour for judges](#a-five-minute-tour-for-judges)
 4. [NASA and partner data](#nasa-and-partner-data)
@@ -47,7 +47,7 @@ The crop calendar Bangladeshi farmers inherited no longer fits the weather. On t
 
 A farmer needs to know what to plant *this* Rabi season **and** what sequence of crops will keep the field productive for the next ten years. An upazila officer needs to see the same thing for hundreds of farmers at once.
 
-## What AgroVision does
+## What Agros does
 
 **For a farmer** (`/farmer/*`, Bangla first, voice and SMS mode included)
 
@@ -67,8 +67,7 @@ A farmer needs to know what to plant *this* Rabi season **and** what sequence of
 
 - `/science`: the data register with every dataset's scale and limit, a 3D satellite constellation, the spectral and multi-scale labs, trend maps (GRACE, SMAP, MODIS) and the crop-stress ML benchmark.
 - `/stories`: five real past years in five districts replayed as decisions.
-- `/farm` **Harvest Horizon**: a 3D farm game with 15 farmers in nine countries (VR-capable); `/kids` **Tara and the Dream Fields**: a children's game with a NASA satellite as the guide.
-- `/abroad/:cc`: the same farmer and officer pages for sample farms in India, Pakistan, Nepal, Bhutan, Myanmar, the USA, Brazil and Spain, on their own soil, weather, crops and support programmes.
+- `/farm` **Harvest Horizon**: a 3D farm game with seven farmers, one per division of Bangladesh (VR-capable); `/kids` **Tara and the Dream Fields**: a children's game with a NASA satellite as the guide.
 
 Seven upazilas, one in each division of Bangladesh, are covered by the full engine: Godagari, Dhamrai, Sitakunda, Dacope, Bakerganj, Gangachara and Gowainghat.
 
@@ -104,7 +103,7 @@ Every page below is live at [agrovision.vercel.app](https://agrovision.vercel.ap
 </td>
 <td width="50%" valign="top">
 <a href="https://agrovision.vercel.app/#/farm"><img src="docs/screenshots/farm-game.jpg" alt="Harvest Horizon: a 3D farmer built with MakeHuman" /></a>
-<p align="center"><b>Harvest Horizon · 3D farm game</b><br /><sub>Fifteen farmers in nine countries, each a rigged MakeHuman model on their own land with their own crops and the hazard they fear most; walk the field, plant, manage water and pests, and live with the season. Plays in VR.</sub></p>
+<p align="center"><b>Harvest Horizon · 3D farm game</b><br /><sub>Seven farmers, one per division of Bangladesh, each a rigged MakeHuman model on their own land with their own crops and the hazard they fear most; walk the field, plant, manage water and pests, and live with the season. Plays in VR.</sub></p>
 </td>
 </tr>
 <tr>
@@ -158,7 +157,7 @@ Every number in the app carries one of these kinds as a label, and the register 
 
 ## Challenge statement, line by line
 
-| The challenge asks for | Where AgroVision answers it |
+| The challenge asks for | Where Agros answers it |
 | --- | --- |
 | A decision tool for crop rotation | `/farmer/future` ranks every feasible rotation for the field; `/farmer/plan` turns it into this season's step |
 | NASA Earth observations | the 14 datasets above; audit at `/science#coverage` |
@@ -172,7 +171,6 @@ Every number in the app carries one of these kinds as a label, and the register 
 | Explaining the science and combining scales | `/science#multiscale`, `#spectral`, `#disagree`, `#methods` and the glossary |
 | Long-term resilience | the 40-run NEX-GDDP-CMIP6 × FAOSTAT ensemble |
 | Reaching farmers | Bangla first, voice ([docs/VOICE.md](docs/VOICE.md)), 70-character SMS mode, works offline after the first visit |
-| Beyond one place | eight other countries under `/abroad/:cc`, built one at a time with the same engine |
 
 ## How it works
 
@@ -185,7 +183,7 @@ Every number in the app carries one of these kinds as a label, and the register 
                                                                    │  water · support · radar │
                                                                    └───────────┬─────────────┘
                                                                                ▼
-                                              React pages: farmer · officer · public · abroad · games
+                                              React pages: farmer · officer · public · games
 ```
 
 - **Everything is computed in the browser** from committed data, so the demo works with no server and no key. Pages load on first visit only; after that a service worker serves the app offline.
@@ -259,9 +257,9 @@ Refreshing data: `npm run` lists the `fetch:*`, `data:*`, `photos:*` and `train:
 | Path | What is there |
 | --- | --- |
 | [src/engine/](src/engine/) | the pure engine: climate, decision, rotation, `soilfuture.js` (Field Future), water, support, provenance, AI reply checks, call notes, field geometry |
-| [src/pages/](src/pages/) | farmer, officer, public and abroad pages; routes in [src/App.jsx](src/App.jsx) |
+| [src/pages/](src/pages/) | farmer, officer and public pages; routes in [src/App.jsx](src/App.jsx) |
 | [src/components/](src/components/) | shared UI, charts, maps, the Chakra Agent, the guided tours, the science labs |
-| [src/data/](src/data/) | committed datasets by kind (`climate/`, `water/`, `soil/`, `radar/`, `fields/`, `market/`, `support/`, `abroad/`, `models/`); [src/data/README.md](src/data/README.md) |
+| [src/data/](src/data/) | committed datasets by kind (`climate/`, `water/`, `soil/`, `radar/`, `fields/`, `market/`, `support/`, `models/`); [src/data/README.md](src/data/README.md) |
 | [src/game/](src/game/) | Harvest Horizon and Tara and the Dream Fields (pure simulations plus three.js scenes) |
 | [src/voice/](src/voice/) | the voice and SMS brain, answering from the same engine numbers |
 | [scripts/](scripts/) | fetch, build, onset, photo and training scripts; [scripts/README.md](scripts/README.md) |

@@ -12,7 +12,6 @@ import {
   Languages,
   Clapperboard,
   RotateCcw,
-  Globe2,
   Wheat,
   Radar,
   LifeBuoy,
@@ -33,7 +32,6 @@ import {
 import { useStore, demo } from '../store';
 import { LEVELS } from '../data/stories';
 import { UPAZILAS } from '../data/upazilas';
-import { ABROAD } from '../data/abroad';
 import { startTour } from './tour/DemoTour';
 import { GAMES } from '../data/games';
 
@@ -279,80 +277,6 @@ export default function CommandPalette() {
         keywords: ['call', 'audio', 'transcribe', 'kothar note', 'gemini', 'sha256', 'evidence'],
       },
 
-      // ---- Regional Abroad & World Hubs ----
-      {
-        id: 'abroad-in',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('ভারত · পাঞ্জাব (হরজিন্দর সিং)', 'India · Punjab (Harjinder Singh)'),
-        sub: T('পাঞ্জাবের গম ও ধান চক্র, ইআরএ৫ তথ্যসহ', 'Punjab wheat-paddy cycle with ERA5 normals and PM-Kisan'),
-        action: () => navigate('/abroad/india'),
-        keywords: ['india', 'punjab', 'bharat', 'harjinder'],
-      },
-      {
-        id: 'abroad-pk',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('পাকিস্তান · সিন্ধু (গোলাম নবী চান্ডিও)', 'Pakistan · Sindh (Ghulam Nabi Chandio)'),
-        sub: T('সিন্ধুর তুলা ও গম চাষ, ক্যানাল সেচ ব্যবস্থা', 'Sindh cotton-wheat rotation, canal water and drought advisory'),
-        action: () => navigate('/abroad/pakistan'),
-        keywords: ['pakistan', 'sindh', 'ghulam'],
-      },
-      {
-        id: 'abroad-np',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('নেপাল · তরাই (রামপ্যারী চৌধুরী)', 'Nepal · Terai (Rampyari Chaudhary)'),
-        sub: T('তরাই অঞ্চলের ধান ও মসুর চাষ, আকস্মিক বন্যা ঝুঁকি', 'Terai paddy-lentil farming with flash flood early warnings'),
-        action: () => navigate('/abroad/nepal'),
-        keywords: ['nepal', 'terai', 'rampyari'],
-      },
-      {
-        id: 'abroad-bt',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('ভুটান · পুনাখা (কিনলে ওয়াংমো)', 'Bhutan · Punakha (Kinley Wangmo)'),
-        sub: T('পুনাখা উপত্যকার ধাপযুক্ত পাহাড়ি চাষ ও লাল ধান', 'Punakha terrace rice and organic mountain microclimate'),
-        action: () => navigate('/abroad/bhutan'),
-        keywords: ['bhutan', 'punakha', 'kinley'],
-      },
-      {
-        id: 'abroad-mm',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('মিয়ানমার · মান্দালয় (উ চ উইন)', 'Myanmar · Mandalay (U Kyaw Win)'),
-        sub: T('শুষ্ক অঞ্চলের তিল ও ডাল চাষ, মৌসুমি খরা প্রস্তুতি', 'Dry zone sesame-pulse rotation and monsoon resilience'),
-        action: () => navigate('/abroad/myanmar'),
-        keywords: ['myanmar', 'burma', 'mandalay', 'kyaw'],
-      },
-      {
-        id: 'abroad-us',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('যুক্তরাষ্ট্র · নেভাডা (এলেন হার্টলি)', 'United States · Nevada (Ellen Hartley)'),
-        sub: T('ইউরেকা কাউন্টির আলফালফা ও ভূগর্ভস্থ সেচ ব্যবস্থা', 'Eureka County alfalfa cycle and groundwater irrigation'),
-        action: () => navigate('/abroad/usa'),
-        keywords: ['usa', 'us', 'united states', 'nevada', 'eureka', 'ellen', 'alfalfa'],
-      },
-      {
-        id: 'abroad-br',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('ব্রাজিল · মাতুগ্রোসু (কাইও মোরেইরা)', 'Brazil · Mato Grosso (Caio Moreira)'),
-        sub: T('সোরিসোর সয়াবিন-ভুট্টা চক্র ও বর্ষা সূচনা পর্যবেক্ষণ', 'Sorriso soybean-maize cycle and rainy-season onset tracking'),
-        action: () => navigate('/abroad/brazil'),
-        keywords: ['brazil', 'br', 'mato grosso', 'sorriso', 'caio', 'soybean'],
-      },
-      {
-        id: 'abroad-es',
-        category: T('আন্তর্জাতিক প্রতিবেশী ও বিশ্ব', 'International Benchmarks'),
-        icon: Globe2,
-        title: T('স্পেন · আন্দালুসিয়া (লুসিয়া গার্সিয়া)', 'Spain · Andalusia (Lucía García)'),
-        sub: T('মার্তোসের জলপাই বাগান, তাপ-খরা ও পালাক্রমে সেচ', 'Martos olive groves, heat stress, and rotational irrigation'),
-        action: () => navigate('/abroad/spain'),
-        keywords: ['spain', 'es', 'andalusia', 'martos', 'jaen', 'lucia', 'olive'],
-      },
-
       // ---- System Actions ----
       {
         id: 'action-lang',
@@ -368,7 +292,7 @@ export default function CommandPalette() {
         category: T('সিস্টেম ও পছন্দ', 'System & Preferences'),
         icon: Clapperboard,
         title: T('৩ মিনিটের ডেমো গল্প চালু করুন', 'Start 3-Minute Demo Tour'),
-        sub: T('প্ল্যাটফর্মের মূল সুবিধাগুলোর পরিচিতিমূলক ট্যুর', 'Interactive guided walkthrough of the AgroVision ecosystem'),
+        sub: T('প্ল্যাটফর্মের মূল সুবিধাগুলোর পরিচিতিমূলক ট্যুর', 'Interactive guided walkthrough of the Agros ecosystem'),
         action: () => startTour(dispatch, navigate),
         keywords: ['tour', 'demo', 'help', 'walkthrough', 'guide'],
       },
@@ -377,7 +301,7 @@ export default function CommandPalette() {
         category: T('সিস্টেম ও পছন্দ', 'System & Preferences'),
         icon: UserRound,
         title: T('কৃষক পরিবর্তন করুন (লগইন)', 'Switch Farmer Profile'),
-        sub: T('বাংলাদেশ, প্রতিবেশী পাঁচ দেশ, যুক্তরাষ্ট্র, ব্রাজিল আর স্পেনের ১৫ জন কৃষকের যেকোনো একজন বেছে নিন', 'Choose from 15 farmer profiles across Bangladesh, five neighbours, the USA, Brazil and Spain'),
+        sub: T('বাংলাদেশের সাত বিভাগের ৭ জন কৃষকের যেকোনো একজন বেছে নিন', 'Choose from 7 farmer profiles across the seven divisions of Bangladesh'),
         action: () => navigate('/login'),
         keywords: ['switch', 'login', 'farmer', 'profile', 'change'],
       },
@@ -442,7 +366,7 @@ export default function CommandPalette() {
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder={T('যেকোনো পাতা, কৃষক, উপজেলা বা ফসল খুঁজুন... (যেমন: ডাক্তার, রাডার, ধান)', 'Search anything across AgroVision... (e.g. Doctor, Radar, Wheat)')}
+            placeholder={T('যেকোনো পাতা, কৃষক, উপজেলা বা ফসল খুঁজুন... (যেমন: ডাক্তার, রাডার, ধান)', 'Search anything across Agros... (e.g. Doctor, Radar, Wheat)')}
             className="w-full bg-transparent text-[16px] font-medium text-ink outline-none placeholder:text-muted/60"
           />
           {query && (
@@ -527,7 +451,7 @@ export default function CommandPalette() {
             </span>
           </div>
           <span className="text-[11.5px] font-medium text-primary-800">
-            {T('এগ্রোভিশন ইকোসিস্টেম', 'AgroVision Ecosystem')}
+            {T('এগ্রোস ইকোসিস্টেম', 'Agros Ecosystem')}
           </span>
         </div>
       </div>

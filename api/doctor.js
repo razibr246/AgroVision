@@ -60,7 +60,7 @@ const REPORT_TOOL = {
 };
 
 function systemPrompt() {
-  return `You are the crop doctor in AgroVision, an app for smallholder farmers in Bangladesh (Rajshahi and Dhaka divisions). A farmer sends one photo of their crop.
+  return `You are the crop doctor in Agros, an app for smallholder farmers in Bangladesh (Rajshahi and Dhaka divisions). A farmer sends one photo of their crop.
 
 Give a careful first look, the way an experienced Sub-Assistant Agriculture Officer of the Department of Agricultural Extension (DAE) would at the field edge:
 - Look closely at the photo first: which plant part, the pattern of spots or damage, colour, margins, insects or eggs, wilting, the field around it.
@@ -112,6 +112,18 @@ async function doctorOnce({ image, crop, lang, context, known, key, signal, mode
   return { status: 200, value: { report, sources, model: js.modelVersion || name } };
 }
 
+// The crop's national harvest record (FAOSTAT, src/engine/harvestRecords.js harvestBrief). Every field is re-read as a number
+// or short string here, so nothing the browser sends reaches the prompt as free text
+// (the crop name keeps letters and a few signs only, 30 at most).
+const n = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+export function harvestLine(h) {
+  if (!h || typeof h !== 'object') return null;
+  const years = n(h.years), bad = n(h.bad);
+  if (!years || bad == null) return null;
+  const worst = (Array.isArray(h.worst) ? h.worst.slice(0, 3) : []).map((w) => `${n(w.year)} (${n(w.pct)}% vs trend${n(w.rain) != null ? `, ${n(w.rain)} mm season rain` : ''}${n(w.hotDays) != null ? `, ${n(w.hotDays)} days ≥35 °C` : ''}${n(w.rh) != null ? `, mean RH ${n(w.rh)}%` : ''})`).filter((t) => !t.startsWith('null'));
+  return `National harvest record of ${String(h.crop ?? '').replace(/[^A-Za-z /()-]/g, '').slice(0, 30)}${h.allSeasons ? ' (all rice seasons together)' : ''} in Bangladesh (FAOSTAT, since ${n(h.since) ?? 2001}): ${bad} bad years of ${years} (${n(h.good) ?? '?'} good)${worst.length ? `; worst: ${worst.join('; ')}` : ''}. Context only: national and yearly, it says nothing certain about this field.`;
+}
+
 function userText({ crop, lang, context = {}, known = [] }) {
   const c = context;
   const lines = [
@@ -122,6 +134,7 @@ function userText({ crop, lang, context = {}, known = [] }) {
     c.weather && `Weather at the field: ${c.weather.rain7 ?? '?'} mm rain in the last 7 days, ${c.weather.rainNext3 ?? '?'} mm forecast for the next 3, high today ${c.weather.tmax ?? '?'} °C, nights around ${c.weather.tmin ?? '?'} °C.`,
     c.sat && `Latest Sentinel-2 satellite reading of the field (${c.sat.d}): NDVI ${c.sat.ndvi}, NDMI ${c.sat.ndmi}${c.sat.finding ? `; note: ${c.sat.finding}` : ''}.`,
     c.soil && `Soil (SoilGrids model): pH ${c.soil.ph}, organic matter ${c.soil.om_pct}%, ${c.soil.texture}, drainage ${c.soil.drainage}.`,
+    harvestLine(c.harvest),
     known.length && `Known problems of this crop in Bangladesh (keys you may use): ${known.map((k) => `${k.key} = ${k.en}`).join('; ')}.`,
     c.note && `What the farmer wrote: "${c.note}"`,
   ].filter(Boolean);

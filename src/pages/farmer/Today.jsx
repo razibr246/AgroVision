@@ -14,6 +14,7 @@ import { WATER_COLORS, fetchLiveWeather } from '../../engine/water';
 import { FIELD_EFF, ROOTS } from '../../engine/fieldwater';
 import { fertilizerPlan } from '../../engine/soil';
 import SprayCheck from '../../components/fields/SprayCheck';
+import ClimateSmartPlan from '../../components/fields/ClimateSmartPlan';
 import AquiferDepthMeter from '../../components/charts/AquiferDepthMeter';
 import SpokenTodayBrief from '../../components/voice/SpokenTodayBrief';
 import { num, fmtDate, fmtBangla, bnDigits, iso, parseISO, daysBetween } from '../../engine/dates';
@@ -334,6 +335,8 @@ export default function Today() {
           {activeParcel ? <div data-tour="today-field"><FieldNow parcel={activeParcel} crop={crop} dToday={dToday} /></div> : (
             <Note tone="gold">{T('আপনার জমি এখনো উপজেলা কৃষি অফিসে নিবন্ধিত নয়, তাই উপগ্রহের ছবি দেখানো যাচ্ছে না। "আমার জমি" পাতায় জমিটা মানচিত্রে চিহ্নিত করুন।', 'Your field is not registered with the upazila office yet, so there is no satellite picture. Mark it on the map in "My farm".')}</Note>
           )}
+
+          <ClimateSmartPlan fw={fw} crop={crop} plantT={chosen.t0} wx={wx} today={today} />
 
           <Card className="spotlight-card lift cv-auto p-5 sm:p-6" data-tour="today-alerts">
             <h2 className="text-[20px] font-bold">{T('সতর্কতা', 'Alerts')}</h2>

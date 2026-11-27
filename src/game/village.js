@@ -1,8 +1,8 @@
 // The village around the farm of মাঠের মানুষ: the haat (the weekly market) that moves prices, light rain showers that
-// AgroVision forecasts, the choice between compost and urea, and neighbours who order a crop. Ideas from open farming
+// Agros forecasts, the choice between compost and urea, and neighbours who order a crop. Ideas from open farming
 // games, rebuilt for this one: daily price changes and surge news (Farmhand), rain that waters the crops by itself
 // (AgriSim), quests from the people around you (Lands). Game rules, not data: prices, rain and orders here are
-// simulated for play, and the real prices and rain live in the AgroVision station. Pure; sim.js calls stepVillage
+// simulated for play, and the real prices and rain live in the Agros station. Pure; sim.js calls stepVillage
 // every frame, priceOf reads marketMult, and plotAction calls wateredBeforeRain.
 const q = (bn, en) => ({ bn, en });
 const BN = '০১২৩৪৫৬৭৮৯';
@@ -48,8 +48,8 @@ function haat(g) {
   if (m.surge) m.mult[m.surge] = 1.5;
   const c = m.surge && g.R.crops[m.surge];
   emit(g, { type: 'alert', tone: 'ok', title: q(`হাটবার ${bn(m.haat)}: দাম বদলেছে`, `Market day ${m.haat}: prices have moved`),
-    body: c ? q(`${c.bn}-এর চাহিদা বেশি: দাম ৫০% বেশি, পরের হাট পর্যন্ত। AgroVision-এ সব দাম দেখুন।`, `${c.en} is in demand: 50% more until the next market day. See every price on AgroVision.`)
-      : q('কোনো ফসলের দাম আকাশছোঁয়া নয়; AgroVision-এ কোনটা বাড়ল, কোনটা কমল দেখুন।', 'No crop is soaring; see on AgroVision which prices rose and which fell.') });
+    body: c ? q(`${c.bn}-এর চাহিদা বেশি: দাম ৫০% বেশি, পরের হাট পর্যন্ত। Agros-এ সব দাম দেখুন।`, `${c.en} is in demand: 50% more until the next market day. See every price on Agros.`)
+      : q('কোনো ফসলের দাম আকাশছোঁয়া নয়; Agros-এ কোনটা বাড়ল, কোনটা কমল দেখুন।', 'No crop is soaring; see on Agros which prices rose and which fell.') });
 }
 
 function newOrder(g) {
@@ -109,7 +109,7 @@ export function stepVillage(g, dt) {
     g.nextShower = rnd(...SHOWER.every);
     if (!(ev.storm > 0 || ev.zone || ev.heat > 0)) {
       ev.showerSoon = SHOWER.warn;
-      emit(g, { type: 'alert', tone: 'info', title: q('AgroVision: বৃষ্টি আসছে', 'AgroVision: rain is coming'), body: q(`প্রায় ${bn(SHOWER.warn)} সেকেন্ডে হালকা বৃষ্টি। এখন পানি দেবেন না: বালতির পানি বাঁচান। (নাসার GPM বৃষ্টির মাপ দেখেই এমন পূর্বাভাস।)`, `Light rain in about ${SHOWER.warn} seconds. Don’t water now: save what’s in the can. (Forecasts like this rest on rain measured by NASA’s GPM.)`) });
+      emit(g, { type: 'alert', tone: 'info', title: q('Agros: বৃষ্টি আসছে', 'Agros: rain is coming'), body: q(`প্রায় ${bn(SHOWER.warn)} সেকেন্ডে হালকা বৃষ্টি। এখন পানি দেবেন না: বালতির পানি বাঁচান। (নাসার GPM বৃষ্টির মাপ দেখেই এমন পূর্বাভাস।)`, `Light rain in about ${SHOWER.warn} seconds. Don’t water now: save what’s in the can. (Forecasts like this rest on rain measured by NASA’s GPM.)`) });
     }
   }
   // the neighbours' orders

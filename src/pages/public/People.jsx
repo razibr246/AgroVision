@@ -31,7 +31,7 @@ const ACTIONS = [
 
 export default function People() {
   const { T, L, s } = useStore();
-  usePageMeta(L(GAMES.people.name), T('কৃষকদের সাথে পরিচয়: বাংলাদেশ, প্রতিবেশী পাঁচ দেশ, যুক্তরাষ্ট্র, ব্রাজিল ও স্পেনের ১৫ জন ৩ডি কৃষক ও তাঁদের সন্তান, এবং তাঁদের প্রত্যেকের আবহাওয়া-ভীতি।', GAMES.people.seo.en));
+  usePageMeta(L(GAMES.people.name), T('কৃষকদের সাথে পরিচয়: বাংলাদেশের সাত বিভাগের ৭ জন ৩ডি কৃষক ও তাঁদের সন্তান, এবং তাঁদের প্রত্যেকের আবহাওয়া-ভীতি।', GAMES.people.seo.en));
   const host = useRef(null), stage = useRef(null);
   const [i, setI] = useState(0);
   const [ready, setReady] = useState(false);
@@ -108,7 +108,7 @@ export default function People() {
   // Physiological stress computations for current action & farmer profile
   const curAct = ACTIONS.find((a) => a.id === activeAction) ?? ACTIONS[0];
   const ageFactor = f.age > 45 ? 1 + (f.age - 45) * 0.009 : 1;
-  const isFemale = ['rahima', 'rampyari', 'kinley', 'ellen', 'lucia'].includes(id);
+  const isFemale = ['rahima'].includes(id);
   const displayL4L5 = Math.round(curAct.l4l5 * ageFactor);
   const displayBpm = Math.min(180, Math.round(curAct.bpm * (f.age > 50 ? 1.08 : 1.0)));
   const displayKcal = Math.round(curAct.kcal * (isFemale ? 0.92 : 1.0));

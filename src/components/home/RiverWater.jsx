@@ -15,9 +15,6 @@ export const WATER = {
   wetlandBoardwalk: { flow: [0.15, 0.08], amp: 0.0025, e: [[0.5, 0.47, 0.17, 0.11, 1], [0.52, 0.89, 0.4, 0.1, 1]] },
   stonyRiver: { flow: [0.9, 0.5], amp: 0.0045, e: [[0.5, 0.79, 0.62, 0.28, 1]] },
   hillWaterfall: { flow: [0.2, 0.25], amp: 0.004, e: [[0.5, 0.93, 0.42, 0.1, 1]] },
-  viewBhutan: { flow: [0.6, 0.3], amp: 0.004, e: [[0.3, 0.76, 0.34, 0.25, 1], [0.62, 0.9, 0.22, 0.1, 1]] },
-  viewPakistan: { flow: [0.12, 0.04], amp: 0.0025, e: [[0.6, 0.78, 0.3, 0.06, 1]] },
-  viewAfghanistan: { flow: [0.15, 0.06], amp: 0.003, e: [[0.55, 0.62, 0.55, 0.16, 1]] },
 };
 export const hasWater = (name) => !!WATER[name];
 

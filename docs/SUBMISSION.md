@@ -49,9 +49,7 @@ Farmer requests, officer replies and alerts are currently local demo records; th
 endpoints return 503 until authenticated access and persistent storage are configured. Upazila officers see Ropon Radar,
 when the rains set in each year (GPM IMERG) and when Aman was actually transplanted (Sentinel-1 radar), for every
 upazila of seven districts; the rain-onset rule agrees with BMD station-based onsets within a week at three stations. The full engine
-covers seven upazilas, one in each division of Bangladesh. Sample farms in India, Pakistan, Nepal, Bhutan and Myanmar
-get ten-year rotation options on their SoilGrids soil estimate and their country's yields, with GRACE and SMAP water;
-sample farms in the USA, Brazil and Spain show the same farmer and officer pages with their own crops and weather.
+covers seven upazilas, one in each division of Bangladesh.
 
 Every number says what produced it: observed by a satellite, reported by a station, estimated by a model, a
 published record, a rule, AI, or sample. The weather (NASA POWER) and the soil (SoilGrids) are real data but model
@@ -92,7 +90,7 @@ The best rotation needs labour for tomato and jute; with "labour: short" entered
   in the low zone joined to the sea (LECZ v3), where floods drain slowly and, near the coast, salt comes in; cropland
   covers 31% (Sitakunda's hills) to 86% (Gangachara) of each upazila.
 - **It scales by re-running scripts, not rewriting code:** NASA POWER, IMERG, NEX-GDDP-CMIP6, SMAP, GRACE, SEDAC and
-  SoilGrids are global, so a new upazila or country is a data run. Five neighbouring countries already run on them.
+  SoilGrids are global, so a new upazila is a data run.
 
 ## How we know it works (validity)
 
@@ -175,7 +173,7 @@ or designs, the story, the video). Most commits so far are under one account.
 | NASA POWER daily point API (community AG): T2M_MAX, T2M_MIN, PRECTOTCORR, RH2M, ALLSKY_SFC_SW_DWN | 25-season backtest, rotation runs, scores, harvest timing, climate change "then vs now" | https://power.larc.nasa.gov |
 | NASA POWER monthly GWETROOT, GWETTOP (root-zone and surface soil wetness, NASA GMAO MERRA-2) | Rabi-season soil water 2002–2025 and its trend, beside each rotation's irrigation need | https://power.larc.nasa.gov |
 | NASA/JAXA GPM IMERG daily (IMERG_PRECTOT via POWER; GPM_3IMERGDF v07 at GES DISC) | Rain onset, June–July rain, drought/flood indices, rain cross-check | https://gpm.nasa.gov/data/imerg · https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGDF_07/summary |
-| NASA GRACE / GRACE-FO (JPL mascons, CRI) via NASA GIBS | Water stored on and under the land, yearly 2003–2021 (monthly Apr 2002 – Jul 2022), a regional average round each upazila and farm abroad | https://nasa-gibs.github.io/gibs-api-docs/ |
+| NASA GRACE / GRACE-FO (JPL mascons, CRI) via NASA GIBS | Water stored on and under the land, yearly 2003–2021 (monthly Apr 2002 – Jul 2022), a regional average round each upazila | https://nasa-gibs.github.io/gibs-api-docs/ |
 | NASA SMAP Level 4 root-zone soil moisture via NASA GIBS | This month's root-zone soil moisture against normal; a check on POWER's soil wetness | https://smap.jpl.nasa.gov |
 | NASA MODIS: MOD13Q1 250 m NDVI per registered field (ORNL DAAC), monthly NDVI and land surface temperature (GIBS) | Each field’s stressed Rabi seasons and its greenness against the area; bare months; ground heat; three statistical methods compared | https://modis.ornl.gov · https://nasa-gibs.github.io/gibs-api-docs/ |
 | NASA/USGS Landsat (WELD global monthly NDVI, 30 m, via GIBS) | Each field’s Rabi greenness in 1988–91 and 1998–2001 beside MODIS today | https://nasa-gibs.github.io/gibs-api-docs/ |
@@ -183,7 +181,6 @@ or designs, the story, the video). Most commits so far are under one account.
 | NASA GMAO MERRA-2 land evaporation (GIBS) | Monthly evapotranspiration beside the FAO-56 working | https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/ |
 | NASA NEX-GDDP-CMIP6 v2.0 | The 2040s for every rotation; each of the 8 models on its own for the robustness test | https://www.nccs.nasa.gov/services/data-collections/land-based-products/nex-gddp-cmip6 |
 | NASA GIBS, HLS (Harmonized Landsat Sentinel-2) | Satellite photos of the fields through the season | https://nasa-gibs.github.io/gibs-api-docs/ |
-| NASA FIRMS (neighbouring-country pages) | Fire detections | https://firms.modaps.eosdis.nasa.gov |
 | NASA SEDAC via NASA GIBS: GPW v4.11 population density 2020, LECZ v3 (land below 10 m), Global Agricultural Lands croplands 2000 | Each upazila's population density, low-lying land and cropland share, summarised from the gridded layers inside its boundary (home page "Who it is for") | https://sedac.ciesin.columbia.edu |
 | NASA Image and Video Library | The delta, the Sundarbans and Rupganj photographed from the Space Shuttle, the ISS and ASTER (home page) | https://images.nasa.gov |
 
@@ -200,7 +197,6 @@ or designs, the story, the video). Most commits so far are under one account.
 | FAOSTAT | Yields | https://www.fao.org/faostat |
 | geoBoundaries (BBS / OCHA) and GeoNames | Boundaries, unions, villages | https://www.geoboundaries.org · https://www.geonames.org |
 | NOAA NCEI / WMO climate normals 1991–2020 (BMD stations) | Station correction of POWER temperatures | https://www.ncei.noaa.gov/products/wmo-climate-normals |
-| ERA5 (Copernicus C3S, via Open-Meteo) | Neighbouring-country weather | https://open-meteo.com |
 | BBS Population and Housing Census 2022; BBS Agriculture Census 2019 | People in each upazila; farm households in Bangladesh | https://www.citypopulation.de/en/bangladesh/admin/ · https://bbs.gov.bd |
 
 Full list with dates and where each is used: [DATA_SOURCES.md](DATA_SOURCES.md).

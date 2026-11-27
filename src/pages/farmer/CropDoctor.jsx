@@ -18,6 +18,8 @@ import { num, bnDigits, fmtDate } from '../../engine/dates';
 import { bnOf } from '../../engine/text';
 import { clockText } from '../../engine/forecast';
 import SprayCheck from '../../components/fields/SprayCheck';
+import harvestModel from '../../data/models/harvest_model.json';
+import { harvestBrief } from '../../engine/harvestRecords';
 
 const THRESHOLD = 0.7;
 const MAX_SIDE = 1568; // cap upload size before the server-side image review
@@ -70,6 +72,7 @@ export default function CropDoctor() {
     weather: w ? { rain7: w.rain7 != null ? Math.round(w.rain7) : null, rainNext3: w.rainNext3 != null ? Math.round(w.rainNext3) : null, tmax: w.tmax ?? null, tmin: w.days?.[w.today]?.tmin ?? null } : null,
     sat: sat ? { d: sat.last.d, ndvi: sat.last.ndvi, ndmi: sat.last.ndmi, finding: sat.findings.find((f) => f.tone !== 'ok')?.en ?? null } : null,
     soil: soil?.ph != null ? { ph: soil.ph, om_pct: soil.om_pct, texture: soil.texture, drainage: soil.drainage } : null,
+    harvest: harvestBrief(harvestModel, crop), // FAOSTAT national record: context, not a reading of this field
     note: note.trim() || null,
   };
 

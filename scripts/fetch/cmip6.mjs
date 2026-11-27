@@ -35,12 +35,6 @@ const UPAZILAS = {
   godagari: [24.4667, 88.3306], dhamrai: [23.93, 90.14], dohar: [23.6063, 90.0882],
   keraniganj: [23.7015, 90.3224], nawabganj: [23.663, 90.1991], savar: [23.8859, 90.2906],
   sitakunda: [22.6167, 91.6667], dacope: [22.5726, 89.5115], bakerganj: [22.55, 90.3333], gangachara: [25.85, 89.2167], gowainghat: [25.105, 91.967],
-  // The sample farms of the neighbouring countries (src/data/abroad.js).
-  abroad_india: [30.26, 75.8], abroad_pakistan: [26.8, 67.72], abroad_nepal: [28.56, 81.1], abroad_bhutan: [27.5208, 89.8808], abroad_myanmar: [20.93, 94.864],
-  // Beyond South Asia. NEX-GDDP-CMIP6 longitudes run 0–360° east.
-  abroad_usa: [39.6475, 244.04],
-  abroad_brazil: [-12.60, 304.25],
-  abroad_spain: [37.72, 355.98],
 };
 const cellOf = ([lat, lon]) => [Math.floor(lat * 4) / 4 + 0.125, Math.floor(lon * 4) / 4 + 0.125];
 const CONC = Number(process.env.CMIP6_CONC ?? 8);
@@ -164,12 +158,9 @@ for (const [key, cell] of cells) {
 if (!Object.keys(out).length) { console.error('no complete cell yet'); process.exit(1); }
 // Each upazila's own cell, or (while a download is unfinished) the nearest complete one, which the file says.
 const nearest = (p) => Object.values(out).map((c) => c.cell).sort((a, b) => Math.hypot(a[0] - p[0], a[1] - p[1]) - Math.hypot(b[0] - p[0], b[1] - p[1]))[0].join(',');
-// A farm abroad never borrows: the nearest finished cell could be another country (Nevada's nearest was Myanmar's).
-// It is left out until its own cell is complete, and the page says the projection is still downloading.
 const upazilas = Object.fromEntries(Object.entries(UPAZILAS)
-  .filter(([id, p]) => out[cellOf(p).join(',')] || !id.startsWith('abroad_'))
   .map(([id, p]) => [id, out[cellOf(p).join(',')] ? cellOf(p).join(',') : nearest(p)]));
-const borrowed = Object.entries(UPAZILAS).filter(([id, p]) => !out[cellOf(p).join(',')] && !id.startsWith('abroad_')).map(([id]) => id);
+const borrowed = Object.entries(UPAZILAS).filter(([, p]) => !out[cellOf(p).join(',')]).map(([id]) => id);
 const json = {
   provenance: {
     status: 'REAL',

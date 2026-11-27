@@ -12,7 +12,6 @@ test('detectIntent identifies all agronomic and land intents', () => {
   assert.equal(detectIntent('আজকে জমিতে সেচ দেওয়া লাগবে?'), 'water_irrigation');
   assert.equal(detectIntent('গাছে পোকা ধরছে কী করব?'), 'pest_disease');
   assert.equal(detectIntent('সরকারি সার বা প্রণোদনা কার্ড কীভাবে পাব?'), 'support_scheme');
-  assert.equal(detectIntent('পাঞ্জাবের জমিতে গমের কী অবস্থা?'), 'abroad_field');
 });
 
 test('resolveParcel matches parcel ID or farmer context correctly', () => {
@@ -105,30 +104,6 @@ test('queryChakraLLM provides ICBM soil carbon & diesel savings metrics', () => 
   assert.ok(r.reply.includes('ডিজেল'));
 });
 
-test('queryChakraLLM answers international abroad queries accurately', () => {
-  const r = queryChakraLLM('পাঞ্জাবের কৃষিজমির আবহাওয়া ও স্যাটেলাইট কেমন?', {
-    role: 'farmer',
-    lang: 'bn',
-    place: { country: 'india' },
-  });
-  assert.ok(r);
-  assert.equal(r.intent, 'abroad_field');
-  assert.ok(r.reply.includes('ভারত'));
-  assert.ok(!r.reply.includes('INDIA'));
-  assert.ok(r.reply.includes('সেন্টিনেল'));
-  assert.ok(r.nav.includes('/abroad/india'));
-
-  const en = queryChakraLLM('How is the Punjab field weather and satellite condition?', {
-    role: 'farmer',
-    lang: 'en',
-    place: { country: 'india' },
-  });
-  assert.ok(en);
-  assert.equal(en.intent, 'abroad_field');
-  assert.ok(en.reply.includes('India'));
-  assert.ok(!/[\u0980-\u09ff]/.test(en.reply));
-});
-
 test('queryChakraLLM answers pass strict agronomic safety verification', () => {
   const r = queryChakraLLM('আজ জমিতে সেচ দেব কি?', {
     role: 'farmer',
@@ -206,13 +181,15 @@ test('queryChakraLLM provides NASA 25-year SPI drought & extreme rainfall hazard
 
 test('queryChakraLLM fallback RAG answers support and agronomic questions accurately', () => {
   // Query without explicit intent keyword triggers BM25 semantic RAG fallback
-  const r = queryChakraLLM('কৃষি আবহাওয়ার বৈজ্ঞানিক গবেষণা ও প্রজেকশন কেমন?', {
+  // (the old query here was answered by a neighbouring-country chunk, removed with that section)
+  const r = queryChakraLLM('খারাপ আবহাওয়ায় ফসল নষ্ট হলে বিমা পাওয়া যায়?', {
     role: 'farmer',
     lang: 'bn',
   });
   assert.ok(r);
   assert.ok(r.intent.startsWith('rag_'));
   assert.ok(r.reply.includes('আবহাওয়া'));
+  assert.ok(r.reply.includes('শস্যবিমা'), 'the weather-index crop insurance programme');
   assert.ok(r.tags.includes('RECORD'));
 });
 

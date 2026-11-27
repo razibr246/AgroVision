@@ -16,8 +16,7 @@ Objectives:
 3. A field officer can triage requests and send an approved advisory from the field.
 4. Works offline for the last synced field, plan and tasks; queues reports until the network returns.
 
-Out of scope for v1 (stays on the web app): the 3D farm game, `/science`, Field Future's full ten-year comparison,
-abroad pages. The mobile app links out to them.
+Out of scope for v1 (stays on the web app): the 3D farm game, `/science`, Field Future's full ten-year comparison. The mobile app links out to them.
 
 Real vs sample stays a product rule: every number keeps its tag (`SAT`, `STATION`, `MODEL`, `RECORD`, `RULE`, `AI`,
 `DEMO`), shown as a small chip on the card.
@@ -172,7 +171,7 @@ Dark mode: yes, follows the system; tokens above.
 - **Frontend:** feature folders (today, field, help, officer), a shared package for `src/engine/`, `src/voice/` and the
   data JSON, TanStack Query for server state, SQLite (WatermelonDB or op-sqlite) for the offline cache, Zustand for
   UI state, i18n through the same `T(bn, en)` pattern.
-- **Backend:** keep the existing Vercel functions (`plans`, `messages`, `abroad`, `doctor`, `agent`, `tts`,
+- **Backend:** keep the existing Vercel functions (`plans`, `messages`, `doctor`, `agent`, `tts`,
   `transcribe`). Add: `auth` (phone OTP), `devices` (push tokens), `reports` (upload photo/voice), `sync`.
   A database is needed because the web app's storage is demo-grade: Postgres (Neon or Supabase) with row-level security
   by role.

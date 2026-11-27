@@ -6,7 +6,7 @@
 //   Late blight (tomato, potato): the Hutton criteria (AHDB, 2017) - two consecutive days, each with a minimum of
 //     10 °C or more and at least 6 hours at 90% relative humidity or more.
 //   Wheat blast: warm, long-wet spells at heading - 25–30 °C with 10 hours or more of humidity at 90%+ (Cardoso et
-//     al. 2008, Plant Pathology; BARI wheat blast advisory), February–March only.
+//     al. 2008, Summa Phytopathologica, doi:10.1590/S0100-54052008000300002; BARI wheat blast advisory), February–March only.
 // A forecast is not a certainty; each warning says how many days ahead it falls.
 
 const hoursOf = (fc, date) => fc.hours.filter((h) => h.date === date);

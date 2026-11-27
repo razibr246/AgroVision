@@ -5,10 +5,9 @@ const oldUrl = process.env.KV_REST_API_URL;
 const oldToken = process.env.KV_REST_API_TOKEN;
 process.env.KV_REST_API_URL = 'https://redis.invalid';
 process.env.KV_REST_API_TOKEN = 'test-token';
-const [{ default: plans }, { default: messages }, { default: abroad }] = await Promise.all([
+const [{ default: plans }, { default: messages }] = await Promise.all([
   import('./plans.js?storage-test'),
   import('./messages.js?storage-test'),
-  import('./abroad.js?storage-test'),
 ]);
 if (oldUrl == null) delete process.env.KV_REST_API_URL;
 else process.env.KV_REST_API_URL = oldUrl;
@@ -28,7 +27,6 @@ function response() {
 for (const [name, handler, query] of [
   ['plans', plans, { season: '2027' }],
   ['messages', messages, {}],
-  ['abroad', abroad, {}],
 ]) {
   test(`${name} handler rejects malformed JSON as a client error`, async () => {
     const res = response();
@@ -49,7 +47,6 @@ test('persistent demo boards fail closed in production until account-level acces
       for (const [name, handler, query] of [
         ['plans', plans, { season: '2027' }],
         ['messages', messages, { to: 'RAHIM' }],
-        ['abroad', abroad, { cc: 'india' }],
       ]) {
         const res = response();
         await handler({ method: 'GET', query }, res);

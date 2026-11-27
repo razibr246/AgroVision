@@ -115,14 +115,15 @@ export function fieldWater({ crop, plantT, soil, area_dec, wx, today, reset = nu
   const now = trace[trace.length - 1];
   if (fieldCheck === 'wet') { Dr = 0; now.Dr = 0; }
   if (fieldCheck === 'dry' && Dr < now.RAW) { Dr = now.RAW; now.Dr = Dr; }
-  // Project the next 7 days on the forecast.
-  const ahead = [];
-  for (let i = iToday + 1; i < wx.days.length && ahead.length < 7; i++) {
+  // Project every forecast day (up to 16); the advice below reads the next 7, the irrigation planner all of them.
+  const horizon = [];
+  for (let i = iToday + 1; i < wx.days.length; i++) {
     const x = wx.days[i]; const before = trace.length;
     step(x, parseISO(x.d));
-    ahead.push(trace[before]);
+    horizon.push(trace[before]);
   }
-  trace.length -= ahead.length;
+  trace.length -= horizon.length;
+  const ahead = horizon.slice(0, 7);
   const hitIn = ahead.findIndex((a) => a.Dr >= a.RAW); // days until the crop starts to suffer
   const rainNext3 = ahead.slice(0, 3).reduce((a, x) => a + x.rain, 0);
   const share = now.Dr / now.RAW; // 1 = the crop starts to suffer today
@@ -134,7 +135,7 @@ export function fieldWater({ crop, plantT, soil, area_dec, wx, today, reset = nu
   const net = now.Dr; // mm to bring the root zone back to field capacity
   const area = area_dec * DEC_M2;
   return {
-    mode: 'balance', color, dToday, stage: faoStage(crop.id, dToday, days), now, ahead, hitIn, rainNext3, share, assumed, startT,
+    mode: 'balance', color, dToday, stage: faoStage(crop.id, dToday, days), now, ahead, horizon, hitIn, rainNext3, share, assumed, startT,
     lim, p, net, gross: net / FIELD_EFF, m3: (net / FIELD_EFF) * area / 1000, area_m2: area,
     rain7: trace.slice(-7).reduce((a, x) => a + x.rain, 0), et7: trace.slice(-7).reduce((a, x) => a + x.etc, 0),
     reasons: reasonsOf({ crop, color, now, hitIn, rainNext3, net, fieldCheck, trace }),

@@ -220,7 +220,7 @@ export default function BiomechanicsLab({ initialFarmer = 'razib' }) {
 
   const region = REGIONS[farmerId] ?? REGIONS.razib;
   const farmer = region.farmer;
-  const isFemale = ['rahima', 'rampyari', 'kinley'].includes(farmerId);
+  const isFemale = ['rahima'].includes(farmerId);
   const ageFactor = farmer.age > 45 ? 1 + (farmer.age - 45) * 0.009 : 1;
 
   const act = ACTIONS[actionId] ?? ACTIONS.transplant;

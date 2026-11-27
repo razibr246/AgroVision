@@ -258,11 +258,6 @@ const FACES = {
   kader: { brow: '#d5d0c8', iris: '#2b1b12', lid: '#1a110a', lip: '#965646', lipLo: '#af6a58', beard: '#efebe4', shade: '#885434', blush: '#bd6a52', browW: 8 },
   mofizul: { brow: '#1c1511', iris: '#301f14', lid: '#1b110a', lip: '#99594a', lipLo: '#b26e5e', beard: '#211a16', shade: '#94603e', blush: '#c26e52', stubble: true, browW: 8.5 },
   rahima: { brow: '#18120e', iris: '#2e190e', lid: '#140c07', lip: '#b34842', lipLo: '#cf635c', shade: '#a87854', blush: '#dc6d62', female: true, beautyMark: true, browW: 5.8 },
-  harjinder: { brow: '#15100c', iris: '#2f1c11', lid: '#180f09', lip: '#945344', lipLo: '#ad6756', beard: '#1d1714', shade: '#8a5635', blush: '#bf6c54', browW: 10 },
-  ghulam: { brow: '#201812', iris: '#2a1a10', lid: '#170e08', lip: '#8e4e3f', lipLo: '#a66050', beard: '#3a322c', shade: '#7a4e30', blush: '#b25f46', wrinkles: true, browW: 9 },
-  rampyari: { brow: '#1a130f', iris: '#2b170c', lid: '#160d07', lip: '#bf443e', lipLo: '#d85e56', shade: '#98623f', blush: '#dd6658', female: true, noseStud: true, browW: 6 },
-  kinley: { brow: '#1b1410', iris: '#2d1b11', lid: '#150d08', lip: '#b8524d', lipLo: '#d36c66', shade: '#a67652', blush: '#e86e68', female: true, himalayanCheeks: true, browW: 5.5 },
-  kyaw: { brow: '#241b16', iris: '#2c1c12', lid: '#160e09', lip: '#8c4e40', lipLo: '#a56252', beard: '#241b16', shade: '#966341', blush: '#bd6a50', wrinkles: true, browW: 7.5 },
 };
 function faceFor(look) {
   if (look.face && FACES[look.face]) return look.face;

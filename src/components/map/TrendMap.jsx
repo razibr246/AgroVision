@@ -1,6 +1,6 @@
 // Long-term trends on an interactive NASA Earth Observation telemetry map:
 // GRACE/GRACE-FO terrestrial water storage, MODIS NDVI Rabi greenness, SMAP L4 root-zone soil water,
-// across 7 Bangladesh division upazilas and 5 neighbouring-country agricultural basins.
+// across 7 Bangladesh division upazilas.
 // Pure data from engine/trends.js and water_sat.json with verifiable NASA GIBS provenance.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import leaflet from 'leaflet';
@@ -40,14 +40,6 @@ import { UPAZILAS } from '../../data/upazilas';
 import { num, bnDigits } from '../../engine/dates';
 import ws from '../../data/water/water_sat.json';
 
-const ABROAD = {
-  india: { bn: 'পাঞ্জাব, ভারত', en: 'Punjab, India', region: { bn: 'উত্তর ভারত সেচ অববাহিকা', en: 'North India Irrigated Basin' }, flag: '🇮🇳' },
-  pakistan: { bn: 'সিন্ধু, পাকিস্তান', en: 'Sindh, Pakistan', region: { bn: 'সিন্ধু নিম্ন অববাহিকা', en: 'Lower Indus Basin' }, flag: '🇵🇰' },
-  nepal: { bn: 'কৈলালী, নেপাল', en: 'Kailali, Nepal', region: { bn: 'তরাই সমভূমি এলাকা', en: 'Terai Lowland Basin' }, flag: '🇳🇵' },
-  bhutan: { bn: 'পুনাখা, ভুটান', en: 'Punakha, Bhutan', region: { bn: 'হিমালয় পর্বত উপত্যকা', en: 'Himalayan Mountain Valley' }, flag: '🇧🇹' },
-  myanmar: { bn: 'নিয়াং-উ, মিয়ানমার', en: 'Nyaung-U, Myanmar', region: { bn: 'মধ্য মিয়ানমার শুষ্ক বলয়', en: 'Central Dry Zone' }, flag: '🇲🇲' },
-};
-
 const BD_REGIONS = {
   godagari: { div: { bn: 'রাজশাহী · বরেন্দ্র ভূমি', en: 'Rajshahi · Barind Tract' }, flag: '🇧🇩' },
   dhamrai: { div: { bn: 'ঢাকা · কেন্দ্রীয় প্লাবনভূমি', en: 'Dhaka · Central Floodplain' }, flag: '🇧🇩' },
@@ -58,9 +50,9 @@ const BD_REGIONS = {
   gowainghat: { div: { bn: 'সিলেট · মেঘালয় পাদদেশ ও হাওর', en: 'Sylhet · Foothill Haor' }, flag: '🇧🇩' },
 };
 
-const PLACES = ['godagari', 'dhamrai', 'sitakunda', 'dacope', 'bakerganj', 'gangachara', 'gowainghat', ...Object.keys(ABROAD)];
+const PLACES = ['godagari', 'dhamrai', 'sitakunda', 'dacope', 'bakerganj', 'gangachara', 'gowainghat'];
 const at = (id) => UPAZILAS[id]?.center ?? ws.points[id]?.at;
-const ALL_BOUNDS = [[19.2, 66.5], [31.8, 97.5]];
+const ALL_BOUNDS = [[20.5, 88.0], [26.7, 92.7]]; // Bangladesh
 
 const SENSOR_SPECS = {
   grace: {
@@ -166,7 +158,6 @@ export default function TrendMap() {
 
   const [selectedId, setSelectedId] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
-  const [filterMode, setFilterMode] = useState('all'); // 'all', 'bd', 'abroad'
   const [sortMode, setSortMode] = useState('deficit'); // 'deficit', 'surplus', 'name'
   const [resetKey, setResetKey] = useState(0);
   const [showMethodology, setShowMethodology] = useState(false);
@@ -231,9 +222,9 @@ export default function TrendMap() {
   const year = data.years[i] ?? 2024;
   const prevYear = i > 0 ? data.years[i - 1] : null;
 
-  const name = useCallback((id) => (UPAZILAS[id] ? L(UPAZILAS[id].name) : L(ABROAD[id])), [L]);
-  const subName = useCallback((id) => (UPAZILAS[id] ? L(BD_REGIONS[id]?.div) : L(ABROAD[id]?.region)), [L]);
-  const flag = useCallback((id) => (UPAZILAS[id] ? BD_REGIONS[id]?.flag : ABROAD[id]?.flag), []);
+  const name = useCallback((id) => L(UPAZILAS[id].name), [L]);
+  const subName = useCallback((id) => L(BD_REGIONS[id]?.div), [L]);
+  const flag = useCallback((id) => BD_REGIONS[id]?.flag, []);
 
   const val = useCallback((id, y = year) => data.values[id]?.[y], [data.values, year]);
   const fmt = useCallback(
@@ -292,8 +283,6 @@ export default function TrendMap() {
   // Filtered & sorted places for the leaderboard
   const displayPlaces = useMemo(() => {
     let list = [...PLACES];
-    if (filterMode === 'bd') list = list.filter((id) => !!UPAZILAS[id]);
-    else if (filterMode === 'abroad') list = list.filter((id) => !UPAZILAS[id]);
 
     return list.sort((a, b) => {
       const va = val(a);
@@ -311,7 +300,7 @@ export default function TrendMap() {
       // Alphabetical
       return name(a).localeCompare(name(b));
     });
-  }, [filterMode, sortMode, val, name]);
+  }, [sortMode, val, name]);
 
   // Selected place historical trajectory (for inspection HUD)
   const selectedTrajectory = useMemo(() => {
@@ -764,37 +753,6 @@ export default function TrendMap() {
             <span className="text-[11.5px] font-semibold text-muted tabular">
               {T(`${bnDigits(year)} সাল`, `${year}`)}
             </span>
-          </div>
-
-          {/* Filter Pills */}
-          <div className="mt-2 flex items-center gap-1 text-[11.5px]">
-            <button
-              type="button"
-              onClick={() => setFilterMode('all')}
-              className={`rounded-lg px-2.5 py-1 font-semibold transition-colors ${
-                filterMode === 'all' ? 'bg-primary-800 text-white shadow-2xs' : 'text-muted hover:bg-black/5'
-              }`}
-            >
-              {T('সকল (১২)', 'All (12)')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterMode('bd')}
-              className={`rounded-lg px-2.5 py-1 font-semibold transition-colors ${
-                filterMode === 'bd' ? 'bg-primary-800 text-white shadow-2xs' : 'text-muted hover:bg-black/5'
-              }`}
-            >
-              {T('বাংলাদেশ (৭)', 'BD (7)')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilterMode('abroad')}
-              className={`rounded-lg px-2.5 py-1 font-semibold transition-colors ${
-                filterMode === 'abroad' ? 'bg-primary-800 text-white shadow-2xs' : 'text-muted hover:bg-black/5'
-              }`}
-            >
-              {T('প্রতিবেশী (৫)', 'Abroad (5)')}
-            </button>
           </div>
 
           {/* Sort Toggles */}

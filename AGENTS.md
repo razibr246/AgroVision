@@ -1,9 +1,15 @@
 # Repository Guidelines
 
-AgroVision: a NASA Space Apps 2026 crop-rotation decision tool for Bangladeshi smallholders and agriculture
+Agros: a NASA Space Apps 2026 crop-rotation decision tool for Bangladeshi smallholders and agriculture
 officers. A Vite + React 19 single-page app (HashRouter, Tailwind v4, recharts, Leaflet/MapLibre) that computes
 everything in the browser from committed data; `README.md` maps each line of the challenge statement to a page.
-This is the one guide for every coding agent (`CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` point here).
+This is the one guide for every coding agent, in the open [AGENTS.md](https://agents.md) format. Edit this file, not the
+pointers: `CLAUDE.md` and `GEMINI.md` import it, `.github/copilot-instructions.md` links to it, `.gemini/settings.json`
+and `.aider.conf.yml` load it, and Codex, Cursor and other AGENTS.md-aware tools read it directly. The nearest
+AGENTS.md to the file being edited wins: `services/voice-agent/AGENTS.md` applies inside that folder. An instruction
+in the chat overrides both. When you learn something every agent needs (a command, a trap, a rule), add it here.
+The product name lives in `src/config/brand.js` (`PROJECT_NAME`, `PROJECT_NAME_PARTS`); use it rather than typing
+the name, and note that renaming changes `STORAGE_PREFIX`, so saved demo state starts fresh.
 
 ## Commands
 
@@ -16,6 +22,7 @@ node --test --test-name-pattern="weights" src/engine/engine.test.js    # one tes
 npm run build && npm run preview     # production build in dist/, served locally
 npm run build:single                 # inline app JS/CSS in dist-single/index.html; worker and public assets stay alongside it
 npm run                              # list fetch:*, data:*, photos:* and train:* scripts (index in scripts/README.md)
+bash scripts/refresh-data.sh         # daily data refresh + retrain (keys from .env.local)
 ```
 
 Needs Node 18 or newer. There is no linter or formatter. `npm test` plus `npm run build` is the validation path; for UI
@@ -27,11 +34,10 @@ added there.
 
 ## Layout
 
-- `src/App.jsx`: routes, every page lazy-loaded; four groups with their own layout in `src/layouts/`: public (`/`,
-  `/stories`, games), `/farmer/*`, `/officer/*`, `/abroad/:cc/*` (India, Pakistan, Nepal, Bhutan, Myanmar, and beyond South Asia the USA, Brazil and Spain; `WORLD` in
-  `data/abroad.js` marks those, built one at a time with `python3 scripts/build/build_neighbours.py usa`). A new country
-  also needs its points in `scripts/fetch/{cmip6,gibs-land,gibs-water}.mjs` (the GIBS ones read every `abroad/*.json`),
-  a game character in `game/{regions,places,dream}.js` and `TONE` in `FarmGame.jsx`.
+- `src/App.jsx`: routes, every page lazy-loaded; three groups with their own layout in `src/layouts/`: public (`/`,
+  `/stories`, games), `/farmer/*` and `/officer/*`. The app covers Bangladesh only: the neighbouring-country and
+  "beyond South Asia" section (`/abroad/:cc`) was removed on purpose, with its data, API, game farmers and scripts;
+  do not bring it back unless asked.
 - `src/store.jsx`: one context holds the selected farmer, field, priorities, requests and officer context, and derives
   the season decision (`engine/decision.js`), rotation (`engine/rotation.js`), field water and hotspots. NASA POWER
   climate per upazila loads lazily (`loadClimate(id)`) and is corrected to BMD station normals. The exported `clim` and
@@ -45,7 +51,7 @@ added there.
   feasible rotation for ten years (ICBM soil carbon, FAO-56 water, NRCS soil health), `rank()` re-weights by the
   farmer's priorities, `climateLedger` does IPCC paddy methane, `modelTest` the 40-future ensemble.
 - `src/data/`: grouped by kind (`climate/`, `water/`, `land/`, `soil/`, `radar/`, `fields/`, `market/`, `region/`,
-  `media/`, `abroad/`, `geo/`, `models/`, `support/`) plus the data modules (`upazilas.js`, `demo.js`, `stories.js` ...);
+  `media/`, `geo/`, `models/`, `support/`) plus the data modules (`upazilas.js`, `demo.js`, `stories.js` ...);
   see `src/data/README.md`.
   Seven upazilas, one per division (`UPAZILAS`); `stories.js` `LEVELS` fixes their order everywhere.
   The build keeps only the series listed in `CLIMATE_IN_APP` (`vite.config.js`) from each `climate_*.json`; a new
@@ -55,7 +61,7 @@ added there.
   Moving a script changes its depth, so check its `ROOT` path and relative imports. The crop-stress model is generated
   too: `npm run train:stress` (`scripts/build/train_stress_model.mjs`) writes `src/data/models/stress_model.json`,
   which `src/engine/stressModel.js` reads for `/science#ml`. Its skill is reported per place, as measured.
-- `api/`: Vercel functions. `plans`, `messages` and `abroad` are demo boards: hosted/production builds return 503 for
+- `api/`: Vercel functions. `plans` and `messages` are demo boards: hosted/production builds return 503 for
   them (`api/runtime.js`) until real server-side auth exists; do not remove that guard without it. `vite.config.js`
   serves in-memory copies in dev only.
   The AI endpoints (`doctor`, `agent`, `tts`, `transcribe`) share `api/body.js`, `api/rateLimit.js` (Upstash,
@@ -68,8 +74,7 @@ added there.
   AI answer is checked against the app data it was sent by `src/engine/replyCheck.js` (rule ids such as `R1_RAIN_OFFSET`,
   `R3_OWN_DOSE`), asked for once more if it fails, then repaired; new rules go there with a test. Anything sent in the office's
   name needs an officer's approval in every mode; keep it that way.
-- Government support (`/farmer/support`, and `/abroad/:cc/support` for every neighbouring country from
-  `src/data/support/abroad_support.js`): the programmes are hand-entered records in
+- Government support (`/farmer/support`): the programmes are hand-entered records in
   `src/data/support/` (each with its source URL and the `CHECKED` date; re-check them, never guess a figure), matched
   to the farmer's land, crops, water and place by `src/engine/support.js`. A pilot, announced or ended programme is never
   shown as a plain yes. The question box's score on `src/data/support/ask_eval.js` is a floor in the tests: add a
@@ -96,6 +101,22 @@ added there.
   SoilGrids soil, so `soil.tested` is set and pH / organic matter / N are measured; code that says "estimate, not a
   soil test" must check `soil.tested`. The spray check (`engine/spray.js`, `components/fields/SprayCheck.jsx`) reads
   the live forecast; its limits are in `docs/THRESHOLDS.md`.
+- The two-week field plan on Today (`components/fields/ClimateSmartPlan.jsx`) reads the 16-day Open-Meteo forecast:
+  `engine/irrigationPlan.js` picks watering days by stochastic dynamic programming on the FAO-56 balance
+  (`fieldWater().horizon`) and checks rain before a urea top-dress; `engine/heatWatch.js` lays the crop heat rules over
+  the forecast. `engine/federated.js` (FedAvg, secure aggregation, DP) runs on generated DEMO farms on `/science#federated`;
+  never present it as trained on real pest records. Their weights and assumptions are in `docs/THRESHOLDS.md`; tests in
+  `src/engine/climateSmart.test.js`.
+- Harvest records (`/science#harvest`): FAOSTAT national yields per crop (`npm run data:harvest`), each year judged good
+  or bad against the crop's own trend, and six models scored leaving one year out (`npm run train:harvest`). Show the
+  scores as measured (they are modest: national yields swing on more than weather); `engine/harvestRecords.js` `harvestBrief`
+  feeds the Chakra knowledge base and the crop doctor's prompt. `src/data/harvest/harvest_dataset.csv` is SYNTHETIC
+  starter rows, never used for a score.
+- Colab training (`notebooks/agros_colab_training.ipynb`): harvest models (10 ML + 1D-CNN/GRU, leave one year out, with a
+  crop-only floor and a shuffled-label check), a tomato image model for the crop doctor (trained on PlantVillage, scored
+  on PlantDoc field photos) and BM25 against multilingual embeddings on `scripts/build/chakra_retrieval_eval.json`.
+  `npm run colab:data` writes its inputs to `notebooks/data/`; rerun it after retraining. Its results go to
+  `src/data/models/colab/` as measured; the retrieval floor is tested in `src/engine/chakraRetrieval.test.js`.
 - `src/voice/brain.js` answers voice and SMS from the same engine numbers; `services/voice-agent/` is a separate
   project with its own guide. After editing `src/voice/{bn,lexicon,brain}.js`, run `npm run sync:voice`; the copies in
   `services/voice-agent/lib/agent/field/shared/` are generated, never edit them. `public/radar/` is the original Ropon
@@ -106,8 +127,8 @@ added there.
   `components/farmer/SimpleFarmerDashboard.jsx`; a change to the farmer home usually needs both.
   Every Leaflet map needs `<StopOnLeave />` (`map/StopOnLeave.jsx`, already inside `MapFrame`); without it, a
   zoom animation still running when the page changes throws `_leaflet_pos` / `getZoom` errors after the map is gone.
-- `src/game/`: Harvest Horizon (ফসলের দিগন্ত; comments still say মাঠের মানুষ), the 3D farm game for 15 farmers across
-  nine countries (three.js in `game/three/`). Its simulation (`sim.js`) and story campaign (`saga.js`) are pure and
+- `src/game/`: Harvest Horizon (ফসলের দিগন্ত; comments still say মাঠের মানুষ), the 3D farm game for the seven
+  Bangladesh farmers, one per division (three.js in `game/three/`). Its simulation (`sim.js`) and story campaign (`saga.js`) are pure and
   tested like the engine; keep rendering out of them. `three/stage.js` runs the loop through `renderer.setAnimationLoop`
   (WebXR needs it), so an exception in a frame stops the game rather than being skipped; AR/VR starts there, with rules
   in `three/xr.js` / `xrlogic.js`. People (`three/people.js`, `realPeople.js`; farmers and villagers) are built facing
@@ -120,6 +141,12 @@ added there.
 
 ## Rules of this project
 
+- Finding NASA data: search the catalogue first with `npm run find:nasa -- <words>` (data.nasa.gov, NASA's dataset
+  index; it links to where each dataset is hosted). Then write a fetch script for that host under `scripts/fetch/`,
+  add it to `scripts/refresh-data.sh` if its source keeps publishing, and record it in `docs/DATA_SOURCES.md`.
+  Keys: `NASA_API_KEY` (api.nasa.gov) and `EARTHDATA_TOKEN` live in `.env.local` (git-ignored; `refresh-data.sh`
+  loads it) and as GitHub repository secrets for the daily Action. Read them from `process.env` in scripts only; never
+  put a key in a committed file, in `src/` or behind a `VITE_` prefix.
 - Real vs sample is a product rule: climate, rain, radar, soil, prices and yields are real; farmers, requests and the
   register's owners are sample. Every number carries a `<Tags list={[...]} />` label saying what produced it (`SAT`,
   `STATION`, `MODEL`, `RECORD`, `RULE`, `AI`, `DEMO`); NASA POWER weather and SoilGrids soil are `MODEL` (real data,
@@ -128,6 +155,8 @@ added there.
 - Never invent evidence. `docs/USER_TESTING.md` (filled from the `/testkit` export) and `docs/REVIEW_LOG.md` record
   only real sessions and real reviewers; claims in `docs/SUBMISSION.md` and `docs/EVIDENCE.md` must trace to a file
   or script. When something needs people, credentials or an expert, build the tooling and say what is missing.
+- The redesign of the public, farmer and officer pages toward Congress Day (26 Dec 2026) follows
+  `docs/REDESIGN_PLAN.md` one step at a time; tick a step only when its check passes.
 - Before changing behaviour, check `docs/THRESHOLDS.md` (crop thresholds), `docs/DATA_SOURCES.md` (update it when
   data changes), `docs/RADAR.md` (onset rule), `docs/VOICE.md` and `docs/MERGE.md`; for API or deployment work,
   `docs/SECURITY.md`.

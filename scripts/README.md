@@ -4,12 +4,30 @@ Every script that makes the app's data and photos. The app itself never runs the
 build needs no network. Raw downloads are kept in `.cache/` (git-ignored) so a second run is fast. Where each dataset
 comes from is in [docs/DATA_SOURCES.md](../docs/DATA_SOURCES.md).
 
+## Training on Google Colab
+
+`npm run colab:data` (`build/export_colab_data.mjs`) writes `notebooks/data/`: the harvest model's own table with a
+12-month weather sequence per crop-year (`build/train_harvest_model.mjs --export`), the Chakra knowledge base's
+retrieval chunks, and the hand-written retrieval questions (`build/chakra_retrieval_eval.json`). Open
+`notebooks/agros_colab_training.ipynb` in Colab (T4 GPU) and run it top to bottom; it clones the repo or asks you to
+upload those three files.
+
+## Keeping the data current
+
+`bash scripts/refresh-data.sh` re-fetches every dataset whose source keeps publishing (NASA POWER climate and soil
+wetness, MODIS and MERRA-2 via GIBS, GRACE/SMAP, DAM prices, the Sentinel field watch, Aman radar, rain onset),
+retrains the stress model and the Chakra knowledge base, and syncs the voice copies. `full` adds the long MODIS
+per-field and South Asia trend pulls. Fixed releases (SoilGrids, SRTM, CMIP6, historical Landsat, boundaries) are left
+alone. The GitHub Action `.github/workflows/refresh-data.yml` runs it every day at 03:30 Dhaka time, then the tests and
+the build, and opens a pull request with the new data; it can also be started by hand from the Actions tab. Keys come from `.env.local` locally (loaded by the script) and from the repository secrets `NASA_API_KEY` and `EARTHDATA_TOKEN` in the Action; with `EARTHDATA_TOKEN` set, the Giovanni rain check runs too. To find a new NASA dataset, `npm run find:nasa -- <words>` searches data.nasa.gov.
+The live forecast and the Sentinel-2 pictures on the Today page are fetched in the browser, so they are always current.
+
 | Folder | What is in it |
 | --- | --- |
 | `fetch/` | Downloads from NASA and others, written straight into `src/data/` (Node, no login unless noted) |
 | `build/` | Rebuilds boundaries, places, land use, soil, prices, field watch and the radar from public sources (Python and Node; [build/README.md](build/README.md)) |
 | `onset/` | The rain-onset rule (`onset.mjs`, also used by the app's tests) and its check against BMD station onsets |
-| `photos/` | Photo tools in Python: the upscaler, the neighbouring-country photos, NASA images ([photos/README.md](photos/README.md)) |
+| `photos/` | Photo tools in Python: the upscaler, NASA images ([photos/README.md](photos/README.md)) |
 | `lib/` | Shared helpers: NASA GIBS image decoding (`gibs.mjs`) |
 | `sync-voice.mjs` | Copies the voice brain into `services/voice-agent` |
 
@@ -29,7 +47,6 @@ comes from is in [docs/DATA_SOURCES.md](../docs/DATA_SOURCES.md).
 | `fetch:earth` | `fetch/earth-globe.mjs` | NASA Blue Marble, VIIRS Black Marble and one day of VIIRS true-colour clouds through NASA GIBS, for the Science page globe: `public/textures/earth/` (pass a date to pick the cloud day) |
 | `fetch:sedac` | `fetch/sedac.mjs` | NASA SEDAC density, low coast, cropland per upazila, `src/data/region/sedac.json` |
 | `fetch:giovanni` | `fetch/giovanni.mjs` | NASA Giovanni IMERG monthly rain check, `src/data/climate/giovanni.json` (needs `EARTHDATA_TOKEN` in `.env.local`) |
-| `fetch:neighbours` | `build/build_neighbours.py` | The five neighbouring-country farms, `src/data/abroad/` |
 | `data:build` | `build/build_godagari_*.py`, `build/build_bangladesh_crops.py` | Boundaries, places, land use, national crop map, `src/data/geo/` |
 | `data:soil` | `build/build_soil.py` | ISRIC SoilGrids per union and field, `src/data/soil/` |
 | `data:field-shapes` | `build/sample_field_shapes.mjs` | Sample outlines for the demo fields: a real field's edge in the Esri photo near each pin (found by `src/engine/fielddetect.js`, or hand-traced in `build/sample_field_traces.json`), `src/data/fields/sample_shapes.json`. `--debug <dir>` writes each photo with the outline and a pixel grid |
@@ -42,7 +59,6 @@ comes from is in [docs/DATA_SOURCES.md](../docs/DATA_SOURCES.md).
 | `data:onset-bmd` | `onset/compare_bmd.mjs` | The onset rule against BMD station onsets, `src/data/radar/onset_validation.json` |
 | `data:smap-check` | `build/check_smap_power.mjs` | SMAP L4 against POWER root-zone wetness, per upazila (prints r; writes nothing) |
 | `data:events` | `build/check_events.mjs` | Documented Boro disasters against the app's NASA signals at the nearest upazila, `src/data/climate/event_check.json` |
-| `photos:abroad` | `photos/abroad_photos.py` | Neighbouring-country photos, `src/assets/images/abroad/` |
 | `photos:nasa` | `photos/nasa_images.py` | NASA Image and Video Library photos, `src/assets/images/nasa/`, `src/data/media/nasa_images.json` |
 | `photos:cards` | `photos/game_cards.py` | The two real game-card pictures on the play hub: a CC BY-SA farmer photo from Wikimedia Commons and NASA Terra MODIS true colour of Bangladesh (GIBS), `src/assets/images/{season-showdown,seven-fields}-*.webp` |
 | `sync:voice` | `sync-voice.mjs` | The voice brain, into `services/voice-agent/` |

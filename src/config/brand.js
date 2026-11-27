@@ -2,11 +2,11 @@
 // Change PROJECT_NAME here and every logo, title, footer, page heading and the HTML <title>/meta update.
 // (vite.config.js reads this file to fill %PROJECT_NAME% and %PROJECT_DESCRIPTION% in index.html.)
 
-export const PROJECT_NAME = 'AgroVision';
+export const PROJECT_NAME = 'Agros';
 export const PROJECT_TEAM = 'BRM AstraX Team';
 
-// The logo sets "Agro" in the primary ink and "Vision" in the accent colour.
-export const PROJECT_NAME_PARTS = { main: 'Agro', accent: 'Vision', space: false };
+// The logo sets "Agro" in the primary ink and "s" in the accent colour.
+export const PROJECT_NAME_PARTS = { main: 'Agro', accent: 's', space: false };
 
 export const PROJECT_TAGLINE = {
   bn: 'এই রবিতে কী লাগাবেন, পরের মৌসুমে কী — জমির পাশে থেকে হিসাব',

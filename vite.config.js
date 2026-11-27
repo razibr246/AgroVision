@@ -77,41 +77,13 @@ const devMessagesApi = () => ({
   },
 });
 
-// npm run dev: an in-memory stand-in for api/abroad.js (same checks), so the neighbouring countries' farmer requests,
-// officer replies and advisories can be tried across two tabs.
-const devAbroadApi = () => ({
-  name: 'dev-abroad-api',
-  apply: 'serve',
-  configureServer(server) {
-    const boards = new Map(); // country -> { requests, notices }
-    server.middlewares.use('/api/abroad', async (req, res) => {
-      const { applyOp, listBoard, validCountry } = await import('./api/abroad.js');
-      const { seedAbroadBoard } = await import('./src/data/abroad_requests.js');
-      const send = (code, body) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json'); res.setHeader('Cache-Control', 'no-store'); res.end(JSON.stringify(body)); };
-      const boardOf = (cc) => { if (!boards.has(cc)) boards.set(cc, seedAbroadBoard(cc)); return boards.get(cc); };
-      if (req.method === 'GET') {
-        const cc = new URL(req.url, 'http://x').searchParams.get('cc') || '';
-        return validCountry(cc) ? send(200, listBoard(boardOf(cc))) : send(400, { error: 'bad country' });
-      }
-      if (req.method !== 'POST') return send(405, { error: 'method not allowed' });
-      let raw = '';
-      for await (const c of req) raw += c;
-      let body;
-      try { body = JSON.parse(raw || '{}'); } catch { return send(400, { error: 'bad json' }); }
-      if (!validCountry(body.cc)) return send(400, { error: 'bad country' });
-      const out = applyOp(boardOf(body.cc), body);
-      return out.error ? send(400, { error: out.error }) : send(200, { ok: true, item: out.item });
-    });
-  },
-});
-
 // npm run dev: serves api/doctor.js and api/agent.js themselves (the real AI call), reading GEMINI_API_KEY (or ANTHROPIC_API_KEY) from .env.local.
 // Without a key it answers 503, just like the deployed function, and the page says the AI doctor is off.
 const devDoctorApi = (env) => ({
   name: 'dev-doctor-api',
   apply: 'serve',
   configureServer(server) {
-    for (const k of ['GEMINI_API_KEY', 'GEMINI_MODEL', 'GEMINI_AGENT_MODEL', 'GEMINI_TTS_MODEL', 'GEMINI_TTS_VOICE', 'GEMINI_TTS_VOICE_BN', 'GEMINI_TTS_VOICE_EN', 'ANTHROPIC_API_KEY', 'GROQ_API_KEY']) if (env[k] && !process.env[k]) process.env[k] = env[k];
+    for (const k of ['GEMINI_API_KEY', 'GEMINI_API_KEYS', 'GEMINI_MODEL', 'GEMINI_AGENT_MODEL', 'GEMINI_DEEP_MODEL', 'GEMINI_TTS_MODEL', 'GEMINI_TTS_VOICE', 'GEMINI_TTS_VOICES_BN', 'GEMINI_TTS_VOICE_BN', 'GEMINI_TTS_VOICE_EN', 'ANTHROPIC_API_KEY', 'ANTHROPIC_DEEP_MODEL', 'GROQ_API_KEY', 'HF_TOKEN', 'HF_AGENT_MODEL', 'META_API_KEYS', 'META_AGENT_MODEL', 'AGENT_PROVIDER_HEDGE_MS']) if (env[k] && !process.env[k]) process.env[k] = env[k];
     // api/agent.js (Chakra Agent), api/tts.js (its natural voice) and api/transcribe.js (call notes, also GROQ_API_KEY)
     // are served the same way, with the same keys.
     for (const name of ['doctor', 'agent', 'tts', 'transcribe']) server.middlewares.use(`/api/${name}`, async (req, res) => {
@@ -179,7 +151,7 @@ const manualChunks = (id) => {
 };
 
 export default defineConfig(({ mode }) => ({
-  plugins: [slimClimate(), react(), tailwindcss(), brandHtml(), preloadFirstPaint(), dropGitHistory(), devPlansApi(), devMessagesApi(), devAbroadApi(), devDoctorApi(loadEnv(mode, process.cwd(), '')), ...(mode === 'single' ? [viteSingleFile()] : [])],
+  plugins: [slimClimate(), react(), tailwindcss(), brandHtml(), preloadFirstPaint(), dropGitHistory(), devPlansApi(), devMessagesApi(), devDoctorApi(loadEnv(mode, process.cwd(), '')), ...(mode === 'single' ? [viteSingleFile()] : [])],
   base: './',
   build: mode === 'single'
     ? { outDir: 'dist-single', chunkSizeWarningLimit: 6000 }

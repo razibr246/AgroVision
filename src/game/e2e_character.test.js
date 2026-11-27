@@ -1,6 +1,6 @@
 /**
  * Comprehensive E2E Test Suite for 3D Character Anatomy, Attire, Rigging & Farm Gameplay
- * Covers all 12 authentic regional characters in AgroVision ("ফসলের দিগন্ত")
+ * Covers all 12 authentic regional characters in Agros ("ফসলের দিগন্ত")
  * 
  * Tiers:
  * - Tier 1: Feature Coverage (5+ tests per feature across F01-F20 = 100 tests)
@@ -54,7 +54,7 @@ import { createGame, update, act, buy, emote, ripeAt, plotAt, target, STATIONS }
 import { expressionFromState, idleGaze, blink, ageStoop } from '../engine/motion.js';
 import { createFallbackPerson, disposePerson } from './three/personModels.js';
 
-// Covers all 15 authentic regional farmer characters (7 Bangladesh + 8 International/Neighboring)
+// Covers all 7 regional farmer characters, one per division of Bangladesh
 const CHAR_IDS = FARMER_IDS;
 
 // Helper: build a character by id
@@ -95,7 +95,7 @@ test('Tier 1: F01 - Mouth lip geometry mesh exists with lip pigment material', (
 });
 
 test('Tier 1: F01 - Dynamic mouth scale Y increases during expressive mouthOpen states', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   stepAnim(p, { t: 1.0, speed: 0, act: null }, 5);
   const restingScaleY = p.mouth.scale.y;
   stepAnim(p, { t: 2.0, speed: 0, act: { type: 'cheer', p: 0.5, dur: 1.0 } }, 15);
@@ -103,7 +103,7 @@ test('Tier 1: F01 - Dynamic mouth scale Y increases during expressive mouthOpen 
 });
 
 test('Tier 1: F01 - Mouth vertical translation shifts downward during vocalization/effort', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   stepAnim(p, { t: 1.0, speed: 0 }, 5);
   const restingY = p.mouth.position.y;
   stepAnim(p, { t: 2.0, speed: 0, act: { type: 'cheer', p: 0.5, dur: 1.0 } }, 20);
@@ -111,7 +111,7 @@ test('Tier 1: F01 - Mouth vertical translation shifts downward during vocalizati
 });
 
 test('Tier 1: F01 - Mouth dimensions remain contained within facial boundary', () => {
-  for (const id of ['razib', 'rahima', 'harjinder', 'rampyari']) {
+  for (const id of ['razib', 'rahima', 'didarul']) {
     const p = getFarmer(id);
     animate(p, { t: 1.0, speed: 0 }, 1 / 60);
     assert.ok(p.mouth.position.z <= 0.125, `${id} mouth z does not pierce external perimeter`);
@@ -119,15 +119,15 @@ test('Tier 1: F01 - Mouth dimensions remain contained within facial boundary', (
 });
 
 // --- F02: Skinned Model Teeth Penetration Fix ---
-test('Tier 1: F02 - Folk manifest contains 15 rigged human characters', () => {
+test('Tier 1: F02 - Folk manifest contains the 7 rigged farmer characters', () => {
   const manifestPath = path.resolve('public/models/folk/manifest.json');
   assert.ok(fs.existsSync(manifestPath), 'manifest.json must exist');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  for (const id of ['razib', 'rahimu', 'didarul', 'prahlad', 'kader', 'mofizul', 'rahima', 'harjinder', 'ghulam', 'rampyari', 'kinley', 'kyawwin', 'ellen', 'caio', 'lucia']) assert.ok(manifest.people.includes(id), `${id}: all 15 sample farmers in manifest (villagers may follow)`);
+  for (const id of ['razib', 'rahimu', 'didarul', 'prahlad', 'kader', 'mofizul', 'rahima']) assert.ok(manifest.people.includes(id), `${id}: all 7 sample farmers in manifest (villagers may follow)`);
 });
 
 test('Tier 1: F02 - Every manifest character GLB file exists and exceeds 500KB', () => {
-  for (const id of ['harjinder', 'ghulam', 'rampyari', 'kinley', 'kyawwin']) {
+  for (const id of ['didarul', 'kader', 'rahima', 'mofizul']) {
     const glbPath = path.resolve(`public/models/folk/${id}.glb`);
     assert.ok(fs.existsSync(glbPath), `${id}.glb exists`);
     const st = fs.statSync(glbPath);
@@ -232,7 +232,7 @@ test('Tier 1: F03 - Nose lathe geometry exhibits outward-pointing face normals a
 });
 
 test('Tier 1: F03 - Nose lathe vertex normals maintain unit length 1.0 ± 1e-4 without pole degeneration', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   const noseMesh = p.cranial.children.find((c) => c.geometry && c.geometry.type === 'LatheGeometry');
   const norm = noseMesh.geometry.attributes.normal;
   const n = new THREE.Vector3();
@@ -291,7 +291,7 @@ test('Tier 1: F04 - Brow vertical translation lerps smoothly in animate()', () =
 });
 
 test('Tier 1: F04 - Spherical face texture projection mapping spans valid latitude domain', () => {
-  const p = getFarmer('kinley');
+  const p = getFarmer('rahima');
   let faceMesh = null;
   p.head.traverse((c) => { if (c.isMesh && c.material?.map) faceMesh = c; });
   assert.ok(faceMesh, 'painted face mesh exists');
@@ -307,7 +307,7 @@ test('Tier 1: F05 - Neck group attached to torso at y=0.55', () => {
 });
 
 test('Tier 1: F05 - Neck cylinder geometry spans between collar and jaw base', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   let neckCyl = null;
   p.neck.traverse((c) => { if (c.isMesh && c.geometry.type === 'CylinderGeometry') neckCyl = c; });
   assert.ok(neckCyl, 'neck cylinder exists');
@@ -315,7 +315,7 @@ test('Tier 1: F05 - Neck cylinder geometry spans between collar and jaw base', (
 });
 
 test('Tier 1: F05 - Head group positioned at STYLE.aoY above neck pivot', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   assert.ok(p.head, 'p.head exists');
   assert.ok(p.head.parent === p.neck, 'head child of neck');
   assert.equal(p.head.position.y, STYLE.aoY, 'head placed at atlanto-occipital joint');
@@ -339,7 +339,7 @@ test('Tier 1: F05 - Zero gap between neck and head across extreme pitch angles',
 
 // --- F06: Dynamic Lower Garment Stride Deformation ---
 test('Tier 1: F06 - Skirt group exists under hips for all lower-garment characters', () => {
-  for (const id of ['rahimu', 'rahima', 'harjinder', 'rampyari', 'kinley', 'kyawwin']) {
+  for (const id of ['rahimu', 'rahima', 'didarul', 'mofizul']) {
     const p = getFarmer(id);
     assert.ok(p.skirtGroup, `${id} must have skirtGroup`);
     assert.ok(p.skirtGroup.parent === p.hips, `${id} skirtGroup child of hips`);
@@ -356,7 +356,7 @@ test('Tier 1: F06 - Skirt group dynamic sway oscillates with gait phase', () => 
 });
 
 test('Tier 1: F06 - Skirt billow increases with forward movement speed', () => {
-  const p = getFarmer('rampyari'); // ghagra
+  const p = getFarmer('rahima'); // ghagra
   stepAnim(p, { t: 1.0, speed: 0 }, 5);
   const idlePitch = p.skirtGroup.rotation.x;
   stepAnim(p, { t: 2.0, speed: 4.0, run: true }, 15);
@@ -364,7 +364,7 @@ test('Tier 1: F06 - Skirt billow increases with forward movement speed', () => {
 });
 
 test('Tier 1: F06 - Deceleration settle applies elastic inertia to skirt hem', () => {
-  const p = getFarmer('kinley'); // kira
+  const p = getFarmer('rahima'); // kira
   animate(p, { t: 1.0, speed: 4.0 }, 1 / 60);
   animate(p, { t: 1.05, speed: 0.5 }, 1 / 60); // sharp braking
   assert.ok(typeof p.skirtGroup.rotation.x === 'number', 'skirt pitch remains valid during braking');
@@ -380,7 +380,7 @@ test('Tier 1: F06 - Lungi fold maintains clearance above knees during stride', (
 
 // --- F07: Suppress Hidden Leg Vertices Under Full Skirts ---
 test('Tier 1: F07 - Full skirt characters have skirted = true', () => {
-  for (const id of ['rahima', 'rampyari', 'kinley', 'kyawwin']) {
+  for (const id of ['rahima']) {
     const l = REGIONS[id].farmer.look;
     const skirted = l.lower === 'ghagra' || l.lower === 'kira' || l.lower === 'longyi' || l.lower === 'sari';
     assert.equal(skirted, true, `${id} in ${l.lower} is skirted`);
@@ -393,43 +393,12 @@ test('Tier 1: F07 - Rahima (sari) suppresses direct thigh limb mesh', () => {
   assert.equal(directMeshes.length, 0, 'sari suppresses direct thigh mesh under skirt');
 });
 
-test('Tier 1: F07 - Kinley (kira) suppresses direct thigh limb mesh', () => {
-  const p = getFarmer('kinley');
-  const directMeshes = p.legs[0].thigh.children.filter((c) => c.isMesh);
-  assert.equal(directMeshes.length, 0, 'kira suppresses direct thigh mesh');
-});
-
-test('Tier 1: F07 - Rampyari (ghagra) suppresses direct thigh limb mesh', () => {
-  const p = getFarmer('rampyari');
-  const directMeshes = p.legs[0].thigh.children.filter((c) => c.isMesh);
-  assert.equal(directMeshes.length, 0, 'ghagra suppresses direct thigh mesh');
-});
-
-test('Tier 1: F07 - Trousered characters (Razib, Harjinder, Ghulam) retain thigh meshes', () => {
-  for (const id of ['razib', 'harjinder', 'ghulam']) {
-    const p = getFarmer(id);
-    const directMeshes = p.legs[0].thigh.children.filter((c) => c.isMesh);
-    assert.ok(directMeshes.length >= 1, `${id} retains direct thigh mesh`);
-  }
-});
-
-// --- F08: Kurta Hem & Lower Garment Alignment ---
 test('Tier 1: F08 - Kurta and kameez set longTop flag and coversWaist', () => {
-  for (const id of ['harjinder', 'ghulam', 'didarul', 'kader']) {
+  for (const id of ['didarul', 'kader']) {
     const l = REGIONS[id].farmer.look;
     const longTop = l.top === 'kurta' || l.top === 'kameez';
     assert.equal(longTop, true, `${id} top ${l.top} is longTop`);
   }
-});
-
-test('Tier 1: F08 - Harjinder (kurta + pyjama) has waistband pockets suppressed', () => {
-  const p = getFarmer('harjinder');
-  assert.equal(p.pockets, false, 'kurta covers waistband pockets');
-});
-
-test('Tier 1: F08 - Ghulam (kameez + shalwar) has waistband pockets suppressed', () => {
-  const p = getFarmer('ghulam');
-  assert.equal(p.pockets, false, 'kameez covers waistband pockets');
 });
 
 test('Tier 1: F08 - Razib (polo + cargo) allows waistband/cargo pockets', () => {
@@ -438,7 +407,7 @@ test('Tier 1: F08 - Razib (polo + cargo) allows waistband/cargo pockets', () => 
 });
 
 test('Tier 1: F08 - Kurta hem sway is coordinated with hips/skirt dynamics', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   animate(p, { t: 1.0, speed: 2.0 }, 1 / 60);
   assert.ok(p.skirtGroup.rotation.x !== 0 || p.skirtGroup.rotation.z !== 0, 'hem dynamics active');
 });
@@ -453,7 +422,7 @@ test('Tier 1: F09 - Both arms contain shoulder, elbow, and hand joint groups', (
 });
 
 test('Tier 1: F09 - Deltoid sphere mesh is sized proportionally to arm thickness AT', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   let deltoidFound = false;
   p.torso.traverse((c) => {
     if (c.isMesh && c.geometry.type === 'SphereGeometry' && (c.position.y > 0.45 || (c.parent && c.parent.position.y > 0.45))) deltoidFound = true;
@@ -482,33 +451,6 @@ test('Tier 1: F09 - Forward arm reach (water action) keeps arm chain unbroken', 
 });
 
 // --- F10: Headwear Geometry & Hair Dimension Corrections ---
-test('Tier 1: F10 - Harjinder Dastar turban mesh outer radius exceeds skull radius (0.135 > 0.118)', () => {
-  const p = getFarmer('harjinder');
-  let turbanMesh = null;
-  p.head.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'SphereGeometry' && c.position.y > 0.05) turbanMesh = c;
-  });
-  assert.ok(turbanMesh, 'turban mesh exists');
-  assert.ok(turbanMesh.geometry.parameters.radius >= 0.13, 'turban radius exceeds skull');
-});
-
-test('Tier 1: F10 - Ghulam Sindhi topi cylinder radius exceeds skull width (0.126 > 0.118)', () => {
-  const p = getFarmer('ghulam');
-  let topiMesh = null;
-  p.head.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'CylinderGeometry' && c.position.y > 0.05) topiMesh = c;
-  });
-  assert.ok(topiMesh, 'topi mesh exists');
-  assert.ok(topiMesh.geometry.parameters.radiusTop >= 0.124, 'topi radius exceeds skull');
-});
-
-test('Tier 1: F10 - Kyaw Win Gaung Baung headwrap geometry fits over cranial mesh', () => {
-  const p = getFarmer('kyawwin');
-  let wrapFound = false;
-  p.head.traverse((c) => { if (c.isMesh && c.position.y > 0.04) wrapFound = true; });
-  assert.ok(wrapFound, 'gaung baung wrap found');
-});
-
 test('Tier 1: F10 - Rahima Hijab covers skull without hair penetration', () => {
   const p = getFarmer('rahima');
   let hijabMesh = null;
@@ -518,30 +460,11 @@ test('Tier 1: F10 - Rahima Hijab covers skull without hair penetration', () => {
   assert.ok(hijabMesh, 'hijab wrap exists on head with radius >= 0.14');
 });
 
-test('Tier 1: F10 - Rampyari Orhni veil geometry surrounds head with clearance', () => {
-  const p = getFarmer('rampyari');
-  let orhniMesh = null;
-  p.head.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'SphereGeometry' && c.geometry.parameters.radius >= 0.14) orhniMesh = c;
-  });
-  assert.ok(orhniMesh, 'orhni veil mesh exists');
-});
-
-// --- F11: Multi-Part Garment Hierarchical Consolidation ---
 test('Tier 1: F11 - Hijab head wrap is attached as child of head hierarchy', () => {
   const p = getFarmer('rahima');
   let headHijab = false;
   p.head.traverse((c) => { if (c.isMesh) headHijab = true; });
   assert.ok(headHijab, 'hijab attached to head');
-});
-
-test('Tier 1: F11 - Orhni head veil is child of head while drape is child of torso', () => {
-  const p = getFarmer('rampyari');
-  let headOrhni = false, torsoOrhni = false;
-  p.head.traverse((c) => { if (c.isMesh && c.geometry.parameters?.radius >= 0.14) headOrhni = true; });
-  p.torso.traverse((c) => { if (c.isMesh && c.geometry.type === 'BoxGeometry' && c.position.z < 0) torsoOrhni = true; });
-  assert.ok(headOrhni, 'head orhni attached');
-  assert.ok(torsoOrhni, 'torso orhni attached');
 });
 
 test('Tier 1: F11 - Sari pallu ribbon geometry spans across chest, shoulder and back', () => {
@@ -553,15 +476,8 @@ test('Tier 1: F11 - Sari pallu ribbon geometry spans across chest, shoulder and 
   assert.ok(palluRibbon, 'sari pallu ribbon exists on torso');
 });
 
-test('Tier 1: F11 - Sindhi Ajrak shawl is draped across torso with shoulder fold', () => {
-  const p = getFarmer('ghulam');
-  let ajrakFound = false;
-  p.torso.traverse((c) => { if (c.isMesh && c.geometry.type === 'CylinderGeometry') ajrakFound = true; });
-  assert.ok(ajrakFound, 'ajrak shoulder fold exists');
-});
-
 test('Tier 1: F11 - Head rotation synchronously moves headwear without lag', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   animate(p, { t: 1.0, speed: 0, lookTarget: { x: 3, y: 1.4, z: 2 } }, 1 / 60);
   assert.ok(p.head.rotation.y !== 0, 'head turns to look');
 });
@@ -667,7 +583,7 @@ test('Tier 1: F14 - Pelvic bridge sphere is centered under hips at y = -0.105', 
 });
 
 test('Tier 1: F14 - Pelvic bridge width scaling covers bilateral thigh origins', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   assert.equal(p.legs[0].thigh.position.x, -(0.092 + (STYLE.legThick - 1) * 0.03));
   assert.equal(p.legs[1].thigh.position.x, +(0.092 + (STYLE.legThick - 1) * 0.03));
 });
@@ -680,7 +596,7 @@ test('Tier 1: F14 - Hip joint origins maintain symmetric spacing from sagittal p
 });
 
 test('Tier 1: F14 - Wide stance idle splay keeps thigh tops within pelvic sphere', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   animate(p, { t: 1.0, speed: 0 }, 1 / 60);
   assert.ok(p.legs[0].thigh.rotation.z !== 0, 'idle stance splay active');
 });
@@ -701,19 +617,19 @@ test('Tier 1: F15 - Head rotation distributes pitch between torso lean and head 
 });
 
 test('Tier 1: F15 - Heading anticipation adds turning lead to head.rotation.y', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   animate(p, { t: 1.0, speed: 2.0, turnRate: 2.0 }, 1 / 60);
   assert.ok(p.head.rotation.y !== 0, 'head anticipates turn');
 });
 
 test('Tier 1: F15 - Look-at IK clamps horizontal yaw within biomechanical limits (<= 1.05 rad)', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   animate(p, { t: 1.0, speed: 0, lookTarget: { x: 50, y: 1.4, z: 0 } }, 1 / 60);
   assert.ok(Math.abs(p.head.rotation.y) <= 1.05, `head yaw clamped (${p.head.rotation.y} <= 1.05)`);
 });
 
 test('Tier 1: F15 - Look-at IK clamps vertical pitch within physiological limits (<= 0.45 rad)', () => {
-  const p = getFarmer('kinley');
+  const p = getFarmer('rahima');
   animate(p, { t: 1.0, speed: 0, lookTarget: { x: 0, y: 50, z: 2 } }, 1 / 60);
   assert.ok(Math.abs(p.head.rotation.x) <= 0.45, `head pitch clamped (${p.head.rotation.x} <= 0.45)`);
 });
@@ -750,7 +666,7 @@ test('Tier 1: F16 - Spraying action activates knapsack tank and wand in right ha
 });
 
 test('Tier 1: F16 - Carrying state activates sack on back and adjusts arm strain posture', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   animate(p, { t: 1.0, speed: 1.5, carrying: true }, 1 / 60);
   assert.equal(p.tools.sack.visible, true, 'sack visible when carrying');
 });
@@ -940,7 +856,7 @@ test('Tier 2: F01 - Mouth scaling under zero delta time dt = 0', () => {
 });
 
 test('Tier 2: F01 - Rapid alternating mouth state changes (stress flutter)', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   for (let f = 0; f < 30; f++) {
     const cheer = f % 2 === 0;
     animate(p, { t: f * 0.05, speed: 0, act: cheer ? { type: 'cheer' } : null }, 1 / 60);
@@ -1092,7 +1008,7 @@ test('Tier 2: F04 - Eyebrow rendering with fallback hair color when undefined', 
 });
 
 test('Tier 2: F04 - Brow pivot stability during high-frequency dt pulses (dt = 0.001s)', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   for (let i = 0; i < 50; i++) animate(p, { t: i * 0.001, speed: 0 }, 0.001);
   assert.ok(!isNaN(p.brows[0].pivot.position.y));
 });
@@ -1149,7 +1065,7 @@ test('Tier 2: F06 - Sudden stop deceleration spike (accel = -100 m/s^2)', () => 
 });
 
 test('Tier 2: F06 - Rapid direction reversal (phase flip 0 to pi)', () => {
-  const p = getFarmer('rampyari');
+  const p = getFarmer('rahima');
   p.phase = 0;
   animate(p, { t: 1.0, speed: 2.0 }, 1 / 60);
   p.phase = Math.PI;
@@ -1158,13 +1074,13 @@ test('Tier 2: F06 - Rapid direction reversal (phase flip 0 to pi)', () => {
 });
 
 test('Tier 2: F06 - Maximum squat stride (act = soilcheck, K = 1.95 rad)', () => {
-  const p = getFarmer('kinley');
+  const p = getFarmer('rahima');
   stepAnim(p, { t: 1.0, speed: 0, act: { type: 'soilcheck', p: 0.5, dur: 1.0 } }, 20);
   assert.ok(p.legs[0].knee.rotation.x > 1.0);
 });
 
 test('Tier 2: F06 - Zero-speed idle settle (a < 0.02) dampens gait phase', () => {
-  const p = getFarmer('kyawwin');
+  const p = getFarmer('mofizul');
   animate(p, { t: 1.0, speed: 0 }, 1 / 60);
   assert.ok(p.phase !== undefined);
 });
@@ -1185,12 +1101,12 @@ test('Tier 2: F07 - Full-skirt leg visibility remains stable during action trans
 });
 
 test('Tier 2: F07 - Shin lathe geometry under wide skirt scaling', () => {
-  const p = getFarmer('kinley');
+  const p = getFarmer('rahima');
   assert.ok(p.legs[0].knee.children.length > 0);
 });
 
 test('Tier 2: F07 - Trouser cuff mesh present on shalwar at ankle', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   let cuffFound = false;
   p.legs[0].knee.traverse((c) => {
     if (c.isMesh && c.geometry.type === 'CylinderGeometry') cuffFound = true;
@@ -1199,20 +1115,20 @@ test('Tier 2: F07 - Trouser cuff mesh present on shalwar at ankle', () => {
 });
 
 test('Tier 2: F07 - Leg group stability when toggling down/hurt crouch posture', () => {
-  const p = getFarmer('rampyari');
+  const p = getFarmer('rahima');
   stepAnim(p, { t: 1.0, speed: 0, down: 1 }, 20);
   assert.ok(p.legs[0].thigh.rotation.x > 1.0, 'thigh tilts forward in down posture');
 });
 
 // --- F08 Corner Cases ---
 test('Tier 2: F08 - Kurta hem clearance at maximum torso forward lean 0.95 rad (sweep)', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   stepAnim(p, { t: 1.0, speed: 0, act: { type: 'sweep', p: 0.5, dur: 1.0 } }, 20);
   assert.ok(p.torso.rotation.x > 0.5);
 });
 
 test('Tier 2: F08 - Kameez clearance during winnow toss gesture', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   animate(p, { t: 1.0, speed: 0, act: { type: 'winnow', p: 0.5, dur: 1.0 } }, 1 / 60);
   assert.ok(p.tools.kula.visible);
 });
@@ -1233,7 +1149,7 @@ test('Tier 2: F08 - Rapid alternation between walking and squatting with long to
 });
 
 test('Tier 2: F08 - Kurta hem scale under extreme body build factor b = 1.3', () => {
-  const l = { ...REGIONS.harjinder.farmer.look, build: 1.3 };
+  const l = { ...REGIONS.didarul.farmer.look, build: 1.3 };
   const p = buildFarmer(l);
   assert.equal(p.body.scale.y, 1.3);
 });
@@ -1270,30 +1186,6 @@ test('Tier 2: F09 - Deltoid stability under minimum arm thickness scale AT = 0.8
 });
 
 // --- F10 Corner Cases ---
-test('Tier 2: F10 - Turban scale under extreme build scaling b = 0.7', () => {
-  const l = { ...REGIONS.harjinder.farmer.look, build: 0.7 };
-  const p = buildFarmer(l);
-  assert.equal(p.body.scale.y, 0.7);
-});
-
-test('Tier 2: F10 - Sindhi topi arch opening boundary angles (0.18*pi to 1.64*pi)', () => {
-  const p = getFarmer('ghulam');
-  let topiMesh = null;
-  p.head.traverse((c) => {
-    if (c.isMesh && c.geometry.type === 'CylinderGeometry' && c.geometry.parameters.thetaLength < Math.PI * 2) {
-      topiMesh = c;
-    }
-  });
-  assert.ok(topiMesh, 'sindhi topi arched band mesh found');
-  assert.ok(topiMesh.geometry.parameters.thetaLength < Math.PI * 2);
-});
-
-test('Tier 2: F10 - Orhni veil box position under extreme torso rotation', () => {
-  const p = getFarmer('rampyari');
-  p.torso.rotation.y = 0.5;
-  assert.equal(p.torso.rotation.y, 0.5);
-});
-
 test('Tier 2: F10 - Hijab face opening torus clearance under extreme jaw dimensions', () => {
   const p = getFarmer('rahima');
   assert.ok(p.cranial.children.length > 5);
@@ -1307,7 +1199,7 @@ test('Tier 2: F10 - Headwear stability when look.head is bare/empty', () => {
 
 // --- F11 Corner Cases ---
 test('Tier 2: F11 - Multi-part garment stability during extreme torso twist torso.rotation.y = -0.3', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   animate(p, { t: 1.0, speed: 3.0, run: true }, 1 / 60);
   assert.ok(!isNaN(p.torso.rotation.y));
 });
@@ -1315,12 +1207,6 @@ test('Tier 2: F11 - Multi-part garment stability during extreme torso twist tors
 test('Tier 2: F11 - Sari pallu ribbon spline evaluation handles all 7 control points', () => {
   const p = getFarmer('rahima');
   assert.ok(p.torso.children.length >= 2);
-});
-
-test('Tier 2: F11 - Ajrak fold orientation at 90-degree shoulder elevation', () => {
-  const p = getFarmer('ghulam');
-  stepAnim(p, { t: 1.0, speed: 0, act: { type: 'wave', p: 0.5, dur: 1.0 } }, 20);
-  assert.ok(p.arms[1].shoulder.rotation.x < -1.5);
 });
 
 test('Tier 2: F11 - Chador cylinder open flag and double-sided material rendering', () => {
@@ -1361,7 +1247,7 @@ test('Tier 2: F12 - Resting overlay offset at boundary heights y = -0.04 to 0.59
 });
 
 test('Tier 2: F12 - PolygonOffset factor and units boundary compliance on face material', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   p.head.traverse((c) => {
     if (c.isMesh && c.material?.polygonOffset) {
       assert.equal(c.material.polygonOffsetFactor, -2);
@@ -1411,7 +1297,7 @@ test('Tier 2: F14 - Pelvic bridge bounds under extreme leg thickness LT = 1.5', 
 });
 
 test('Tier 2: F14 - Hip joint caps during maximum lateral stance STYLE.stance = 0.06', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   animate(p, { t: 1.0, speed: 0 }, 1 / 60);
   assert.ok(Math.abs(p.legs[0].thigh.rotation.z) <= 0.1);
 });
@@ -1423,13 +1309,13 @@ test('Tier 2: F14 - Pelvic bridge containment at lowest ankle squat', () => {
 });
 
 test('Tier 2: F14 - Pelvic bridge stability during hip list and roll (+/- 0.08 rad)', () => {
-  const p = getFarmer('kinley');
+  const p = getFarmer('rahima');
   animate(p, { t: 1.0, speed: 3.0, run: true }, 1 / 60);
   assert.ok(!isNaN(p.hips.rotation.z));
 });
 
 test('Tier 2: F14 - Pelvic bridge collision check against torso bottom', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   assert.equal(p.torso.position.y, 0.02);
 });
 
@@ -1486,14 +1372,14 @@ test('Tier 2: F16 - Action progress overflow clamping at p > 1.0', () => {
 });
 
 test('Tier 2: F16 - Rapid action interruption mid-swing', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   animate(p, { t: 1.0, speed: 0, act: { type: 'harvest', p: 0.5, dur: 1.0 } }, 1 / 60);
   animate(p, { t: 1.05, speed: 2.0, act: null }, 1 / 60); // interrupted by sprint
   assert.equal(p.tools.sickle.visible, false);
 });
 
 test('Tier 2: F16 - Action execution under down/hurt state', () => {
-  const p = getFarmer('ghulam');
+  const p = getFarmer('kader');
   stepAnim(p, { t: 1.0, speed: 0, down: 1 }, 25);
   assert.ok(Math.abs(p.hips.position.y - DOWN_HIP_Y) < 0.05);
 });
@@ -1642,69 +1528,6 @@ test('Tier 2: F20 - Package test list verification: this suite is executable in 
 // TIER 3: CROSS-FEATURE COMBINATIONS (PAIRWISE INTERACTIONS) — 28 TESTS
 // ============================================================================
 
-test('Tier 3: 01 - Harjinder (Dastar + Kurta-Pyjama + Kara) during deep squat planting', () => {
-  const p = getFarmer('harjinder');
-  stepAnim(p, { t: 1.0, speed: 0, act: { type: 'plant', p: 0.5, dur: 1.0 } }, 20);
-  assert.ok(p.legs[0].knee.rotation.x > 1.0, 'squat knee bend');
-  assert.ok(p.skirtGroup.parent === p.hips);
-});
-
-test('Tier 3: 02 - Harjinder (Dastar + Kurta-Pyjama) during high-speed sprint (run = 6.4 m/s)', () => {
-  const p = getFarmer('harjinder');
-  stepAnim(p, { t: 1.0, speed: 6.4, run: true }, 10);
-  assert.ok(p.arms[0].shoulder.rotation.x !== 0, 'contralateral arm swing');
-});
-
-test('Tier 3: 03 - Ghulam (Sindhi Topi + Ajrak + Shalwar) during sickle harvesting', () => {
-  const p = getFarmer('ghulam');
-  animate(p, { t: 1.0, speed: 0, act: { type: 'harvest', p: 0.5, dur: 1.0 } }, 1 / 60);
-  assert.equal(p.tools.sickle.visible, true);
-  assert.ok(p.tools.sickle.parent === p.arms[1].hand);
-});
-
-test('Tier 3: 04 - Ghulam (Sindhi Topi + Ajrak) during irrigation pumping', () => {
-  const p = getFarmer('ghulam');
-  animate(p, { t: 1.0, speed: 0, act: { type: 'pump', p: 0.5, dur: 1.0 } }, 1 / 60);
-  assert.equal(p.tools.can.visible, true);
-});
-
-test('Tier 3: 05 - Rampyari (Orhni veil + Tharu Ghagra + Choli) during paddy spreading squat', () => {
-  const p = getFarmer('rampyari');
-  stepAnim(p, { t: 1.0, speed: 0, act: { type: 'spread', p: 0.5, dur: 1.0 } }, 20);
-  assert.ok(p.legs[0].knee.rotation.x > 1.0);
-});
-
-test('Tier 3: 06 - Rampyari (Orhni veil + Ghagra) during winnowing with kula tray', () => {
-  const p = getFarmer('rampyari');
-  animate(p, { t: 1.0, speed: 0, act: { type: 'winnow', p: 0.5, dur: 1.0 } }, 1 / 60);
-  assert.equal(p.tools.kula.visible, true);
-});
-
-test('Tier 3: 07 - Kinley (Short bob + Kira + Tego) during fruit picking with forearm basket', () => {
-  const p = getFarmer('kinley');
-  animate(p, { t: 1.0, speed: 0, act: { type: 'pick', p: 0.5, dur: 1.0 } }, 1 / 60);
-  assert.equal(p.tools.basket.visible, true);
-});
-
-test('Tier 3: 08 - Kinley (Kira + Tego) during basket tipping', () => {
-  const p = getFarmer('kinley');
-  animate(p, { t: 1.0, speed: 0, act: { type: 'tip', p: 0.5, dur: 1.0 } }, 1 / 60);
-  assert.equal(p.tools.basket.visible, true);
-});
-
-test('Tier 3: 09 - U Kyaw Win (Gaung Baung + Longyi + Eingyi) during ground sweeping', () => {
-  const p = getFarmer('kyawwin');
-  animate(p, { t: 1.0, speed: 0, act: { type: 'sweep', p: 0.5, dur: 1.0 } }, 1 / 60);
-  assert.equal(p.tools.broom.visible, true);
-});
-
-test('Tier 3: 10 - U Kyaw Win (Longyi + Eingyi) during spray tank application', () => {
-  const p = getFarmer('kyawwin');
-  animate(p, { t: 1.0, speed: 0, act: { type: 'spray', p: 0.5, dur: 1.0 } }, 1 / 60);
-  assert.equal(p.tools.spray.visible, true);
-  assert.equal(p.tools.tank.visible, true);
-});
-
 test('Tier 3: 11 - Rahima (Hijab + Sari + Blouse) during deep squat planting', () => {
   const p = getFarmer('rahima');
   stepAnim(p, { t: 1.0, speed: 0, act: { type: 'plant', p: 0.5, dur: 1.0 } }, 20);
@@ -1782,7 +1605,7 @@ test('Tier 3: 22 - Pairwise: Cervical-cranial rotation blending + Look-at target
 });
 
 test('Tier 3: 23 - Pairwise: Pelvic bridge alignment + Deep squat planting without groin gap', () => {
-  const p = getFarmer('harjinder');
+  const p = getFarmer('didarul');
   animate(p, { t: 1.0, speed: 0, act: { type: 'plant', p: 0.5, dur: 1.0 } }, 1 / 60);
   assert.ok(p.hips.position.y < HIP_Y);
 });
@@ -1845,68 +1668,8 @@ test('Tier 4: Scenario 01 - Full crop cycle in Dhamrai with Razib Miah (sow -> w
   assert.ok(g.money > initM);
 });
 
-test('Tier 4: Scenario 02 - Full crop cycle in Punjab with Harjinder Singh (wheat planting -> mandi sell)', () => {
-  const g = createGame('harjinder');
-  g.seeds[g.sel] = 3;
-  const p = g.plots[0];
-  g.me.x = p.x; g.me.z = p.z;
-  act(g); // sow wheat
-  assert.ok(p.crop);
-  g.me.act = null;
-  p.g = ripeAt(g);
-  act(g); // harvest
-  assert.ok(!p.crop);
-  assert.ok(g.basket[p.last] > 0);
-  g.me.act = null;
-  g.me.x = g.S.market.x; g.me.z = g.S.market.z;
-  act(g); // sell
-  assert.equal(g.basket[p.last], 0);
-});
-
 test('Tier 4: Scenario 03 - Full crop cycle in Dacope with Rahima Begum (salinity-adapted rice)', () => {
   const g = createGame('rahima');
-  g.seeds[g.sel] = 3;
-  const p = g.plots[0];
-  g.me.x = p.x; g.me.z = p.z;
-  act(g);
-  assert.ok(p.crop);
-  g.me.act = null;
-  p.g = ripeAt(g);
-  act(g);
-  assert.ok(!p.crop);
-  assert.ok(g.basket[p.last] > 0);
-});
-
-test('Tier 4: Scenario 04 - Full crop cycle in Kailali with Rampyari Chaudhary (legume rotation)', () => {
-  const g = createGame('rampyari');
-  g.seeds[g.sel] = 3;
-  const p = g.plots[0];
-  g.me.x = p.x; g.me.z = p.z;
-  act(g);
-  assert.ok(p.crop);
-  g.me.act = null;
-  p.g = ripeAt(g);
-  act(g);
-  assert.ok(!p.crop);
-  assert.ok(g.basket[p.last] > 0);
-});
-
-test('Tier 4: Scenario 05 - Full crop cycle in Punakha with Kinley Wangmo (terraced agriculture)', () => {
-  const g = createGame('kinley');
-  g.seeds[g.sel] = 3;
-  const p = g.plots[0];
-  g.me.x = p.x; g.me.z = p.z;
-  act(g);
-  assert.ok(p.crop);
-  g.me.act = null;
-  p.g = ripeAt(g);
-  act(g);
-  assert.ok(!p.crop);
-  assert.ok(g.basket[p.last] > 0);
-});
-
-test('Tier 4: Scenario 06 - Full crop cycle in Singu with U Kyaw Win (irrigated legume planting)', () => {
-  const g = createGame('kyawwin');
   g.seeds[g.sel] = 3;
   const p = g.plots[0];
   g.me.x = p.x; g.me.z = p.z;
@@ -1929,10 +1692,10 @@ test('Tier 4: Scenario 07 - Stamina exhaustion and brow wipe recovery workflow d
 });
 
 test('Tier 4: Scenario 08 - Heatwave disaster onset triggers emergency light irrigation protocol', () => {
-  const g = createGame('harjinder');
+  const g = createGame('didarul');
   g.ev.heat = 1.0; // severe heatwave
   const p = g.plots[0];
-  p.crop = 'wheat'; p.g = 0.5; p.moist = 0.8;
+  p.crop = Object.keys(g.R.crops)[0]; p.g = 0.5; p.moist = 0.8;
   update(g, 1.0, {});
   assert.ok(p.moist < 0.8, 'heatwave evaporates soil moisture faster');
 });

@@ -33,13 +33,14 @@ import { fileURLToPath } from 'node:url';
 import { srdiUnionOf, fertilizerPlan } from '../../src/engine/soil.js';
 import { calculateCEC, calculateBaseSaturation, calculateCarbonPools, calculateFossilDieselOffset } from '../../src/engine/soilChemistry.js';
 import { IRRIGATION, RABI_CROPS, ROTATION_CROPS } from '../../src/engine/crops.js';
+import { CH4 } from '../../src/engine/soilfuture.js';
+import { HEAVY_TOPDRESS_MM } from '../../src/engine/irrigationPlan.js';
 import { bnDigits } from '../../src/engine/dates.js';
 import { CROP_PROBLEMS } from '../../src/data/crop_problems.js';
 import { BD_SUPPORT } from '../../src/data/support/bd_support.js';
 import { UPAZILA_FACTS } from '../../src/data/upazila_facts.js';
 import { UPAZILAS } from '../../src/data/upazilas.js';
 import { UNIONS, buildDemo } from '../../src/data/demo.js';
-import { ABROAD } from '../../src/data/abroad.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const read = (p) => JSON.parse(readFileSync(path.join(ROOT, p), 'utf8'));
@@ -57,16 +58,6 @@ const cropEconomics = read('src/data/market/crop_economics.json');
 const amanHazards = read('src/data/radar/aman_hazards.json');
 const soilWetness = read('src/data/water/soil_wetness.json');
 const cmip6 = read('src/data/climate/cmip6_deltas.json');
-
-const ABROAD_COUNTRIES = ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar', 'usa', 'brazil', 'spain'];
-const abroadData = {};
-for (const cc of ABROAD_COUNTRIES) {
-  try {
-    abroadData[cc] = read(`src/data/abroad/${cc}.json`);
-  } catch (err) {
-    console.warn(`Warning: Could not read abroad/${cc}.json: ${err.message}`);
-  }
-}
 
 // 2. Pre-compute Parcel Profiles
 const CROPS_TO_RECOMMEND = ['boro', 'mustard', 'wheat', 'tomato', 'lentil'];
@@ -200,37 +191,6 @@ for (const [key, d] of Object.entries(bangladeshCrops.districts || {})) {
   };
 }
 
-// 4. Compile Abroad Study Regions
-const abroadIndex = {};
-for (const [cc, data] of Object.entries(abroadData)) {
-  const farm = data.points?.farm;
-  const sat = data.points?.satellite;
-  const latestSat = sat?.series?.length ? sat.series[sat.series.length - 1] : null;
-  const recentMonth = farm?.months?.length ? farm.months[farm.months.length - 1] : null;
-
-  abroadIndex[cc] = {
-    id: cc,
-    tz: data.provenance?.tz ?? 'UTC',
-    lat: farm?.lat ?? null,
-    lon: farm?.lon ?? null,
-    elevationM: farm?.elev ?? null,
-    recentWeather: recentMonth ? {
-      month: recentMonth.ym,
-      tmax: recentMonth.tmax,
-      tmin: recentMonth.tmin,
-      rainMm: recentMonth.rain,
-      et0Mm: recentMonth.et0,
-    } : null,
-    activeFires7Days: data.points?.area?.fires?.n ?? 0,
-    villageCount: data.points?.area?.placeCount ?? 0,
-    satellite: latestSat ? {
-      date: latestSat.d,
-      ndvi: latestSat.ndvi,
-      status: latestSat.ndvi >= 0.65 ? 'healthy' : latestSat.ndvi >= 0.4 ? 'moderate' : 'dry_or_fallow',
-    } : null,
-  };
-}
-
 // 5. Compile Crop Problems & Pest IPM
 const cropProblemsIndex = {};
 for (const [cropId, problems] of Object.entries(CROP_PROBLEMS)) {
@@ -324,11 +284,6 @@ const SUPPORT_KIND_LABELS = {
   soil: { bn: 'মাটি পরীক্ষা', en: 'Soil testing' },
   irrigation: { bn: 'সেচ সহায়তা', en: 'Irrigation support' },
   advice: { bn: 'পরামর্শ সেবা', en: 'Advisory service' },
-};
-const ABROAD_SAT_LABELS = {
-  healthy: { bn: 'সতেজ ফসল', en: 'healthy vegetation' },
-  moderate: { bn: 'মাঝারি সবুজ', en: 'moderate vegetation' },
-  dry_or_fallow: { bn: 'শুকনো বা ফাঁকা জমি', en: 'dry or fallow' },
 };
 const trimEndPunct = (s) => String(s ?? '').trim().replace(/[।.]+$/, '');
 const bnNum = (v) => (v == null ? '' : bnDigits(typeof v === 'number' ? v.toLocaleString('en-US') : String(v)));
@@ -472,43 +427,6 @@ for (const s of BD_SUPPORT) {
   );
 }
 
-// Chunks: Abroad
-const ABROAD_LOCAL_NAMES = {
-  india: { bn: 'ভারত (পাঞ্জাব, সাংরুর)', en: 'India (Sangrur, Punjab)', names: ['ভারত', 'পাঞ্জাব', 'সাংরুর', 'india', 'punjab', 'sangrur'] },
-  pakistan: { bn: 'পাকিস্তান (সিন্ধু, দাদু)', en: 'Pakistan (Dadu, Sindh)', names: ['পাকিস্তান', 'সিন্ধু', 'সিন্ধ', 'দাদু', 'pakistan', 'sindh', 'dadu'] },
-  nepal: { bn: 'নেপাল (তেরাই, কৈলালী)', en: 'Nepal (Kailali, Terai)', names: ['নেপাল', 'তেরাই', 'কৈলালী', 'nepal', 'terai', 'kailali'] },
-  bhutan: { bn: 'ভুটান (পুনাখা)', en: 'Bhutan (Punakha)', names: ['ভুটান', 'পুনাখা', 'bhutan', 'punakha'] },
-  myanmar: { bn: 'মিয়ানমার (মান্দালয়, ন্যাং-উ)', en: 'Myanmar (Nyaung-U, Mandalay)', names: ['মিয়ানমার', 'মায়ানমার', 'মান্দালয়', 'myanmar', 'mandalay'] },
-  usa: { bn: 'যুক্তরাষ্ট্র (নেভাডা, ইউরেকা কাউন্টি)', en: 'United States (Eureka County, Nevada)', names: ['যুক্তরাষ্ট্র', 'আমেরিকা', 'নেভাডা', 'usa', 'nevada', 'eureka'] },
-  brazil: { bn: 'ব্রাজিল (মাতুগ্রোসু, সোরিসো)', en: 'Brazil (Sorriso, Mato Grosso)', names: ['ব্রাজিল', 'মাতুগ্রোসু', 'মাতো গ্রসো', 'সোরিসো', 'brazil', 'mato grosso', 'sorriso'] },
-  spain: { bn: 'স্পেন (আন্দালুসিয়া, মার্তোস)', en: 'Spain (Martos, Andalusia)', names: ['স্পেন', 'আন্দালুসিয়া', 'হায়েন', 'মার্তোস', 'spain', 'andalusia', 'martos'] },
-};
-
-for (const [cc, a] of Object.entries(abroadIndex)) {
-  const ab = ABROAD[cc];
-  const fallbackLoc = ABROAD_LOCAL_NAMES[cc] || { bn: ab?.name?.bn ?? cc, en: ab?.name?.en ?? cc, names: [cc] };
-  const loc = {
-    bn: ab ? `${ab.name.bn} (${ab.farmer?.place?.bn ?? fallbackLoc.bn})` : fallbackLoc.bn,
-    en: ab ? `${ab.name.en} (${ab.farmer?.place?.en ?? fallbackLoc.en})` : fallbackLoc.en,
-    names: fallbackLoc.names,
-  };
-  const satLabel = a.satellite?.status ? (ABROAD_SAT_LABELS[a.satellite.status] ?? { bn: 'পর্যবেক্ষণাধীন', en: a.satellite.status }) : null;
-  const satSentenceBn = a.satellite?.ndvi != null
-    ? `সেন্টিনেল-২ এনডিভিআই ${bnDigits(a.satellite.ndvi)} (${satLabel.bn})।`
-    : '';
-  const satSentenceEn = a.satellite?.ndvi != null
-    ? `Sentinel-2 NDVI ${a.satellite.ndvi} (${satLabel.en}).`
-    : '';
-  addChunk(
-    'abroad',
-    `International Region: ${loc.bn} / ${loc.en}`,
-    `${loc.bn} অঞ্চলের কৃষিজমি ও জলবায়ু গবেষণা তথ্য: ভৌগোলিক স্থানাঙ্ক ${bnDigits(a.lat)}, ${bnDigits(a.lon)}, উচ্চতা ${bnDigits(a.elevationM)} মিটার। ${satSentenceBn} নাসার এফআইআরএমএস উপগ্রহ বিগত ৭ দিনে ${bnDigits(a.activeFires7Days)}টি সক্রিয় আগুনের উৎস শনাক্ত করেছে। সাম্প্রতিক সর্বোচ্চ তাপমাত্রা ${bnDigits(a.recentWeather?.tmax ?? '—')}°সে. এবং বৃষ্টি ${bnDigits(a.recentWeather?.rainMm ?? '—')} মিমি।`.replace(/\s+/g, ' '),
-    `Agricultural and climate research context for ${loc.en}: Coordinates ${a.lat}, ${a.lon}, elevation ${a.elevationM} m. ${satSentenceEn} NASA FIRMS satellite detected ${a.activeFires7Days} active fires in the past 7 days. Recent max temp is ${a.recentWeather?.tmax ?? 'N/A'} °C with ${a.recentWeather?.rainMm ?? 'N/A'} mm rain.`.replace(/\s+/g, ' '),
-    ['abroad', cc, ...loc.names],
-    { country: cc }
-  );
-}
-
 // Chunks: Climate Change & CMIP6
 addChunk(
   'climate_change',
@@ -532,27 +450,86 @@ for (const [upz, h] of Object.entries(hazardsIndex)) {
   );
 }
 
-// Chunks: NASA MERRA-2 Root-Zone Soil Moisture
+// Chunks: root-zone soil wetness per upazila, computed from the data file (NASA POWER GWETROOT, from MERRA-2):
+// the 10th–90th percentile of the monthly values over all years, for the Rabi months and the monsoon months.
+const pctl = (xs, q) => { const v = xs.filter(Number.isFinite).sort((m, n) => m - n); return v.length ? v[Math.min(v.length - 1, Math.floor(q * (v.length - 1) + 0.5))] : null; };
+const monthsOf = (root, ms) => Object.values(root ?? {}).flatMap((yr) => ms.map((m) => yr[m - 1]));
+const f2 = (v) => v.toFixed(2);
 for (const [upz, wData] of Object.entries(soilWetness.upazilas || {})) {
   const upzLabel = UPAZILA_LABELS[upz] ?? { bn: upz, en: upz };
+  const years = Object.keys(wData.root ?? {});
+  const rabi = monthsOf(wData.root, [12, 1, 2, 3]), wet = monthsOf(wData.root, [6, 7, 8, 9]);
+  const r = [pctl(rabi, 0.1), pctl(rabi, 0.9)], m = [pctl(wet, 0.1), pctl(wet, 0.9)];
+  if (r.includes(null) || m.includes(null)) continue;
+  const span = `${years[0]}–${years[years.length - 1]}`;
   addChunk(
     'soil_wetness',
-    `NASA MERRA-2 Root-Zone Soil Moisture: ${upzLabel.en}`,
-    `নাসা জিএমএও মেরা-২ উপগ্রহ ও মডেল বিশ্লেষণে ${upzLabel.bn} উপজেলার মূলস্তরের মাটির আর্দ্রতা রবি মৌসুমে গড়ে ০.২০–০.৩৫ (ঘাটতি) এবং বর্ষা মৌসুমে ০.৭০–০.৯০ (পর্যাপ্ত)। শুষ্ক মৌসুমে সেচের অপচয় রোধে পর্যায়ক্রমিক ভেজানো ও শুকানো (এডব্লিউডি) পদ্ধতি কার্যকর।`,
-    `NASA GMAO MERRA-2 (GWETROOT) satellite reanalysis indicates ${upzLabel.en} root-zone soil wetness ranges from 0.20–0.35 during the dry Rabi season to 0.70–0.90 in monsoon. Precision AWD scheduling minimises dry-season pumping costs.`,
+    `Root-zone soil wetness (NASA POWER GWETROOT): ${upzLabel.en}`,
+    `${upzLabel.bn} উপজেলার মূলস্তরের মাটির ভেজা ভাব (নাসা পাওয়ার GWETROOT, মেরা-২ থেকে; ০ = শুকনো, ১ = পুরো ভেজা), ${bnDigits(span)}: রবি মাসগুলোতে (ডিসেম্বর–মার্চ) সাধারণত ${bnDigits(f2(r[0]))}–${bnDigits(f2(r[1]))}, বর্ষায় (জুন–সেপ্টেম্বর) ${bnDigits(f2(m[0]))}–${bnDigits(f2(m[1]))}। এটা মডেলের হিসাব, জমির মাপ নয়; জমির সেচের হিসাব আজকের পাতায় জমির নিজের মাটি দিয়ে হয়।`,
+    `Root-zone soil wetness in ${upzLabel.en} (NASA POWER GWETROOT, from MERRA-2; 0 = dry, 1 = saturated), ${span}: usually ${f2(r[0])}–${f2(r[1])} in the Rabi months (December–March) and ${f2(m[0])}–${f2(m[1])} in the monsoon (June–September), 10th–90th percentile of monthly values. A model estimate, not a field measurement; the field's own water balance is on the Today page.`,
     ['soil_wetness', 'gwetroot', 'merra2', upz, upzLabel.bn, upzLabel.en, 'আর্দ্রতা', 'moisture', 'irrigation', 'rootzone'],
-    { upazila: upz }
+    { upazila: upz, rabi: r, monsoon: m, years: span }
   );
 }
 
-// Chunks: ICBM Soil Carbon & IPCC Methane
+// Chunk: soil carbon and paddy methane, with the factors the engine uses (src/engine/soilfuture.js, IPCC 2019 Tier 1).
+const awdCut = Math.round((1 - CH4.sfw.awd) * 100);
+const BORO_HEAT = RABI_CROPS.boro.rules.find((r) => r.id === 'boro_heat').thr;
 addChunk(
   'carbon_methane',
-  'ICBM Soil Carbon & Paddy Methane Mitigation',
-  'আইসিবিএম দ্বি-পুল মৃত্তিকা কার্বন মডেল অনুসারে ফসলের অবশিষ্টাংশ ও সবুজ সার জমিতে সংযোজন করলে ১০ বছরে হেক্টরপ্রতি প্রায় ১.২–১.৬ টন কার্বন সঞ্চিত হয়। বোরো ধানে পর্যায়ক্রমিক ভেজানো ও শুকানো (এডব্লিউডি) পদ্ধতি প্রয়োগে শ্যালো টিউবওয়েলের ডিজেল খরচ ২৫% সাশ্রয় হয় এবং ধানক্ষেত থেকে ক্ষতিকর মিথেন গ্যাস নির্গমন ৩০–৪০% হ্রাস পায়।',
-  'Under the ICBM two-pool soil carbon model, retaining crop residues and green manure sequesters approx. 1.2–1.6 t C/ha over 10 years. Alternate Wetting and Drying (AWD) in Boro paddy reduces diesel irrigation costs by 25% and cuts paddy methane emissions by 30–40%.',
-  ['carbon', 'icbm', 'methane', 'awd', 'diesel', 'soil_health', 'ipcc', 'কার্বন', 'মিথেন'],
-  { category: 'carbon' }
+  'Soil carbon and paddy methane',
+  `জমির কার্বন হিসাব হয় আইসিবিএম দুই-পুল মডেলে, প্রতিটি জমি আর ফসলচক্রের জন্য আলাদা করে ("জমির ভবিষ্যৎ" পাতায়); খড় আর সবুজ সার রেখে দিলে কার্বন বাড়ে। ধানক্ষেতের মিথেন আইপিসিসি ২০১৯ টিয়ার-১ পদ্ধতিতে: দক্ষিণ এশিয়ার দৈনিক হার হেক্টরে ${bnDigits(CH4.ef)} কেজি; পর্যায়ক্রমে ভেজানো ও শুকানো (AWD) করলে পানিতে থাকা প্রতিদিনের মিথেন একটানা পানির চেয়ে প্রায় ${bnDigits(awdCut)}% কম (গুণক ${bnDigits(CH4.sfw.awd)})। মিথেনের উষ্ণায়ন ক্ষমতা ${bnDigits(CH4.gwp)} (আইপিসিসি এআর৬)।`,
+  `Soil carbon is worked out with the ICBM two-pool model for each field and rotation (Field Future page); keeping straw and green manure raises it. Paddy methane uses IPCC 2019 Tier 1: South Asia daily rate ${CH4.ef} kg CH4/ha; alternate wetting and drying (AWD) emits about ${awdCut}% less per flooded day than continuous flooding (scaling factor ${CH4.sfw.awd}). Methane's warming power ${CH4.gwp} (IPCC AR6).`,
+  ['carbon', 'icbm', 'methane', 'awd', 'soil_health', 'ipcc', 'কার্বন', 'মিথেন'],
+  { category: 'carbon', awdFactor: CH4.sfw.awd }
+);
+
+// Chunks: real harvest records per crop (FAOSTAT yields judged against each crop's trend, with that season's NASA
+// weather), from src/data/models/harvest_model.json (npm run train:harvest).
+const harvestModel = JSON.parse(readFileSync(path.join(ROOT, 'src/data/models/harvest_model.json'), 'utf8'));
+const SEASON_BN = { winter: 'শীত (রবি)', summer: 'গ্রীষ্ম (খরিফ-১)', rainy: 'বর্ষা (খরিফ-২)', all: 'সারা বছর' };
+const pctS = (a) => `${a >= 0 ? '+' : ''}${Math.round(a * 100)}%`;
+const wxEn = (w) => (w ? `season rain ${Math.round(w.rain)} mm, ${w.hotDays} hot days ≥35 °C, ${w.coldNights} cold nights ≤10 °C, ${w.heavyDays} days ≥50 mm rain` : 'weather not on record');
+const wxBn = (w) => (w ? `মৌসুমে বৃষ্টি ${bnDigits(Math.round(w.rain))} মিমি, ৩৫°+ গরম দিন ${bnDigits(w.hotDays)}, ১০°-এর নিচে ঠান্ডা রাত ${bnDigits(w.coldNights)}, ৫০ মিমি+ বৃষ্টির দিন ${bnDigits(w.heavyDays)}` : 'আবহাওয়ার তথ্য নেই');
+for (const [crop, h] of Object.entries(harvestModel.crops)) {
+  const L = h.latest, c = h.counts;
+  addChunk(
+    'harvest',
+    `Harvest record: ${h.name.en}`,
+    `${h.name.bn} (${SEASON_BN[h.season]}): বাংলাদেশের জাতীয় ফলন ${bnDigits(L.year)} সালে হেক্টরে ${bnDigits(L.yieldTHa)} টন (FAOSTAT)। ২০০১ থেকে প্রবণতার তুলনায় ভালো বছর ${bnDigits(c.good)}টি, মাঝারি ${bnDigits(c.average)}টি, খারাপ ${bnDigits(c.bad)}টি (খুব খারাপ ${bnDigits(c.veryBad)}টি)। সবচেয়ে খারাপ বছর: ${h.worst.map((w) => `${bnDigits(w.year)} (${bnDigits(pctS(w.anomaly))}; ${wxBn(w.weather)})`).join('; ')}। সবচেয়ে ভালো: ${h.best.map((b) => `${bnDigits(b.year)} (${bnDigits(pctS(b.anomaly))})`).join(', ')}।`,
+    `${h.name.en} (${h.season} season): Bangladesh national yield ${L.yieldTHa} t/ha in ${L.year} (FAOSTAT). Since 2001, against the crop's own trend: ${c.good} good years, ${c.average} average, ${c.bad} bad (${c.veryBad} very bad, 12%+ below trend). Worst years: ${h.worst.map((w) => `${w.year} (${pctS(w.anomaly)}; ${wxEn(w.weather)})`).join('; ')}. Best: ${h.best.map((b) => `${b.year} (${pctS(b.anomaly)})`).join(', ')}.`,
+    ['harvest', 'yield', 'ফলন', 'ফসল', crop, h.name.en.toLowerCase(), h.name.bn, h.season, 'good year', 'bad year', 'faostat'],
+    { crop, season: h.season, source: 'FAOSTAT + NASA POWER' }
+  );
+}
+{
+  const r = harvestModel.results, b = harvestModel.best;
+  addChunk(
+    'harvest_model',
+    'How well weather predicts good and bad harvests',
+    `${bnDigits(harvestModel.n.crops)}টি ফসলের ${bnDigits(harvestModel.n.rows)}টি ফলন-বছর থেকে শেখা মডেল (প্রতিটি বছর এমন মডেলে যাচাই যা সেই বছর দেখেনি): সেরা পদ্ধতি ${b}, ম্যাক্রো-F1 ${bnDigits(r[b].macroF1)} (সবসময় "মাঝারি" বললে ${bnDigits(r['base rate'].macroF1)}); খারাপ বছরের ${bnDigits(Math.round(r[b].perClass[0].recall * 100))}% আগে ধরা পড়ে। শুধু ফসলটা কোনটা জেনে, আবহাওয়া ছাড়া: ম্যাক্রো-F1 ${bnDigits(r['crop only']?.macroF1 ?? '?')}, খারাপ বছরের ${bnDigits(Math.round((r['crop only']?.perClass[0].recall ?? 0) * 100))}%। ${harvestModel.beatsCropOnly ? 'আবহাওয়া এর ওপর কিছুটা যোগ করে।' : 'অর্থাৎ দেশের পর্যায়ে মৌসুমের আবহাওয়া ফসলের নিজের ইতিহাসের চেয়ে বেশি কিছু বলে না;'} বাকিটা বীজ, সার, পোকা, দাম ও নীতির ওপর। এটা দেশের গড়, একটা জমির ভবিষ্যদ্বাণী নয়।`,
+    `Model trained on ${harvestModel.n.rows} crop-years of ${harvestModel.n.crops} crops (each year tested by a model that never saw it): best approach ${b}, macro-F1 ${r[b].macroF1} against ${r['base rate'].macroF1} for always saying "average"; it catches ${Math.round(r[b].perClass[0].recall * 100)}% of bad years. Knowing only the crop, with no weather, gives macro-F1 ${r['crop only']?.macroF1 ?? '?'} and catches ${Math.round((r['crop only']?.perClass[0].recall ?? 0) * 100)}% of bad years; ${harvestModel.beatsCropOnly ? 'the weather adds a little on top of that.' : 'so at national scale the season weather says no more than the crop’s own record.'} The rest is seed, fertiliser, pests, prices and policy. National averages, not a forecast for one field.`,
+    ['harvest', 'model', 'prediction', 'accuracy', 'ফলন', 'মডেল', 'yield'],
+    { best: b, macroF1: r[b].macroF1 }
+  );
+}
+
+// Chunks: the two-week field plan and the federated outbreak demo (what they do, so the agent can explain them).
+addChunk(
+  'two_week_plan',
+  'Two-week watering plan, heat watch and urea day',
+  `আজকের পাতায় "আগামী দুই সপ্তাহ": ১৬ দিনের পূর্বাভাস আর জমির মাটির পানির হিসাব থেকে কবে কত মিমি সেচ দিতে হবে তা বের হয় (গতিশীল প্রোগ্রামিং; বৃষ্টি পূর্বাভাসের মতো, অর্ধেক বা না হলে কী হবে তিনটিই ধরে)। ফুল-ফলের সময়ে ফসলের গরমের সীমা (যেমন বোরো: ফুলের সময় ৩ দিন ${bnDigits(BORO_HEAT)}° বা বেশি) পূর্বাভাসে পড়লে আগে থেকে সতর্ক করে। ইউরিয়া উপরি-প্রয়োগের জন্য এমন দিন বাছে যেদিন আর পরের দুই দিনে ভারী বৃষ্টি (${bnDigits(HEAVY_TOPDRESS_MM)} মিমি+) নেই। প্রতিদিন নতুন করে হিসাব হয়।`,
+  `"The next two weeks" on the Today page: from the 16-day forecast and the field's soil water, it picks the day and millimetres to irrigate (dynamic programming, counting rain arriving as forecast, half or none). It warns ahead when the crop's heat limit falls in the forecast at the sensitive stage (e.g. Boro: 3 days at ${BORO_HEAT} °C or more during flowering). For a urea top-dress it picks a day with no heavy rain (${HEAVY_TOPDRESS_MM} mm+) that day or the next two. It is redone every day.`,
+  ['irrigation', 'plan', 'forecast', 'heat', 'urea', 'topdress', 'সেচ', 'গরম', 'ইউরিয়া', 'পূর্বাভাস'],
+  { page: '/farmer/today' }
+);
+addChunk(
+  'federated',
+  'Federated learning for pest-outbreak warnings (demo)',
+  'বিজ্ঞান পাতায় দেখানো হয়েছে কীভাবে খামারগুলো নিজের রেকর্ড না দিয়েই একসঙ্গে পোকার আক্রমণের মডেল শিখতে পারে (FedAvg, সুরক্ষিত যোগফল, ডিফারেনশিয়াল প্রাইভেসি)। খামার আর মৌসুমগুলো বানানো নমুনা; কোনো আসল খামারের পোকার রেকর্ড এই অ্যাপে নেই।',
+  'The Science page shows how farms could learn a shared pest-outbreak model without handing over their records (FedAvg, secure aggregation, differential privacy). The farms and seasons are generated sample data; no real farm pest records are in this app.',
+  ['federated', 'privacy', 'pest', 'outbreak', 'demo', 'পোকা', 'গোপনীয়তা'],
+  { page: '/science#federated', demo: true }
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -600,13 +577,12 @@ for (const [t, postings] of Object.entries(invertedIndex)) {
 
 // 10. Output Final Knowledge Base
 const knowledgeBase = {
-  about: 'Chakra Agent Trained Offline Large Agronomic Knowledge & RAG Model (AgroVision)',
+  about: 'Chakra Agent Trained Offline Large Agronomic Knowledge & RAG Model (Agros)',
   version: '2.0.0-rag-trained',
   generatedAt: new Date().toISOString(),
   parcels: parcelsIndex,
   farmers: farmersIndex,
   districts: districtsIndex,
-  abroad: abroadIndex,
   cropProblems: cropProblemsIndex,
   support: supportIndex,
   upazilaFacts: UPAZILA_FACTS,
@@ -623,7 +599,6 @@ const knowledgeBase = {
     parcels: Object.keys(parcelsIndex).length,
     farmers: Object.keys(farmersIndex).length,
     districts: Object.keys(districtsIndex).length,
-    abroadCountries: Object.keys(abroadIndex).length,
     crops: Object.keys(cropProblemsIndex).length,
     supportPrograms: supportIndex.length,
     ragChunks: ragChunks.length,
@@ -636,4 +611,4 @@ mkdirSync(path.dirname(OUT_PATH), { recursive: true });
 writeFileSync(OUT_PATH, JSON.stringify(knowledgeBase, null, 2), 'utf8');
 
 console.log(`✅ Chakra Knowledge Base & RAG Index successfully built: ${OUT_PATH}`);
-console.log(`   Indexed: ${knowledgeBase.counts.parcels} parcels, ${knowledgeBase.counts.farmers} farmers, ${knowledgeBase.counts.districts} districts, ${knowledgeBase.counts.abroadCountries} world countries, ${knowledgeBase.counts.ragChunks} RAG chunks, ${knowledgeBase.counts.vocabularySize} vocabulary tokens.`);
+console.log(`   Indexed: ${knowledgeBase.counts.parcels} parcels, ${knowledgeBase.counts.farmers} farmers, ${knowledgeBase.counts.districts} districts, ${knowledgeBase.counts.ragChunks} RAG chunks, ${knowledgeBase.counts.vocabularySize} vocabulary tokens.`);

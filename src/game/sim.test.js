@@ -19,7 +19,7 @@ function play(id, budget = 60 * 40) {
   let t = 0, stuck = 0, lastX = 0, lastZ = 0, lastBuy = null;
   while (!g.won && t < budget) {
     t += DT;
-    // a player who uses AgroVision: looks from space, checks the kiosk, opens the water-stress layer when asked
+    // a player who uses Agros: looks from space, checks the kiosk, opens the water-stress layer when asked
     const need = QUESTS[g.quest]?.need ?? {};
     for (const k of ['satViews', 'advised', 'waterLayer']) if (need[k] && !g.count[k]) note(g, k);
     if (need.officeVisits && !g.count.officeVisits) { note(g, 'officeVisits'); useService(g, 'soiltest'); } // a player who visits the office
@@ -145,7 +145,7 @@ test('running into a wall stops the farmer with a thud', async () => {
   assert.ok(Math.hypot(g.me.x - b.x, g.me.z - b.z) >= b.r + 0.34, 'not inside the tree');
 });
 
-// ── AgroVision's rotation lessons, and the station's real data for every farmer's place ──
+// ── Agros's rotation lessons, and the station's real data for every farmer's place ──
 const onPlot = (g, p) => { g.me.x = p.x; g.me.z = p.z; g.me.act = null; };
 const sowHarvest = (g, p, k) => { g.seeds[k] = 1; g.sel = k; onPlot(g, p); act(g); p.g = 1; g.me.act = null; act(g); };
 
@@ -177,54 +177,26 @@ test('a legume enriches the soil and bare plots lose topsoil in the storm', asyn
   assert.equal(r.legumes, 1); assert.ok(r.tips.length >= 1 && r.tips[0].bn && r.tips[0].en);
 });
 
-test('every farmer’s AgroVision station has real NASA cards for their own place', async () => {
+test('every farmer’s Agros station has real NASA cards for their own place', async () => {
   const { placeOf, spaceFacts } = await import('./agrovision.js');
-  const { readFileSync } = await import('node:fs');
   for (const id of FARMER_IDS) {
     const pl = placeOf(REGIONS[id], id);
-    const normals = pl.kind === 'abroad' ? JSON.parse(readFileSync(new URL(`../data/abroad/${pl.id}.json`, import.meta.url))).points.farm.normals : null;
-    const cards = spaceFacts(pl, normals), ids = cards.map((c) => c.id);
+    const cards = spaceFacts(pl), ids = cards.map((c) => c.id);
     for (const k of ['bare', 'heat', 'et', 'soil', 'grace', 'rain', 'frost', 'truth']) assert.ok(ids.includes(k), `${id}: no ${k} card`);
     for (const c of cards) for (const f of ['title', 'value', 'detail', 'term']) assert.ok(c[f].bn && c[f].en && !/NaN|undefined/.test(c[f].en + c[f].bn), `${id} ${c.id}.${f}`);
   }
 });
 
-test('the what-if sliders reach both rotation engines, and the season gets hotter and drier', async () => {
+test('the what-if sliders give a climate change, and the season gets hotter and drier', async () => {
   const { sliderChange, sliderMods } = await import('./agrovision.js');
-  const { abroadRotations } = await import('../engine/rotationAbroad.js');
-  const { readFileSync } = await import('node:fs');
   assert.equal(sliderChange(0, 0), null);
   const ch = sliderChange(2, -20);
   assert.deepEqual([ch.dTmax[5], ch.rain[5]], [2, 0.8]);
-  const sy = JSON.parse(readFileSync(new URL('../data/soil/abroad_soil_yields.json', import.meta.url))).countries.india;
-  const normals = JSON.parse(readFileSync(new URL('../data/abroad/india.json', import.meta.url))).points.farm.normals;
-  const res = abroadRotations({ country: 'india', soil: sy.soil, yields: sy.yields, normals, change: ch });
-  assert.ok(res.options.length >= 3 && res.options.every((o) => Number.isFinite(o.dSocFut)));
   const m = sliderMods(2, -20);
   assert.ok(m.heat > 1 && m.dry > 1);
   const g = createGame('razib', m), h = createGame('razib');
   for (const x of [g, h]) { x.nextQuestAt = 1e9; Object.assign(x.plots[0], { crop: 'mustard', moist: 1 }); for (let k = 0; k < 100; k++) update(x, DT, {}); }
   assert.ok(g.plots[0].moist < h.plots[0].moist, 'less rain dries the soil faster');
-});
-
-test('every neighbour’s rotation option has its irrigation water and harvest value, and the brief names old prices', async () => {
-  const { abroadRotations, cropAbroad } = await import('../engine/rotationAbroad.js');
-  const { climateChange } = await import('../engine/soilfuture.js');
-  const { abroadBrief } = await import('./agrovision.js');
-  const { readFileSync } = await import('node:fs');
-  const read = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url)));
-  const SY = read('../data/soil/abroad_soil_yields.json').countries, PR = read('../data/market/abroad_prices.json').countries, deltas = read('../data/climate/cmip6_deltas.json');
-  for (const c of ['india', 'pakistan', 'nepal', 'bhutan', 'myanmar']) {
-    const normals = read(`../data/abroad/${c}.json`).points.farm.normals;
-    const r = abroadRotations({ country: c, soil: SY[c].soil, yields: SY[c].yields, normals, change: climateChange(deltas, `abroad_${c}`), prices: PR[c] });
-    const habit = r.options.find((o) => o.habit);
-    for (const o of r.options) {
-      assert.ok(Number.isFinite(o.waterMm) && o.waterMm >= 0 && Number.isFinite(o.waterFut), `${c}: water`);
-      assert.ok(o.gross > 0 && o.unpriced.length === 0, `${c}: every crop priced`);
-      const b = abroadBrief(o, habit, (k) => cropAbroad(k).name, true, PR[c]);
-      assert.ok(b.evidence.some((x) => /FAO-56/.test(x.en)) && b.gaps.some((x) => /costs/.test(x.en)));
-    }
-  }
 });
 
 test('every mission names its farming problem and the NASA record that answers it; the data must be used', () => {
@@ -235,7 +207,7 @@ test('every mission names its farming problem and the NASA record that answers i
   note(g, 'satViews'); for (let k = 0; k < 60; k++) update(g, DT, {});
   assert.equal(QUESTS[g.quest].id, 'buy');
   buy(g, 'mustard', 3); for (let k = 0; k < 60; k++) update(g, DT, {});
-  assert.equal(QUESTS[g.quest].id, 'buy', 'seed bought without checking AgroVision does not count');
+  assert.equal(QUESTS[g.quest].id, 'buy', 'seed bought without checking Agros does not count');
   note(g, 'advised'); for (let k = 0; k < 60; k++) update(g, DT, {});
   assert.equal(QUESTS[g.quest].id, 'plant');
 });
@@ -304,9 +276,11 @@ test('a career grows across seasons: XP for farming well, ranks, achievements on
   c = out.career;
   for (const id of ['first', 'stars3', 'rotator', 'norepeat', 'legume', 'soil', 'covered', 'data', 'harvest']) assert.ok(c.achievements[id], id);
   assert.equal(recordSeason(c, res('razib', 'bangladesh')).newAchievements.length, 0, 'each achievement once');
-  for (const [who, country] of [['harjinder', 'india'], ['ghulam', 'pakistan'], ['rampyari', 'nepal'], ['kinley', 'bhutan'], ['kyawwin', 'myanmar']]) c = recordSeason(c, res(who, country, { whatIf: { dT: 2, rain: -10 } })).career;
-  assert.ok(c.achievements.world && c.achievements.three && c.achievements.heat);
+  for (const who of ['rahimu', 'didarul']) c = recordSeason(c, res(who, 'bangladesh', { whatIf: { dT: 2, rain: -10 } })).career;
+  assert.ok(c.achievements.three && c.achievements.heat);
   assert.ok(!c.achievements.bangladesh);
+  for (const who of ['prahlad', 'kader', 'mofizul', 'rahima']) c = recordSeason(c, res(who, 'bangladesh')).career;
+  assert.ok(c.achievements.bangladesh, 'all seven divisions');
   assert.equal(rankOf(0).index, 0); assert.equal(rankOf(RANKS.at(-1).xp + 1).next, null);
   assert.deepEqual(startPerks({ xp: 0 }), []);
   assert.deepEqual(startPerks({ xp: RANKS.at(-1).xp }), UNLOCKS.map((u) => u.perk));

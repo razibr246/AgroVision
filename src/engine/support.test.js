@@ -4,7 +4,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { holdingClass, supportProfile, matchOne, matchSupport, askSupport, firstSteps, countFits, evalAsk, KINDS, STATUS } from './support.js';
 import { BD_SUPPORT, AREA_TYPE, CHECKED } from '../data/support/bd_support.js';
-import { IN_SUPPORT } from '../data/support/in_support.js';
 
 const C = (id, bn, en) => ({ id, name: { bn, en } });
 const lentil = C('lentil', 'মসুর ডাল', 'Lentil'), boro = C('boro', 'বোরো ধান', 'Boro rice'), wheat = C('wheat', 'গম', 'Wheat'), rice = C('rice', 'ধান', 'Rice');
@@ -21,7 +20,7 @@ test('farm-size classes follow the BBS census', () => {
 
 test('every programme is sourced, dated, bilingual and of a known kind and status', () => {
   assert.match(CHECKED, /^\d{4}-\d{2}-\d{2}$/);
-  for (const p of [...BD_SUPPORT, ...IN_SUPPORT]) {
+  for (const p of BD_SUPPORT) {
     assert.match(p.src, /^https:\/\//, p.id);
     assert.ok(KINDS[p.kind], `${p.id} kind`);
     assert.ok(STATUS[p.status], `${p.id} status`);
@@ -67,13 +66,6 @@ test('solar pumps only matter where the field lacks cheap water', () => {
   assert.equal(matchOne(p, supportProfile({ area_dec: 50, irrigation: 'dtw' })).fit, 'maybe');
 });
 
-test('India: Punjab has not joined PMFBY, and straw machines are for Punjab', () => {
-  const punjab = supportProfile({ area_dec: 1000, crops: [rice, wheat], state: 'Punjab' });
-  assert.equal(matchOne(byId(IN_SUPPORT, 'pmfby'), punjab).fit, 'no');
-  assert.equal(matchOne(byId(IN_SUPPORT, 'crm'), punjab).fit, 'yes');
-  assert.equal(matchOne(byId(IN_SUPPORT, 'crm'), { ...punjab, state: 'Maharashtra' }).fit, 'no');
-});
-
 test('the list is sorted yes, maybe, no; first steps come from what fits', () => {
   const ms = matchSupport(BD_SUPPORT, supportProfile({ area_dec: 66, crops: [boro, lentil], irrigation: 'dtw', area: 'barind', district: 'Rajshahi' }));
   const rank = { yes: 0, maybe: 1, no: 2 };
@@ -105,31 +97,3 @@ test('the question box is measured on farmer-style questions it was not tuned to
   assert.ok(r.mrr >= 0.9, `MRR ${r.mrr}`);
 });
 
-test('neighbouring countries: every programme sourced and dated; each sample farmer gets a sensible answer', async () => {
-  const { ABROAD_SUPPORT } = await import('../data/support/abroad_support.js');
-  const { ABROAD, ABROAD_ORDER } = await import('../data/abroad.js');
-  for (const id of ABROAD_ORDER) {
-    const reg = ABROAD_SUPPORT[id];
-    assert.ok(reg && reg.list.length > 0, id);
-    assert.match(reg.checked, /^\d{4}-\d{2}-\d{2}$/);
-    for (const p of reg.list) {
-      assert.match(p.src, /^https:\/\//, p.id);
-      assert.ok(KINDS[p.kind] && STATUS[p.status], p.id);
-      for (const k of ['name', 'by', 'benefit', 'who', 'where']) assert.ok(p[k]?.bn && p[k]?.en, `${p.id}.${k}`);
-    }
-    const prof = supportProfile({ area_dec: ABROAD[id].farmer.farmDec, state: reg.profile.state, crops: reg.profile.crops.map(([cid, bn, en]) => ({ id: cid, name: { bn, en } })) });
-    const ms = matchSupport(reg.list, prof);
-    assert.ok(ms.some((m) => m.fit !== 'no'), `${id}: nothing fits the sample farmer`);
-  }
-  // the Sindh wheat grower on 8 acres qualifies for the Sindh wheat package; a Punjab farmer would not
-  const pk = ABROAD_SUPPORT.pakistan;
-  const sindh = supportProfile({ area_dec: 800, state: 'Sindh', crops: [{ id: 'wheat', name: { bn: 'গম', en: 'Wheat' } }] });
-  assert.equal(matchOne(pk.list[0], sindh).fit, 'yes');
-  assert.equal(matchOne(pk.list[0], { ...sindh, state: 'Punjab' }).fit, 'no');
-  assert.equal(matchOne(pk.list[0], supportProfile({ area_dec: 4000, state: 'Sindh', crops: sindh.crops })).fit, 'no');
-  // abroad, land is said in the country's own unit, not Bangladesh's census classes
-  const acre = { bn: 'একর', en: 'acre', dec: 100 };
-  const m = matchOne(pk.list[0], supportProfile({ area_dec: 800, unit: acre, state: 'Sindh', crops: sindh.crops }));
-  assert.match(m.why[0].en, /8 acres, within the limit of 25/);
-  assert.match(m.why[0].bn, /৮ একর/);
-});

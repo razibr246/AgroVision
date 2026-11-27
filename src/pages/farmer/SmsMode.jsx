@@ -1,4 +1,4 @@
-// AgroVision by SMS, for farmers with a feature phone: a keyword or an everyday Bangla question in, the same answer
+// Agros by SMS, for farmers with a feature phone: a keyword or an everyday Bangla question in, the same answer
 // as the voice assistant out (voice/brain.js on the same snapshot), cut into SMS parts the way phones count Bangla
 // (70 characters, 67 a part when it runs over). "চক্র" (ROT) answers from Field Future: the best ten-year rotation
 // for the field. This page simulates the phone; a real service puts an SMS gateway on a short code in front of the
@@ -73,7 +73,7 @@ export default function SmsMode() {
 
   return (
     <div>
-      <PageHeader eyebrow={T('ফিচার ফোনেও', 'On a feature phone too')} title={T('এসএমএসে AgroVision', 'AgroVision by SMS')}
+      <PageHeader eyebrow={T('ফিচার ফোনেও', 'On a feature phone too')} title={T('এসএমএসে Agros', 'Agros by SMS')}
         subtitle={T('স্মার্টফোন বা ইন্টারনেট ছাড়াই: একটি শব্দ বা নিজের ভাষায় প্রশ্ন লিখে পাঠালে একই হিসাবের উত্তর আসে, বাংলা বা ইংরেজিতে, এসএমএসের মাপে।', 'No smartphone or internet needed: send a keyword, or a question in your own words, and the same engine answers in Bangla or English, cut to SMS size.')} tags={['RULE']} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr]">
         {/* The phone */}

@@ -174,7 +174,7 @@ UNFCCC নিবন্ধন কোড: ${assessment.unfcccCode}
 
 ৫. প্রাতিষ্ঠানিক প্রত্যয়ন ও তথ্য সুরক্ষা:
 - প্রত্যয়নকারী কর্মকর্তা: ${officerNameBn}
-- ডিজিটাল সিস্টেম যাচাই: এগ্রোভিশন ডিসিশন ও ইন্টেলিজেন্স ইঞ্জিন
+- ডিজিটাল সিস্টেম যাচাই: এগ্রোস ডিসিশন ও ইন্টেলিজেন্স ইঞ্জিন
 - ডসিয়ার SHA-256 হ্যাশ: ${dossierHash || 'সিল অপেক্ষমাণ'}
 ================================================================================`;
   }
@@ -214,7 +214,7 @@ Verification Standard: NASA Earth Observation & Copernicus Earth Observation Syn
 
 5. INSTITUTIONAL CERTIFICATION & TAMPER-EVIDENCE:
 - Certifying Officer: ${officerNameEn}
-- Digital System Verification: AgroVision Decision & Intelligence Engine
+- Digital System Verification: Agros Decision & Intelligence Engine
 - Evidence Dossier SHA-256 Digest: ${dossierHash || 'PENDING_CLIENT_SEAL'}
 ================================================================================`;
 }

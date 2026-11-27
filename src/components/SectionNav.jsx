@@ -485,8 +485,8 @@ export function ScrollNavigator({ offset = 320, position = 'auto', className = '
     location = { pathname: '/' };
   }
 
-  // Determine placement: Right corner on every page (Farmer, Officer, Abroad, Public)
-  // When Chakra Agent floating orb is on the page (Farmer, Officer, Abroad),
+  // Determine placement: Right corner on every page (Farmer, Officer, Public)
+  // When Chakra Agent floating orb is on the page (Farmer, Officer),
   // ScrollNavigator sits directly vertically above the orb, horizontally center-aligned with it.
   // Orb is 58px wide, Scroll button is 40px wide.
   // Center alignment:
@@ -496,19 +496,18 @@ export function ScrollNavigator({ offset = 320, position = 'auto', className = '
   // Vertical position:
   // - Farmer mobile (< lg): orb is at bottom-[6.6rem] (~105px). Button sits at bottom-[11.1rem] (~177px).
   // - Farmer desktop (>= lg): orb is at bottom-6 (24px). Button sits at bottom-[6.1rem] (~98px).
-  // - Officer & Abroad: orb is at bottom-6 (24px). Button sits at bottom-[6.1rem] (~98px).
+  // - Officer: orb is at bottom-6 (24px). Button sits at bottom-[6.1rem] (~98px).
   // - Public pages (no orb): button sits in the bottom-right corner at bottom-6 right-4 sm:right-6.
   const path = location?.pathname || '';
   const isFarmer = path.startsWith('/farmer');
   const isOfficer = path.startsWith('/officer');
-  const isAbroad = path.startsWith('/abroad');
 
   let posClass;
   if (position !== 'auto') {
     posClass = position;
   } else if (isFarmer) {
     posClass = 'fixed right-[25px] sm:right-[33px] z-40 select-none bottom-[11.1rem] lg:bottom-[6.1rem]';
-  } else if (isOfficer || isAbroad) {
+  } else if (isOfficer) {
     posClass = 'fixed right-[25px] sm:right-[33px] z-40 select-none bottom-[6.1rem]';
   } else {
     posClass = 'fixed right-4 sm:right-6 z-40 select-none bottom-6';
